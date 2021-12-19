@@ -11,7 +11,7 @@ import org.im97mori.ble.android.peripheral.module.DeviceModule;
 import org.im97mori.ble.android.peripheral.module.TextModule;
 
 
-public class TestApplication extends Application {
+public class AndroidPeripheralUtilsApplication extends Application {
     protected ApplicationComponent mApplicationComponent;
 
     @Override

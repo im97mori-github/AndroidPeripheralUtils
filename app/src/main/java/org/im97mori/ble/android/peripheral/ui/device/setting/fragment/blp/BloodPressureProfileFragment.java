@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.card.MaterialCardView;
 
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.TestApplication;
+import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
 import org.im97mori.ble.android.peripheral.component.ApplicationComponent;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseDeviceSettingFragment;
@@ -52,7 +52,7 @@ public class BloodPressureProfileFragment extends BaseDeviceSettingFragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mViewModel = new ViewModelProvider((DeviceSettingActivity) context).get(BloodPressureProfileViewModel.class);
-        mApplicationComponent = ((TestApplication) ((DeviceSettingActivity) context).getApplication()).getComponent();
+        mApplicationComponent = ((AndroidPeripheralUtilsApplication) ((DeviceSettingActivity) context).getApplication()).getComponent();
         mApplicationComponent.inject(mViewModel);
     }
 

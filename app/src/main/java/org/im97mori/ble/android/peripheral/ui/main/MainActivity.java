@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.TestApplication;
+import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
@@ -44,7 +44,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mApplicationComponent = ((TestApplication) getApplication()).getComponent();
+        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
 
         mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);

@@ -20,7 +20,7 @@ import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.Constants;
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.TestApplication;
+import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
 import org.im97mori.ble.profile.blp.peripheral.BloodPressureProfileMockCallback;
@@ -48,7 +48,7 @@ public class PeripheralActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mApplicationComponent = ((TestApplication) getApplication()).getComponent();
+        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
 
         mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);

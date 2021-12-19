@@ -15,7 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.TestApplication;
+import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 
 public class DeviceSettingActivity extends BaseActivity {
@@ -29,7 +29,7 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mApplicationComponent = ((TestApplication) getApplication()).getComponent();
+        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
 
         mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);

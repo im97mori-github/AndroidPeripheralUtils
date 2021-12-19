@@ -15,7 +15,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.card.MaterialCardView;
 
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.TestApplication;
+import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureLauncherContract;
@@ -69,7 +69,7 @@ public class BloodPressureServiceSettingActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        mApplicationComponent = ((TestApplication) getApplication()).getComponent();
+        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
 
         mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
