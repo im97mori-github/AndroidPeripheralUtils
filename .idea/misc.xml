@@ -3,7 +3,34 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.22760416666666666" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/ic_launcher_background.xml" value="0.22760416666666666" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/test.xml" value="0.3172995780590717" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/font-v26/rubik.xml" value="0.24166666666666667" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/font/rubik.xml" value="0.19829059829059828" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/a/blood_pressure_profile_setting_fragment.xml" value="0.3042194092827004" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_feature_setting_activity.xml" value="0.25" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_measurement_setting_activity.xml" value="0.263465282284231" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_profile_setting_fragment.xml" value="0.25" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_service_setting_activity.xml" value="0.30811965811965814" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/client_characteristic_configuration_setting_activity.xml" value="0.3042194092827004" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/device_information_service_setting_activity.xml" value="0.30811965811965814" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/device_setting_activity.xml" value="0.33" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/device_type_list_activity.xml" value="0.2962962962962963" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/dis_activity.xml" value="0.1735042735042735" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/dis_setting_activity.xml" value="0.33" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/intermediate_cuff_pressure_setting_activity.xml" value="0.24591156874621442" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/list_item.xml" value="0.1735042735042735" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/main_activity.xml" value="0.3042194092827004" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/main_fragment.xml" value="0.26358695652173914" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/main_grid.xml" value="0.21145833333333333" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/manufacturer_name_string_setting_activity.xml" value="0.275" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/model_number_string_setting_activity.xml" value="0.25" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/peripheral_activity.xml" value="0.30811965811965814" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/system_id_setting_activity.xml" value="0.22" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/menu/main.xml" value="0.21145833333333333" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/menu/peripheral.xml" value="0.30811965811965814" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/menu/save.xml" value="0.1735042735042735" />
       </map>
     </option>
   </component>
@@ -12,5 +39,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.33" />
+      </ProjectState>
+    </option>
   </component>
 </project>

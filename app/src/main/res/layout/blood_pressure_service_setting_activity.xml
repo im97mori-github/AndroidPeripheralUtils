@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.device.setting.u1810.BloodPressureServiceSettingActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/save"
+            app:title="@string/blood_pressure_service" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context=".ui.device.type.DeviceTypeListActivity">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/rootContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/bloodPressureMeasurementCardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp8"
+                android:checkable="true">
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/dp16">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/blood_pressure_measurement"
+                            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/flags"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementFlags"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/systlic"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementSystolic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/diastolic"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementDiastolic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/mean_arterial_pressure"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementMeanArterialPressure"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementTimeStampTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/time_stamp"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementTimeStamp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementPulseRateTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/pulse_rate"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementPulseRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementUserIdTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/user_id"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementUserId"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementMeasurementStatusTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/measurement_status"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureMeasurementMeasurementStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:dividerInsetEnd="@dimen/dp16"
+                        app:dividerInsetStart="@dimen/dp16" />
+
+                    <!-- Buttons -->
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/dp8">
+
+                        <Button
+                            android:id="@+id/bloodPressureMeasurementSettingButton"
+                            style="?attr/borderlessButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/dp8"
+                            android:text="@string/setting" />
+
+                    </FrameLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </com.google.android.material.card.MaterialCardView>
+
+            <CheckBox
+                android:id="@+id/intermediateCuffPressureSupported"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp16"
+                android:layout_marginTop="@dimen/dp8"
+                android:layout_marginEnd="@dimen/dp16"
+                android:gravity="center_vertical"
+                android:text="@string/intermediate_cuff_pressure" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/intermediateCuffPressureCardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp8"
+                android:layout_marginEnd="@dimen/dp8"
+                android:layout_marginBottom="@dimen/dp8">
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/dp16">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/intermediate_cuff_pressure"
+                            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/flags"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressureFlags"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/systlic"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressureSystolic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/diastolic"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/mean_arterial_pressure"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressureTimeStampTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/time_stamp"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressureTimeStamp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressurePulseRateTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/pulse_rate"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressurePulseRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressureUserIdTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/user_id"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressureUserId"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressureMeasurementStatusTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/measurement_status"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/intermediateCuffPressureMeasurementStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:dividerInsetEnd="@dimen/dp16"
+                        app:dividerInsetStart="@dimen/dp16" />
+
+                    <!-- Buttons -->
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/dp8">
+
+                        <Button
+                            android:id="@+id/intermediateCuffPressureSettingButton"
+                            style="?attr/borderlessButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/setting" />
+
+                    </FrameLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/bloodPressureFeatureCardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp8"
+                android:checkable="true">
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/dp16">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/blood_pressure_feature"
+                            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                        <TextView
+                            android:id="@+id/bloodPressureFeature"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?android:attr/textColorSecondary" />
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:dividerInsetEnd="@dimen/dp16"
+                        app:dividerInsetStart="@dimen/dp16" />
+
+                    <!-- Buttons -->
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/dp8">
+
+                        <Button
+                            android:id="@+id/bloodPressureFeatureSettingButton"
+                            style="?attr/borderlessButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/setting" />
+
+                    </FrameLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

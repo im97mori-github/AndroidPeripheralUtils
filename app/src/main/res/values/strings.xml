@@ -1,3 +1,122 @@
 <resources>
     <string name="app_name">AndroidPeripheralUtils</string>
+
+    <string name="menu_create_device">Create Device</string>
+    <string name="menu_clear_devices">Clear Devices</string>
+    <string name="menu_save">Save</string>
+    <string name="menu_peirpheral_start">Peripheral Start</string>
+    <string name="menu_peirpheral_stop">Peripheral Stop</string>
+    <string name="menu_setting">Setting</string>
+
+    <string name="setting">Setting</string>
+
+    <string name="no_devices">No Devices</string>
+
+    <string name="error_response">Error Response</string>
+
+    <string name="device_information_service_support">Device Information Service Support</string>
+    <string name="device_information_service">Device Information Service</string>
+    <string name="device_setting_name">Device Setting Name</string>
+    <string name="manufacturer_name_string">Manufacturer Name String</string>
+    <string name="model_number_string">Model Number String</string>
+    <string name="system_id">System ID</string>
+    <string name="system_id_support">System ID Support</string>
+    <string name="manufacturer_identifier">Manufacturer Identifier</string>
+    <string name="organizationally_unique_identifier">Organizationally Unique Identifier</string>
+
+    <string name="blood_pressure_profile">Blood Pressure Profile</string>
+    <string name="blood_pressure_service">Blood Pressure Service</string>
+    <string name="blood_pressure_measurement">Blood Pressure Measurement</string>
+    <string name="time_stamp_support">Time Stamp Support</string>
+    <string name="pulse_rate_support">Pulse Rate Support</string>
+    <string name="user_id_support">User ID Support</string>
+    <string name="measurement_status_support">Measurement Status Support</string>
+    <string name="intermediate_cuff_pressure">Intermediate Cuff Pressure</string>
+    <string name="blood_pressure_feature">Blood Pressure Feature</string>
+    <string name="body_movement_detection_support">Body Movement Detection Support</string>
+    <string name="cuff_fit_detection_support">Cuff Fit Detection Support</string>
+    <string name="irregular_pulse_detection_support">Irregular Pulse Detection Support</string>
+    <string name="pulse_rate_range_detection_support">Pulse Rate Range Detection Support</string>
+    <string name="measurement_position_detection_support">Measurement Position Detection Support</string>
+    <string name="multiple_bonds_support">Multiple Bonds Support</string>
+    <string name="client_characteristic_configuration">Client Characteristic Configuration</string>
+    <string name="flags">Flags</string>
+    <string name="time_stamp">Time Stamp</string>
+    <string name="measurement_status">Measurement Status</string>
+
+    <string name="response_delay">Response Delay</string>
+    <string name="response_delay_helper_text">millisecond</string>
+    <string name="error_response_helper_text">0x01 to 0xff</string>
+    <string name="time_stamp_year_helper_text">0(Unknown) or 1582 to 9999</string>
+    <string name="time_stamp_month_helper_text">0(Unknown) or 1 to 12</string>
+    <string name="time_stamp_day_helper_text">0(Unknown) or 1 to 31</string>
+    <string name="time_stamp_hours_helper_text">0 to 23</string>
+    <string name="time_stamp_minutes_helper_text">0 to 59</string>
+    <string name="time_stamp_seconds_helper_text">0 to 59</string>
+    <string name="user_id_helper_text">255(Unknown) or 0 to 254</string>
+    <string name="notification_count_helper_text">-1(infinite) or 1 to 2147483647</string>
+
+    <string name="out_of_range">Out of Range</string>
+    <string name="no_value">No Value</string>
+    <string name="wrong_format">Wrong Format</string>
+
+    <string name="device_type">Device Type</string>
+    <string name="hexadecimal">0x</string>
+    <string name="mmhg">mmHg</string>
+    <string name="kpa">kPa</string>
+    <string name="systlic">Systolic</string>
+    <string name="diastolic">Diastolic</string>
+    <string name="unused">(Unused)</string>
+    <string name="nan">NaN</string>
+    <string name="mean_arterial_pressure">Mean Arterial Pressure</string>
+    <string name="current_cuff_pressure">Current Cuff Pressure</string>
+    <string name="year">Year</string>
+    <string name="month">Month</string>
+    <string name="day">Day</string>
+    <string name="hours">Hours</string>
+    <string name="minutes">Minutes</string>
+    <string name="seconds">Seconds</string>
+    <string name="pulse_rate">Pulse Rate</string>
+    <string name="user_id">User ID</string>
+    <string name="body_movement_detection">Body Movement Detection</string>
+    <string name="cuff_fit_detection">Cuff Fit Detection</string>
+    <string name="irregular_pulse_detection">Irregular Pulse Detection</string>
+    <string name="pulse_rate_range_detection">Pulse Rate Range Detection</string>
+    <string name="measurement_position_detection">Measurement Position Detection</string>
+    <string name="notification_count">Notification Count</string>
+    <string name="indication_count">Indication Count</string>
+    <string name="notification_disabled">Notifications disabled</string>
+    <string name="notification_enabled">Notifications enabled</string>
+    <string name="indication_disabled">Indications disabled</string>
+    <string name="indication_enabled">Indications enabled</string>
+
+    <string name="uint24">uint24</string>
+    <string name="uint40">uint40</string>
+    <string name="sfloat">SFLOAT</string>
+
+    <string name="month_is_not_known">Month is not known</string>
+    <string name="month_january">January</string>
+    <string name="month_february">February</string>
+    <string name="month_march">March</string>
+    <string name="month_april">April</string>
+    <string name="month_may">May</string>
+    <string name="month_june">June</string>
+    <string name="month_july">July</string>
+    <string name="month_august">August</string>
+    <string name="month_september">September</string>
+    <string name="month_october">October</string>
+    <string name="month_november">November</string>
+    <string name="month_december">December</string>
+    <string name="day_of_month_is_not_known">Day of Month is not known</string>
+    <string name="no_body_movement">No body movement</string>
+    <string name="body_movement_during_measurement">Body movement during measurement</string>
+    <string name="cuff_fits_properly">Cuff fits properly</string>
+    <string name="cuff_too_loose">Cuff too loose</string>
+    <string name="no_irregular_pulse_detected">No irregular pulse detected</string>
+    <string name="irregular_pulse_detected">Irregular pulse detected</string>
+    <string name="pulse_rate_is_within_the_range">Pulse rate is within the range</string>
+    <string name="pulse_rate_exceeds_upper_limit">Pulse rate exceeds upper limit</string>
+    <string name="pulse_rate_is_less_than_lower_limit">Pulse rate is less than lower limit</string>
+    <string name="proper_measurement_position">Proper measurement position</string>
+    <string name="improper_measurement_position">Improper measurement position</string>
 </resources>

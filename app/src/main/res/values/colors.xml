@@ -1,10 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
+    <!-- Material Design - Color Palette -->
+    <!-- Date: 1/15/2015 -->
+    <!-- http://www.google.com/design/spec/style/color.html#color-color-palette -->
+
+    <!-- Red -->
+    <!-- Red -->
+
+    <!-- Pink -->
+    <color name="pink_50">#FCE4EC</color>
+    <color name="pink_100">#F8BBD0</color>
+    <color name="pink_900">#880E4F</color>
+    <!-- Pink -->
+
+    <!-- Purple -->
+    <color name="purple_50">#F3E5F5</color>
+    <color name="purple_200">#CE93D8</color>
+    <color name="purple_500">#9C27B0</color>
+    <color name="purple_700">#7B1FA2</color>
+    <color name="purple_900">#4A148C</color>
+    <!-- Purple -->
+
+    <!-- Deep Purple -->
+    <!-- Deep Purple -->
+
+    <!-- Indigo -->
+    <!-- Indigo -->
+
+    <!-- Blue -->
+    <!-- Blue -->
+
+    <!-- Light Blue -->
+    <color name="light_blue_100">#B3E5FC</color>
+    <!-- Light Blue -->
+
+    <!-- Cyan -->
+    <!-- Cyan -->
+
+    <!-- Teal -->
+    <color name="teal_200">#80CBC4</color>
+    <color name="teal_700">#00796B</color>
+    <!-- Teal -->
+
+    <!-- Green -->
+    <!-- Green -->
+
+    <!-- Light Green -->
+    <!-- Light Green -->
+
+    <!-- Lime -->
+    <!-- Lime -->
+
+    <!-- Yellow -->
+    <!-- Yellow -->
+
+    <!-- Amber -->
+    <!-- Amber -->
+
+    <!-- Orange -->
+    <!-- Orange -->
+
+    <!-- Deep Orange -->
+    <!-- Deep Orange -->
+
+    <!-- Brown -->
+    <!-- Brown -->
+
+    <!-- Grey -->
+    <!-- Grey -->
+
+    <!-- Blue Grey -->
+    <!-- Blue Grey -->
+
+    <!-- Black -->
+    <color name="black">#000000</color>
+    <!-- Black -->
+
+    <!-- White -->
+    <color name="white">#FFFFFF</color>
+    <!-- White -->
+
+    <color name="red">#ffff0000</color>
+
+
 </resources>
