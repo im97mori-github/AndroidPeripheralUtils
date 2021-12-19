@@ -1,4 +1,4 @@
-package org.im97mori.ble.android.peripheral.persistence;
+package org.im97mori.ble.android.peripheral.room;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;

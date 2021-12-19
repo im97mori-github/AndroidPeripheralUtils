@@ -87,12 +87,11 @@ public class IntermediateCuffPressureSettingActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-
-        mApplicationComponent.inject(this);
+//        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
+//        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(IntermediateCuffPressureSettingViewModel.class);
-        mApplicationComponent.inject(mViewModel);
+//        mViewModel = new ViewModelProvider(this).get(IntermediateCuffPressureSettingViewModel.class);
+//        mApplicationComponent.inject(mViewModel);
 
         setContentView(R.layout.intermediate_cuff_pressure_setting_activity);
 

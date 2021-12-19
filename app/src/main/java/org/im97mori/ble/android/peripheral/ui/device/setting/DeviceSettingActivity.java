@@ -15,9 +15,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class DeviceSettingActivity extends BaseActivity {
 
     private DeviceSettingViewModel mViewModel;
@@ -29,19 +31,15 @@ public class DeviceSettingActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-
-        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(DeviceSettingViewModel.class);
-        mApplicationComponent.inject(mViewModel);
 
         setContentView(R.layout.device_setting_activity);
 
         mDeviceName = findViewById(R.id.deviceName);
         mDeviceNameEdit = (TextInputEditText) mDeviceName.getEditText();
 
-        mViewModel.observeDeviceNameError(this, s -> mDeviceName.setError(s));
+        mViewModel.observeDeviceSettingNameErrorString(this, s -> mDeviceName.setError(s));
         mDeviceNameEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -55,10 +53,10 @@ public class DeviceSettingActivity extends BaseActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                mViewModel.updateDeviceNameEdit(s.toString());
+                mViewModel.updateDeviceSettingName(s.toString());
             }
         });
-        mViewModel.observeDeviceNameEdit(this
+        mViewModel.observeDeviceSettingName(this
                 , s -> distinctSetText(mDeviceNameEdit, s));
 
         mMaterialToolbar = findViewById(R.id.topAppBar);

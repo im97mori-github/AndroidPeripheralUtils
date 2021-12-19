@@ -43,12 +43,11 @@ public class BloodPressureFeatureSettingActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-
-        mApplicationComponent.inject(this);
+//        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
+//        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(BloodPressureFeatureSettingViewModel.class);
-        mApplicationComponent.inject(mViewModel);
+//        mViewModel = new ViewModelProvider(this).get(BloodPressureFeatureSettingViewModel.class);
+//        mApplicationComponent.inject(mViewModel);
 
         setContentView(R.layout.blood_pressure_feature_setting_activity);
 

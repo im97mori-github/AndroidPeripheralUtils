@@ -40,12 +40,11 @@ public class ClientCharacteristicConfigurationSettingActivity extends BaseActivi
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-
-        mApplicationComponent.inject(this);
+//        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
+//        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(ClientCharacteristicConfigurationSettingViewModel.class);
-        mApplicationComponent.inject(mViewModel);
+//        mViewModel = new ViewModelProvider(this).get(ClientCharacteristicConfigurationSettingViewModel.class);
+//        mApplicationComponent.inject(mViewModel);
 
         setContentView(R.layout.client_characteristic_configuration_setting_activity);
 

@@ -1,15 +1,10 @@
-package org.im97mori.ble.android.peripheral.module;
+package org.im97mori.ble.android.peripheral.hilt.module;
 
 import androidx.annotation.NonNull;
 
-import org.im97mori.ble.android.peripheral.datasource.ResourceTextSource;
+import org.im97mori.ble.android.peripheral.hilt.datasource.ResourceTextSource;
 
-import javax.inject.Singleton;
-
-import dagger.Module;
-import dagger.Provides;
-
-@Module
+//@Module
 public class TextModule {
 
     private final ResourceTextSource mResourceTextSource;
@@ -18,8 +13,8 @@ public class TextModule {
         mResourceTextSource = resourceTextSource;
     }
 
-    @Provides
-    @Singleton
+//    @Provides
+//    @Singleton
     public ResourceTextSource provideResourceTextSource() {
         return mResourceTextSource;
     }

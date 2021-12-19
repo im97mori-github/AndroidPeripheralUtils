@@ -1,4 +1,4 @@
-package org.im97mori.ble.android.peripheral.persistence;
+package org.im97mori.ble.android.peripheral.room;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,9 +14,8 @@ public class Device {
     @ColumnInfo(name = "deviceid")
     private final long mId;
 
-    @NonNull
-    @ColumnInfo(name = "devicename")
-    private String mDeviceName;
+    @ColumnInfo(name = "devicesettingname")
+    private String mDeviceSettingName;
 
     @ColumnInfo(name = "devicetype")
     private final int mDeviceType;
@@ -27,13 +26,13 @@ public class Device {
     @Ignore
     public Device(@NonNull String deviceName, int deviceType) {
         mId = 0;
-        mDeviceName = deviceName;
+        mDeviceSettingName = deviceName;
         mDeviceType = deviceType;
     }
 
-    public Device(long id, @NonNull String deviceName, int deviceType, @Nullable String deviceSetting) {
+    public Device(long id, @Nullable String deviceSettingName, int deviceType, @Nullable String deviceSetting) {
         mId = id;
-        mDeviceName = deviceName;
+        mDeviceSettingName = deviceSettingName;
         mDeviceType = deviceType;
         mDeviceSetting = deviceSetting;
     }
@@ -43,13 +42,13 @@ public class Device {
     }
 
     @NonNull
-    public String getDeviceName() {
-        return mDeviceName;
+    public String getDeviceSettingName() {
+        return mDeviceSettingName;
     }
 
 
-    public void setDeviceName(@NonNull String deviceName) {
-        this.mDeviceName = deviceName;
+    public void setDeviceSettingName(@Nullable String deviceSettingName) {
+        this.mDeviceSettingName = deviceSettingName;
     }
 
     public int getDeviceType() {

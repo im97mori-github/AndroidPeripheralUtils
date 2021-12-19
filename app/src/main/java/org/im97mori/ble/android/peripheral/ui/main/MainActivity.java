@@ -14,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
@@ -23,33 +22,30 @@ import org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherCont
 import java.util.Collections;
 import java.util.LinkedList;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+@AndroidEntryPoint
 public class MainActivity extends BaseActivity {
 
     private MainViewModel mViewModel;
 
     private DeviceListAdapter adapter;
 
-    final ActivityResultLauncher<Pair<Long, Integer>> mStartDeviceSettingActivity = registerForActivityResult(new DeviceSettingLauncherContract(), result -> {
+    private final ActivityResultLauncher<Pair<Long, Integer>> mStartDeviceSettingActivity = registerForActivityResult(new DeviceSettingLauncherContract(), result -> {
     });
 
-    final ActivityResultLauncher<Void> mStartDeviceTypeListActivity = registerForActivityResult(new DeviceListLauncherContract(), result -> {
+    private final ActivityResultLauncher<Void> mStartDeviceTypeListActivity = registerForActivityResult(new DeviceListLauncherContract(), result -> {
         if (result != null) {
             mStartDeviceSettingActivity.launch(Pair.create(DeviceSettingLauncherContract.UNSAVED_DEVICE_ID, result));
         }
     });
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-
-        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        mApplicationComponent.inject(mViewModel);
 
         setContentView(R.layout.main_activity);
 

@@ -3,29 +3,35 @@ package org.im97mori.ble.android.peripheral.ui.main;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
-import org.im97mori.ble.android.peripheral.datasource.DeviceDataSource;
-import org.im97mori.ble.android.peripheral.persistence.Device;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.room.Device;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 
-public class MainViewModel extends ViewModel {
+@HiltViewModel
+public final class MainViewModel extends ViewModel {
+
+    private final DeviceRepository mDeviceRepository;
 
     @Inject
-    DeviceDataSource mDeviceDataSource;
+    MainViewModel(@NonNull DeviceRepository deviceRepository) {
+        mDeviceRepository = deviceRepository;
+    }
 
     @NonNull
     public Flowable<List<Device>> getDeviceList() {
-        return mDeviceDataSource.loadDevices();
+        return mDeviceRepository.loadDevices();
     }
 
     @NonNull
     public Completable deleteAllDevices() {
-        return mDeviceDataSource.deleteAllDevices();
+        return mDeviceRepository.deleteAllDevices();
     }
 
 }

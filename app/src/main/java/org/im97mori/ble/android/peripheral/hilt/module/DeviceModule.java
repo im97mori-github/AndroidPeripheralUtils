@@ -1,15 +1,10 @@
-package org.im97mori.ble.android.peripheral.module;
+package org.im97mori.ble.android.peripheral.hilt.module;
 
 import androidx.annotation.NonNull;
 
-import org.im97mori.ble.android.peripheral.datasource.DeviceDataSource;
+import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceDataSource;
 
-import javax.inject.Singleton;
-
-import dagger.Module;
-import dagger.Provides;
-
-@Module
+//@Module
 public class DeviceModule {
 
     private final DeviceDataSource mDeviceDataSource;
@@ -18,8 +13,8 @@ public class DeviceModule {
         mDeviceDataSource = deviceDataSource;
     }
 
-    @Provides
-    @Singleton
+//    @Provides
+//    @Singleton
     public DeviceDataSource provideDeviceDataSource() {
         return mDeviceDataSource;
     }

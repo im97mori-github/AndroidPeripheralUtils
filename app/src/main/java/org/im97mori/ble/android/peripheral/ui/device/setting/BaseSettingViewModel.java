@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.gson.Gson;
 
-import org.im97mori.ble.android.peripheral.datasource.ResourceTextSource;
+import org.im97mori.ble.android.peripheral.hilt.datasource.ResourceTextSource;
 
 import javax.inject.Inject;
 

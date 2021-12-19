@@ -39,12 +39,11 @@ public class SystemIdSettingActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-
-        mApplicationComponent.inject(this);
+//        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
+//        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(SystemIdSettingViewModel.class);
-        mApplicationComponent.inject(mViewModel);
+//        mViewModel = new ViewModelProvider(this).get(SystemIdSettingViewModel.class);
+//        mApplicationComponent.inject(mViewModel);
 
         setContentView(R.layout.system_id_setting_activity);
 

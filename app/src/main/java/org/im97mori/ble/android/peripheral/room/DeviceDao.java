@@ -1,4 +1,4 @@
-package org.im97mori.ble.android.peripheral.persistence;
+package org.im97mori.ble.android.peripheral.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -21,7 +21,7 @@ public interface DeviceDao {
     Single<Device> loadDeviceById(long id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    Single<Long> insertDevices(Device device);
+    Completable insertDevices(Device device);
 
     @Query("DELETE from devices")
     Completable deleteAllDevices();

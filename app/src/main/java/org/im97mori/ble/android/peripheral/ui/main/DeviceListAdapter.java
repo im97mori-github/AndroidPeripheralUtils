@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.persistence.Device;
+import org.im97mori.ble.android.peripheral.room.Device;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class DeviceListAdapter extends ArrayAdapter<Device> {
             convertView = mLayoutInflater.inflate(R.layout.main_grid, parent, false);
         }
         TextView textView = convertView.findViewById(R.id.grid_text);
-        textView.setText(device.getDeviceName());
+        textView.setText(device.getDeviceSettingName());
         textView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_launcher_foreground, 0, 0);
         return convertView;
     }

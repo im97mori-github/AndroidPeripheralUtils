@@ -1,4 +1,6 @@
-package org.im97mori.ble.android.peripheral.datasource;
+package org.im97mori.ble.android.peripheral.hilt.repository;
+
+import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -8,6 +10,8 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceDataSource;
+import org.im97mori.ble.android.peripheral.room.Device;
 import org.im97mori.ble.android.peripheral.utils.IntegerStringPair;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.DateTimeUtils;
@@ -16,11 +20,25 @@ import org.im97mori.ble.constants.ErrorCode;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public class ResourceTextSource {
+import javax.inject.Inject;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
+
+public class DeviceRepository {
+
+    private final DeviceDataSource mDeviceDataSource;
     private final Context mApplicationContext;
+
+    private Map<Integer, String> mDeviceTypeNameMap;
+    private List<Pair<Integer, String>> mDeviceTypeNameList;
 
     private List<Pair<Integer, String>> mDateTimeMonthList;
     private List<Pair<Integer, String>> mDateTimeDayList;
@@ -33,9 +51,28 @@ public class ResourceTextSource {
     private List<Pair<Integer, String>> mPulseRateRangeDetectionList;
     private List<Pair<Integer, String>> mMeasurementPositionDetectionList;
 
-    public ResourceTextSource(@NonNull Context context) {
+    @Inject
+    public DeviceRepository(@NonNull DeviceDataSource deviceDataSource
+            , @NonNull @ApplicationContext Context context) {
+        mDeviceDataSource = deviceDataSource;
         mApplicationContext = context.getApplicationContext();
     }
+
+    private synchronized void initDataTypeName() {
+        if (mDeviceTypeNameMap == null) {
+            Map<Integer, String> map = Collections.synchronizedMap(new HashMap<>());
+            map.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mApplicationContext.getString(R.string.blood_pressure_profile));
+            mDeviceTypeNameMap = Collections.unmodifiableMap(map);
+
+            List<Pair<Integer, String>> list = map.entrySet()
+                    .stream()
+                    .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
+                    .map(entry -> Pair.create(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+            mDeviceTypeNameList = Collections.unmodifiableList(Collections.synchronizedList(list));
+        }
+    }
+
 
     private synchronized void initDateTimeMonthList() {
         if (mDateTimeMonthList == null) {
@@ -153,6 +190,37 @@ public class ResourceTextSource {
                     , mApplicationContext.getString(R.string.improper_measurement_position)));
             mMeasurementPositionDetectionList = Collections.unmodifiableList(list);
         }
+    }
+
+    @NonNull
+    public Flowable<List<Device>> loadDevices() {
+        return mDeviceDataSource.loadDevices();
+    }
+
+    public Single<Device> loadDeviceById(long id) {
+        return mDeviceDataSource.loadDeviceById(id);
+    }
+
+    @NonNull
+    public Completable insertDevices(@NonNull Device device) {
+        return mDeviceDataSource.insertDevices(device);
+    }
+
+    @NonNull
+    public Completable deleteAllDevices() {
+        return mDeviceDataSource.deleteAllDevices();
+    }
+
+    @Nullable
+    public String getDeviceTypeName(int deviceType) {
+        initDataTypeName();
+        return mDeviceTypeNameMap.get(deviceType);
+    }
+
+    @NonNull
+    public List<Pair<Integer, String>> provideDeviceTypeList() {
+        initDataTypeName();
+        return mDeviceTypeNameList;
     }
 
     @NonNull

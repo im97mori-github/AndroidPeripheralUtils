@@ -1,8 +1,5 @@
-package org.im97mori.ble.android.peripheral.component;
+package org.im97mori.ble.android.peripheral.hilt.component;
 
-import org.im97mori.ble.android.peripheral.module.ApplicationModule;
-import org.im97mori.ble.android.peripheral.module.DeviceModule;
-import org.im97mori.ble.android.peripheral.module.TextModule;
 import org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity;
 import org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModel;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivity;
@@ -31,16 +28,12 @@ import org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewMode
 import org.im97mori.ble.android.peripheral.ui.main.MainActivity;
 import org.im97mori.ble.android.peripheral.ui.main.MainViewModel;
 
-import javax.inject.Singleton;
-
-import dagger.Component;
-
-@Singleton
-@Component(modules = {
-        ApplicationModule.class
-        , DeviceModule.class
-        , TextModule.class
-})
+//@Singleton
+//@Component(modules = {
+//        ApplicationModule.class
+//        , DeviceModule.class
+//        , TextModule.class
+//})
 public interface ApplicationComponent {
     void inject(MainActivity activity);
 

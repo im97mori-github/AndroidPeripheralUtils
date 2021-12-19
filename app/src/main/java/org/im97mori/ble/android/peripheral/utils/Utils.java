@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class Utils {
+public final class Utils {
 
     private Utils() {
     }

@@ -20,7 +20,6 @@ import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.Constants;
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
 import org.im97mori.ble.profile.blp.peripheral.BloodPressureProfileMockCallback;
@@ -30,6 +29,9 @@ import org.im97mori.ble.service.dis.peripheral.DeviceInformationServiceMockCallb
 import java.util.Collections;
 import java.util.Objects;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class PeripheralActivity extends BaseActivity {
 
     private PeripheralViewModel mViewModel;
@@ -38,7 +40,7 @@ public class PeripheralActivity extends BaseActivity {
 
     private MaterialToolbar mToolBar;
 
-    final ActivityResultLauncher<Pair<Long, Integer>> mStartDeviceSettingActivity = registerForActivityResult(new DeviceSettingLauncherContract(), result -> {
+    private final ActivityResultLauncher<Pair<Long, Integer>> mStartDeviceSettingActivity = registerForActivityResult(new DeviceSettingLauncherContract(), result -> {
         if (result) {
             mCallback = null;
             mToolBar.invalidateMenu();
@@ -48,12 +50,8 @@ public class PeripheralActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-
-        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(PeripheralViewModel.class);
-        mApplicationComponent.inject(mViewModel);
 
         setContentView(R.layout.peripheral_activity);
 
@@ -84,7 +82,6 @@ public class PeripheralActivity extends BaseActivity {
                 return PeripheralActivity.this.onOptionsItemSelected(menuItem);
             }
         });
-//        mToolBar.setOnMenuItemClickListener(this::onOptionsItemSelected);
     }
 
     @Override

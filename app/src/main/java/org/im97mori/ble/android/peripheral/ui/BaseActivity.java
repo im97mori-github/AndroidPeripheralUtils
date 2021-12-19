@@ -7,13 +7,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.im97mori.ble.android.peripheral.component.ApplicationComponent;
-
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    protected ApplicationComponent mApplicationComponent;
+//    protected ApplicationComponent mApplicationComponent;
 
     protected final CompositeDisposable mDisposable = new CompositeDisposable();
 

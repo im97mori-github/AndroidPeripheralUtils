@@ -20,5 +20,5 @@ public abstract class BaseDeviceSettingFragment extends Fragment {
     }
 
     @Nullable
-    public abstract String getModuleDataString();
+    public abstract String getModuleDataJson();
 }
