@@ -1,6 +1,7 @@
 package org.im97mori.ble.android.peripheral.ui;
 
 import android.text.Editable;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -10,8 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public abstract class BaseActivity extends AppCompatActivity {
-
-//    protected ApplicationComponent mApplicationComponent;
 
     protected final CompositeDisposable mDisposable = new CompositeDisposable();
 
@@ -26,8 +25,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         if ((currentText == null && text != null)
                 || (currentText != null && text == null)
                 || (currentText != null && !currentText.toString().equals(text.toString()))) {
-            editText.setText(text);
+            if (editText instanceof AutoCompleteTextView) {
+                ((AutoCompleteTextView) editText).setText(text, false);
+            } else {
+                editText.setText(text);
+            }
         }
+
     }
 
 }

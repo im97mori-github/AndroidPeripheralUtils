@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -13,16 +12,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.card.MaterialCardView;
-
-import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.databinding.BloodPressureProfileSettingFragmentBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseDeviceSettingFragment;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceLauncherContract;
-
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -38,10 +33,6 @@ public class BloodPressureProfileFragment extends BaseDeviceSettingFragment {
     private final ActivityResultLauncher<String> mStartDeviceInformationServiceSettingActivity
             = registerForActivityResult(new DeviceInformationServiceLauncherContract(), result -> mViewModel.setDisDataJson(result));
 
-    public BloodPressureProfileFragment() {
-        super(R.layout.blood_pressure_profile_setting_fragment);
-    }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -52,31 +43,29 @@ public class BloodPressureProfileFragment extends BaseDeviceSettingFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = Objects.requireNonNull(super.onCreateView(inflater, container, savedInstanceState));
+        BloodPressureProfileSettingFragmentBinding binding = BloodPressureProfileSettingFragmentBinding.inflate(inflater, container, false);
 
-        MaterialCardView bloodPressureServiceCardView = view.findViewById(R.id.bloodPressureServiceCardView);
-
-        CheckBox deviceInformationServiceSupported = view.findViewById(R.id.deviceInformationServiceSupported);
-        MaterialCardView deviceInformationServiceCardView = view.findViewById(R.id.deviceInformationServiceCardView);
-
-        mViewModel.observeHasBlsData(this, bloodPressureServiceCardView::setChecked);
+        mViewModel.observeHasBlsDataJson(this, binding.bloodPressureServiceCardView::setChecked);
 
         mViewModel.observeIsDisSupported(this, isDisSupported -> {
-            deviceInformationServiceSupported.setChecked(isDisSupported);
-            deviceInformationServiceCardView.setVisibility(isDisSupported ? View.VISIBLE : View.GONE);
+            binding.isDeviceInformationServiceSupported.setChecked(isDisSupported);
+            binding.deviceInformationServiceCardView.setVisibility(isDisSupported ? View.VISIBLE : View.GONE);
         });
-        deviceInformationServiceSupported.setOnCheckedChangeListener((buttonView, isChecked)
+        binding.isDeviceInformationServiceSupported.setOnCheckedChangeListener((buttonView, isChecked)
                 -> mViewModel.updateIsDisSupported(isChecked));
-        mViewModel.observeHasDisData(this, deviceInformationServiceCardView::setChecked);
+        mViewModel.observeHasDisDataJson(this, binding.deviceInformationServiceCardView::setChecked);
 
-        view.findViewById(R.id.bloodPressureServiceSettingButton).setOnClickListener(v ->
+        binding.bloodPressureServiceSettingButton.setOnClickListener(v ->
                 mStartBloodPressureServiceSettingActivity.launch(mViewModel.getBlsDataJson()));
-        view.findViewById(R.id.deviceInformationServiceButton).setOnClickListener(v ->
+
+        binding.deviceInformationServiceButton.setOnClickListener(v ->
                 mStartDeviceInformationServiceSettingActivity.launch(mViewModel.getDisDataJson()));
 
-        mDeviceSettingViewModel.observeMockData(requireActivity(), mockData
-                -> mDisposable.add(mViewModel.setup(mockData).subscribe(() -> view.findViewById(R.id.rootContainer).setVisibility(View.VISIBLE))));
-        return view;
+        mDisposable.add(mDeviceSettingViewModel.observeMockData()
+                .subscribe(mockData -> mDisposable.add(mViewModel.setup(mockData)
+                                .subscribe(() -> mDeviceSettingViewModel.fragmentReady(), throwable -> LogUtils.stackLog(throwable.getMessage())))
+                        , throwable -> LogUtils.stackLog(throwable.getMessage())));
+        return binding.getRoot();
     }
 
     @Nullable
@@ -85,4 +74,5 @@ public class BloodPressureProfileFragment extends BaseDeviceSettingFragment {
     public String getModuleDataJson() {
         return mViewModel.getModuleDataString();
     }
+
 }

@@ -23,7 +23,8 @@
 
         <item name="colorSurface">@color/purple_50</item>
         <item name="colorOnSurfaceVariant">@color/purple_900</item>
-        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent
+        </item>
 
         <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
     </style>

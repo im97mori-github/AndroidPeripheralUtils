@@ -14,15 +14,22 @@ import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.room.Device;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class DeviceListAdapter extends ArrayAdapter<Device> {
 
     private final LayoutInflater mLayoutInflater;
 
+    private final Map<Integer, Integer> mDeviceTypeImageResMap;
+
     private final List<Device> mDeviceList;
 
-    public DeviceListAdapter(@NonNull Context context, @NonNull List<Device> deviceList) {
+    public DeviceListAdapter(@NonNull Context context
+            , @NonNull Map<Integer, Integer> deviceTypeImageResMap
+            , @NonNull List<Device> deviceList) {
         super(context, 0, deviceList);
+        mDeviceTypeImageResMap = deviceTypeImageResMap;
         mDeviceList = deviceList;
         mLayoutInflater = LayoutInflater.from(context);
     }
@@ -47,7 +54,10 @@ public class DeviceListAdapter extends ArrayAdapter<Device> {
         }
         TextView textView = convertView.findViewById(R.id.grid_text);
         textView.setText(device.getDeviceSettingName());
-        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_launcher_foreground, 0, 0);
+        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(0
+                , Objects.requireNonNull(mDeviceTypeImageResMap.get(device.getDeviceType()))
+                , 0
+                , 0);
         return convertView;
     }
 }

@@ -9,10 +9,6 @@ public abstract class BaseDeviceSettingFragment extends Fragment {
 
     protected final CompositeDisposable mDisposable = new CompositeDisposable();
 
-    public BaseDeviceSettingFragment(int contentLayoutId) {
-        super(contentLayoutId);
-    }
-
     @Override
     public void onStop() {
         mDisposable.clear();

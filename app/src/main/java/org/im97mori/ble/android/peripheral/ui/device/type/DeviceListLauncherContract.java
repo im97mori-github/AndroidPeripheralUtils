@@ -1,5 +1,8 @@
 package org.im97mori.ble.android.peripheral.ui.device.type;
 
+import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_UNDEFINED;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,8 +10,6 @@ import android.content.Intent;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import org.im97mori.ble.android.peripheral.Constants;
 
 public class DeviceListLauncherContract extends ActivityResultContract<Void, Integer> {
 
@@ -22,7 +23,7 @@ public class DeviceListLauncherContract extends ActivityResultContract<Void, Int
     public Integer parseResult(int resultCode, @Nullable Intent intent) {
         Integer type;
         if (Activity.RESULT_OK == resultCode && intent != null) {
-            type = intent.getIntExtra(DeviceTypeListActivity.KEY_DEVICE_TYPE, Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+            type = intent.getIntExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_UNDEFINED);
         } else {
             type = null;
         }

@@ -7,12 +7,14 @@
     <string name="menu_peirpheral_start">Peripheral Start</string>
     <string name="menu_peirpheral_stop">Peripheral Stop</string>
     <string name="menu_setting">Setting</string>
+    <string name="menu_delete">Delete</string>
 
     <string name="setting">Setting</string>
 
     <string name="no_devices">No Devices</string>
 
     <string name="error_response">Error Response</string>
+    <string name="response_code">Response Code</string>
 
     <string name="device_information_service_support">Device Information Service Support</string>
     <string name="device_information_service">Device Information Service</string>
@@ -62,12 +64,11 @@
 
     <string name="device_type">Device Type</string>
     <string name="hexadecimal">0x</string>
+    <string name="utf8s">utf8s</string>
     <string name="mmhg">mmHg</string>
     <string name="kpa">kPa</string>
     <string name="systlic">Systolic</string>
     <string name="diastolic">Diastolic</string>
-    <string name="unused">(Unused)</string>
-    <string name="nan">NaN</string>
     <string name="mean_arterial_pressure">Mean Arterial Pressure</string>
     <string name="current_cuff_pressure">Current Cuff Pressure</string>
     <string name="year">Year</string>

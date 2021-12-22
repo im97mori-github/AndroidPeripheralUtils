@@ -14,15 +14,15 @@
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:menu="@menu/save" />
+            app:menu="@menu/save"
+            app:title="@string/setting" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".ui.device.type.DeviceTypeListActivity">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/rootContainer"
@@ -32,22 +32,79 @@
             android:visibility="gone"
             tools:visibility="visible">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/deviceName"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/deviceSettingCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dp16"
-                android:layout_marginTop="@dimen/dp8"
-                android:layout_marginEnd="@dimen/dp16"
-                android:hint="@string/device_setting_name"
-                app:hintEnabled="true">
+                android:layout_margin="@dimen/dp8"
+                android:checkable="true">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
+                    android:orientation="vertical">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp72"
+                        android:layout_marginStart="@dimen/dp16"
+                        android:layout_marginTop="@dimen/dp8"
+                        android:layout_marginEnd="@dimen/dp16"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/dp6">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/deviceTypeImage"
+                            android:layout_width="@dimen/dp40"
+                            android:layout_height="@dimen/dp40"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/deviceTypeTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp6"
+                            android:text="@string/device_type"
+                            android:textAppearance="?attr/textAppearanceBodyLarge"
+                            app:layout_constraintStart_toEndOf="@id/deviceTypeImage"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/deviceType"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?android:attr/textColorSecondary"
+                            app:layout_constraintStart_toEndOf="@id/deviceTypeImage"
+                            app:layout_constraintTop_toBottomOf="@id/deviceTypeTitle" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/deviceName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dp16"
+                        android:layout_marginTop="@dimen/dp8"
+                        android:layout_marginEnd="@dimen/dp16"
+                        android:layout_marginBottom="@dimen/dp8"
+                        android:hint="@string/device_setting_name"
+                        app:hintEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/deviceNameEdit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </com.google.android.material.card.MaterialCardView>
 
             <FrameLayout
                 android:id="@+id/container"

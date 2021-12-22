@@ -1,5 +1,9 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting;
 
+import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVICE_ID_UNSAVED;
+
 import android.content.Intent;
 import android.text.TextUtils;
 
@@ -29,19 +33,24 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.processors.PublishProcessor;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
 public class DeviceSettingViewModel extends ViewModel {
 
-    private static final String KEY_TITLE = "KEY_TITLE";
+    private static final String KEY_DEVICE_TYPE_IMAGE_RES_ID = "KEY_DEVICE_TYPE_IMAGE_RES_ID";
+    private static final String KEY_DEVICE_TYPE_NAME = "KEY_DEVICE_TYPE_NAME";
     private static final String KEY_DEVICE_SETTING_NAME = "KEY_DEVICE_SETTING_NAME";
-    private static final String KEY_DEVICE_SETTING_NAME_ERROR_STRING = "KEY_DEVICE_SETTING_NAME_ERROR_STRING";
-    private static final String KEY_MOCK_DATA = "KEY_MOCK_DATA";
+    private static final String KEY_FRAGMENT_READY = "KEY_FRAGMENT_READY";
 
-    private final DeviceRepository mDeviceRepository;
     private final SavedStateHandle mSavedStateHandle;
+    private final DeviceRepository mDeviceRepository;
     private final Gson mGson;
+
+    private final MutableLiveData<String> mDeviceNameSetting;
+
+    private final PublishProcessor<MockData> mMockDataPublishProcessor = PublishProcessor.create();
 
     private Device mDevice;
 
@@ -52,31 +61,32 @@ public class DeviceSettingViewModel extends ViewModel {
         mSavedStateHandle = savedStateHandle;
         mDeviceRepository = deviceRepository;
         mGson = gson;
+        mDeviceNameSetting = savedStateHandle.getLiveData(KEY_DEVICE_SETTING_NAME);
     }
 
     @NonNull
     @MainThread
     public Completable setup(@NonNull Intent intent) {
-        long id = intent.getLongExtra(DeviceSettingLauncherContract.KEY_DEVICE_ID, DeviceSettingLauncherContract.UNSAVED_DEVICE_ID);
-        Single<Device> single;
-        if (DeviceSettingLauncherContract.UNSAVED_DEVICE_ID == id) {
-            single = Single.just(new Device("", intent.getIntExtra(DeviceSettingLauncherContract.KEY_DEVICE_TYPE, Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE)));
-        } else {
-            single = mDeviceRepository.loadDeviceById(id).subscribeOn(Schedulers.io());
-        }
-        return single
+        return Single.just(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
+                .flatMap(id -> {
+                    if (VALUE_DEVICE_ID_UNSAVED == id) {
+                        return Single.just(new Device("", intent.getIntExtra(Constants.IntentKey.KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE)));
+                    } else {
+                        return mDeviceRepository.loadDeviceById(id);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
                 .flatMapCompletable(device -> {
                     // for 1st onStart
                     if (mDevice == null) {
                         mDevice = device;
 
                         // for Activity create
-                        MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_TITLE);
+                        MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_DEVICE_TYPE_NAME);
                         if (liveData.getValue() == null) {
                             liveData.postValue(mDeviceRepository.getDeviceTypeName(mDevice.getDeviceType()));
-                            mSavedStateHandle.getLiveData(KEY_DEVICE_SETTING_NAME).postValue(mDevice.getDeviceSettingName());
-                            mSavedStateHandle.getLiveData(KEY_DEVICE_SETTING_NAME_ERROR_STRING)
-                                    .postValue(mDeviceRepository.getDeviceSettingNameErrorString(mDevice.getDeviceSettingName()));
+                            mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES_ID).postValue(mDeviceRepository.getDeviceTypeImageRes(mDevice.getDeviceType()));
+                            mDeviceNameSetting.postValue(mDevice.getDeviceSettingName());
 
                             MockData mockData = null;
                             try {
@@ -88,41 +98,54 @@ public class DeviceSettingViewModel extends ViewModel {
                                     mockData = new MockData();
                                 }
                             }
-                            mSavedStateHandle.getLiveData(KEY_MOCK_DATA).postValue(mockData);
+                            mMockDataPublishProcessor.onNext(mockData);
                         }
                         return Completable.complete();
                     } else {
-                        throw new RuntimeException("Initialized");
+                        return Completable.error(new RuntimeException("Initialized"));
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
     @MainThread
-    public void observeTitle(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_TITLE)).observe(owner, observer);
+    public void observeDeviceTypeImageResId(@NonNull LifecycleOwner owner, @NonNull Observer<Integer> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES_ID)).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeDeviceTypeName(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_DEVICE_TYPE_NAME)).observe(owner, observer);
     }
 
     @MainThread
     public void observeDeviceSettingName(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_DEVICE_SETTING_NAME)).observe(owner, observer);
+        Transformations.distinctUntilChanged(mDeviceNameSetting).observe(owner, observer);
     }
 
     @MainThread
     public void observeDeviceSettingNameErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_DEVICE_SETTING_NAME_ERROR_STRING)).observe(owner, observer);
+        Transformations.distinctUntilChanged(mDeviceNameSetting).observe(owner
+                , s -> observer.onChanged(mDeviceRepository.getDeviceSettingNameErrorString(s)));
     }
 
     @MainThread
-    public void observeMockData(@NonNull LifecycleOwner owner, @NonNull Observer<MockData> observer) {
-        Transformations.distinctUntilChanged(mSavedStateHandle.<MockData>getLiveData(KEY_MOCK_DATA)).observe(owner, observer);
+    public void observeFragmentReady(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<Boolean>getLiveData(KEY_FRAGMENT_READY)).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateDeviceSettingName(@Nullable String text) {
-        mSavedStateHandle.<String>getLiveData(KEY_DEVICE_SETTING_NAME).setValue(text);
-        mSavedStateHandle.getLiveData(KEY_DEVICE_SETTING_NAME_ERROR_STRING)
-                .postValue(mDeviceRepository.getDeviceSettingNameErrorString(text));
+    public Single<MockData> observeMockData() {
+        return mMockDataPublishProcessor.firstOrError().subscribeOn(Schedulers.io());
+    }
+
+    @MainThread
+    public void updateDeviceSettingName(@Nullable String text) {
+        mDeviceNameSetting.setValue(text);
+    }
+
+    public void fragmentReady() {
+        mSavedStateHandle.<Boolean>getLiveData(KEY_FRAGMENT_READY).postValue(true);
     }
 
     @NonNull
@@ -140,8 +163,8 @@ public class DeviceSettingViewModel extends ViewModel {
             if (device == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
-                String deviceNameSetting = mSavedStateHandle.get(KEY_DEVICE_SETTING_NAME);
-                String deviceNameSettingErrorString = mSavedStateHandle.get(KEY_DEVICE_SETTING_NAME_ERROR_STRING);
+                String deviceNameSetting = mDeviceNameSetting.getValue();
+                String deviceNameSettingErrorString = mDeviceRepository.getDeviceSettingNameErrorString(deviceNameSetting);
                 String moduleDataJson = mBaseDeviceSettingFragment.getModuleDataJson();
                 if (!TextUtils.isEmpty(deviceNameSetting)
                         && TextUtils.isEmpty(deviceNameSettingErrorString)
@@ -155,10 +178,7 @@ public class DeviceSettingViewModel extends ViewModel {
                 }
             }
         }).subscribeOn(Schedulers.io())
-                .flatMapCompletable(device -> {
-                    mDeviceRepository.insertDevices(device);
-                    return Completable.complete();
-                })
+                .flatMapCompletable(mDeviceRepository::insertDevices)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 

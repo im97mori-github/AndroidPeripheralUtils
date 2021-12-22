@@ -22,8 +22,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".ui.device.type.DeviceTypeListActivity">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/rootContainer"
@@ -34,7 +33,7 @@
             tools:visibility="visible">
 
             <CheckBox
-                android:id="@+id/errorResponseCheckBox"
+                android:id="@+id/isErrorResponse"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -55,6 +54,7 @@
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/manufacturerIdentifierEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal" />
@@ -74,6 +74,7 @@
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/organizationallyUniqueIdentifierEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal" />
@@ -81,7 +82,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/errorResponseCode"
+                android:id="@+id/responseCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -94,6 +95,7 @@
                 app:prefixText="@string/hexadecimal">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/responseCodeEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text" />
@@ -113,6 +115,7 @@
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/responseDelayEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number" />

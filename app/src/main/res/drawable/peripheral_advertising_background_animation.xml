@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/peripheral_advertising_background">
+    <target
+        android:name="translateLeftUpper"
+        android:animation="@animator/peripheral_advertising_upper_left_animation" />
+    <target
+        android:name="translateRightUpper"
+        android:animation="@animator/peripheral_advertising_upper_right_animation" />
+</animated-vector>

@@ -22,8 +22,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".ui.device.type.DeviceTypeListActivity">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/rootContainer"
@@ -216,7 +215,6 @@
                             style="?attr/borderlessButtonStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/dp8"
                             android:text="@string/setting" />
 
                     </FrameLayout>
@@ -224,7 +222,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <CheckBox
-                android:id="@+id/intermediateCuffPressureSupported"
+                android:id="@+id/isIntermediateCuffPressureSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -239,7 +237,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp8"
                 android:layout_marginEnd="@dimen/dp8"
-                android:layout_marginBottom="@dimen/dp8">
+                android:layout_marginBottom="@dimen/dp8"
+                android:checkable="true">
 
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
@@ -282,43 +281,11 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp16"
                             android:layout_marginTop="@dimen/dp8"
-                            android:text="@string/systlic"
-                            android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-                        <TextView
-                            android:id="@+id/intermediateCuffPressureSystolic"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/dp16"
-                            android:layout_marginTop="@dimen/dp8"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
-                            android:textColor="?android:attr/textColorSecondary" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/dp16"
-                            android:layout_marginTop="@dimen/dp8"
-                            android:text="@string/diastolic"
-                            android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/dp16"
-                            android:layout_marginTop="@dimen/dp8"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
-                            android:textColor="?android:attr/textColorSecondary" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/dp16"
-                            android:layout_marginTop="@dimen/dp8"
                             android:text="@string/mean_arterial_pressure"
                             android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                         <TextView
+                            android:id="@+id/intermediateCuffPressureCurrentCuffPressure"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp16"
@@ -421,7 +388,6 @@
                     </FrameLayout>
                 </androidx.appcompat.widget.LinearLayoutCompat>
             </com.google.android.material.card.MaterialCardView>
-
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/bloodPressureFeatureCardView"

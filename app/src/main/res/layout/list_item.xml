@@ -2,7 +2,9 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:drawablePadding="@dimen/dp16"
     android:ellipsize="end"
+    android:gravity="center_vertical"
     android:maxLines="1"
-    android:padding="16dp"
-    android:textAppearance="?attr/textAppearanceTitleMedium" />
+    android:padding="@dimen/dp16"
+    android:textAppearance="?attr/textAppearanceBodyLarge" />

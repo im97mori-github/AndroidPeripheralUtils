@@ -22,8 +22,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".ui.device.type.DeviceTypeListActivity">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/rootContainer"
@@ -149,7 +148,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <CheckBox
-                android:id="@+id/systemIdCharacteristicSupported"
+                android:id="@+id/isSystemIdSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"

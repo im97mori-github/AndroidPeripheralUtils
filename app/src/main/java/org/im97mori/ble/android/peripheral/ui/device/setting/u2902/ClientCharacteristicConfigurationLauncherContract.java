@@ -1,5 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2902;
 
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_PROPERTIES_TYPE;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 
 import android.app.Activity;
@@ -18,7 +19,7 @@ public class ClientCharacteristicConfigurationLauncherContract extends ActivityR
     public Intent createIntent(@NonNull Context context, @NonNull Pair<String, Integer> input) {
         Intent intent = new Intent(context.getApplicationContext(), ClientCharacteristicConfigurationSettingActivity.class);
         intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), input.first);
-        intent.putExtra(ClientCharacteristicConfigurationSettingViewModel.KEY_PROPERTIES_TYPE, input.second);
+        intent.putExtra(KEY_PROPERTIES_TYPE, input.second);
         return intent;
     }
 

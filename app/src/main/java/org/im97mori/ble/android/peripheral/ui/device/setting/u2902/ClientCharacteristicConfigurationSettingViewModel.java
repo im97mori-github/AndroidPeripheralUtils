@@ -1,11 +1,12 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2902;
 
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_PROPERTIES_TYPE;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.content.Intent;
-import android.text.TextUtils;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -15,218 +16,257 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.DescriptorData;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseDescriptorSettingViewModel;
 import org.im97mori.ble.descriptor.u2902.ClientCharacteristicConfiguration;
 
-import java.util.Objects;
-import java.util.Optional;
+import javax.inject.Inject;
 
+import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+@HiltViewModel
 public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescriptorSettingViewModel {
 
-    public static final String KEY_PROPERTIES_TYPE = "KEY_PROPERTIES_TYPE";
+    private static final String KEY_IS_ERROR_RESPONSE = "KEY_IS_ERROR_RESPONSE";
 
-    public static final int PROPERTIES_TYPE_NOTIFICATION = 0;
-    public static final int PROPERTIES_TYPE_INDICATION = 1;
+    private static final String KEY_PROPERTIES = "KEY_PROPERTIES";
+    private static final String KEY_PROPERTIES_DISABLED = "KEY_PROPERTIES_DISABLED";
+    private static final String KEY_PROPERTIES_ENABLED = "KEY_PROPERTIES_ENABLED";
+    private static final String KEY_RESPONSE_CODE = "KEY_RESPONSE_CODE";
+    private static final String KEY_RESPONSE_DELAY = "KEY_RESPONSE_DELAY";
 
-    private final MutableLiveData<Boolean> isErrorResponse;
+    private final SavedStateHandle mSavedStateHandle;
 
-    private final MutableLiveData<Boolean> properties;
-    private final MutableLiveData<String> disabledProperties;
-    private final MutableLiveData<String> enabledProperties;
+    private final MutableLiveData<Boolean> mIsErrorResponse;
 
-    private final MutableLiveData<String> responseDelay;
-    private final MutableLiveData<String> responseDelayError;
-    private final MutableLiveData<String> responseCode;
-    private final MutableLiveData<String> responseCodeError;
+    private final MutableLiveData<Boolean> mProperties;
 
-    private int propertyType;
+    private final MutableLiveData<String> mResponseCode;
+    private final MutableLiveData<String> mResponseDelay;
 
-    public ClientCharacteristicConfigurationSettingViewModel(@NonNull SavedStateHandle savedStateHandle) {
-        isErrorResponse = savedStateHandle.getLiveData("isErrorResponse");
+    private int mPropertyType;
 
-        properties = savedStateHandle.getLiveData("properties");
-        disabledProperties = savedStateHandle.getLiveData("disabledProperties");
-        enabledProperties = savedStateHandle.getLiveData("enabledProperties");
+    @Inject
+    public ClientCharacteristicConfigurationSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
+        super(deviceRepository, gson);
 
-        responseDelay = savedStateHandle.getLiveData("responseDelay");
-        responseDelayError = savedStateHandle.getLiveData("responseDelayError");
-        responseCode = savedStateHandle.getLiveData("responseCode");
-        responseCodeError = savedStateHandle.getLiveData("responseCodeError");
+        mSavedStateHandle = savedStateHandle;
+
+        mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
+
+        mProperties = savedStateHandle.getLiveData(KEY_PROPERTIES);
+
+        mResponseCode = savedStateHandle.getLiveData(KEY_RESPONSE_CODE);
+        mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
     }
 
     @NonNull
     public Completable setup(@NonNull Intent intent) {
-        Completable completable;
-        if (mDescriptorData == null) {
-            completable = Single.just(Optional.ofNullable(intent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString())))
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .flatMapCompletable(dataString -> {
-                        if (dataString.isPresent()) {
-                            try {
-                                mDescriptorData = mGson.fromJson(dataString.get(), DescriptorData.class);
-                            } catch (JsonSyntaxException e) {
-                                e.printStackTrace();
-                            }
-                        }
+        return Completable.create(emitter -> {
+            if (mDescriptorData == null) {
+                try {
+                    mDescriptorData = mGson.fromJson(intent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString())
+                            , DescriptorData.class);
+                } catch (JsonSyntaxException e) {
+                    e.printStackTrace();
+                }
 
-                        if (mDescriptorData == null) {
-                            mDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
-                                    , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
-                                    , BluetoothGatt.GATT_SUCCESS
-                                    , 0
-                                    , null);
-                        }
+                if (mDescriptorData == null) {
+                    mDescriptorData = new DescriptorData();
+                    mDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
+                    mDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
+                }
 
-                        if (isErrorResponse.getValue() == null) {
-                            isErrorResponse.postValue(mDescriptorData.responseCode != BluetoothGatt.GATT_SUCCESS);
-                        }
+                if (mIsErrorResponse.getValue() == null) {
+                    mIsErrorResponse.postValue(mDescriptorData.responseCode != BluetoothGatt.GATT_SUCCESS);
+                }
 
-                        ClientCharacteristicConfiguration clientCharacteristicConfiguration;
-                        if (mDescriptorData.data != null) {
-                            clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(mDescriptorData.data);
+                ClientCharacteristicConfiguration clientCharacteristicConfiguration;
+                if (mDescriptorData.data != null) {
+                    clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(mDescriptorData.data);
+                } else {
+                    clientCharacteristicConfiguration = null;
+                }
+
+                mPropertyType = intent.getIntExtra(KEY_PROPERTIES_TYPE, BluetoothGattCharacteristic.PROPERTY_NOTIFY);
+                if (clientCharacteristicConfiguration == null) {
+                    if (mProperties.getValue() == null) {
+                        mProperties.postValue(false);
+                        if (BluetoothGattCharacteristic.PROPERTY_NOTIFY == mPropertyType) {
+                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
+                                    .postValue(mDeviceRepository.getNotificationsDisabledString());
+                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
+                                    .postValue(mDeviceRepository.getNotificationsEnabledString());
                         } else {
-                            clientCharacteristicConfiguration = null;
+                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
+                                    .postValue(mDeviceRepository.getIndicationsDisabledString());
+                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
+                                    .postValue(mDeviceRepository.getIndicationsEnabledString());
                         }
-
-                        propertyType = intent.getIntExtra(KEY_PROPERTIES_TYPE, PROPERTIES_TYPE_NOTIFICATION);
-                        if (clientCharacteristicConfiguration == null) {
-                            if (properties.getValue() == null) {
-                                properties.postValue(false);
-                                if (PROPERTIES_TYPE_NOTIFICATION == propertyType) {
-                                    disabledProperties.postValue(mResourceTextSource.getIndicationsDisabledString());
-                                    enabledProperties.postValue(mResourceTextSource.getIndicationsEnabledString());
-                                } else {
-                                    disabledProperties.postValue(mResourceTextSource.getEnabledDisabledString());
-                                    enabledProperties.postValue(mResourceTextSource.getEnabledEnabledString());
-                                }
-                            }
+                    }
+                } else {
+                    if (mProperties.getValue() == null) {
+                        if (BluetoothGattCharacteristic.PROPERTY_NOTIFY == mPropertyType) {
+                            mProperties.postValue(clientCharacteristicConfiguration.isPropertiesNotificationsEnabled());
+                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
+                                    .postValue(mDeviceRepository.getNotificationsDisabledString());
+                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
+                                    .postValue(mDeviceRepository.getNotificationsEnabledString());
                         } else {
-                            if (properties.getValue() == null) {
-                                if (PROPERTIES_TYPE_NOTIFICATION == propertyType) {
-                                    properties.postValue(clientCharacteristicConfiguration.isPropertiesNotificationsEnabled());
-                                    disabledProperties.postValue(mResourceTextSource.getIndicationsDisabledString());
-                                    enabledProperties.postValue(mResourceTextSource.getIndicationsEnabledString());
-                                } else {
-                                    properties.postValue(clientCharacteristicConfiguration.isPropertiesIndicationsEnabled());
-                                    disabledProperties.postValue(mResourceTextSource.getEnabledDisabledString());
-                                    enabledProperties.postValue(mResourceTextSource.getEnabledEnabledString());
-                                }
-                            }
+                            mProperties.postValue(clientCharacteristicConfiguration.isPropertiesIndicationsEnabled());
+                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
+                                    .postValue(mDeviceRepository.getIndicationsDisabledString());
+                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
+                                    .postValue(mDeviceRepository.getIndicationsEnabledString());
                         }
+                    }
+                }
 
-                        String text = String.valueOf(mDescriptorData.delay);
-                        if (responseDelay.getValue() == null) {
-                            responseDelay.postValue(text);
-                            responseDelayError.postValue(mResourceTextSource.getResponseDelayErrorString(text));
-                        }
+                if (mResponseCode.getValue() == null) {
+                    mResponseCode.postValue(String.valueOf(mDescriptorData.responseCode));
+                }
 
-                        text = String.valueOf(mDescriptorData.responseCode);
-                        if (responseCode.getValue() == null) {
-                            responseCode.postValue(text);
-                            responseCodeError.postValue(mResourceTextSource.getResponseCodeErrorString(text));
-                        }
+                if (mResponseDelay.getValue() == null) {
+                    mResponseDelay.postValue(String.valueOf(mDescriptorData.delay));
+                }
 
-                        return Completable.complete();
-                    });
-        } else {
-            completable = Completable.complete();
-        }
-        return completable;
+                emitter.onComplete();
+            } else {
+                emitter.onError(new RuntimeException("Initialized"));
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
     }
 
+    @MainThread
     public void observeIsErrorResponse(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(isErrorResponse).observe(owner, observer);
+        Transformations.distinctUntilChanged(mIsErrorResponse).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateIsErrorResponse(@NonNull Boolean checked) {
-        isErrorResponse.setValue(checked);
-    }
-
     public void observeProperties(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(properties).observe(owner, observer);
+        Transformations.distinctUntilChanged(mProperties).observe(owner, observer);
+    }
+
+
+    @MainThread
+    public void observePropertiesDisabled(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateProperties(@NonNull Boolean checked) {
-        properties.setValue(checked);
-    }
-
-    public void observeDisabledProperties(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(disabledProperties).observe(owner, observer);
-    }
-
-    public void observeEnabledProperties(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(enabledProperties).observe(owner, observer);
-    }
-
-    public void observeResponseDelay(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseDelay).observe(owner, observer);
-    }
-
-    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseDelayError).observe(owner, observer);
+    public void observePropertiesEnabled(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateResponseDelay(@NonNull CharSequence text) {
-        responseDelay.setValue(text.toString());
-        responseDelayError.setValue(mResourceTextSource.getResponseDelayErrorString(text));
-    }
-
-    public void observeResponseCode(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseCode).observe(owner, observer);
-    }
-
-    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseCodeError).observe(owner, observer);
+    public void observeResponseCode(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseCode).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateResponseCode(@NonNull CharSequence text) {
-        responseCode.setValue(text.toString());
-        responseCodeError.setValue(mResourceTextSource.getResponseCodeErrorString(text));
+    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseCode).observe(owner
+                , s -> observer.onChanged(mDeviceRepository.getResponseCodeErrorString(s)));
+    }
+
+    @MainThread
+    public void observeResponseDelay(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseDelay).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseDelay).observe(owner
+                , s -> observer.onChanged(mDeviceRepository.getResponseDelayErrorString(s)));
+    }
+
+    @MainThread
+    public void updateIsErrorResponse(@NonNull Boolean checked) {
+        mIsErrorResponse.setValue(checked);
+    }
+
+    @MainThread
+    public void updateProperties(@NonNull Boolean checked) {
+        mProperties.setValue(checked);
+    }
+
+    @MainThread
+    public void updateResponseDelay(@NonNull String text) {
+        mResponseDelay.setValue(text);
+    }
+
+    @MainThread
+    public void updateResponseCode(@NonNull String text) {
+        mResponseCode.setValue(text);
     }
 
     @NonNull
     @Override
-    public Single<Optional<Intent>> save() {
-        Intent intent;
-        if ((Boolean.TRUE.equals(isErrorResponse.getValue())
-                && TextUtils.isEmpty(responseCodeError.getValue())
-                || Boolean.FALSE.equals(isErrorResponse.getValue()))
-                && TextUtils.isEmpty(responseDelayError.getValue())) {
-            ClientCharacteristicConfiguration clientCharacteristicConfiguration;
-            if (Boolean.TRUE.equals(properties.getValue())) {
-                if (PROPERTIES_TYPE_NOTIFICATION == propertyType) {
-                    clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                } else {
-                    clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
-                }
+    public Single<Intent> save() {
+        return Single.<Intent>create(emitter -> {
+            DescriptorData descriptorData = mDescriptorData;
+            if (descriptorData == null) {
+                emitter.onError(new RuntimeException("Already saved"));
             } else {
-                clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
-            }
-            mDescriptorData.data = clientCharacteristicConfiguration.getBytes();
-            if (Boolean.TRUE.equals(isErrorResponse.getValue())) {
-                mDescriptorData.responseCode = Integer.parseInt(Objects.requireNonNull(responseCode.getValue()));
-            } else {
-                mDescriptorData.responseCode = BluetoothGatt.GATT_SUCCESS;
-            }
-            mDescriptorData.delay = Long.parseLong(Objects.requireNonNull(responseDelay.getValue()));
+                boolean isErrorResponse = Boolean.TRUE.equals(mIsErrorResponse.getValue());
+                String responseCode = mResponseCode.getValue();
+                String responseDelay = mResponseDelay.getValue();
+                boolean properties = Boolean.TRUE.equals(mProperties.getValue());
 
-            intent = new Intent();
-            intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(mDescriptorData));
-        } else {
-            intent = null;
-        }
-        return Single.just(Optional.ofNullable(intent));
+                if (responseDelay != null && mDeviceRepository.getResponseDelayErrorString(responseDelay) == null) {
+                    descriptorData.delay = Long.parseLong(responseDelay);
+                    if (isErrorResponse) {
+                        if (responseCode != null && mDeviceRepository.getResponseCodeErrorString(responseCode) == null) {
+                            descriptorData.data = null;
+                            descriptorData.responseCode = Integer.parseInt(responseCode);
+
+                            Intent intent = new Intent();
+                            intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+                            emitter.onSuccess(intent);
+                        } else {
+                            emitter.onError(new RuntimeException("Validation failed"));
+                        }
+                    } else {
+                        byte[] data;
+                        if (properties) {
+                            if (BluetoothGattCharacteristic.PROPERTY_NOTIFY == mPropertyType) {
+                                data = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE;
+                            } else {
+                                data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
+                            }
+                        } else {
+                            data = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
+                        }
+                        descriptorData.data = new ClientCharacteristicConfiguration(data).getBytes();
+                        descriptorData.responseCode = BluetoothGatt.GATT_SUCCESS;
+
+                        Intent intent = new Intent();
+                        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+
+                        mDescriptorData = null;
+                        emitter.onSuccess(intent);
+                    }
+                } else {
+                    emitter.onError(new RuntimeException("Validation failed"));
+                }
+            }
+        })
+                .
+
+                        subscribeOn(Schedulers.io())
+                .
+
+                        observeOn(AndroidSchedulers.mainThread());
     }
 }

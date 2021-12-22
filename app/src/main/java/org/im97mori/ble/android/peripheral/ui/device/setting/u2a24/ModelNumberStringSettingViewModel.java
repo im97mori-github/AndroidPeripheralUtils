@@ -5,7 +5,6 @@ import static org.im97mori.ble.constants.CharacteristicUUID.MODEL_NUMBER_STRING_
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
-import android.text.TextUtils;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -15,172 +14,198 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.CharacteristicData;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
 import org.im97mori.ble.characteristic.u2a24.ModelNumberString;
-import org.im97mori.ble.characteristic.u2a29.ManufacturerNameString;
 
-import java.util.Objects;
-import java.util.Optional;
+import javax.inject.Inject;
 
+import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+@HiltViewModel
 public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewModel {
 
-    private final MutableLiveData<Boolean> isErrorResponse;
+    private static final String KEY_IS_ERROR_RESPONSE = "KEY_IS_ERROR_RESPONSE";
 
-    private final MutableLiveData<String> modelNumberString;
-    private final MutableLiveData<String> modelNumberStringError;
-    private final MutableLiveData<String> responseDelay;
-    private final MutableLiveData<String> responseDelayError;
-    private final MutableLiveData<String> responseCode;
-    private final MutableLiveData<String> responseCodeError;
+    private static final String KEY_MODEL_NUMBER_NAME_STRING = "KEY_MODEL_NUMBER_NAME_STRING";
+    private static final String KEY_RESPONSE_CODE = "KEY_RESPONSE_CODE";
+    private static final String KEY_RESPONSE_DELAY = "KEY_RESPONSE_DELAY";
 
-    public ModelNumberStringSettingViewModel(@NonNull SavedStateHandle savedStateHandle) {
-        isErrorResponse = savedStateHandle.getLiveData("isErrorResponse");
-        modelNumberString = savedStateHandle.getLiveData("modelNumberString");
-        modelNumberStringError = savedStateHandle.getLiveData("modelNumberStringError");
-        responseDelay = savedStateHandle.getLiveData("responseDelay");
-        responseDelayError = savedStateHandle.getLiveData("responseDelayError");
-        responseCode = savedStateHandle.getLiveData("responseCode");
-        responseCodeError = savedStateHandle.getLiveData("responseCodeError");
+    private final MutableLiveData<Boolean> mIsErrorResponse;
+
+    private final MutableLiveData<String> mModelNumberString;
+    private final MutableLiveData<String> mResponseCode;
+    private final MutableLiveData<String> mResponseDelay;
+
+    @Inject
+    public ModelNumberStringSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
+        super(deviceRepository, gson);
+
+        mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
+        mModelNumberString = savedStateHandle.getLiveData(KEY_MODEL_NUMBER_NAME_STRING);
+        mResponseCode = savedStateHandle.getLiveData(KEY_RESPONSE_CODE);
+        mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
     }
 
     @NonNull
     public Completable setup(@NonNull Intent intent) {
-        Completable completable;
-        if (mCharacteristicData == null) {
-            completable = Single.just(Optional.ofNullable(intent.getStringExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString())))
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .flatMapCompletable(dataString -> {
-                        if (dataString.isPresent()) {
-                            try {
-                                mCharacteristicData = mGson.fromJson(dataString.get(), CharacteristicData.class);
-                            } catch (JsonSyntaxException e) {
-                                e.printStackTrace();
-                            }
-                        }
+        return Completable.create(emitter -> {
+            if (mCharacteristicData == null) {
+                try {
+                    mCharacteristicData = mGson.fromJson(intent.getStringExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString())
+                            , CharacteristicData.class);
+                } catch (JsonSyntaxException e) {
+                    e.printStackTrace();
+                }
 
-                        if (mCharacteristicData == null) {
-                            mCharacteristicData = new CharacteristicData();
-                            mCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-                            mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-                            mCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
-                        }
+                if (mCharacteristicData == null) {
+                    mCharacteristicData = new CharacteristicData();
+                    mCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
+                    mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
+                    mCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+                }
 
-                        if (isErrorResponse.getValue() == null) {
-                            isErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
-                        }
+                if (mIsErrorResponse.getValue() == null) {
+                    mIsErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
+                }
 
-                        String text;
-                        if (mCharacteristicData.data != null) {
-                            text = new ModelNumberString(mCharacteristicData.data).getModelNumber();
-                            if (this.modelNumberString.getValue() == null) {
-                                this.modelNumberString.postValue(text);
-                            }
-                            modelNumberStringError.postValue(mResourceTextSource.getManufacturerNameStringErrorString(text));
-                        } else {
-                            modelNumberStringError.postValue(mResourceTextSource.getManufacturerNameStringErrorString(this.modelNumberString.getValue()));
-                        }
+                if (mModelNumberString.getValue() == null) {
+                    if (mCharacteristicData.data != null) {
+                        mModelNumberString.postValue(new ModelNumberString(mCharacteristicData.data).getModelNumber());
+                    } else {
+                        mModelNumberString.postValue(null);
+                    }
+                }
 
-                        text = String.valueOf(mCharacteristicData.delay);
-                        if (responseDelay.getValue() == null) {
-                            responseDelay.postValue(text);
-                            responseDelayError.postValue(mResourceTextSource.getResponseDelayErrorString(text));
-                        }
+                if (mResponseCode.getValue() == null) {
+                    mResponseCode.postValue(String.valueOf(mCharacteristicData.responseCode));
+                }
 
-                        text = String.valueOf(mCharacteristicData.responseCode);
-                        if (responseCode.getValue() == null) {
-                            responseCode.postValue(text);
-                            responseCodeError.postValue(mResourceTextSource.getResponseCodeErrorString(text));
-                        }
+                if (mResponseDelay.getValue() == null) {
+                    mResponseDelay.postValue(String.valueOf(mCharacteristicData.delay));
+                }
 
-                        return Completable.complete();
-                    });
-        } else {
-            completable = Completable.complete();
-        }
-        return completable;
+                emitter.onComplete();
+            } else {
+                emitter.onError(new RuntimeException("Initialized"));
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
+    @MainThread
     public void observeIsErrorResponse(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(isErrorResponse).observe(owner, observer);
+        Transformations.distinctUntilChanged(mIsErrorResponse).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateIsErrorResponse(@NonNull Boolean checked) {
-        isErrorResponse.setValue(checked);
-    }
-
-    public void observeManufacturerNameString(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(modelNumberString).observe(owner, observer);
-    }
-
-    public void observeManufacturerNameStringError(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(modelNumberStringError).observe(owner, observer);
+    public void observeModelNumberString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mModelNumberString).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateManufacturerNameString(@NonNull CharSequence text) {
-        modelNumberString.setValue(text.toString());
-        modelNumberStringError.setValue(mResourceTextSource.getModelNumbertringErrorString(text));
-    }
-
-    public void observeResponseDelay(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseDelay).observe(owner, observer);
-    }
-
-    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseDelayError).observe(owner, observer);
+    public void observeModelNumberStringError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mModelNumberString).observe(owner
+                , s -> observer.onChanged(mDeviceRepository.getModelNumbertringErrorString(s)));
     }
 
     @MainThread
-    public synchronized void updateResponseDelay(@NonNull CharSequence text) {
-        responseDelay.setValue(text.toString());
-        responseDelayError.setValue(mResourceTextSource.getResponseDelayErrorString(text));
-    }
-
-    public void observeResponseCode(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseCode).observe(owner, observer);
-    }
-
-    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseCodeError).observe(owner, observer);
+    public void observeResponseCode(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseCode).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateResponseCode(@NonNull CharSequence text) {
-        responseCode.setValue(text.toString());
-        responseCodeError.setValue(mResourceTextSource.getResponseCodeErrorString(text));
+    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseCode).observe(owner
+                , s -> observer.onChanged(mDeviceRepository.getResponseCodeErrorString(s)));
+    }
+
+    @MainThread
+    public void observeResponseDelay(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseDelay).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseDelay).observe(owner
+                , s -> observer.onChanged(mDeviceRepository.getResponseDelayErrorString(s)));
+    }
+
+    @MainThread
+    public void updateIsErrorResponse(@NonNull Boolean checked) {
+        mIsErrorResponse.setValue(checked);
+    }
+
+    @MainThread
+    public void updateModelNumberStringString(@NonNull String text) {
+        mModelNumberString.setValue(text);
+    }
+
+    @MainThread
+    public void updateResponseCode(@NonNull String text) {
+        mResponseCode.setValue(text);
+    }
+
+    @MainThread
+    public void updateResponseDelay(@NonNull String text) {
+        mResponseDelay.setValue(text);
     }
 
     @NonNull
     @Override
-    public Single<Optional<Intent>> save() {
-        Intent intent;
-        if ((Boolean.TRUE.equals(isErrorResponse.getValue())
-                && TextUtils.isEmpty(responseCodeError.getValue())
-                || Boolean.FALSE.equals(isErrorResponse.getValue()))
-                && TextUtils.isEmpty(modelNumberStringError.getValue())
-                && TextUtils.isEmpty(responseDelayError.getValue())) {
-            mCharacteristicData.data = new ManufacturerNameString(Objects.requireNonNull(modelNumberString.getValue())).getBytes();
-            if (Boolean.TRUE.equals(isErrorResponse.getValue())) {
-                mCharacteristicData.responseCode = Integer.parseInt(Objects.requireNonNull(responseCode.getValue()));
+    public Single<Intent> save() {
+        return Single.<Intent>create(emitter -> {
+            CharacteristicData characteristicData = mCharacteristicData;
+            if (characteristicData == null) {
+                emitter.onError(new RuntimeException("Already saved"));
             } else {
-                mCharacteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
-            }
-            mCharacteristicData.delay = Long.parseLong(Objects.requireNonNull(responseDelay.getValue()));
+                boolean isErrorResponse = Boolean.TRUE.equals(mIsErrorResponse.getValue());
+                String responseCode = mResponseCode.getValue();
+                String responseDelay = mResponseDelay.getValue();
+                String modelNumberString = mModelNumberString.getValue();
 
-            intent = new Intent();
-            intent.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
-        } else {
-            intent = null;
-        }
-        return Single.just(Optional.ofNullable(intent));
+                if (responseDelay != null && mDeviceRepository.getResponseDelayErrorString(responseDelay) == null) {
+                    characteristicData.delay = Long.parseLong(responseDelay);
+                    if (isErrorResponse) {
+                        if (responseCode != null && mDeviceRepository.getResponseCodeErrorString(responseCode) == null) {
+                            characteristicData.data = null;
+                            characteristicData.responseCode = Integer.parseInt(responseCode);
+
+                            Intent intent = new Intent();
+                            intent.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+                            emitter.onSuccess(intent);
+                        } else {
+                            emitter.onError(new RuntimeException("Validation failed"));
+                        }
+                    } else {
+                        if (modelNumberString != null && mDeviceRepository.getModelNumbertringErrorString(modelNumberString) == null) {
+                            characteristicData.data = new ModelNumberString(modelNumberString).getBytes();
+                            characteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
+
+                            Intent intent = new Intent();
+                            intent.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+
+                            mCharacteristicData = null;
+                            emitter.onSuccess(intent);
+                        } else {
+                            emitter.onError(new RuntimeException("Validation failed"));
+                        }
+                    }
+                } else {
+                    emitter.onError(new RuntimeException("Validation failed"));
+                }
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 }

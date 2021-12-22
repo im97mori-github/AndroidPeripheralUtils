@@ -5,7 +5,6 @@ import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATU
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
-import android.text.TextUtils;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -15,267 +14,306 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.CharacteristicData;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
 import org.im97mori.ble.characteristic.u2a49.BloodPressureFeature;
 
-import java.util.Objects;
-import java.util.Optional;
+import javax.inject.Inject;
 
+import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+@HiltViewModel
 public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicViewModel {
 
-    private final MutableLiveData<Boolean> isErrorResponse;
+    private static final String KEY_IS_ERROR_RESPONSE = "KEY_IS_ERROR_RESPONSE";
 
-    private final MutableLiveData<Boolean> bodyMovementDetection;
-    private final MutableLiveData<Boolean> cuffFitDetection;
-    private final MutableLiveData<Boolean> irregularPulseDetection;
-    private final MutableLiveData<Boolean> measurementPositionDetection;
-    private final MutableLiveData<Boolean> pulseRateRangeDetection;
-    private final MutableLiveData<Boolean> multipleBondDetection;
+    private static final String KEY_BODY_MOVEMENT_DETECTION = "KEY_BODY_MOVEMENT_DETECTION";
+    private static final String KEY_CUFF_FIT_DETECTION = "KEY_CUFF_FIT_DETECTION";
+    private static final String KEY_IRREGULAR_PULSE_DETECTION = "KEY_IRREGULAR_PULSE_DETECTION";
+    private static final String KEY_MEASUREMENT_POSITION_DETECTION = "KEY_MEASUREMENT_POSITION_DETECTION";
+    private static final String KEY_PULSE_RATE_RANGE_DETECTION = "KEY_PULSE_RATE_RANGE_DETECTION";
+    private static final String KEY_MULTIPLE_BOND_DETECTION = "KEY_MULTIPLE_BOND_DETECTION";
+    private static final String KEY_RESPONSE_CODE = "KEY_RESPONSE_CODE";
+    private static final String KEY_RESPONSE_DELAY = "KEY_RESPONSE_DELAY";
 
-    private final MutableLiveData<String> responseDelay;
-    private final MutableLiveData<String> responseDelayError;
-    private final MutableLiveData<String> responseCode;
-    private final MutableLiveData<String> responseCodeError;
+    private final MutableLiveData<Boolean> mIsErrorResponse;
 
-    public BloodPressureFeatureSettingViewModel(@NonNull SavedStateHandle savedStateHandle) {
-        isErrorResponse = savedStateHandle.getLiveData("isErrorResponse");
+    private final MutableLiveData<Boolean> mBodyMovementDetection;
+    private final MutableLiveData<Boolean> mCuffFitDetection;
+    private final MutableLiveData<Boolean> mIrregularPulseDetection;
+    private final MutableLiveData<Boolean> mMeasurementPositionDetection;
+    private final MutableLiveData<Boolean> mPulseRateRangeDetection;
+    private final MutableLiveData<Boolean> mMultipleBondDetection;
 
-        bodyMovementDetection = savedStateHandle.getLiveData("bodyMovementDetection");
-        cuffFitDetection = savedStateHandle.getLiveData("cuffFitDetection");
-        irregularPulseDetection = savedStateHandle.getLiveData("irregularPulseDetection");
-        measurementPositionDetection = savedStateHandle.getLiveData("measurementPositionDetection");
-        pulseRateRangeDetection = savedStateHandle.getLiveData("pulseRateRangeDetection");
-        multipleBondDetection = savedStateHandle.getLiveData("multipleBondDetection");
+    private final MutableLiveData<String> mResponseCode;
+    private final MutableLiveData<String> mResponseDelay;
 
-        responseDelay = savedStateHandle.getLiveData("responseDelay");
-        responseDelayError = savedStateHandle.getLiveData("responseDelayError");
-        responseCode = savedStateHandle.getLiveData("responseCode");
-        responseCodeError = savedStateHandle.getLiveData("responseCodeError");
+    @Inject
+    public BloodPressureFeatureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
+        super(deviceRepository, gson);
+
+        mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
+
+        mBodyMovementDetection = savedStateHandle.getLiveData(KEY_BODY_MOVEMENT_DETECTION);
+        mCuffFitDetection = savedStateHandle.getLiveData(KEY_CUFF_FIT_DETECTION);
+        mIrregularPulseDetection = savedStateHandle.getLiveData(KEY_IRREGULAR_PULSE_DETECTION);
+        mMeasurementPositionDetection = savedStateHandle.getLiveData(KEY_MEASUREMENT_POSITION_DETECTION);
+        mPulseRateRangeDetection = savedStateHandle.getLiveData(KEY_PULSE_RATE_RANGE_DETECTION);
+        mMultipleBondDetection = savedStateHandle.getLiveData(KEY_MULTIPLE_BOND_DETECTION);
+
+        mResponseCode = savedStateHandle.getLiveData(KEY_RESPONSE_CODE);
+        mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
     }
 
     @NonNull
     public Completable setup(@NonNull Intent intent) {
-        Completable completable;
-        if (mCharacteristicData == null) {
-            completable = Single.just(Optional.ofNullable(intent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString())))
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .flatMapCompletable(dataString -> {
-                        if (dataString.isPresent()) {
-                            try {
-                                mCharacteristicData = mGson.fromJson(dataString.get(), CharacteristicData.class);
-                            } catch (JsonSyntaxException e) {
-                                e.printStackTrace();
-                            }
-                        }
+        return Completable.create(emitter -> {
+            if (mCharacteristicData == null) {
+                try {
+                    mCharacteristicData = mGson.fromJson(intent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString())
+                            , CharacteristicData.class);
+                } catch (JsonSyntaxException e) {
+                    e.printStackTrace();
+                }
 
-                        if (mCharacteristicData == null) {
-                            mCharacteristicData = new CharacteristicData();
-                            mCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-                            mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-                            mCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
-                        }
+                if (mCharacteristicData == null) {
+                    mCharacteristicData = new CharacteristicData();
+                    mCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
+                    mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
+                    mCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+                }
 
-                        if (isErrorResponse.getValue() == null) {
-                            isErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
-                        }
+                if (mIsErrorResponse.getValue() == null) {
+                    mIsErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
+                }
 
-                        BloodPressureFeature bloodPressureFeature;
-                        if (mCharacteristicData.data != null) {
-                            bloodPressureFeature = new BloodPressureFeature(mCharacteristicData.data);
-                        } else {
-                            bloodPressureFeature = null;
-                        }
+                BloodPressureFeature bloodPressureFeature;
+                if (mCharacteristicData.data == null) {
+                    bloodPressureFeature = null;
+                } else {
+                    bloodPressureFeature = new BloodPressureFeature(mCharacteristicData.data);
+                }
 
-                        if (bloodPressureFeature == null) {
-                            if (bodyMovementDetection.getValue() == null) {
-                                bodyMovementDetection.postValue(false);
-                            }
-                            if (cuffFitDetection.getValue() == null) {
-                                cuffFitDetection.postValue(false);
-                            }
-                            if (irregularPulseDetection.getValue() == null) {
-                                irregularPulseDetection.postValue(false);
-                            }
-                            if (measurementPositionDetection.getValue() == null) {
-                                measurementPositionDetection.postValue(false);
-                            }
-                            if (pulseRateRangeDetection.getValue() == null) {
-                                pulseRateRangeDetection.postValue(false);
-                            }
-                            if (multipleBondDetection.getValue() == null) {
-                                multipleBondDetection.postValue(false);
-                            }
-                        } else {
-                            if (bodyMovementDetection.getValue() == null) {
-                                bodyMovementDetection.postValue(bloodPressureFeature.isBodyMovementDetectionSupported());
-                            }
-                            if (cuffFitDetection.getValue() == null) {
-                                cuffFitDetection.postValue(bloodPressureFeature.isCuffFitDetectionSupported());
-                            }
-                            if (irregularPulseDetection.getValue() == null) {
-                                irregularPulseDetection.postValue(bloodPressureFeature.isIrregularPulseDetectionSupported());
-                            }
-                            if (measurementPositionDetection.getValue() == null) {
-                                measurementPositionDetection.postValue(bloodPressureFeature.isMeasurementPositionDetectionSupported());
-                            }
-                            if (pulseRateRangeDetection.getValue() == null) {
-                                pulseRateRangeDetection.postValue(bloodPressureFeature.isPulseRateRangeDetectionSupported());
-                            }
-                            if (multipleBondDetection.getValue() == null) {
-                                multipleBondDetection.postValue(bloodPressureFeature.isMultipleBondSupported());
-                            }
-                        }
+                if (mBodyMovementDetection.getValue() == null) {
+                    if (bloodPressureFeature != null) {
+                        mBodyMovementDetection.postValue(bloodPressureFeature.isBodyMovementDetectionSupported());
+                    }
+                }
 
-                        String text = String.valueOf(mCharacteristicData.delay);
-                        if (responseDelay.getValue() == null) {
-                            responseDelay.postValue(text);
-                            responseDelayError.postValue(mResourceTextSource.getResponseDelayErrorString(text));
-                        }
+                if (mCuffFitDetection.getValue() == null) {
+                    if (bloodPressureFeature != null) {
+                        mCuffFitDetection.postValue(bloodPressureFeature.isCuffFitDetectionSupported());
+                    }
+                }
 
-                        text = String.valueOf(mCharacteristicData.responseCode);
-                        if (responseCode.getValue() == null) {
-                            responseCode.postValue(text);
-                            responseCodeError.postValue(mResourceTextSource.getResponseCodeErrorString(text));
-                        }
+                if (mIrregularPulseDetection.getValue() == null) {
+                    if (bloodPressureFeature != null) {
+                        mIrregularPulseDetection.postValue(bloodPressureFeature.isIrregularPulseDetectionSupported());
+                    }
+                }
 
-                        return Completable.complete();
-                    });
-        } else {
-            completable = Completable.complete();
-        }
-        return completable;
+                if (mMeasurementPositionDetection.getValue() == null) {
+                    if (bloodPressureFeature != null) {
+                        mMeasurementPositionDetection.postValue(bloodPressureFeature.isMeasurementPositionDetectionSupported());
+                    }
+                }
+
+                if (mPulseRateRangeDetection.getValue() == null) {
+                    if (bloodPressureFeature != null) {
+                        mPulseRateRangeDetection.postValue(bloodPressureFeature.isPulseRateRangeDetectionSupported());
+                    }
+                }
+
+                if (mMultipleBondDetection.getValue() == null) {
+                    if (bloodPressureFeature != null) {
+                        mMultipleBondDetection.postValue(bloodPressureFeature.isMultipleBondSupported());
+                    }
+                }
+
+                if (mResponseDelay.getValue() == null) {
+                    mResponseDelay.postValue(String.valueOf(mCharacteristicData.delay));
+                }
+
+                if (mResponseCode.getValue() == null) {
+                    mResponseCode.postValue(String.valueOf(mCharacteristicData.responseCode));
+                }
+
+                emitter.onComplete();
+            } else {
+                emitter.onError(new RuntimeException("Initialized"));
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
+    @MainThread
     public void observeIsErrorResponse(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(isErrorResponse).observe(owner, observer);
+        Transformations.distinctUntilChanged(mIsErrorResponse).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateIsErrorResponse(@NonNull Boolean checked) {
-        isErrorResponse.setValue(checked);
-    }
-
     public void observeBodyMovementDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(bodyMovementDetection).observe(owner, observer);
+        Transformations.distinctUntilChanged(mBodyMovementDetection).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateBodyMovementDetection(@NonNull Boolean text) {
-        bodyMovementDetection.setValue(text);
-    }
-
     public void observeCuffFitDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(cuffFitDetection).observe(owner, observer);
+        Transformations.distinctUntilChanged(mCuffFitDetection).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateCuffFitDetection(@NonNull Boolean text) {
-        cuffFitDetection.setValue(text);
-    }
-
     public void observeIrregularPulseDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(irregularPulseDetection).observe(owner, observer);
+        Transformations.distinctUntilChanged(mIrregularPulseDetection).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateIrregularPulseDetection(@NonNull Boolean text) {
-        irregularPulseDetection.setValue(text);
-    }
-
     public void observeMeasurementPositionDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(measurementPositionDetection).observe(owner, observer);
+        Transformations.distinctUntilChanged(mMeasurementPositionDetection).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateMeasurementPositionDetection(@NonNull Boolean text) {
-        measurementPositionDetection.setValue(text);
-    }
-
     public void observePulseRateRangeDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(pulseRateRangeDetection).observe(owner, observer);
+        Transformations.distinctUntilChanged(mPulseRateRangeDetection).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updatePulseRateRangeDetection(@NonNull Boolean text) {
-        pulseRateRangeDetection.setValue(text);
-    }
-
     public void observeMultipleBondDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(multipleBondDetection).observe(owner, observer);
+        Transformations.distinctUntilChanged(mMultipleBondDetection).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateMultipleBondDetection(@NonNull Boolean text) {
-        multipleBondDetection.setValue(text);
-    }
-
-    public void observeResponseDelay(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseDelay).observe(owner, observer);
-    }
-
-    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<CharSequence> observer) {
-        Transformations.distinctUntilChanged(responseDelayError).observe(owner, observer);
-    }
-
-    @MainThread
-    public synchronized void updateResponseDelay(@NonNull CharSequence text) {
-        responseDelay.setValue(text.toString());
-        responseDelayError.setValue(mResourceTextSource.getResponseDelayErrorString(text));
-    }
-
     public void observeResponseCode(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(responseCode).observe(owner, observer);
-    }
-
-    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(responseCodeError).observe(owner, observer);
+        Transformations.distinctUntilChanged(mResponseCode).observe(owner, observer);
     }
 
     @MainThread
-    public synchronized void updateResponseCode(@NonNull CharSequence text) {
-        responseCode.setValue(text.toString());
-        responseCodeError.setValue(mResourceTextSource.getResponseCodeErrorString(text));
+    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseCode).observe(owner
+                , s -> observer.onChanged(mDeviceRepository.getResponseCodeErrorString(s)));
     }
+
+    @MainThread
+    public void observeResponseDelay(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseDelay).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mResponseDelay).observe(owner
+                , s -> observer.onChanged(mDeviceRepository.getResponseDelayErrorString(s)));
+    }
+
+    @MainThread
+    public void updateIsErrorResponse(@NonNull Boolean checked) {
+        mIsErrorResponse.setValue(checked);
+    }
+
+    @MainThread
+    public void updateBodyMovementDetection(@NonNull Boolean text) {
+        mBodyMovementDetection.setValue(text);
+    }
+
+    @MainThread
+    public void updateCuffFitDetection(@NonNull Boolean text) {
+        mCuffFitDetection.setValue(text);
+    }
+
+    @MainThread
+    public void updateIrregularPulseDetection(@NonNull Boolean text) {
+        mIrregularPulseDetection.setValue(text);
+    }
+
+    @MainThread
+    public void updateMeasurementPositionDetection(@NonNull Boolean text) {
+        mMeasurementPositionDetection.setValue(text);
+    }
+
+    @MainThread
+    public void updatePulseRateRangeDetection(@NonNull Boolean text) {
+        mPulseRateRangeDetection.setValue(text);
+    }
+
+    @MainThread
+    public void updateMultipleBondDetection(@NonNull Boolean text) {
+        mMultipleBondDetection.setValue(text);
+    }
+
+    @MainThread
+    public void updateResponseCode(@NonNull String text) {
+        mResponseCode.setValue(text);
+    }
+
+    @MainThread
+    public void updateResponseDelay(@NonNull String text) {
+        mResponseDelay.setValue(text);
+    }
+
 
     @NonNull
     @Override
-    public Single<Optional<Intent>> save() {
-        Intent intent;
-        if ((Boolean.TRUE.equals(isErrorResponse.getValue())
-                && TextUtils.isEmpty(responseCodeError.getValue())
-                || Boolean.FALSE.equals(isErrorResponse.getValue()))
-                && TextUtils.isEmpty(responseDelayError.getValue())) {
-            mCharacteristicData.data = new BloodPressureFeature(Objects.requireNonNull(bodyMovementDetection.getValue())
-                    , Objects.requireNonNull(cuffFitDetection.getValue())
-                    , Objects.requireNonNull(irregularPulseDetection.getValue())
-                    , Objects.requireNonNull(pulseRateRangeDetection.getValue())
-                    , Objects.requireNonNull(measurementPositionDetection.getValue())
-                    , Objects.requireNonNull(multipleBondDetection.getValue())
-                    , false
-                    , false
-                    , false)
-                    .getBytes();
-            if (Boolean.TRUE.equals(isErrorResponse.getValue())) {
-                mCharacteristicData.responseCode = Integer.parseInt(Objects.requireNonNull(responseCode.getValue()));
+    public Single<Intent> save() {
+        return Single.<Intent>create(emitter -> {
+            CharacteristicData characteristicData = mCharacteristicData;
+            if (characteristicData == null) {
+                emitter.onError(new RuntimeException("Already saved"));
             } else {
-                mCharacteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
-            }
-            mCharacteristicData.delay = Long.parseLong(Objects.requireNonNull(responseDelay.getValue()));
+                boolean isErrorResponse = Boolean.TRUE.equals(mIsErrorResponse.getValue());
+                String responseCode = mResponseCode.getValue();
+                String responseDelay = mResponseDelay.getValue();
+                boolean bodyMovementDetection = Boolean.TRUE.equals(mBodyMovementDetection.getValue());
+                boolean cuffFitDetection = Boolean.TRUE.equals(mCuffFitDetection.getValue());
+                boolean irregularPulseDetection = Boolean.TRUE.equals(mIrregularPulseDetection.getValue());
+                boolean measurementPositionDetection = Boolean.TRUE.equals(mMeasurementPositionDetection.getValue());
+                boolean pulseRateRangeDetection = Boolean.TRUE.equals(mPulseRateRangeDetection.getValue());
+                boolean multipleBondDetection = Boolean.TRUE.equals(mMultipleBondDetection.getValue());
 
-            intent = new Intent();
-            intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
-        } else {
-            intent = null;
-        }
-        return Single.just(Optional.ofNullable(intent));
+                if (responseDelay != null && mDeviceRepository.getResponseDelayErrorString(responseDelay) == null) {
+                    characteristicData.delay = Long.parseLong(responseDelay);
+                    if (isErrorResponse) {
+                        if (responseCode != null && mDeviceRepository.getResponseCodeErrorString(responseCode) == null) {
+                            characteristicData.data = null;
+                            characteristicData.responseCode = Integer.parseInt(responseCode);
+
+                            Intent intent = new Intent();
+                            intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+                            emitter.onSuccess(intent);
+                        } else {
+                            emitter.onError(new RuntimeException("Validation failed"));
+                        }
+                    } else {
+                        characteristicData.data = new BloodPressureFeature(bodyMovementDetection
+                                , cuffFitDetection
+                                , irregularPulseDetection
+                                , measurementPositionDetection
+                                , pulseRateRangeDetection
+                                , multipleBondDetection
+                                , false
+                                , false
+                                , false).getBytes();
+                        characteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
+
+                        Intent intent = new Intent();
+                        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+
+                        mCharacteristicData = null;
+                        emitter.onSuccess(intent);
+                    }
+                } else {
+                    emitter.onError(new RuntimeException("Validation failed"));
+                }
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
 }

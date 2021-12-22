@@ -22,8 +22,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".ui.device.type.DeviceTypeListActivity">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/rootContainer"
@@ -34,7 +33,7 @@
             tools:visibility="visible">
 
             <CheckBox
-                android:id="@+id/errorResponseCheckBox"
+                android:id="@+id/isErrorResponse"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -44,7 +43,7 @@
                 android:text="@string/error_response" />
 
             <CheckBox
-                android:id="@+id/bodyMovementDetectionCheckBox"
+                android:id="@+id/isBodyMovementDetectionSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -54,7 +53,7 @@
                 android:text="@string/body_movement_detection_support" />
 
             <CheckBox
-                android:id="@+id/cuffFitDetectionSupportCheckBox"
+                android:id="@+id/isCuffFitDetectionSupportSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -64,7 +63,7 @@
                 android:text="@string/cuff_fit_detection_support" />
 
             <CheckBox
-                android:id="@+id/irregularpulseDetectionCheckBox"
+                android:id="@+id/isIrregularPulseDetectionSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -74,7 +73,7 @@
                 android:text="@string/irregular_pulse_detection_support" />
 
             <CheckBox
-                android:id="@+id/pulseRateRangeDetectionCheckBox"
+                android:id="@+id/isPulseRateRangeDetectionSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -84,7 +83,7 @@
                 android:text="@string/pulse_rate_range_detection_support" />
 
             <CheckBox
-                android:id="@+id/measurementPositionDetectionSupportCheckBox"
+                android:id="@+id/is_measurement_position_detection_supported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -94,7 +93,7 @@
                 android:text="@string/measurement_position_detection_support" />
 
             <CheckBox
-                android:id="@+id/multipleBondsSupport"
+                android:id="@+id/is_multiple_bond_supported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -104,7 +103,7 @@
                 android:text="@string/multiple_bonds_support" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/errorResponseCode"
+                android:id="@+id/responseCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -119,6 +118,7 @@
                 tools:visibility="visible">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/responseCodeEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text" />
@@ -138,6 +138,7 @@
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/responseDelayEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number" />

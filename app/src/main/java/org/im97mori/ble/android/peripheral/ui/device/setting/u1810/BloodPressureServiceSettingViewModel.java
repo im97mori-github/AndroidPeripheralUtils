@@ -17,12 +17,15 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.BLEUtils;
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.ServiceData;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseServiceSettingViewModel;
+import org.im97mori.ble.android.peripheral.utils.ExistObserver;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.u2a35.BloodPressureMeasurement;
 import org.im97mori.ble.characteristic.u2a36.IntermediateCuffPressure;
@@ -30,435 +33,451 @@ import org.im97mori.ble.characteristic.u2a49.BloodPressureFeature;
 
 import java.util.Optional;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+@HiltViewModel
 public class BloodPressureServiceSettingViewModel extends BaseServiceSettingViewModel {
 
-    private final MutableLiveData<Boolean> hasBloodPressureMeasurement;
-    private final MutableLiveData<Boolean> hasIntermediateCuffPressure;
-    private final MutableLiveData<Boolean> supportIntermediateCuffPressure;
-    private final MutableLiveData<Boolean> hasBloodPressureFeature;
+    private static final String KEY_IS_INTERMEDIATE_CUFF_PRESSURE_SUPPORTED = "KEY_IS_INTERMEDIATE_CUFF_PRESSURE_SUPPORTED";
 
-    private final MutableLiveData<String> mBloodPressureMeasurementJson;
-    private final MutableLiveData<String> mIntermediateCuffPressureJson;
-    private final MutableLiveData<String> mBloodPressureFeatureJson;
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON = "KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON";
+    private static final String KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON = "KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON";
+    private static final String KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON = "KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON";
 
-    private final MutableLiveData<String> mBloodPressureMeasurementFlags;
-    private final MutableLiveData<String> mBloodPressureMeasurementSystolic;
-    private final MutableLiveData<String> mBloodPressureMeasurementDiastolic;
-    private final MutableLiveData<String> mBloodPressureMeasurementMeanArterialPressure;
-    private final MutableLiveData<Boolean> hasBloodPressureMeasurementTimeStamp;
-    private final MutableLiveData<String> mBloodPressureMeasurementTimeStamp;
-    private final MutableLiveData<Boolean> hasBloodPressureMeasurementPulseRate;
-    private final MutableLiveData<String> mBloodPressureMeasurementPulseRate;
-    private final MutableLiveData<Boolean> hasBloodPressureMeasurementUserId;
-    private final MutableLiveData<String> mBloodPressureMeasurementUserId;
-    private final MutableLiveData<Boolean> hasBloodPressureMeasurementMeasurementStatus;
-    private final MutableLiveData<String> mBloodPressureMeasurementMeasurementStatus;
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS = "KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS";
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC = "KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC";
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC = "KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC";
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE = "KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE";
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP = "KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP";
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE = "KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE";
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID = "KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID";
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS = "KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS";
 
-    private final MutableLiveData<String> mIntermediateCuffPressureFlags;
-    private final MutableLiveData<String> mIntermediateCuffPressureCurrentCuffPressure;
-    private final MutableLiveData<Boolean> hasIntermediateCuffPressureTimeStamp;
-    private final MutableLiveData<String> mIntermediateCuffPressureTimeStamp;
-    private final MutableLiveData<Boolean> hasIntermediateCuffPressurePulseRate;
-    private final MutableLiveData<String> mIntermediateCuffPressurePulseRate;
-    private final MutableLiveData<Boolean> hasIntermediateCuffPressureUserId;
-    private final MutableLiveData<String> mIntermediateCuffPressureUserId;
-    private final MutableLiveData<Boolean> hasIntermediateCuffPressureMeasurementStatus;
-    private final MutableLiveData<String> mIntermediateCuffPressureMeasurementStatus;
+    private static final String KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS = "KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS";
+    private static final String KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE = "KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE";
+    private static final String KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP = "KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP";
+    private static final String KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE = "KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE";
+    private static final String KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID = "KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID";
+    private static final String KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS = "KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS";
 
-    private final MutableLiveData<String> mBloodPressureFeature;
+    private static final String KEY_BLOOD_PRESSURE_FEATURE = "KEY_BLOOD_PRESSURE_FEATURE";
 
-    public BloodPressureServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle) {
-        hasBloodPressureMeasurement = savedStateHandle.getLiveData("hasBloodPressureMeasurement");
-        hasIntermediateCuffPressure = savedStateHandle.getLiveData("hasIntermediateCuffPressure");
-        hasBloodPressureFeature = savedStateHandle.getLiveData("hasBloodPressureFeature");
-        supportIntermediateCuffPressure = savedStateHandle.getLiveData("supportIntermediateCuffPressure");
+    private final SavedStateHandle mSavedStateHandle;
 
-        mBloodPressureMeasurementJson = savedStateHandle.getLiveData("mBloodPressureMeasurementJson");
-        mIntermediateCuffPressureJson = savedStateHandle.getLiveData("mIntermediateCuffPressureJson");
-        mBloodPressureFeatureJson = savedStateHandle.getLiveData("mBloodPressureFeatureJson");
+    private final MutableLiveData<Boolean> mIsIntermediateCuffPressureSupported;
 
-        mBloodPressureMeasurementFlags = savedStateHandle.getLiveData("mBloodPressureMeasurementFlags");
-        mBloodPressureMeasurementSystolic = savedStateHandle.getLiveData("mBloodPressureMeasurementSystolic");
-        mBloodPressureMeasurementDiastolic = savedStateHandle.getLiveData("mBloodPressureMeasurementDiastolic");
-        mBloodPressureMeasurementMeanArterialPressure = savedStateHandle.getLiveData("mBloodPressureMeasurementMeanArterialPressure");
-        hasBloodPressureMeasurementTimeStamp = savedStateHandle.getLiveData("hasBloodPressureMeasurementTimeStamp");
-        mBloodPressureMeasurementTimeStamp = savedStateHandle.getLiveData("mBloodPressureMeasurementTimeStamp");
-        hasBloodPressureMeasurementPulseRate = savedStateHandle.getLiveData("hasBloodPressureMeasurementPulseRate");
-        mBloodPressureMeasurementPulseRate = savedStateHandle.getLiveData("mBloodPressureMeasurementPulseRate");
-        hasBloodPressureMeasurementUserId = savedStateHandle.getLiveData("hasBloodPressureMeasurementUserId");
-        mBloodPressureMeasurementUserId = savedStateHandle.getLiveData("mBloodPressureMeasurementUserId");
-        hasBloodPressureMeasurementMeasurementStatus = savedStateHandle.getLiveData("hasBloodPressureMeasurementMeasurementStatus");
-        mBloodPressureMeasurementMeasurementStatus = savedStateHandle.getLiveData("mBloodPressureMeasurementMeasurementStatus");
+    private final MutableLiveData<String> mBloodPressureMeasurementDataJson;
+    private final MutableLiveData<String> mIntermediateCuffPressureDataJson;
+    private final MutableLiveData<String> mBloodPressureFeatureDataJson;
 
-        mIntermediateCuffPressureFlags = savedStateHandle.getLiveData("mIntermediateCuffPressureFlags");
-        mIntermediateCuffPressureCurrentCuffPressure = savedStateHandle.getLiveData("mIntermediateCuffPressureSystolic");
-        hasIntermediateCuffPressureTimeStamp = savedStateHandle.getLiveData("hasIntermediateCuffPressureTimeStamp");
-        mIntermediateCuffPressureTimeStamp = savedStateHandle.getLiveData("mIntermediateCuffPressureTimeStamp");
-        hasIntermediateCuffPressurePulseRate = savedStateHandle.getLiveData("hasIntermediateCuffPressurePulseRate");
-        mIntermediateCuffPressurePulseRate = savedStateHandle.getLiveData("mIntermediateCuffPressurePulseRate");
-        hasIntermediateCuffPressureUserId = savedStateHandle.getLiveData("hasIntermediateCuffPressureUserId");
-        mIntermediateCuffPressureUserId = savedStateHandle.getLiveData("mIntermediateCuffPressureUserId");
-        hasIntermediateCuffPressureMeasurementStatus = savedStateHandle.getLiveData("hasIntermediateCuffPressureMeasurementStatus");
-        mIntermediateCuffPressureMeasurementStatus = savedStateHandle.getLiveData("mIntermediateCuffPressureMeasurementStatus");
+    @Inject
+    public BloodPressureServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
+        super(deviceRepository, gson);
+        mSavedStateHandle = savedStateHandle;
 
-        mBloodPressureFeature = savedStateHandle.getLiveData("mBloodPressureFeature");
+        mIsIntermediateCuffPressureSupported = savedStateHandle.getLiveData(KEY_IS_INTERMEDIATE_CUFF_PRESSURE_SUPPORTED);
+
+        mBloodPressureMeasurementDataJson = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON);
+        mIntermediateCuffPressureDataJson = savedStateHandle.getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON);
+        mBloodPressureFeatureDataJson = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON);
+
     }
 
     @NonNull
     public Completable setup(@NonNull Intent intent) {
-        Completable completable;
-        if (mServiceData == null) {
-            completable = Single.just(Optional.ofNullable(intent.getStringExtra(BLOOD_PRESSURE_SERVICE.toString())))
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .flatMapCompletable(dataString -> {
-                        if (dataString.isPresent()) {
-                            try {
-                                mServiceData = mGson.fromJson(dataString.get(), ServiceData.class);
-                            } catch (JsonSyntaxException e) {
-                                e.printStackTrace();
-                            }
-                        }
+        return Completable.create(emitter -> {
+            if (mServiceData == null) {
+                String dataJson = intent.getStringExtra(BLOOD_PRESSURE_SERVICE.toString());
+                try {
+                    mServiceData = mGson.fromJson(dataJson, ServiceData.class);
+                } catch (JsonSyntaxException e) {
+                    e.printStackTrace();
+                }
 
-                        if (mServiceData == null) {
-                            mServiceData = new ServiceData();
-                            mServiceData.uuid = BLOOD_PRESSURE_SERVICE;
-                            mServiceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
-                        }
+                if (mServiceData == null) {
+                    mServiceData = new ServiceData();
+                    mServiceData.uuid = BLOOD_PRESSURE_SERVICE;
+                    mServiceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+                }
 
-                        if (hasBloodPressureMeasurement.getValue() == null) {
-                            Optional<CharacteristicData> optional = mServiceData.characteristicDataList
-                                    .stream()
-                                    .filter(characteristicData -> BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.equals(characteristicData.uuid))
-                                    .findAny();
-                            hasBloodPressureMeasurement.postValue(optional.isPresent());
-                            if (optional.isPresent()) {
-                                CharacteristicData characteristicData = optional.get();
-                                if (mBloodPressureMeasurementJson.getValue() == null) {
-                                    mBloodPressureMeasurementJson.postValue(mGson.toJson(characteristicData));
-                                }
-                                if (characteristicData.data != null) {
-                                    BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
-                                    if (mBloodPressureMeasurementFlags.getValue() == null) {
-                                        mBloodPressureMeasurementFlags.postValue(Integer.toHexString(bloodPressureMeasurement.getFlags()));
-                                    }
-                                    if (mBloodPressureMeasurementSystolic.getValue() == null) {
-                                        if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
-                                            mBloodPressureMeasurementSystolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
-                                        } else {
-                                            mBloodPressureMeasurementSystolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
-                                        }
-                                    }
-                                    if (mBloodPressureMeasurementDiastolic.getValue() == null) {
-                                        if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
-                                            mBloodPressureMeasurementDiastolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
-                                        } else {
-                                            mBloodPressureMeasurementDiastolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
-                                        }
-                                    }
-                                    if (mBloodPressureMeasurementMeanArterialPressure.getValue() == null) {
-                                        if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
-                                            mBloodPressureMeasurementMeanArterialPressure.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureMmhg().getSfloat()));
-                                        } else {
-                                            mBloodPressureMeasurementMeanArterialPressure.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureKpa().getSfloat()));
-                                        }
-                                    }
-                                    if (hasBloodPressureMeasurementTimeStamp.getValue() == null) {
-                                        hasBloodPressureMeasurementTimeStamp.postValue(BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags()));
-                                    }
-                                    if (mBloodPressureMeasurementTimeStamp.getValue() == null) {
-                                        mBloodPressureMeasurementTimeStamp.postValue(mResourceTextSource.getDateTimeString(bloodPressureMeasurement.getYear()
-                                                , bloodPressureMeasurement.getMonth()
-                                                , bloodPressureMeasurement.getDay()
-                                                , bloodPressureMeasurement.getHours()
-                                                , bloodPressureMeasurement.getMinutes()
-                                                , bloodPressureMeasurement.getSeconds()));
-                                    }
-                                    if (hasBloodPressureMeasurementPulseRate.getValue() == null) {
-                                        hasBloodPressureMeasurementPulseRate.postValue(BloodPressureMeasurementUtils.isFlagsPulseRatePresent(bloodPressureMeasurement.getFlags()));
-                                    }
-                                    if (mBloodPressureMeasurementPulseRate.getValue() == null) {
-                                        mBloodPressureMeasurementPulseRate.postValue(String.valueOf(bloodPressureMeasurement.getPulseRate().getSfloat()));
-                                    }
-                                    if (hasBloodPressureMeasurementUserId.getValue() == null) {
-                                        hasBloodPressureMeasurementUserId.postValue(BloodPressureMeasurementUtils.isFlagsUserIdPresent(bloodPressureMeasurement.getFlags()));
-                                    }
-                                    if (mBloodPressureMeasurementUserId.getValue() == null) {
-                                        mBloodPressureMeasurementUserId.postValue(String.valueOf(bloodPressureMeasurement.getUserId()));
-                                    }
-                                    if (hasBloodPressureMeasurementMeasurementStatus.getValue() == null) {
-                                        hasBloodPressureMeasurementMeasurementStatus.postValue(BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags()));
-                                    }
-                                    if (mBloodPressureMeasurementMeasurementStatus.getValue() == null) {
-                                        mBloodPressureMeasurementMeasurementStatus.postValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0)));
-                                    }
-                                }
-                            }
-                        }
+                Optional<CharacteristicData> bloodPressureMeasurementOptional = mServiceData.characteristicDataList
+                        .stream()
+                        .filter(characteristicData -> characteristicData.uuid.equals(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC))
+                        .findAny();
 
-                        if (hasIntermediateCuffPressure.getValue() == null) {
-                            Optional<CharacteristicData> optional = mServiceData.characteristicDataList
-                                    .stream()
-                                    .filter(characteristicData -> INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.equals(characteristicData.uuid))
-                                    .findAny();
-                            hasIntermediateCuffPressure.postValue(optional.isPresent());
-                            if (optional.isPresent()) {
-                                CharacteristicData characteristicData = optional.get();
-                                if (mIntermediateCuffPressureJson.getValue() == null) {
-                                    mIntermediateCuffPressureJson.postValue(mGson.toJson(characteristicData));
-                                }
-                                if (characteristicData.data != null) {
-                                    IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
-                                    if (mIntermediateCuffPressureFlags.getValue() == null) {
-                                        mIntermediateCuffPressureFlags.postValue(Integer.toHexString(intermediateCuffPressure.getFlags()));
-                                    }
-                                    if (mIntermediateCuffPressureCurrentCuffPressure.getValue() == null) {
-                                        if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(intermediateCuffPressure.getFlags())) {
-                                            mIntermediateCuffPressureCurrentCuffPressure.postValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureMmhg().getSfloat()));
-                                        } else {
-                                            mIntermediateCuffPressureCurrentCuffPressure.postValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureKpa().getSfloat()));
-                                        }
-                                    }
-                                    if (hasIntermediateCuffPressureTimeStamp.getValue() == null) {
-                                        hasIntermediateCuffPressureTimeStamp.postValue(BloodPressureMeasurementUtils.isFlagsTimeStampPresent(intermediateCuffPressure.getFlags()));
-                                    }
-                                    if (mIntermediateCuffPressureTimeStamp.getValue() == null) {
-                                        mIntermediateCuffPressureTimeStamp.postValue(mResourceTextSource.getDateTimeString(intermediateCuffPressure.getYear()
-                                                , intermediateCuffPressure.getMonth()
-                                                , intermediateCuffPressure.getDay()
-                                                , intermediateCuffPressure.getHours()
-                                                , intermediateCuffPressure.getMinutes()
-                                                , intermediateCuffPressure.getSeconds()));
-                                    }
-                                    if (hasIntermediateCuffPressurePulseRate.getValue() == null) {
-                                        hasIntermediateCuffPressurePulseRate.postValue(BloodPressureMeasurementUtils.isFlagsPulseRatePresent(intermediateCuffPressure.getFlags()));
-                                    }
-                                    if (mIntermediateCuffPressurePulseRate.getValue() == null) {
-                                        mIntermediateCuffPressurePulseRate.postValue(String.valueOf(intermediateCuffPressure.getPulseRate().getSfloat()));
-                                    }
-                                    if (hasIntermediateCuffPressureUserId.getValue() == null) {
-                                        hasIntermediateCuffPressureUserId.postValue(BloodPressureMeasurementUtils.isFlagsUserIdPresent(intermediateCuffPressure.getFlags()));
-                                    }
-                                    if (mIntermediateCuffPressureUserId.getValue() == null) {
-                                        mIntermediateCuffPressureUserId.postValue(String.valueOf(intermediateCuffPressure.getUserId()));
-                                    }
-                                    if (hasIntermediateCuffPressureMeasurementStatus.getValue() == null) {
-                                        hasIntermediateCuffPressureMeasurementStatus.postValue(BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(intermediateCuffPressure.getFlags()));
-                                    }
-                                    if (mIntermediateCuffPressureMeasurementStatus.getValue() == null) {
-                                        mIntermediateCuffPressureMeasurementStatus.postValue(Integer.toHexString(BLEUtils.createUInt16(intermediateCuffPressure.getMeasurementStatus(), 0)));
-                                    }
-                                }
-                            }
-                            if (supportIntermediateCuffPressure.getValue() == null) {
-                                supportIntermediateCuffPressure.postValue(optional.isPresent());
-                            }
-                        }
+                Optional<CharacteristicData> intermediateCuffPressureOptional = mServiceData.characteristicDataList
+                        .stream()
+                        .filter(characteristicData -> characteristicData.uuid.equals(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC))
+                        .findAny();
 
-                        if (hasBloodPressureFeature.getValue() == null) {
-                            Optional<CharacteristicData> optional = mServiceData.characteristicDataList
-                                    .stream()
-                                    .filter(characteristicData -> BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.equals(characteristicData.uuid))
-                                    .findAny();
-                            hasBloodPressureFeature.postValue(optional.isPresent());
-                            if (optional.isPresent()) {
-                                CharacteristicData characteristicData = optional.get();
-                                if (mBloodPressureFeatureJson.getValue() == null) {
-                                    mBloodPressureFeatureJson.postValue(mGson.toJson(characteristicData));
-                                }
-                                if (characteristicData.data != null) {
-                                    BloodPressureFeature bloodPressureFeature = new BloodPressureFeature(characteristicData.data);
-                                    if (mBloodPressureFeature.getValue() == null) {
-                                        mBloodPressureFeature.postValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0)));
-                                    }
-                                }
-                            }
-                        }
+                Optional<CharacteristicData> bloodPressureFeatureOptional = mServiceData.characteristicDataList
+                        .stream()
+                        .filter(characteristicData -> characteristicData.uuid.equals(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC))
+                        .findAny();
 
-                        return Completable.complete();
-                    });
-        } else {
-            completable = Completable.complete();
-        }
-        return completable;
+                if (mBloodPressureMeasurementDataJson.getValue() == null) {
+                    if (bloodPressureMeasurementOptional.isPresent()) {
+                        CharacteristicData characteristicData = bloodPressureMeasurementOptional.get();
+                        mBloodPressureMeasurementDataJson.postValue(mGson.toJson(characteristicData));
+                        BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
+                        mSavedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS)
+                                .postValue(Integer.toHexString(bloodPressureMeasurement.getFlags()));
+                        if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC)
+                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC)
+                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC)
+                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC)
+                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE)
+                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureMmhg().getSfloat()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE)
+                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureKpa().getSfloat()));
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).postValue(mDeviceRepository.getDateTimeString(bloodPressureMeasurement.getYear()
+                                    , bloodPressureMeasurement.getMonth()
+                                    , bloodPressureMeasurement.getDay()
+                                    , bloodPressureMeasurement.getHours()
+                                    , bloodPressureMeasurement.getMinutes()
+                                    , bloodPressureMeasurement.getSeconds()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).postValue(null);
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsPulseRatePresent(bloodPressureMeasurement.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE).postValue(String.valueOf(bloodPressureMeasurement.getPulseRate().getSfloat()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE).postValue(null);
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsUserIdPresent(bloodPressureMeasurement.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID).postValue(String.valueOf(bloodPressureMeasurement.getUserId()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID).postValue(null);
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).
+                                    postValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0)));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).postValue(null);
+                        }
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).postValue(null);
+                    }
+                }
+
+                if (mIsIntermediateCuffPressureSupported.getValue() == null) {
+                    mIsIntermediateCuffPressureSupported.postValue(intermediateCuffPressureOptional.isPresent());
+                }
+
+                if (mIntermediateCuffPressureDataJson.getValue() == null) {
+                    if (intermediateCuffPressureOptional.isPresent()) {
+                        CharacteristicData characteristicData = intermediateCuffPressureOptional.get();
+                        mIntermediateCuffPressureDataJson.postValue(mGson.toJson(characteristicData));
+                        IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS)
+                                .postValue(Integer.toHexString(intermediateCuffPressure.getFlags()));
+                        if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(intermediateCuffPressure.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE)
+                                    .postValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureMmhg().getSfloat()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE)
+                                    .postValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureKpa().getSfloat()));
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(intermediateCuffPressure.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP)
+                                    .postValue(mDeviceRepository.getDateTimeString(intermediateCuffPressure.getYear()
+                                            , intermediateCuffPressure.getMonth()
+                                            , intermediateCuffPressure.getDay()
+                                            , intermediateCuffPressure.getHours()
+                                            , intermediateCuffPressure.getMinutes()
+                                            , intermediateCuffPressure.getSeconds()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP).postValue(null);
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsPulseRatePresent(intermediateCuffPressure.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE).postValue(String.valueOf(intermediateCuffPressure.getPulseRate().getSfloat()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE).postValue(null);
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsUserIdPresent(intermediateCuffPressure.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID).postValue(String.valueOf(intermediateCuffPressure.getUserId()));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID).postValue(null);
+                        }
+                        if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(intermediateCuffPressure.getFlags())) {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS)
+                                    .postValue(Integer.toHexString(BLEUtils.createUInt16(intermediateCuffPressure.getMeasurementStatus(), 0)));
+                        } else {
+                            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS).postValue(null);
+                        }
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS).postValue(null);
+                    }
+                }
+
+                if (mBloodPressureFeatureDataJson.getValue() == null) {
+                    if (bloodPressureFeatureOptional.isPresent()) {
+                        CharacteristicData characteristicData = bloodPressureFeatureOptional.get();
+                        mBloodPressureFeatureDataJson.postValue(mGson.toJson(characteristicData));
+                        if (characteristicData.data != null) {
+                            BloodPressureFeature bloodPressureFeature = new BloodPressureFeature(characteristicData.data);
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).postValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0)));
+                        }
+                    }
+                }
+
+                emitter.onComplete();
+            } else {
+                emitter.onError(new RuntimeException("Initialized"));
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public void observeHasBloodPressureMeasurement(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasBloodPressureMeasurement).observe(owner, observer);
+    @MainThread
+    public void observeHasBloodPressureMeasurementDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mBloodPressureMeasurementDataJson).observe(owner, new ExistObserver(observer));
     }
 
-    public void observeHasIntermediateCuffPressure(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasIntermediateCuffPressure).observe(owner, observer);
+    @MainThread
+    public void observeHasIntermediateCuffPressureDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mIntermediateCuffPressureDataJson).observe(owner, new ExistObserver(observer));
     }
 
-    public void observeHasBloodPressureFeature(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasBloodPressureFeature).observe(owner, observer);
+    @MainThread
+    public void observeHasBloodPressureFeatureDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mBloodPressureFeatureDataJson).observe(owner, new ExistObserver(observer));
     }
 
+    @MainThread
+    public void observeIsIntermediateCuffPressureSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mIsIntermediateCuffPressureSupported).observe(owner, observer);
+    }
+
+    @MainThread
     public void observeBloodPressureMeasurementFlags(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureMeasurementFlags).observe(owner, observer);
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS)).observe(owner, observer);
     }
 
+    @MainThread
     public void observeBloodPressureMeasurementSystolic(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureMeasurementSystolic).observe(owner, observer);
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC)).observe(owner, observer);
     }
 
+    @MainThread
     public void observeBloodPressureMeasurementDiastolic(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureMeasurementDiastolic).observe(owner, observer);
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC)).observe(owner, observer);
     }
 
+    @MainThread
     public void observeBloodPressureMeanArterialPressure(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureMeasurementMeanArterialPressure).observe(owner, observer);
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE)).observe(owner, observer);
     }
 
-    public void observeHasBloodPressureMeasurementTimeStamp(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasBloodPressureMeasurementTimeStamp).observe(owner, observer);
+    @MainThread
+    public void observeIsBloodPressureMeasurementTimeStampSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP)).observe(owner, new ExistObserver(observer));
     }
 
+    @MainThread
     public void observeBloodPressureMeasurementTimeStamp(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureMeasurementTimeStamp).observe(owner, observer);
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP)).observe(owner, observer);
     }
 
-    public void observeHasBloodPressureMeasurementPulseRate(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasBloodPressureMeasurementPulseRate).observe(owner, observer);
+    @MainThread
+    public void observeIsBloodPressureMeasurementPulseRateSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE)).observe(owner, new ExistObserver(observer));
     }
 
+    @MainThread
     public void observeBloodPressureMeasurementPulseRate(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureMeasurementPulseRate).observe(owner, observer);
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE)).observe(owner, observer);
     }
 
-    public void observeHasBloodPressureMeasurementUserId(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasBloodPressureMeasurementUserId).observe(owner, observer);
+    @MainThread
+    public void observeIsBloodPressureMeasurementUserIdSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID)).observe(owner, new ExistObserver(observer));
     }
 
+    @MainThread
     public void observeBloodPressureMeasurementUserId(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureMeasurementUserId).observe(owner, observer);
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID)).observe(owner, observer);
     }
 
-    public void observeHasBloodPressureMeasuremenMeasurementStatus(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasBloodPressureMeasurementMeasurementStatus).observe(owner, observer);
+    @MainThread
+    public void observeIsBloodPressureMeasuremenMeasurementStatusSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS)).observe(owner, new ExistObserver(observer));
     }
 
+    @MainThread
     public void observeBloodPressureMeasurementMeasurementStatus(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureMeasurementMeasurementStatus).observe(owner, observer);
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS)).observe(owner, observer);
     }
+
 
     @MainThread
-    public synchronized void updateIntermediateCuffPressure(Boolean checked) {
-        supportIntermediateCuffPressure.setValue(checked);
-        if (!checked && Boolean.TRUE.equals(hasIntermediateCuffPressure.getValue())) {
-            hasIntermediateCuffPressure.setValue(false);
-        }
-    }
-
     public void observeIntermediateCuffPressureFlags(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mIntermediateCuffPressureFlags).observe(owner, observer);
-    }
-
-    public void observeIntermediateCuffPressureCurrentCuffPressure(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mIntermediateCuffPressureCurrentCuffPressure).observe(owner, observer);
-    }
-
-    public void observeHasIntermediateCuffPressureTimeStamp(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasIntermediateCuffPressureTimeStamp).observe(owner, observer);
-    }
-
-    public void observeIntermediateCuffPressureTimeStamp(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mIntermediateCuffPressureTimeStamp).observe(owner, observer);
-    }
-
-    public void observeHasIntermediateCuffPressurePulseRate(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasIntermediateCuffPressurePulseRate).observe(owner, observer);
-    }
-
-    public void observeIntermediateCuffPressurePulseRate(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mIntermediateCuffPressurePulseRate).observe(owner, observer);
-    }
-
-    public void observeHasIntermediateCuffPressureUserId(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasIntermediateCuffPressureUserId).observe(owner, observer);
-    }
-
-    public void observeIntermediateCuffPressureUserId(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mIntermediateCuffPressureUserId).observe(owner, observer);
-    }
-
-    public void observeHasIntermediateCuffPressureMeasurementStatus(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(hasIntermediateCuffPressureMeasurementStatus).observe(owner, observer);
-    }
-
-    public void observeIntermediateCuffPressureMeasurementStatus(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mIntermediateCuffPressureMeasurementStatus).observe(owner, observer);
-    }
-
-    public void observeSupportIntermediateCuffPressureMeasurement(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(supportIntermediateCuffPressure).observe(owner, observer);
-    }
-
-    public void observeBloodPressureFeature(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureFeature).observe(owner, observer);
-    }
-
-    @Nullable
-    public String getBloodPressureMeasurementDataString() {
-        return mBloodPressureMeasurementJson.getValue();
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS)).observe(owner, observer);
     }
 
     @MainThread
-    public void setBloodPressureMeasurementDataString(@Nullable String bloodPressureMeasurementJson) {
-        mBloodPressureMeasurementJson.setValue(bloodPressureMeasurementJson);
-        if (bloodPressureMeasurementJson == null) {
-            hasBloodPressureMeasurement.setValue(false);
-            mBloodPressureMeasurementFlags.setValue(null);
-            mBloodPressureMeasurementSystolic.setValue(null);
-            mBloodPressureMeasurementDiastolic.setValue(null);
-            mBloodPressureMeasurementMeanArterialPressure.setValue(null);
-            hasBloodPressureMeasurementTimeStamp.setValue(false);
-            mBloodPressureMeasurementTimeStamp.setValue(null);
-            hasBloodPressureMeasurementPulseRate.setValue(false);
-            mBloodPressureMeasurementPulseRate.setValue(null);
-            hasBloodPressureMeasurementUserId.setValue(false);
-            mBloodPressureMeasurementUserId.setValue(null);
-            hasBloodPressureMeasurementMeasurementStatus.setValue(false);
-            mBloodPressureMeasurementMeasurementStatus.setValue(null);
+    public void observeIntermediateCuffPressureCurrentCuffPressure(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE)).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeIsIntermediateCuffPressureTimeStampSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP)).observe(owner, new ExistObserver(observer));
+    }
+
+    @MainThread
+    public void observeIntermediateCuffPressureTimeStamp(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP)).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeIsIntermediateCuffPressurePulseRateSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE)).observe(owner, new ExistObserver(observer));
+    }
+
+    @MainThread
+    public void observeIntermediateCuffPressurePulseRate(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE)).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeIsIntermediateCuffPressureUserIdSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID)).observe(owner, new ExistObserver(observer));
+    }
+
+    @MainThread
+    public void observeIntermediateCuffPressureUserId(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID)).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeIsIntermediateCuffPressureMeasurementStatusSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS)).observe(owner, new ExistObserver(observer));
+    }
+
+    @MainThread
+    public void observeIntermediateCuffPressureMeasurementStatus(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS)).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeBloodPressureFeature(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE)).observe(owner, observer);
+    }
+
+    @MainThread
+    public void updateIsIntermediateCuffPressureSupported(boolean checked) {
+        mIsIntermediateCuffPressureSupported.setValue(checked);
+    }
+
+    @Nullable
+    @MainThread
+    public String getBloodPressureMeasurementDataJson() {
+        return mBloodPressureMeasurementDataJson.getValue();
+    }
+
+    @MainThread
+    public void setBloodPressureMeasurementDataJson(@Nullable String bloodPressureMeasurementDataJson) {
+        mBloodPressureMeasurementDataJson.setValue(bloodPressureMeasurementDataJson);
+        if (bloodPressureMeasurementDataJson == null) {
+            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).setValue(null);
         } else {
             try {
-                CharacteristicData characteristicData = mGson.fromJson(bloodPressureMeasurementJson, CharacteristicData.class);
-                hasBloodPressureMeasurement.setValue(true);
-                BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
-                mBloodPressureMeasurementFlags.setValue(Integer.toHexString(bloodPressureMeasurement.getFlags()));
-                if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
-                    mBloodPressureMeasurementSystolic.setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
+                CharacteristicData characteristicData = mGson.fromJson(bloodPressureMeasurementDataJson, CharacteristicData.class);
+                if (characteristicData.data == null) {
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).setValue(null);
                 } else {
-                    mBloodPressureMeasurementSystolic.setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
+                    BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS).setValue(Integer.toHexString(bloodPressureMeasurement.getFlags()));
+                    if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC)
+                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC)
+                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC)
+                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC)
+                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE)
+                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureMmhg().getSfloat()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE)
+                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureKpa().getSfloat()));
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).setValue(mDeviceRepository.getDateTimeString(bloodPressureMeasurement.getYear()
+                                , bloodPressureMeasurement.getMonth()
+                                , bloodPressureMeasurement.getDay()
+                                , bloodPressureMeasurement.getHours()
+                                , bloodPressureMeasurement.getMinutes()
+                                , bloodPressureMeasurement.getSeconds()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).setValue(null);
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsPulseRatePresent(bloodPressureMeasurement.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE).setValue(String.valueOf(bloodPressureMeasurement.getPulseRate().getSfloat()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE).setValue(null);
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsUserIdPresent(bloodPressureMeasurement.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID).setValue(String.valueOf(bloodPressureMeasurement.getUserId()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID).setValue(null);
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS)
+                                .setValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0)));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).setValue(null);
+                    }
                 }
-                if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
-                    mBloodPressureMeasurementDiastolic.setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
-                } else {
-                    mBloodPressureMeasurementDiastolic.setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
-                }
-                if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
-                    mBloodPressureMeasurementMeanArterialPressure.setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureMmhg().getSfloat()));
-                } else {
-                    mBloodPressureMeasurementMeanArterialPressure.setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureKpa().getSfloat()));
-                }
-                hasBloodPressureMeasurementTimeStamp.setValue(BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags()));
-                mBloodPressureMeasurementTimeStamp.setValue(mResourceTextSource.getDateTimeString(bloodPressureMeasurement.getYear()
-                        , bloodPressureMeasurement.getMonth()
-                        , bloodPressureMeasurement.getDay()
-                        , bloodPressureMeasurement.getHours()
-                        , bloodPressureMeasurement.getMinutes()
-                        , bloodPressureMeasurement.getSeconds()));
-                hasBloodPressureMeasurementPulseRate.setValue(BloodPressureMeasurementUtils.isFlagsPulseRatePresent(bloodPressureMeasurement.getFlags()));
-                mBloodPressureMeasurementPulseRate.setValue(String.valueOf(bloodPressureMeasurement.getPulseRate().getSfloat()));
-                hasBloodPressureMeasurementUserId.setValue(BloodPressureMeasurementUtils.isFlagsUserIdPresent(bloodPressureMeasurement.getFlags()));
-                mBloodPressureMeasurementUserId.setValue(String.valueOf(bloodPressureMeasurement.getUserId()));
-                hasBloodPressureMeasurementMeasurementStatus.setValue(BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags()));
-                mBloodPressureMeasurementMeasurementStatus.setValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0)));
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
@@ -466,48 +485,68 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     }
 
     @Nullable
-    public String getIntermediateCuffPressureDataString() {
-        return mIntermediateCuffPressureJson.getValue();
+    @MainThread
+    public String getIntermediateCuffPressureDataJson() {
+        return mIntermediateCuffPressureDataJson.getValue();
     }
 
-    public void setIntermediateCuffPressureDataString(@Nullable String intermediateCuffPressureJson) {
-        mIntermediateCuffPressureJson.setValue(intermediateCuffPressureJson);
-        if (intermediateCuffPressureJson == null) {
-            hasIntermediateCuffPressure.setValue(false);
-            mIntermediateCuffPressureFlags.setValue(null);
-            mIntermediateCuffPressureCurrentCuffPressure.setValue(null);
-            hasIntermediateCuffPressureTimeStamp.setValue(false);
-            mIntermediateCuffPressureTimeStamp.setValue(null);
-            hasIntermediateCuffPressurePulseRate.setValue(false);
-            mIntermediateCuffPressurePulseRate.setValue(null);
-            hasIntermediateCuffPressureUserId.setValue(false);
-            mIntermediateCuffPressureUserId.setValue(null);
-            hasIntermediateCuffPressureMeasurementStatus.setValue(false);
-            mIntermediateCuffPressureMeasurementStatus.setValue(null);
+    @MainThread
+    public void setIntermediateCuffPressureDataJson(@Nullable String intermediateCuffPressureDataJson) {
+        mIntermediateCuffPressureDataJson.setValue(intermediateCuffPressureDataJson);
+        if (intermediateCuffPressureDataJson == null) {
+            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID).setValue(null);
+            mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS).setValue(null);
         } else {
             try {
-                CharacteristicData characteristicData = mGson.fromJson(intermediateCuffPressureJson, CharacteristicData.class);
-                hasIntermediateCuffPressure.setValue(true);
-                IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
-                mIntermediateCuffPressureFlags.setValue(Integer.toHexString(intermediateCuffPressure.getFlags()));
-                if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(intermediateCuffPressure.getFlags())) {
-                    mIntermediateCuffPressureCurrentCuffPressure.setValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureMmhg().getSfloat()));
+                CharacteristicData characteristicData = mGson.fromJson(intermediateCuffPressureDataJson, CharacteristicData.class);
+                if (characteristicData.data == null) {
+                    mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID).setValue(null);
+                    mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS).setValue(null);
                 } else {
-                    mIntermediateCuffPressureCurrentCuffPressure.setValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureKpa().getSfloat()));
+                    IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
+                    mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS).setValue(Integer.toHexString(intermediateCuffPressure.getFlags()));
+                    if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(intermediateCuffPressure.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE)
+                                .setValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureMmhg().getSfloat()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE)
+                                .setValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureKpa().getSfloat()));
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(intermediateCuffPressure.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP).setValue(mDeviceRepository.getDateTimeString(intermediateCuffPressure.getYear()
+                                , intermediateCuffPressure.getMonth()
+                                , intermediateCuffPressure.getDay()
+                                , intermediateCuffPressure.getHours()
+                                , intermediateCuffPressure.getMinutes()
+                                , intermediateCuffPressure.getSeconds()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP).setValue(null);
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsPulseRatePresent(intermediateCuffPressure.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE).setValue(String.valueOf(intermediateCuffPressure.getPulseRate().getSfloat()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE).setValue(null);
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsUserIdPresent(intermediateCuffPressure.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID).setValue(String.valueOf(intermediateCuffPressure.getUserId()));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID).setValue(null);
+                    }
+                    if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(intermediateCuffPressure.getFlags())) {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS)
+                                .setValue(Integer.toHexString(BLEUtils.createUInt16(intermediateCuffPressure.getMeasurementStatus(), 0)));
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS).setValue(null);
+                    }
                 }
-                hasIntermediateCuffPressureTimeStamp.setValue(BloodPressureMeasurementUtils.isFlagsTimeStampPresent(intermediateCuffPressure.getFlags()));
-                mIntermediateCuffPressureTimeStamp.setValue(mResourceTextSource.getDateTimeString(intermediateCuffPressure.getYear()
-                        , intermediateCuffPressure.getMonth()
-                        , intermediateCuffPressure.getDay()
-                        , intermediateCuffPressure.getHours()
-                        , intermediateCuffPressure.getMinutes()
-                        , intermediateCuffPressure.getSeconds()));
-                hasIntermediateCuffPressurePulseRate.setValue(BloodPressureMeasurementUtils.isFlagsPulseRatePresent(intermediateCuffPressure.getFlags()));
-                mIntermediateCuffPressurePulseRate.setValue(String.valueOf(intermediateCuffPressure.getPulseRate().getSfloat()));
-                hasIntermediateCuffPressureUserId.setValue(BloodPressureMeasurementUtils.isFlagsUserIdPresent(intermediateCuffPressure.getFlags()));
-                mIntermediateCuffPressureUserId.setValue(String.valueOf(intermediateCuffPressure.getUserId()));
-                hasIntermediateCuffPressureMeasurementStatus.setValue(BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(intermediateCuffPressure.getFlags()));
-                mIntermediateCuffPressureMeasurementStatus.setValue(Integer.toHexString(BLEUtils.createUInt16(intermediateCuffPressure.getMeasurementStatus(), 0)));
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
@@ -515,21 +554,25 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     }
 
     @Nullable
-    public String getBloodPressureFeatureDataString() {
-        return mBloodPressureFeatureJson.getValue();
+    @MainThread
+    public String getBloodPressureFeatureDataJson() {
+        return mBloodPressureFeatureDataJson.getValue();
     }
 
-    public void setBloodPressureFeatureDataString(@Nullable String bloodPressureFeatureJson) {
-        mBloodPressureFeatureJson.setValue(bloodPressureFeatureJson);
-        if (bloodPressureFeatureJson == null) {
-            hasBloodPressureFeature.setValue(false);
-            mBloodPressureFeature.setValue(null);
+    @MainThread
+    public void setBloodPressureFeatureDataJson(@Nullable String bloodPressureFeatureDataJson) {
+        mBloodPressureFeatureDataJson.setValue(bloodPressureFeatureDataJson);
+        if (bloodPressureFeatureDataJson == null) {
+            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).setValue(null);
         } else {
             try {
-                CharacteristicData characteristicData = mGson.fromJson(bloodPressureFeatureJson, CharacteristicData.class);
-                hasBloodPressureFeature.setValue(true);
-                BloodPressureFeature bloodPressureFeature = new BloodPressureFeature(characteristicData.data);
-                mBloodPressureFeature.setValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0)));
+                CharacteristicData characteristicData = mGson.fromJson(bloodPressureFeatureDataJson, CharacteristicData.class);
+                if (characteristicData.data == null) {
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).setValue(null);
+                } else {
+                    BloodPressureFeature bloodPressureFeature = new BloodPressureFeature(characteristicData.data);
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).setValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0)));
+                }
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
@@ -538,40 +581,58 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
 
     @NonNull
     @Override
-    public Single<Optional<Intent>> save() {
-        Intent intent;
-        mServiceData.characteristicDataList.clear();
-        if (Boolean.TRUE.equals(hasBloodPressureMeasurement.getValue())) {
-            try {
-                mServiceData.characteristicDataList.add(mGson.fromJson(mBloodPressureMeasurementJson.getValue(), CharacteristicData.class));
-            } catch (JsonSyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-        if (Boolean.TRUE.equals(hasIntermediateCuffPressure.getValue())) {
-            try {
-                mServiceData.characteristicDataList.add(mGson.fromJson(mIntermediateCuffPressureJson.getValue(), CharacteristicData.class));
-            } catch (JsonSyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-        if (Boolean.TRUE.equals(hasBloodPressureFeature.getValue())) {
-            try {
-                mServiceData.characteristicDataList.add(mGson.fromJson(mBloodPressureFeatureJson.getValue(), CharacteristicData.class));
-            } catch (JsonSyntaxException e) {
-                e.printStackTrace();
-            }
-        }
+    public Single<Intent> save() {
+        return Single.<Intent>create(emitter -> {
+            ServiceData serviceData = mServiceData;
+            if (serviceData == null) {
+                emitter.onError(new RuntimeException("Already saved"));
+            } else {
+                serviceData.characteristicDataList.clear();
 
-        if (mServiceData.characteristicDataList
-                .stream()
-                .filter(characteristicData -> !characteristicData.uuid.equals(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC)).count() == 2) {
-            intent = new Intent();
-            intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(mServiceData));
-        } else {
-            intent = null;
-        }
-        return Single.just(Optional.ofNullable(intent));
+                String bloodPressureMeasurementJson = mBloodPressureMeasurementDataJson.getValue();
+                if (bloodPressureMeasurementJson != null) {
+                    try {
+                        serviceData.characteristicDataList.add(mGson.fromJson(bloodPressureMeasurementJson, CharacteristicData.class));
+                    } catch (JsonSyntaxException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (Boolean.TRUE.equals(mIsIntermediateCuffPressureSupported.getValue())) {
+                    String intermediateCuffPressureJson = mIntermediateCuffPressureDataJson.getValue();
+                    if (intermediateCuffPressureJson != null) {
+                        try {
+                            serviceData.characteristicDataList.add(mGson.fromJson(intermediateCuffPressureJson, CharacteristicData.class));
+                        } catch (JsonSyntaxException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                String bloodPressureFeatureJson = mBloodPressureFeatureDataJson.getValue();
+                if (bloodPressureFeatureJson != null) {
+                    try {
+                        serviceData.characteristicDataList.add(mGson.fromJson(bloodPressureFeatureJson, CharacteristicData.class));
+                    } catch (JsonSyntaxException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (serviceData.characteristicDataList
+                        .stream()
+                        .filter(characteristicData -> !characteristicData.uuid.equals(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC)).count() == 2) {
+                    Intent intent = new Intent();
+                    intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(serviceData));
+                    mServiceData = null;
+                    emitter.onSuccess(intent);
+                } else {
+                    emitter.onError(new RuntimeException("No data"));
+                }
+
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
 }

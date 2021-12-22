@@ -1,169 +1,100 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a49;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CheckBox;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
+import org.im97mori.ble.android.peripheral.databinding.BloodPressureFeatureSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
+import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
+import org.im97mori.stacklog.LogUtils;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class BloodPressureFeatureSettingActivity extends BaseActivity {
 
     private BloodPressureFeatureSettingViewModel mViewModel;
 
-    private CheckBox mErrorResponseCodeCheckBox;
-
-    private CheckBox mBodyMovementDetectionCheckBox;
-    private CheckBox mCuffFitDetectionSupportCheckBox;
-    private CheckBox mIrregularPulseDetectionCheckBox;
-    private CheckBox mPulseRateRangeDetectionCheckBox;
-    private CheckBox mMeasurementPositionDetectionSupportCheckBox;
-    private CheckBox mMultipleBondsSupport;
-
-    private TextInputLayout mErrorResponseCode;
-    private TextInputEditText mErrorResponseCodeEdit;
-
-    private TextInputLayout mResponseDelay;
-    private TextInputEditText mResponseDelayEdit;
+    private BloodPressureFeatureSettingActivityBinding mBinding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-//        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-//        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
-//        mViewModel = new ViewModelProvider(this).get(BloodPressureFeatureSettingViewModel.class);
-//        mApplicationComponent.inject(mViewModel);
+        mViewModel = new ViewModelProvider(this).get(BloodPressureFeatureSettingViewModel.class);
 
-        setContentView(R.layout.blood_pressure_feature_setting_activity);
+        mBinding = BloodPressureFeatureSettingActivityBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
 
-        mErrorResponseCodeCheckBox = findViewById(R.id.errorResponseCheckBox);
+        mViewModel.observeIsErrorResponse(this, check -> {
+            mBinding.isErrorResponse.setChecked(check);
 
-        mBodyMovementDetectionCheckBox = findViewById(R.id.bodyMovementDetectionCheckBox);
-        mCuffFitDetectionSupportCheckBox = findViewById(R.id.cuffFitDetectionSupportCheckBox);
-        mIrregularPulseDetectionCheckBox = findViewById(R.id.irregularpulseDetectionCheckBox);
-        mMeasurementPositionDetectionSupportCheckBox = findViewById(R.id.measurementPositionDetectionSupportCheckBox);
-        mPulseRateRangeDetectionCheckBox = findViewById(R.id.pulseRateRangeDetectionCheckBox);
-        mMultipleBondsSupport = findViewById(R.id.multipleBondsSupport);
+            int visibility = check ? View.GONE : View.VISIBLE;
+            mBinding.isBodyMovementDetectionSupported.setVisibility(visibility);
+            mBinding.isCuffFitDetectionSupportSupported.setVisibility(visibility);
+            mBinding.isIrregularPulseDetectionSupported.setVisibility(visibility);
+            mBinding.isPulseRateRangeDetectionSupported.setVisibility(visibility);
+            mBinding.isMeasurementPositionDetectionSupported.setVisibility(visibility);
+            mBinding.isMultipleBondSupported.setVisibility(visibility);
 
-        mResponseDelay = findViewById(R.id.responseDelay);
-        mResponseDelayEdit = (TextInputEditText) mResponseDelay.getEditText();
-
-        mErrorResponseCode = findViewById(R.id.errorResponseCode);
-        mErrorResponseCodeEdit = (TextInputEditText) mErrorResponseCode.getEditText();
-
-        mViewModel.observeIsErrorResponse(this, aBoolean -> {
-            mErrorResponseCodeCheckBox.setChecked(aBoolean);
-
-            int visibility = aBoolean ? View.GONE : View.VISIBLE;
-            mBodyMovementDetectionCheckBox.setVisibility(visibility);
-            mCuffFitDetectionSupportCheckBox.setVisibility(visibility);
-            mIrregularPulseDetectionCheckBox.setVisibility(visibility);
-            mPulseRateRangeDetectionCheckBox.setVisibility(visibility);
-            mMultipleBondsSupport.setVisibility(visibility);
-
-            mErrorResponseCode.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
+            mBinding.responseCode.setVisibility(check ? View.VISIBLE : View.GONE);
         });
-        mErrorResponseCodeCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsErrorResponse(isChecked));
+        mBinding.isErrorResponse.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsErrorResponse(isChecked));
 
-        mViewModel.observeResponseCode(this, charSequence -> distinctSetText(mErrorResponseCodeEdit, charSequence));
-        mViewModel.observeResponseCodeError(this, charSequence -> mErrorResponseCode.setError(charSequence));
-        mErrorResponseCodeEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        mViewModel.observeResponseCode(this, charSequence -> distinctSetText(mBinding.responseCodeEdit, charSequence));
+        mViewModel.observeResponseCodeError(this, charSequence -> mBinding.responseCode.setError(charSequence));
+        mBinding.responseCodeEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
+                -> mViewModel.updateResponseCode(editable)));
 
-            }
+        mViewModel.observeResponseDelay(this, charSequence -> distinctSetText(mBinding.responseDelayEdit, charSequence));
+        mViewModel.observeResponseDelayError(this, charSequence -> mBinding.responseDelay.setError(charSequence));
+        mBinding.responseDelayEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
+                -> mViewModel.updateResponseDelay(editable)));
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+        mViewModel.observeBodyMovementDetection(this, check -> mBinding.isBodyMovementDetectionSupported.setChecked(check));
+        mBinding.isBodyMovementDetectionSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateBodyMovementDetection(isChecked));
 
-            }
+        mViewModel.observeCuffFitDetection(this, check -> mBinding.isCuffFitDetectionSupportSupported.setChecked(check));
+        mBinding.isCuffFitDetectionSupportSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateCuffFitDetection(isChecked));
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                mViewModel.updateResponseCode(s);
-            }
-        });
+        mViewModel.observeIrregularPulseDetection(this, check -> mBinding.isIrregularPulseDetectionSupported.setChecked(check));
+        mBinding.isIrregularPulseDetectionSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIrregularPulseDetection(isChecked));
 
-        mViewModel.observeResponseDelay(this, charSequence -> distinctSetText(mResponseDelayEdit, charSequence));
-        mViewModel.observeResponseDelayError(this, charSequence -> mResponseDelay.setError(charSequence));
-        mResponseDelayEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        mViewModel.observePulseRateRangeDetection(this, check -> mBinding.isPulseRateRangeDetectionSupported.setChecked(check));
+        mBinding.isPulseRateRangeDetectionSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updatePulseRateRangeDetection(isChecked));
 
-            }
+        mViewModel.observeMeasurementPositionDetection(this, check -> mBinding.isMeasurementPositionDetectionSupported.setChecked(check));
+        mBinding.isMeasurementPositionDetectionSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateMeasurementPositionDetection(isChecked));
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+        mViewModel.observeMultipleBondDetection(this, check -> mBinding.isMultipleBondSupported.setChecked(check));
+        mBinding.isMultipleBondSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateMultipleBondDetection(isChecked));
 
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                mViewModel.updateResponseDelay(s);
-            }
-        });
-
-        mViewModel.observeBodyMovementDetection(this, aBoolean -> mBodyMovementDetectionCheckBox.setChecked(aBoolean));
-        mBodyMovementDetectionCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateBodyMovementDetection(isChecked));
-
-        mViewModel.observeCuffFitDetection(this, aBoolean -> mCuffFitDetectionSupportCheckBox.setChecked(aBoolean));
-        mCuffFitDetectionSupportCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateCuffFitDetection(isChecked));
-
-        mViewModel.observeIrregularPulseDetection(this, aBoolean -> mIrregularPulseDetectionCheckBox.setChecked(aBoolean));
-        mIrregularPulseDetectionCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIrregularPulseDetection(isChecked));
-
-        mViewModel.observePulseRateRangeDetection(this, aBoolean -> mPulseRateRangeDetectionCheckBox.setChecked(aBoolean));
-        mPulseRateRangeDetectionCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updatePulseRateRangeDetection(isChecked));
-
-        mViewModel.observeMeasurementPositionDetection(this, aBoolean -> mMeasurementPositionDetectionSupportCheckBox.setChecked(aBoolean));
-        mMeasurementPositionDetectionSupportCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateMeasurementPositionDetection(isChecked));
-
-        mViewModel.observeMultipleBondDetection(this, aBoolean -> mMultipleBondsSupport.setChecked(aBoolean));
-        mMultipleBondsSupport.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateMultipleBondDetection(isChecked));
-
-        MaterialToolbar bar = findViewById(R.id.topAppBar);
-        bar.setOnMenuItemClickListener(this::onOptionsItemSelected);
+        mBinding.topAppBar.setOnMenuItemClickListener(this::onOptionsItemSelected);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mDisposable.add(mViewModel.setup(getIntent())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> findViewById(R.id.rootContainer).setVisibility(View.VISIBLE)));
+                .subscribe(() -> mBinding.rootContainer.setVisibility(View.VISIBLE), throwable -> LogUtils.stackLog(throwable.getMessage())));
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        boolean result = false;
+        boolean result;
         if (item.getItemId() == R.id.save) {
             mDisposable.add(mViewModel.save()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(intent -> {
-                                if (intent.isPresent()) {
-                                    setResult(RESULT_OK, intent.get());
-                                    finish();
-                                }
-                            }
-                    ));
-
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }, throwable -> Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_SHORT).show()));
+            result = true;
         } else {
             result = super.onOptionsItemSelected(item);
         }

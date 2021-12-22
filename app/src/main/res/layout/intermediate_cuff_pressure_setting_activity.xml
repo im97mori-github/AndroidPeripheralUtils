@@ -22,8 +22,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".ui.device.type.DeviceTypeListActivity">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/rootContainer"
@@ -72,54 +71,15 @@
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/currentCuffPressureEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal|numberSigned" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/diastolic"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dp16"
-                android:layout_marginTop="@dimen/dp8"
-                android:layout_marginEnd="@dimen/dp16"
-                android:enabled="false"
-                android:hint="@string/diastolic"
-                app:helperText="@string/unused"
-                app:helperTextEnabled="true"
-                app:hintEnabled="true">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nan" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/meanArterialPressure"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dp16"
-                android:layout_marginTop="@dimen/dp8"
-                android:layout_marginEnd="@dimen/dp16"
-                android:enabled="false"
-                android:hint="@string/mean_arterial_pressure"
-                app:helperText="@string/unused"
-                app:helperTextEnabled="true"
-                app:hintEnabled="true">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nan" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
             <CheckBox
-                android:id="@+id/timeStampCheckBox"
+                android:id="@+id/isTimeStampSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -140,6 +100,7 @@
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/timeStampYearEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number" />
@@ -160,6 +121,7 @@
                 app:hintEnabled="true">
 
                 <AutoCompleteTextView
+                    android:id="@+id/timeStampMonthEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -181,6 +143,7 @@
                 app:hintEnabled="true">
 
                 <AutoCompleteTextView
+                    android:id="@+id/timeStampDayEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -202,6 +165,7 @@
                 app:hintEnabled="true">
 
                 <AutoCompleteTextView
+                    android:id="@+id/timeStampHoursEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -223,6 +187,7 @@
                 app:hintEnabled="true">
 
                 <AutoCompleteTextView
+                    android:id="@+id/timeStampMinutesEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -244,6 +209,7 @@
                 app:hintEnabled="true">
 
                 <AutoCompleteTextView
+                    android:id="@+id/timeStampSecondsEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -252,7 +218,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <CheckBox
-                android:id="@+id/pulseRateCheckBox"
+                android:id="@+id/isPulseRateSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -273,6 +239,7 @@
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/pulseRateEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal|numberSigned" />
@@ -280,7 +247,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <CheckBox
-                android:id="@+id/userIdCheckBox"
+                android:id="@+id/isUserIdSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -301,6 +268,7 @@
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/userIdEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number" />
@@ -308,7 +276,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <CheckBox
-                android:id="@+id/measurementStatusCheckBox"
+                android:id="@+id/isMeasurementStatusSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -327,6 +295,7 @@
                 android:hint="@string/body_movement_detection">
 
                 <AutoCompleteTextView
+                    android:id="@+id/bodyMovementDetectionEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -345,6 +314,7 @@
                 android:hint="@string/cuff_fit_detection">
 
                 <AutoCompleteTextView
+                    android:id="@+id/cuffFitDetectionEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -363,6 +333,7 @@
                 android:hint="@string/irregular_pulse_detection">
 
                 <AutoCompleteTextView
+                    android:id="@+id/irregularPulseDetectionEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -381,6 +352,7 @@
                 android:hint="@string/pulse_rate_range_detection">
 
                 <AutoCompleteTextView
+                    android:id="@+id/pulseRateRangeDetectionEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -399,6 +371,7 @@
                 android:hint="@string/measurement_position_detection">
 
                 <AutoCompleteTextView
+                    android:id="@+id/measurementPositionDetectionEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -479,6 +452,7 @@
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/notificationCountEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberSigned" />

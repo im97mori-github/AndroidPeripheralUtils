@@ -3,126 +3,87 @@ package org.im97mori.ble.android.peripheral.ui.device.setting.u180a;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.card.MaterialCardView;
-
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
+import org.im97mori.ble.android.peripheral.databinding.DeviceInformationServiceSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringLauncherContract;
+import org.im97mori.stacklog.LogUtils;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class DeviceInformationServiceSettingActivity extends BaseActivity {
 
     private DeviceInformationServiceSettingViewModel mViewModel;
 
-    final ActivityResultLauncher<String> mStartManufacturerNameStringSettingActivity = registerForActivityResult(new ManufacturerNameStringLauncherContract()
-            , result -> mViewModel.setManufacturerNameStringCharacteristicDataString(result));
+    private final ActivityResultLauncher<String> mStartManufacturerNameStringSettingActivity
+            = registerForActivityResult(new ManufacturerNameStringLauncherContract(), result -> mViewModel.setManufacturerNameStringDataJson(result));
 
-    final ActivityResultLauncher<String> mStartModelNumberStringSettingActivity = registerForActivityResult(new ModelNumberStringLauncherContract()
-            , result -> mViewModel.setModelNumberStringCharacteristicDataString(result));
+    private final ActivityResultLauncher<String> mStartModelNumberStringSettingActivity
+            = registerForActivityResult(new ModelNumberStringLauncherContract(), result -> mViewModel.setModelNumberStringDataJson(result));
 
-    final ActivityResultLauncher<String> mStartSystemIdSettingActivity = registerForActivityResult(new SystemIdLauncherContract()
-            , result -> mViewModel.setSystemIdCharacteristicDataString(result));
+    private final ActivityResultLauncher<String> mStartSystemIdSettingActivity
+            = registerForActivityResult(new SystemIdLauncherContract(), result -> mViewModel.setSystemIdDataJson(result));
 
-    private MaterialCardView mManufacturerNameStringCardView;
-    private TextView mManufacturerNameString;
-
-    private MaterialCardView mModelNumberStringCardView;
-    private TextView mModelNumberString;
-
-    private CheckBox mSystemIdCharacteristicSupported;
-
-    private MaterialCardView mSystemIdCardView;
-    private TextView mManufacturerIdentifier;
-    private TextView mOrganizationallyUniqueIdentifier;
+    private DeviceInformationServiceSettingActivityBinding mBinding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-//        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-//        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
-//        mViewModel = new ViewModelProvider(this).get(DeviceInformationServiceSettingViewModel.class);
-//        mApplicationComponent.inject(mViewModel);
+        mViewModel = new ViewModelProvider(this).get(DeviceInformationServiceSettingViewModel.class);
 
-        setContentView(R.layout.device_information_service_setting_activity);
+        mBinding = DeviceInformationServiceSettingActivityBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
 
-        mManufacturerNameStringCardView = findViewById(R.id.manufacturerNameStringCardView);
-        mManufacturerNameString = findViewById(R.id.manufacturerNameString);
-
-        mModelNumberStringCardView = findViewById(R.id.modelNumberStringCardView);
-        mModelNumberString = findViewById(R.id.modelNumberString);
-
-        mSystemIdCardView = findViewById(R.id.systemIdCardView);
-        mManufacturerIdentifier = findViewById(R.id.manufacturerIdentifier);
-        mOrganizationallyUniqueIdentifier = findViewById(R.id.organizationallyUniqueIdentifier);
-
-        mSystemIdCharacteristicSupported = findViewById(R.id.systemIdCharacteristicSupported);
-
-        mViewModel.observeHasManufacturerNameString(this, aBoolean -> mManufacturerNameStringCardView.setChecked(aBoolean));
-        mViewModel.observeHasModelNumberString(this, aBoolean -> mModelNumberStringCardView.setChecked(aBoolean));
-        mViewModel.observeHasSystemId(this, aBoolean -> mSystemIdCardView.setChecked(aBoolean));
-        mViewModel.observeSupportSystemId(this, aBoolean -> {
-            if (aBoolean) {
-                mSystemIdCardView.setVisibility(View.VISIBLE);
-            } else {
-                mSystemIdCardView.setChecked(false);
-                mSystemIdCardView.setVisibility(View.GONE);
-            }
-            mSystemIdCharacteristicSupported.setChecked(aBoolean);
+        mViewModel.observeHasManufacturerNameStringDataJson(this, mBinding.manufacturerNameStringCardView::setChecked);
+        mViewModel.observeHasModelNumberStringDataJson(this, mBinding.modelNumberStringCardView::setChecked);
+        mViewModel.observeHasSystemIdDataJson(this, mBinding.systemIdCardView::setChecked);
+        mViewModel.observeIsSystemIdSupported(this, check -> {
+            mBinding.isSystemIdSupported.setChecked(check);
+            mBinding.systemIdCardView.setVisibility(check ? View.VISIBLE : View.GONE);
         });
 
-        mViewModel.observeManufacturerNameString(this, s -> mManufacturerNameString.setText(s));
-        mViewModel.observeModelNumberString(this, s -> mModelNumberString.setText(s));
-        mViewModel.observeManufacturerIdentifier(this, s -> mManufacturerIdentifier.setText(s));
-        mViewModel.observeOrganizationallyUniqueIdentifier(this, s -> mOrganizationallyUniqueIdentifier.setText(s));
+        mViewModel.observeManufacturerNameString(this, mBinding.manufacturerNameString::setText);
+        mViewModel.observeModelNumberString(this, mBinding.modelNumberString::setText);
+        mViewModel.observeManufacturerIdentifier(this, mBinding.manufacturerIdentifier::setText);
+        mViewModel.observeOrganizationallyUniqueIdentifier(this, mBinding.organizationallyUniqueIdentifier::setText);
 
-        mSystemIdCharacteristicSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateSupportSystemId(isChecked));
+        mBinding.isSystemIdSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsSystemIdSupported(isChecked));
 
-        findViewById(R.id.manufacturerNameStringSettingButton).setOnClickListener(v -> mStartManufacturerNameStringSettingActivity.launch(mViewModel.getManufacturerNameStringCharacteristicDataString()));
-        findViewById(R.id.modelNumberStringSettingButton).setOnClickListener(v -> mStartModelNumberStringSettingActivity.launch(mViewModel.getModelNumberStringCharacteristicDataString()));
-        findViewById(R.id.systemIdSettingButton).setOnClickListener(v -> mStartSystemIdSettingActivity.launch(mViewModel.getSystemIdCharacteristicDataString()));
+        mBinding.manufacturerNameStringSettingButton.setOnClickListener(v -> mStartManufacturerNameStringSettingActivity.launch(mViewModel.getManufacturerNameStringDataJson()));
+        mBinding.modelNumberStringSettingButton.setOnClickListener(v -> mStartModelNumberStringSettingActivity.launch(mViewModel.getModelNumberStringDataJson()));
+        mBinding.systemIdSettingButton.setOnClickListener(v -> mStartSystemIdSettingActivity.launch(mViewModel.getSystemIdDataJson()));
 
-        MaterialToolbar bar = findViewById(R.id.topAppBar);
-        bar.setOnMenuItemClickListener(this::onOptionsItemSelected);
+        mBinding.topAppBar.setOnMenuItemClickListener(this::onOptionsItemSelected);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mDisposable.add(mViewModel.setup(getIntent())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> findViewById(R.id.rootContainer).setVisibility(View.VISIBLE)));
+                .subscribe(() -> mBinding.rootContainer.setVisibility(View.VISIBLE), throwable -> LogUtils.stackLog(throwable.getMessage())));
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        boolean result = false;
+        boolean result;
         if (item.getItemId() == R.id.save) {
             mDisposable.add(mViewModel.save()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(intent -> {
-                                if (intent.isPresent()) {
-                                    setResult(RESULT_OK, intent.get());
-                                    finish();
-                                }
-                            }
-                    ));
-
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }, throwable -> Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_SHORT).show())
+            );
+            result = true;
         } else {
             result = super.onOptionsItemSelected(item);
         }

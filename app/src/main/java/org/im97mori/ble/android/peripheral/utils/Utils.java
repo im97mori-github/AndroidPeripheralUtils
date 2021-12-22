@@ -22,7 +22,7 @@ public final class Utils {
     private Utils() {
     }
 
-    private static class TestDeserializer implements JsonDeserializer<CharacteristicData> {
+    private static class CharacteristicDataDeserializer implements JsonDeserializer<CharacteristicData> {
         private static final Type DESCRIPTOR_LIST_TYPE = new TypeToken<ArrayList<DescriptorData>>() {
         }.getType();
 
@@ -53,7 +53,7 @@ public final class Utils {
     public synchronized static Gson createGsonInstance() {
         if (mGson == null) {
             mGson = new GsonBuilder()
-                    .registerTypeAdapter(CharacteristicData.class, new TestDeserializer())
+                    .registerTypeAdapter(CharacteristicData.class, new CharacteristicDataDeserializer())
                     .create();
         }
         return mGson;

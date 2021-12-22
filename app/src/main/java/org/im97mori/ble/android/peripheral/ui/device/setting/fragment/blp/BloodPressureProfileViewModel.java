@@ -19,21 +19,19 @@ import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
+import org.im97mori.ble.android.peripheral.utils.ExistObserver;
 
 import java.util.Optional;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
 public class BloodPressureProfileViewModel extends ViewModel {
 
-    private static final String KEY_HAS_BLS_DATA = "KEY_HAS_BLS_DATA";
-    private static final String KEY_HAS_DIS_DATA = "KEY_HAS_DIS_DATA";
     private static final String KEY_IS_DIS_SUPPORTED = "KEY_IS_DIS_SUPPORTED";
 
     private static final String KEY_BLS_DATA_JSON = "KEY_BLS_DATA_JSON";
@@ -43,8 +41,6 @@ public class BloodPressureProfileViewModel extends ViewModel {
 
     private MockData mMockData;
 
-    private final MutableLiveData<Boolean> mHasBlsData;
-    private final MutableLiveData<Boolean> mHasDisData;
     private final MutableLiveData<Boolean> mIsDisSupported;
 
     private final MutableLiveData<String> mBlsDataJson;
@@ -53,8 +49,6 @@ public class BloodPressureProfileViewModel extends ViewModel {
     @Inject
     public BloodPressureProfileViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull Gson gson) {
         mGson = gson;
-        mHasBlsData = savedStateHandle.getLiveData(KEY_HAS_BLS_DATA);
-        mHasDisData = savedStateHandle.getLiveData(KEY_HAS_DIS_DATA);
         mIsDisSupported = savedStateHandle.getLiveData(KEY_IS_DIS_SUPPORTED);
         mBlsDataJson = savedStateHandle.getLiveData(KEY_BLS_DATA_JSON);
         mDisDataJson = savedStateHandle.getLiveData(KEY_DIS_DATA_JSON);
@@ -68,19 +62,13 @@ public class BloodPressureProfileViewModel extends ViewModel {
 
                 Optional<ServiceData> blsServieDataOptional = mMockData.serviceDataList
                         .stream()
-                        .findAny()
-                        .filter(serviceData -> serviceData.uuid.equals(BLOOD_PRESSURE_SERVICE));
-                if (mHasBlsData.getValue() == null) {
-                    mHasBlsData.postValue(blsServieDataOptional.isPresent());
-                }
+                        .filter(serviceData -> serviceData.uuid.equals(BLOOD_PRESSURE_SERVICE))
+                        .findAny();
 
                 Optional<ServiceData> disServieDataOptional = mMockData.serviceDataList
                         .stream()
-                        .findAny()
-                        .filter(serviceData -> serviceData.uuid.equals(DEVICE_INFORMATION_SERVICE));
-                if (mHasDisData.getValue() == null) {
-                    mHasDisData.postValue(disServieDataOptional.isPresent());
-                }
+                        .filter(serviceData -> serviceData.uuid.equals(DEVICE_INFORMATION_SERVICE))
+                        .findAny();
 
                 if (mIsDisSupported.getValue() == null) {
                     mIsDisSupported.postValue(disServieDataOptional.isPresent());
@@ -95,17 +83,15 @@ public class BloodPressureProfileViewModel extends ViewModel {
                 }
             }
             emitter.onComplete();
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.io());
     }
 
-    public void observeHasBlsData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mHasBlsData).observe(owner, observer);
+    public void observeHasBlsDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mBlsDataJson).observe(owner, new ExistObserver(observer));
     }
 
-    public void observeHasDisData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mHasDisData).observe(owner, observer);
+    public void observeHasDisDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mDisDataJson).observe(owner, new ExistObserver(observer));
     }
 
     public void observeIsDisSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
@@ -113,12 +99,8 @@ public class BloodPressureProfileViewModel extends ViewModel {
     }
 
     @MainThread
-    public synchronized void updateIsDisSupported(boolean checked) {
+    public void updateIsDisSupported(boolean checked) {
         mIsDisSupported.setValue(checked);
-        if (!checked) {
-            mHasDisData.setValue(false);
-            mDisDataJson.setValue(null);
-        }
     }
 
     @Nullable
@@ -130,7 +112,6 @@ public class BloodPressureProfileViewModel extends ViewModel {
     @MainThread
     public void setBlsDataJson(@Nullable String blsDataJson) {
         mBlsDataJson.setValue(blsDataJson);
-        mHasBlsData.setValue(blsDataJson != null);
     }
 
     @Nullable
@@ -142,21 +123,20 @@ public class BloodPressureProfileViewModel extends ViewModel {
     @MainThread
     public void setDisDataJson(@Nullable String disDataJson) {
         mDisDataJson.setValue(disDataJson);
-        mHasDisData.setValue(disDataJson != null);
     }
 
     @Nullable
     @WorkerThread
-    public synchronized String getModuleDataString() {
+    public String getModuleDataString() {
         mMockData.serviceDataList.clear();
-        if (Boolean.TRUE.equals(mHasBlsData.getValue())) {
+        if (mBlsDataJson.getValue() != null) {
             try {
                 mMockData.serviceDataList.add(mGson.fromJson(mBlsDataJson.getValue(), ServiceData.class));
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }
-        if (Boolean.TRUE.equals(mHasDisData.getValue())) {
+        if (mDisDataJson.getValue() != null) {
             try {
                 mMockData.serviceDataList.add(mGson.fromJson(mDisDataJson.getValue(), ServiceData.class));
             } catch (JsonSyntaxException e) {

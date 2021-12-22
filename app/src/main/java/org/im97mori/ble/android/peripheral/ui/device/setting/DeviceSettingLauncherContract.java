@@ -1,5 +1,8 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting;
 
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -10,12 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 public class DeviceSettingLauncherContract extends ActivityResultContract<Pair<Long, Integer>, Boolean> {
-
-    public static final String KEY_DEVICE_ID = "KEY_DEVICE_ID";
-
-    public static final long UNSAVED_DEVICE_ID = -1;
-
-    public static final String KEY_DEVICE_TYPE = "KEY_DEVICE_TYPE";
 
     @NonNull
     @Override

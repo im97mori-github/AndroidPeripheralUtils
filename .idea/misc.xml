@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BuildAttributionWarningsFilter">
+    <option name="noGCSettingWarning" value="true" />
+  </component>
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.22760416666666666" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/animation_test.xml" value="0.3172995780590717" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/circle_shape.xml" value="0.18675213675213675" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/circled_medical_ketsuatsukei.xml" value="0.18675213675213675" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/ic_baseline_bluetooth_connected_24.xml" value="0.3172995780590717" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/ic_launcher_background.xml" value="0.22760416666666666" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/test.xml" value="0.3172995780590717" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/test2.xml" value="0.33" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/font-v26/rubik.xml" value="0.24166666666666667" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/font/rubik.xml" value="0.19829059829059828" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/a/blood_pressure_profile_setting_fragment.xml" value="0.3042194092827004" />
@@ -33,6 +41,386 @@
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/menu/save.xml" value="0.1735042735042735" />
       </map>
     </option>
+  </component>
+  <component name="EntryPointsManager">
+    <entry_points version="2.0">
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.MainActivity adapter" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.Constants.DeviceTypes DEVICE_TYPE_UNDEFINED" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingActivity mBloodPressureFeatureSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileFragment mDeviceSettingViewModel" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingActivity mStartBloodPressureMeasurementSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileFragment mStartBloodPressureServiceSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingActivity mStartClientCharacteristicConfigurationSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingActivity mStartClientCharacteristicConfigurationSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileFragment mStartDeviceInformationServiceSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity mStartDeviceSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.MainActivity mStartDeviceTypeListActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingActivity mStartIntermediateCuffPressureSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingActivity mStartManufacturerNameStringSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingActivity mStartModelNumberStringSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingActivity mStartSystemIdSettingActivity" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingActivity mViewModel" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingActivity mViewModel" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivity mViewModel" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.MainActivity mViewModel" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingActivity mViewModel" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingActivity mViewModel" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity mViewModel" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingActivity mViewModel" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel PROPERTIES_TYPE_INDICATION" />
+    </entry_points>
+    <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" method="AfterTextChangedTextWatcher" />
+    <pattern value="org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.AppDatabase" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModule" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.BaseActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseDescriptorSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseDeviceSettingFragment" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseServiceSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileFragment" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" method="BloodPressureProfileViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.Constants" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository" method="createProfileMockCallback" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModel" method="deleteAllDevices" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModel" method="deleteDevice" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.Device" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceDao" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.datasource.DeviceDataSource" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.datasource.DeviceDataSource" method="DeviceDataSource" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapter" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapter" method="DeviceListAdapter" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository" method="DeviceRepository" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListAdapter" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListAdapter" method="DeviceTypeListAdapter" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.Constants.DeviceTypes" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.BaseActivity" method="distinctSetText" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.ExistObserver" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.ExistObserver" method="ExistObserver" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="fragmentReady" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="getBloodPressureFeatureDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="getBloodPressureMeasurementDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" method="getBlsDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="getClientCharacteristicConfigurationDescriptorJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="getClientCharacteristicConfigurationDescriptorJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModel" method="getDeviceList" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.Device" method="getDeviceSetting" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.Device" method="getDeviceSettingName" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.Device" method="getDeviceType" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModel" method="getDeviceTypeList" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" method="getDisDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="getFragment" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.Device" method="getId" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="getIntermediateCuffPressureDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="getManufacturerNameStringDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="getModelNumberStringDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" method="getModuleDataString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="getSystemIdDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingActivity" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.IntegerStringPair" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.IntegerStringPair" method="IntegerStringPair" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.ListItemAdapter" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.ListItemAdapter" method="ListItemAdapter" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MapObserver" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MapObserver" method="MapObserver" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeBloodPressureFeature" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeBloodPressureMeanArterialPressure" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeBloodPressureMeasurementDiastolic" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeBloodPressureMeasurementFlags" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeBloodPressureMeasurementMeasurementStatus" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeBloodPressureMeasurementPulseRate" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeBloodPressureMeasurementSystolic" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeBloodPressureMeasurementTimeStamp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeBloodPressureMeasurementUserId" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeBodyMovementDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeBodyMovementDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeBodyMovementDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeClientCharacteristicConfiguration" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeClientCharacteristicConfiguration" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeCuffFitDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeCuffFitDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeCuffFitDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeCurrentCuffPressure" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeCurrentCuffPressureError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="observeDeviceSettingName" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="observeDeviceSettingNameErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeDiastolic" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeDiastolicError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="observeFragmentReady" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeHasBloodPressureFeatureDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeHasBloodPressureMeasurementDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" method="observeHasBlsDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeHasClientCharacteristicConfigurationData" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeHasClientCharacteristicConfigurationData" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" method="observeHasDisDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeHasIntermediateCuffPressureDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="observeHasManufacturerNameStringDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="observeHasModelNumberStringDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="observeHasSystemIdDataJson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeIndicationCount" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeIndicationCountError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIntermediateCuffPressureCurrentCuffPressure" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIntermediateCuffPressureFlags" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIntermediateCuffPressureMeasurementStatus" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIntermediateCuffPressurePulseRate" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIntermediateCuffPressureTimeStamp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIntermediateCuffPressureUserId" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeIrregularPulseDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeIrregularPulseDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeIrregularPulseDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIsBloodPressureMeasuremenMeasurementStatusSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIsBloodPressureMeasurementPulseRateSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIsBloodPressureMeasurementTimeStampSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIsBloodPressureMeasurementUserIdSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" method="observeIsDisSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observeIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="observeIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="observeIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="observeIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIsIntermediateCuffPressureMeasurementStatusSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIsIntermediateCuffPressurePulseRateSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIsIntermediateCuffPressureSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIsIntermediateCuffPressureTimeStampSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="observeIsIntermediateCuffPressureUserIdSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeIsMeasurementStatusSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeIsMeasurementStatusSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeIsMmhg" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeIsMmhg" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeIsPulseRateSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeIsPulseRateSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="observeIsSystemIdSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeIsTimeStampSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeIsTimeStampSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeIsUserIdSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeIsUserIdSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="observeManufacturerIdentifier" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="observeManufacturerIdentifier" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="observeManufacturerIdentifierError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="observeManufacturerNameString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="observeManufacturerNameString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="observeManufacturerNameStringError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeMeanArterialPressure" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeMeanArterialPressureError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeMeasurementPositionDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeMeasurementPositionDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeMeasurementPositionDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="observeMockData" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="observeModelNumberString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="observeModelNumberString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="observeModelNumberStringError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeMultipleBondDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeNotificationCount" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeNotificationCountError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="observeOrganizationallyUniqueIdentifier" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="observeOrganizationallyUniqueIdentifier" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="observeOrganizationallyUniqueIdentifierError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observeProperties" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observePropertiesDisabled" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observePropertiesEnabled" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observePulseRate" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observePulseRate" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observePulseRateError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observePulseRateError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observePulseRateRangeDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observePulseRateRangeDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observePulseRateRangeDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observeResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="observeResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="observeResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="observeResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeResponseCodeError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observeResponseCodeError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="observeResponseCodeError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="observeResponseCodeError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="observeResponseCodeError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observeResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="observeResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="observeResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="observeResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeResponseDelayError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observeResponseDelayError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="observeResponseDelayError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="observeResponseDelayError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="observeResponseDelayError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeSystolic" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeSystolicError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeTimeStampDay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeTimeStampDay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeTimeStampHours" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeTimeStampHours" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeTimeStampMinutes" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeTimeStampMinutes" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeTimeStampMonth" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeTimeStampMonth" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeTimeStampSeconds" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeTimeStampSeconds" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeTimeStampYear" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeTimeStampYear" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeTimeStampYearError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeTimeStampYearError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="observeTitle" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeUnit" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeUnit" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeUserId" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeUserId" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeUserIdError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeUserIdError" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModule" method="provieGson" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseDescriptorSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseServiceSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapter" method="setDeviceList" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseDescriptorSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseServiceSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="updateBodyMovementDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateBodyMovementDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateBodyMovementDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="updateCuffFitDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateCuffFitDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateCuffFitDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateCurrentCuffPressure" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="updateDeviceSettingName" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateDiastolic" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateIndicationCount" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="updateIrregularPulseDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateIrregularPulseDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateIrregularPulseDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel" method="updateIsDisSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="updateIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="updateIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="updateIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="updateIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="updateIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="updateIsIntermediateCuffPressureSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateIsMeasurementStatusSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateIsMeasurementStatusSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateIsMmhg" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateIsMmhg" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateIsPulseRateSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateIsPulseRateSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="updateIsSystemIdSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateIsTimeStampSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateIsTimeStampSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateIsUserIdSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateIsUserIdSupported" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="updateManufacturerIdentifier" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="updateManufacturerNameString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateMeanArterialPressure" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="updateMeasurementPositionDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateMeasurementPositionDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateMeasurementPositionDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="updateModelNumberStringString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="updateMultipleBondDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateNotificationCount" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="updateOrganizationallyUniqueIdentifier" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="updateProperties" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updatePulseRate" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updatePulseRate" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="updatePulseRateRangeDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updatePulseRateRangeDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updatePulseRateRangeDetection" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="updateResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="updateResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="updateResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="updateResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="updateResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="updateResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="updateResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="updateResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="updateResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="updateResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateSystolic" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateTimeStampDay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateTimeStampDay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateTimeStampHours" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateTimeStampHours" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateTimeStampMinutes" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateTimeStampMinutes" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateTimeStampMonth" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateTimeStampMonth" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateTimeStampSeconds" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateTimeStampSeconds" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateTimeStampYear" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateTimeStampYear" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="updateUserId" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="updateUserId" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="BloodPressureFeatureSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="BloodPressureMeasurementSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="BloodPressureServiceSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="ClientCharacteristicConfigurationSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.Constants" method="Constants" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="DeviceInformationServiceSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel" method="DeviceSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModel" method="DeviceTypeListViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="IntermediateCuffPressureSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModel" method="MainViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="ManufacturerNameStringSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="ModelNumberStringSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModel" method="PeripheralViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="save" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="setup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModel" method="SystemIdSettingViewModel" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />

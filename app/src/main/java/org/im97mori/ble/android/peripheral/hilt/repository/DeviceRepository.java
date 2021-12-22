@@ -1,6 +1,8 @@
 package org.im97mori.ble.android.peripheral.hilt.repository;
 
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
+import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
+import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -9,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
+import org.im97mori.ble.MockData;
+import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceDataSource;
 import org.im97mori.ble.android.peripheral.room.Device;
@@ -17,12 +21,17 @@ import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.DateTimeUtils;
 import org.im97mori.ble.characteristic.core.IEEE_11073_20601_SFLOAT;
 import org.im97mori.ble.constants.ErrorCode;
+import org.im97mori.ble.profile.blp.peripheral.BloodPressureProfileMockCallback;
+import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
+import org.im97mori.ble.service.bls.peripheral.BloodPressureServiceMockCallback;
+import org.im97mori.ble.service.dis.peripheral.DeviceInformationServiceMockCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -37,6 +46,7 @@ public class DeviceRepository {
     private final DeviceDataSource mDeviceDataSource;
     private final Context mApplicationContext;
 
+    private Map<Integer, Integer> mDeviceTypeImageResMap;
     private Map<Integer, String> mDeviceTypeNameMap;
     private List<Pair<Integer, String>> mDeviceTypeNameList;
 
@@ -58,13 +68,17 @@ public class DeviceRepository {
         mApplicationContext = context.getApplicationContext();
     }
 
-    private synchronized void initDataTypeName() {
-        if (mDeviceTypeNameMap == null) {
-            Map<Integer, String> map = Collections.synchronizedMap(new HashMap<>());
-            map.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mApplicationContext.getString(R.string.blood_pressure_profile));
-            mDeviceTypeNameMap = Collections.unmodifiableMap(map);
+    private synchronized void initDataType() {
+        if (mDeviceTypeImageResMap == null) {
+            Map<Integer, Integer> imageMap = Collections.synchronizedMap(new HashMap<>());
+            imageMap.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, R.drawable.medical_ketsuatsukei_aneroid);
+            mDeviceTypeImageResMap = Collections.unmodifiableMap(imageMap);
 
-            List<Pair<Integer, String>> list = map.entrySet()
+            Map<Integer, String> nameMap = Collections.synchronizedMap(new HashMap<>());
+            nameMap.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mApplicationContext.getString(R.string.blood_pressure_profile));
+            mDeviceTypeNameMap = Collections.unmodifiableMap(nameMap);
+
+            List<Pair<Integer, String>> list = nameMap.entrySet()
                     .stream()
                     .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
                     .map(entry -> Pair.create(entry.getKey(), entry.getValue()))
@@ -72,7 +86,6 @@ public class DeviceRepository {
             mDeviceTypeNameList = Collections.unmodifiableList(Collections.synchronizedList(list));
         }
     }
-
 
     private synchronized void initDateTimeMonthList() {
         if (mDateTimeMonthList == null) {
@@ -201,9 +214,18 @@ public class DeviceRepository {
         return mDeviceDataSource.loadDeviceById(id);
     }
 
+    public Flowable<Device> loadDeviceByIdFlowable(long id) {
+        return mDeviceDataSource.loadDeviceByIdFlowable(id);
+    }
+
     @NonNull
     public Completable insertDevices(@NonNull Device device) {
-        return mDeviceDataSource.insertDevices(device);
+        return mDeviceDataSource.insertDevice(device);
+    }
+
+    @NonNull
+    public Completable deleteDevice(@NonNull Device device) {
+        return mDeviceDataSource.deleteDevice(device);
     }
 
     @NonNull
@@ -212,14 +234,26 @@ public class DeviceRepository {
     }
 
     @Nullable
+    public Integer getDeviceTypeImageRes(int deviceType) {
+        initDataType();
+        return mDeviceTypeImageResMap.get(deviceType);
+    }
+
+    @Nullable
     public String getDeviceTypeName(int deviceType) {
-        initDataTypeName();
+        initDataType();
         return mDeviceTypeNameMap.get(deviceType);
     }
 
     @NonNull
+    public Map<Integer, Integer> provideDeviceTypeImageResMap() {
+        initDataType();
+        return mDeviceTypeImageResMap;
+    }
+
+    @NonNull
     public List<Pair<Integer, String>> provideDeviceTypeList() {
-        initDataTypeName();
+        initDataType();
         return mDeviceTypeNameList;
     }
 
@@ -573,12 +607,12 @@ public class DeviceRepository {
     }
 
     @NonNull
-    public String getEnabledDisabledString() {
+    public String getNotificationsDisabledString() {
         return mApplicationContext.getString(R.string.notification_disabled);
     }
 
     @NonNull
-    public String getEnabledEnabledString() {
+    public String getNotificationsEnabledString() {
         return mApplicationContext.getString(R.string.notification_enabled);
     }
 
@@ -602,6 +636,22 @@ public class DeviceRepository {
             result = mApplicationContext.getString(R.string.notification_disabled);
         }
         return result;
+    }
+
+    @NonNull
+    public AbstractProfileMockCallback createProfileMockCallback(int deviceType, @NonNull MockData mockData) {
+        MockData blsMockData = null;
+        MockData disMockData = null;
+        for (ServiceData serviceData : mockData.serviceDataList) {
+            if (BLOOD_PRESSURE_SERVICE.equals(serviceData.uuid)) {
+                blsMockData = new MockData(Collections.singletonList(serviceData));
+            } else if (DEVICE_INFORMATION_SERVICE.equals(serviceData.uuid)) {
+                disMockData = new MockData(Collections.singletonList(serviceData));
+            }
+        }
+        return new BloodPressureProfileMockCallback(mApplicationContext
+                , new BloodPressureServiceMockCallback(Objects.requireNonNull(blsMockData), false)
+                , disMockData == null ? null : new DeviceInformationServiceMockCallback(disMockData, false));
     }
 
 }

@@ -24,13 +24,16 @@ public class Device {
     private String mDeviceSetting;
 
     @Ignore
-    public Device(@NonNull String deviceName, int deviceType) {
-        mId = 0;
-        mDeviceSettingName = deviceName;
-        mDeviceType = deviceType;
+    public Device(long id) {
+        this(id, "", 0, null);
     }
 
-    public Device(long id, @Nullable String deviceSettingName, int deviceType, @Nullable String deviceSetting) {
+    @Ignore
+    public Device(@NonNull String deviceSettingName, int deviceType) {
+        this(0, deviceSettingName, deviceType, null);
+    }
+
+    public Device(long id, @NonNull String deviceSettingName, int deviceType, @Nullable String deviceSetting) {
         mId = id;
         mDeviceSettingName = deviceSettingName;
         mDeviceType = deviceType;

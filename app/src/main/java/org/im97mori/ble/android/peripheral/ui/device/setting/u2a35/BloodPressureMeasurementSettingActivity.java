@@ -1,409 +1,192 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a35;
 
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.CheckBox;
-import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.AndroidPeripheralUtilsApplication;
+import org.im97mori.ble.android.peripheral.databinding.BloodPressureMeasurementSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.ListItemAdapter;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationLauncherContract;
-import org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel;
+import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
+import org.im97mori.stacklog.LogUtils;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class BloodPressureMeasurementSettingActivity extends BaseActivity {
 
     private BloodPressureMeasurementSettingViewModel mViewModel;
 
-    private RadioGroup mUnitRadioGroup;
-
-    private TextInputLayout mSystolic;
-    private TextInputEditText mSystolicEdit;
-
-    private TextInputLayout mDiastolic;
-    private TextInputEditText mDiastolicEdit;
-
-    private TextInputLayout mMeanArterialPressure;
-    private TextInputEditText mMeanArterialPressureEdit;
-
-    private CheckBox mTimeStampCheckBox;
-    private TextInputLayout mTimeStampYear;
-    private TextInputEditText mTimeStampYearEdit;
-    private TextInputLayout mTimeStampMonth;
-    private AutoCompleteTextView mTimeStampMonthEdit;
-    private TextInputLayout mTimeStampDay;
-    private AutoCompleteTextView mTimeStampDayEdit;
-    private TextInputLayout mTimeStampHours;
-    private AutoCompleteTextView mTimeStampHoursEdit;
-    private TextInputLayout mTimeStampMinutes;
-    private AutoCompleteTextView mTimeStampMinutesEdit;
-    private TextInputLayout mTimeStampSeconds;
-    private AutoCompleteTextView mTimeStampSecondsEdit;
-
-    private CheckBox mPulseRateCheckBox;
-    private TextInputLayout mPulseRate;
-    private TextInputEditText mPulseRateEdit;
-
-    private CheckBox mUserIdCheckBox;
-    private TextInputLayout mUserId;
-    private TextInputEditText mUserIdEdit;
-
-    private CheckBox mMeasurementStatusCheckBox;
-    private TextInputLayout mBodyMovementDetection;
-    private AutoCompleteTextView mBodyMovementDetectionEdit;
-    private TextInputLayout mCuffFitDetection;
-    private AutoCompleteTextView mCuffFitDetectionEdit;
-    private TextInputLayout mIrregularPulseDetection;
-    private AutoCompleteTextView mIrregularPulseDetectionEdit;
-    private TextInputLayout mPulseRateRangeDetection;
-    private AutoCompleteTextView mPulseRateRangeDetectionEdit;
-    private TextInputLayout mMeasurementPositionDetection;
-    private AutoCompleteTextView mMeasurementPositionDetectionEdit;
-
-    private MaterialCardView mClientCharacteristicConfigurationCardView;
-    private AppCompatTextView mClientCharacteristicConfiguration;
-
-    private TextInputLayout mIndicationCount;
-    private TextInputEditText mIndicationCountEdit;
+    private BloodPressureMeasurementSettingActivityBinding mBinding;
 
     final ActivityResultLauncher<Pair<String, Integer>> mStartClientCharacteristicConfigurationSettingActivity = registerForActivityResult(new ClientCharacteristicConfigurationLauncherContract()
-            , result -> mViewModel.setClientCharacteristicConfigurationDescriptorDataString(result));
+            , result -> mViewModel.setClientCharacteristicConfigurationDescriptorJson(result));
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-//        mApplicationComponent = ((AndroidPeripheralUtilsApplication) getApplication()).getComponent();
-//        mApplicationComponent.inject(this);
         super.onCreate(savedInstanceState);
-//        mViewModel = new ViewModelProvider(this).get(BloodPressureMeasurementSettingViewModel.class);
-//        mApplicationComponent.inject(mViewModel);
+        mViewModel = new ViewModelProvider(this).get(BloodPressureMeasurementSettingViewModel.class);
 
-        setContentView(R.layout.blood_pressure_measurement_setting_activity);
+        mBinding = BloodPressureMeasurementSettingActivityBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
 
-        mUnitRadioGroup = findViewById(R.id.unitRadioGroup);
-
-        mSystolic = findViewById(R.id.systolic);
-        mSystolicEdit = (TextInputEditText) mSystolic.getEditText();
-
-        mDiastolic = findViewById(R.id.diastolic);
-        mDiastolicEdit = (TextInputEditText) mDiastolic.getEditText();
-
-        mMeanArterialPressure = findViewById(R.id.meanArterialPressure);
-        mMeanArterialPressureEdit = (TextInputEditText) mMeanArterialPressure.getEditText();
-
-        mTimeStampCheckBox = findViewById(R.id.timeStampCheckBox);
-        mTimeStampYear = findViewById(R.id.timeStampYear);
-        mTimeStampYearEdit = (TextInputEditText) mTimeStampYear.getEditText();
-        mTimeStampMonth = findViewById(R.id.timeStampMonth);
-        mTimeStampMonthEdit = (AutoCompleteTextView) mTimeStampMonth.getEditText();
-        mTimeStampDay = findViewById(R.id.timeStampDay);
-        mTimeStampDayEdit = (AutoCompleteTextView) mTimeStampDay.getEditText();
-        mTimeStampHours = findViewById(R.id.timeStampHours);
-        mTimeStampHoursEdit = (AutoCompleteTextView) mTimeStampHours.getEditText();
-        mTimeStampMinutes = findViewById(R.id.timeStampMinutes);
-        mTimeStampMinutesEdit = (AutoCompleteTextView) mTimeStampMinutes.getEditText();
-        mTimeStampSeconds = findViewById(R.id.timeStampSeconds);
-        mTimeStampSecondsEdit = (AutoCompleteTextView) mTimeStampSeconds.getEditText();
-
-        mPulseRateCheckBox = findViewById(R.id.pulseRateCheckBox);
-        mPulseRate = findViewById(R.id.pulseRate);
-        mPulseRateEdit = (TextInputEditText) mPulseRate.getEditText();
-
-        mUserIdCheckBox = findViewById(R.id.userIdCheckBox);
-        mUserId = findViewById(R.id.userId);
-        mUserIdEdit = (TextInputEditText) mUserId.getEditText();
-
-        mMeasurementStatusCheckBox = findViewById(R.id.measurementStatusCheckBox);
-        mBodyMovementDetection = findViewById(R.id.bodyMovementDetection);
-        mBodyMovementDetectionEdit = (AutoCompleteTextView) mBodyMovementDetection.getEditText();
-        mCuffFitDetection = findViewById(R.id.cuffFitDetection);
-        mCuffFitDetectionEdit = (AutoCompleteTextView) mCuffFitDetection.getEditText();
-        mIrregularPulseDetection = findViewById(R.id.irregularPulseDetection);
-        mIrregularPulseDetectionEdit = (AutoCompleteTextView) mIrregularPulseDetection.getEditText();
-        mPulseRateRangeDetection = findViewById(R.id.pulseRateRangeDetection);
-        mPulseRateRangeDetectionEdit = (AutoCompleteTextView) mPulseRateRangeDetection.getEditText();
-        mMeasurementPositionDetection = findViewById(R.id.measurementPositionDetection);
-        mMeasurementPositionDetectionEdit = (AutoCompleteTextView) mMeasurementPositionDetection.getEditText();
-
-        mClientCharacteristicConfigurationCardView = findViewById(R.id.clientCharacteristicConfigurationCardView);
-        mClientCharacteristicConfiguration = findViewById(R.id.clientCharacteristicConfiguration);
-
-        mIndicationCount = findViewById(R.id.indicationCount);
-        mIndicationCountEdit = (TextInputEditText) mIndicationCount.getEditText();
-
-        mViewModel.observeIsMmhg(this, aBoolean -> mUnitRadioGroup.check(aBoolean ? R.id.mmhgRadioButton : R.id.kpaRadioButton));
-        mUnitRadioGroup.setOnCheckedChangeListener((group, checkedId) -> mViewModel.updateIsMmhg(checkedId == R.id.mmhgRadioButton));
+        mViewModel.observeIsMmhg(this, check -> mBinding.unitRadioGroup.check(check ? R.id.mmhgRadioButton : R.id.kpaRadioButton));
+        mBinding.unitRadioGroup.setOnCheckedChangeListener((group, checkedId) -> mViewModel.updateIsMmhg(checkedId == R.id.mmhgRadioButton));
         mViewModel.observeUnit(this, charSequence -> {
-            mSystolic.setSuffixText(charSequence);
-            mDiastolic.setSuffixText(charSequence);
-            mMeanArterialPressure.setSuffixText(charSequence);
+            mBinding.systolic.setSuffixText(charSequence);
+            mBinding.diastolic.setSuffixText(charSequence);
+            mBinding.meanArterialPressure.setSuffixText(charSequence);
         });
 
-        mViewModel.observeSystolic(this, charSequence -> distinctSetText(mSystolicEdit, charSequence));
-        mViewModel.observeSystolicError(this, charSequence -> mSystolic.setError(charSequence));
-        mSystolicEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        mViewModel.observeSystolic(this, charSequence -> distinctSetText(mBinding.systolicEdit, charSequence));
+        mViewModel.observeSystolicError(this, charSequence -> mBinding.systolic.setError(charSequence));
+        mBinding.systolicEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
+                -> mViewModel.updateSystolic(editable)));
 
-            }
+        mViewModel.observeDiastolic(this, charSequence -> distinctSetText(mBinding.diastolicEdit, charSequence));
+        mViewModel.observeDiastolicError(this, charSequence -> mBinding.diastolic.setError(charSequence));
+        mBinding.diastolicEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
+                -> mViewModel.updateDiastolic(editable)));
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+        mViewModel.observeMeanArterialPressure(this, charSequence -> distinctSetText(mBinding.meanArterialPressureEdit, charSequence));
+        mViewModel.observeMeanArterialPressureError(this, charSequence -> mBinding.meanArterialPressure.setError(charSequence));
+        mBinding.meanArterialPressureEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
+                -> mViewModel.updateMeanArterialPressure(editable)));
 
-            }
+        mViewModel.observeIsTimeStampSupported(this, check -> {
+            mBinding.isTimeStampSupported.setChecked(check);
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                mViewModel.updateSystolic(s);
-            }
+            int visibility = check ? View.VISIBLE : View.GONE;
+            mBinding.timeStampYear.setVisibility(visibility);
+            mBinding.timeStampMonth.setVisibility(visibility);
+            mBinding.timeStampDay.setVisibility(visibility);
+            mBinding.timeStampHours.setVisibility(visibility);
+            mBinding.timeStampMinutes.setVisibility(visibility);
+            mBinding.timeStampSeconds.setVisibility(visibility);
         });
+        mBinding.isTimeStampSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsTimeStampSupported(isChecked));
 
-        mViewModel.observeDiastolic(this, charSequence -> distinctSetText(mDiastolicEdit, charSequence));
-        mViewModel.observeDiastolicError(this, charSequence -> mDiastolic.setError(charSequence));
-        mDiastolicEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        mViewModel.observeTimeStampYear(this, charSequence -> distinctSetText(mBinding.timeStampYearEdit, charSequence));
+        mViewModel.observeTimeStampYearError(this, charSequence -> mBinding.timeStampYear.setError(charSequence));
+        mBinding.timeStampYearEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
+                -> mViewModel.updateTimeStampYear(editable)));
 
-            }
+        mBinding.timeStampMonthEdit.setAdapter(new ListItemAdapter(this, mViewModel.provideDateTimeMonthList()));
+        mViewModel.observeTimeStampMonth(this, charSequence -> distinctSetText(mBinding.timeStampMonthEdit, charSequence));
+        mBinding.timeStampMonthEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampMonth(position));
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+        mBinding.timeStampDayEdit.setAdapter(new ListItemAdapter(this, mViewModel.provideDateTimeDayList()));
+        mViewModel.observeTimeStampDay(this, charSequence -> distinctSetText(mBinding.timeStampDayEdit, charSequence));
+        mBinding.timeStampDayEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampDay(position));
 
-            }
+        mBinding.timeStampHoursEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideDateTimeHoursList()));
+        mViewModel.observeTimeStampHours(this, charSequence -> distinctSetText(mBinding.timeStampHoursEdit, charSequence));
+        mBinding.timeStampHoursEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampHours(position));
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                mViewModel.updateDiastolic(s);
-            }
+        mBinding.timeStampMinutesEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideDateTimeMinutesList()));
+        mViewModel.observeTimeStampMinutes(this, charSequence -> distinctSetText(mBinding.timeStampMinutesEdit, charSequence));
+        mBinding.timeStampMinutesEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampMinutes(position));
+
+        mBinding.timeStampSecondsEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideDateTimeSecondsList()));
+        mViewModel.observeTimeStampSeconds(this, charSequence -> distinctSetText(mBinding.timeStampSecondsEdit, charSequence));
+        mBinding.timeStampSecondsEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampSeconds(position));
+
+        mViewModel.observeIsPulseRateSupported(this, check -> {
+            mBinding.isPulseRateSupported.setChecked(check);
+            mBinding.pulseRate.setVisibility(check ? View.VISIBLE : View.GONE);
         });
+        mBinding.isPulseRateSupported.setOnCheckedChangeListener((buttonView, isChecked) ->
+                mViewModel.updateIsPulseRateSupported(isChecked));
+        mViewModel.observePulseRate(this, charSequence -> distinctSetText(mBinding.pulseRateEdit, charSequence));
+        mViewModel.observePulseRateError(this, charSequence -> mBinding.pulseRate.setError(charSequence));
+        mBinding.pulseRateEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
+                -> mViewModel.updatePulseRate(editable)));
 
-        mViewModel.observeMeanArterialPressure(this, charSequence -> distinctSetText(mMeanArterialPressureEdit, charSequence));
-        mViewModel.observeMeanArterialPressureError(this, charSequence -> mMeanArterialPressure.setError(charSequence));
-        mMeanArterialPressureEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                mViewModel.updateMeanArterialPressure(s);
-            }
+        mViewModel.observeIsUserIdSupported(this, check -> {
+            mBinding.isUserIdSupported.setChecked(check);
+            mBinding.userId.setVisibility(check ? View.VISIBLE : View.GONE);
         });
+        mBinding.isUserIdSupported.setOnCheckedChangeListener((buttonView, isChecked) ->
+                mViewModel.updateIsUserIdSupported(isChecked));
+        mViewModel.observeUserId(this, charSequence -> distinctSetText(mBinding.userIdEdit, charSequence));
+        mViewModel.observeUserIdError(this, charSequence -> mBinding.userId.setError(charSequence));
+        mBinding.userIdEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
+                -> mViewModel.updateUserId(editable)));
 
-        mViewModel.observeHasTimeStamp(this, aBoolean -> {
-            mTimeStampCheckBox.setChecked(aBoolean);
-
-            int visibility = aBoolean ? View.VISIBLE : View.GONE;
-            mTimeStampYear.setVisibility(visibility);
-            mTimeStampMonth.setVisibility(visibility);
-            mTimeStampDay.setVisibility(visibility);
-            mTimeStampHours.setVisibility(visibility);
-            mTimeStampMinutes.setVisibility(visibility);
-            mTimeStampSeconds.setVisibility(visibility);
+        mViewModel.observeIsMeasurementStatusSupported(this, check -> {
+            mBinding.isMeasurementStatusSupported.setChecked(check);
+            int visibility = check ? View.VISIBLE : View.GONE;
+            mBinding.bodyMovementDetection.setVisibility(visibility);
+            mBinding.cuffFitDetection.setVisibility(visibility);
+            mBinding.irregularPulseDetection.setVisibility(visibility);
+            mBinding.pulseRateRangeDetection.setVisibility(visibility);
+            mBinding.measurementPositionDetection.setVisibility(visibility);
         });
-        mTimeStampCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateHasTimeStamp(isChecked));
+        mBinding.isMeasurementStatusSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsMeasurementStatusSupported(isChecked));
 
-        mViewModel.observeTimeStampYear(this, charSequence -> distinctSetText(mTimeStampYearEdit, charSequence));
-        mViewModel.observeTimeStampYearError(this, charSequence -> mTimeStampYear.setError(charSequence));
-        mTimeStampYearEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        mBinding.bodyMovementDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideBodyMovementDetectionList()));
+        mViewModel.observeBodyMovementDetection(this, charSequence -> distinctSetText(mBinding.bodyMovementDetectionEdit, charSequence));
+        mBinding.bodyMovementDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateBodyMovementDetection(position));
 
-            }
+        mBinding.cuffFitDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideCuffFitDetectionList()));
+        mViewModel.observeCuffFitDetection(this, charSequence -> distinctSetText(mBinding.cuffFitDetectionEdit, charSequence));
+        mBinding.cuffFitDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateCuffFitDetection(position));
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+        mBinding.irregularPulseDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideIrregularPulseDetectionList()));
+        mViewModel.observeIrregularPulseDetection(this, charSequence -> distinctSetText(mBinding.irregularPulseDetectionEdit, charSequence));
+        mBinding.irregularPulseDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateIrregularPulseDetection(position));
 
-            }
+        mBinding.pulseRateRangeDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.providePulseRateRangeDetectionList()));
+        mViewModel.observePulseRateRangeDetection(this, charSequence -> distinctSetText(mBinding.pulseRateRangeDetectionEdit, charSequence));
+        mBinding.pulseRateRangeDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updatePulseRateRangeDetection(position));
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                mViewModel.updateTimeStampYear(s);
-            }
-        });
+        mBinding.measurementPositionDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideMeasurementPositionDetectionList()));
+        mViewModel.observeMeasurementPositionDetection(this, charSequence -> distinctSetText(mBinding.measurementPositionDetectionEdit, charSequence));
+        mBinding.measurementPositionDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateMeasurementPositionDetection(position));
 
-        mTimeStampMonthEdit.setAdapter(new ListItemAdapter(this, mViewModel.provideDateTimeMonthList()));
-        mViewModel.observeTimeStampMonth(this, integer -> mTimeStampMonthEdit.setListSelection(integer));
-        mTimeStampMonthEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampMonth(position));
+        mViewModel.observeHasClientCharacteristicConfigurationData(this, check -> mBinding.clientCharacteristicConfigurationCardView.setChecked(check));
 
-        mTimeStampDayEdit.setAdapter(new ListItemAdapter(this, mViewModel.provideDateTimeDayList()));
-        mViewModel.observeTimeStampDay(this, integer -> mTimeStampDayEdit.setListSelection(integer));
-        mTimeStampDayEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampDay(position));
+        mViewModel.observeClientCharacteristicConfiguration(this, s -> mBinding.clientCharacteristicConfiguration.setText(s));
+        mBinding.clientCharacteristicConfigurationSettingButton.setOnClickListener(v ->
+                mStartClientCharacteristicConfigurationSettingActivity.launch(Pair.create(mViewModel.getClientCharacteristicConfigurationDescriptorJson()
+                        , BluetoothGattCharacteristic.PROPERTY_INDICATE)));
 
-        mTimeStampHoursEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideDateTimeHoursList()));
-        mViewModel.observeTimeStampHours(this, integer -> mTimeStampHoursEdit.setListSelection(integer));
-        mTimeStampHoursEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampHours(position));
+        mViewModel.observeIndicationCount(this, charSequence -> distinctSetText(mBinding.indicationCountEdit, charSequence));
+        mViewModel.observeIndicationCountError(this, charSequence -> mBinding.indicationCount.setError(charSequence));
+        mBinding.indicationCountEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
+                -> mViewModel.updateIndicationCount(editable)));
 
-        mTimeStampMinutesEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideDateTimeMinutesList()));
-        mViewModel.observeTimeStampMinutes(this, integer -> mTimeStampMinutesEdit.setListSelection(integer));
-        mTimeStampMinutesEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampMinutes(position));
-
-        mTimeStampSecondsEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideDateTimeSecondsList()));
-        mViewModel.observeTimeStampSeconds(this, integer -> mTimeStampSecondsEdit.setListSelection(integer));
-        mTimeStampSecondsEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampSeconds(position));
-
-        mViewModel.observeHasPulseRate(this, aBoolean -> {
-            mPulseRateCheckBox.setChecked(aBoolean);
-            mPulseRate.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
-        });
-        mPulseRateCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
-                mViewModel.updateHasPulseRate(isChecked));
-        mViewModel.observePulseRate(this, charSequence -> distinctSetText(mPulseRateEdit, charSequence));
-        mViewModel.observePulseRateError(this, charSequence -> mPulseRate.setError(charSequence));
-        mPulseRateEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                mViewModel.updatePulseRate(s);
-            }
-        });
-
-        mViewModel.observeHasUserId(this, aBoolean -> {
-            mUserIdCheckBox.setChecked(aBoolean);
-            mUserId.setVisibility(aBoolean ? View.VISIBLE : View.GONE);
-        });
-        mUserIdCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
-                mViewModel.updateHasUserId(isChecked));
-        mViewModel.observeUserId(this, charSequence -> distinctSetText(mUserIdEdit, charSequence));
-        mViewModel.observeUserIdError(this, charSequence -> mUserId.setError(charSequence));
-        mUserIdEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                mViewModel.updateUserId(s);
-            }
-        });
-
-        mViewModel.observeHasMeasurementStatus(this, aBoolean -> {
-            mMeasurementStatusCheckBox.setChecked(aBoolean);
-            int visibility = aBoolean ? View.VISIBLE : View.GONE;
-            mBodyMovementDetection.setVisibility(visibility);
-            mCuffFitDetection.setVisibility(visibility);
-            mIrregularPulseDetection.setVisibility(visibility);
-            mPulseRateRangeDetection.setVisibility(visibility);
-            mMeasurementPositionDetection.setVisibility(visibility);
-        });
-        mMeasurementStatusCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateHasMeasurementStatus(isChecked));
-
-        mBodyMovementDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideBodyMovementDetectionList()));
-        mViewModel.observeBodyMovementDetection(this, integer -> mBodyMovementDetectionEdit.setListSelection(integer));
-        mBodyMovementDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateBodyMovementDetection(position));
-
-        mCuffFitDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideCuffFitDetectionList()));
-        mViewModel.observeCuffFitDetection(this, integer -> mCuffFitDetectionEdit.setListSelection(integer));
-        mCuffFitDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateCuffFitDetection(position));
-
-        mIrregularPulseDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideIrregularPulseDetectionList()));
-        mViewModel.observeIrregularPulseDetection(this, integer -> mIrregularPulseDetectionEdit.setListSelection(integer));
-        mIrregularPulseDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateIrregularPulseDetection(position));
-
-        mPulseRateRangeDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.providePulseRateRangeDetectionList()));
-        mViewModel.observePulseRateRangeDetection(this, integer -> mPulseRateRangeDetectionEdit.setListSelection(integer));
-        mPulseRateRangeDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updatePulseRateRangeDetection(position));
-
-        mMeasurementPositionDetectionEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideMeasurementPositionDetectionList()));
-        mViewModel.observeMeasurementPositionDetection(this, integer -> mMeasurementPositionDetectionEdit.setListSelection(integer));
-        mMeasurementPositionDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateMeasurementPositionDetection(position));
-
-        mViewModel.observeHasClientCharacteristicConfiguration(this, aBoolean -> mClientCharacteristicConfigurationCardView.setChecked(aBoolean));
-
-        mViewModel.observeClientCharacteristicConfiguration(this, s -> mClientCharacteristicConfiguration.setText(s));
-        findViewById(R.id.clientCharacteristicConfigurationSettingButton).setOnClickListener(v ->
-                mStartClientCharacteristicConfigurationSettingActivity.launch(Pair.create(mViewModel.getClientCharacteristicConfigurationDescriptorDataString()
-                        , ClientCharacteristicConfigurationSettingViewModel.PROPERTIES_TYPE_INDICATION)));
-
-        mViewModel.observeIndicationCount(this, charSequence -> distinctSetText(mIndicationCountEdit, charSequence));
-        mViewModel.observeIndicationCountError(this, charSequence -> mIndicationCount.setError(charSequence));
-        mIndicationCountEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                mViewModel.updateIndicationCount(s);
-            }
-        });
-
-
-        MaterialToolbar bar = findViewById(R.id.topAppBar);
-        bar.setOnMenuItemClickListener(this::onOptionsItemSelected);
+        mBinding.topAppBar.setOnMenuItemClickListener(this::onOptionsItemSelected);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mDisposable.add(mViewModel.setup(getIntent())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> findViewById(R.id.rootContainer).setVisibility(View.VISIBLE)));
+                .subscribe(() -> mBinding.rootContainer.setVisibility(View.VISIBLE), throwable -> LogUtils.stackLog(throwable.getMessage())));
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        boolean result = false;
+        boolean result;
         if (item.getItemId() == R.id.save) {
             mDisposable.add(mViewModel.save()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(intent -> {
-                                if (intent.isPresent()) {
-                                    setResult(RESULT_OK, intent.get());
-                                    finish();
-                                }
-                            }
-                    ));
-
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }, throwable -> Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_SHORT).show()));
+            result = true;
         } else {
             result = super.onOptionsItemSelected(item);
         }

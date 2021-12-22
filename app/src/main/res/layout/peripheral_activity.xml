@@ -14,29 +14,71 @@
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:title="@string/app_name" />
+            app:menu="@menu/peripheral" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/rootContainer"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:visibility="visible">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <GridView
-            android:id="@+id/grid"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rootContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:numColumns="@integer/grid_columns" />
+            android:layout_height="@dimen/dp72"
+            android:layout_marginStart="@dimen/dp16"
+            android:layout_marginTop="@dimen/dp8"
+            android:layout_marginEnd="@dimen/dp16"
+            android:orientation="horizontal"
+            android:padding="@dimen/dp6"
+            android:visibility="gone"
+            tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="@string/no_devices" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/deviceTypeImageBackground"
+                android:layout_width="108dp"
+                android:layout_height="108dp"
+                android:src="@drawable/peripheral_advertising_background_animation"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/deviceTypeImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/medical_ketsuatsukei_aneroid"
+                app:layout_constraintBottom_toBottomOf="@+id/deviceTypeImageBackground"
+                app:layout_constraintEnd_toEndOf="@+id/deviceTypeImageBackground"
+                app:layout_constraintStart_toStartOf="@+id/deviceTypeImageBackground"
+                app:layout_constraintTop_toTopOf="@+id/deviceTypeImageBackground" />
+
+            <TextView
+                android:id="@+id/deviceTypeNameTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp16"
+                android:layout_marginTop="@dimen/dp6"
+                android:text="@string/device_type"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                app:layout_constraintStart_toEndOf="@id/deviceTypeImageBackground"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/deviceTypeName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp16"
+                android:layout_marginTop="@dimen/dp8"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?android:attr/textColorSecondary"
+                app:layout_constraintStart_toEndOf="@id/deviceTypeImageBackground"
+                app:layout_constraintTop_toBottomOf="@id/deviceTypeNameTitle" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

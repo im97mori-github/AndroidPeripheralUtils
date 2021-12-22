@@ -7,6 +7,7 @@ import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
 import org.im97mori.ble.android.peripheral.room.Device;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -32,6 +33,11 @@ public final class MainViewModel extends ViewModel {
     @NonNull
     public Completable deleteAllDevices() {
         return mDeviceRepository.deleteAllDevices();
+    }
+
+    @NonNull
+    public Map<Integer, Integer> provideDeviceTypeImageResMap() {
+        return mDeviceRepository.provideDeviceTypeImageResMap();
     }
 
 }

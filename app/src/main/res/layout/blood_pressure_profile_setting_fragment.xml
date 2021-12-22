@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/dp8"
-    android:orientation="vertical"
-    android:visibility="gone"
-    tools:visibility="visible">
+    android:orientation="vertical">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bloodPressureServiceCardView"
@@ -62,7 +57,7 @@
     </com.google.android.material.card.MaterialCardView>
 
     <CheckBox
-        android:id="@+id/deviceInformationServiceSupported"
+        android:id="@+id/is_device_information_service_supported"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp16"
