@@ -8,7 +8,7 @@
         <propertyValuesHolder
             android:propertyName="translateX"
             android:valueFrom="0f"
-            android:valueTo="50f" />
+            android:valueTo="-50f" />
         <propertyValuesHolder
             android:propertyName="translateY"
             android:valueFrom="0f"
@@ -19,10 +19,6 @@
             android:valueTo="1.0f" />
         <propertyValuesHolder
             android:propertyName="scaleY"
-            android:valueFrom="0.2f"
-            android:valueTo="1.0f" />
-        <propertyValuesHolder
-            android:propertyName="alpha"
             android:valueFrom="0.2f"
             android:valueTo="1.0f" />
     </objectAnimator>

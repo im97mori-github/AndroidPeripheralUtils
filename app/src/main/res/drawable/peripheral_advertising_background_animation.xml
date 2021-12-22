@@ -2,9 +2,18 @@
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:drawable="@drawable/peripheral_advertising_background">
     <target
+        android:name="root"
+        android:animation="@animator/peripheral_advertising_root_animation" />
+    <target
         android:name="translateLeftUpper"
-        android:animation="@animator/peripheral_advertising_upper_left_animation" />
+        android:animation="@animator/peripheral_advertising_left_upper_animation" />
     <target
         android:name="translateRightUpper"
-        android:animation="@animator/peripheral_advertising_upper_right_animation" />
+        android:animation="@animator/peripheral_advertising_right_upper_animation" />
+    <target
+        android:name="translateLeftUnder"
+        android:animation="@animator/peripheral_advertising_left_under_animation" />
+    <target
+        android:name="translateRightUnder"
+        android:animation="@animator/peripheral_advertising_right_under_animation" />
 </animated-vector>

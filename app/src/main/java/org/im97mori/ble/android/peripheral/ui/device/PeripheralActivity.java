@@ -40,8 +40,7 @@ public class PeripheralActivity extends BaseActivity {
         if (result) {
             if (mCallback != null) {
                 mCallback.quit();
-                ((AnimatedVectorDrawable) mBinding.deviceTypeImageBackground.getDrawable()).stop();
-                mBinding.deviceTypeImageBackground.setVisibility(View.INVISIBLE);
+                ((AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground()).stop();
                 mCallback = null;
             }
             mBinding.topAppBar.invalidateMenu();
@@ -89,14 +88,12 @@ public class PeripheralActivity extends BaseActivity {
                 boolean result;
                 if (R.id.peripheralStart == menuItem.getItemId()) {
                     mCallback.start();
-                    ((AnimatedVectorDrawable) mBinding.deviceTypeImageBackground.getDrawable()).start();
-                    mBinding.deviceTypeImageBackground.setVisibility(View.VISIBLE);
+                    ((AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground()).start();
                     mBinding.topAppBar.invalidateMenu();
                     result = true;
                 } else if (R.id.peripheralStop == menuItem.getItemId()) {
                     mCallback.quit();
-                    ((AnimatedVectorDrawable) mBinding.deviceTypeImageBackground.getDrawable()).stop();
-                    mBinding.deviceTypeImageBackground.setVisibility(View.INVISIBLE);
+                    ((AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground()).stop();
                     mBinding.topAppBar.invalidateMenu();
                     result = true;
                 } else if (R.id.setting == menuItem.getItemId()) {
@@ -125,8 +122,7 @@ public class PeripheralActivity extends BaseActivity {
     protected void onDestroy() {
         if (mCallback != null) {
             mCallback.quit();
-            ((AnimatedVectorDrawable) mBinding.deviceTypeImageBackground.getDrawable()).stop();
-            mBinding.deviceTypeImageBackground.setVisibility(View.INVISIBLE);
+            ((AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground()).stop();
         }
         super.onDestroy();
     }

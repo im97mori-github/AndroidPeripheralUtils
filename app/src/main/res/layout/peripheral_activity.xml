@@ -36,25 +36,14 @@
             tools:visibility="visible">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/deviceTypeImageBackground"
-                android:layout_width="108dp"
-                android:layout_height="108dp"
-                android:src="@drawable/peripheral_advertising_background_animation"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="visible" />
-
-            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/deviceTypeImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/medical_ketsuatsukei_aneroid"
-                app:layout_constraintBottom_toBottomOf="@+id/deviceTypeImageBackground"
-                app:layout_constraintEnd_toEndOf="@+id/deviceTypeImageBackground"
-                app:layout_constraintStart_toStartOf="@+id/deviceTypeImageBackground"
-                app:layout_constraintTop_toTopOf="@+id/deviceTypeImageBackground" />
+                android:background="@drawable/peripheral_advertising_background_animation"
+                android:padding="@dimen/dp16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/deviceTypeNameTitle"
@@ -64,7 +53,7 @@
                 android:layout_marginTop="@dimen/dp6"
                 android:text="@string/device_type"
                 android:textAppearance="?attr/textAppearanceBodyLarge"
-                app:layout_constraintStart_toEndOf="@id/deviceTypeImageBackground"
+                app:layout_constraintStart_toEndOf="@id/deviceTypeImage"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -75,7 +64,7 @@
                 android:layout_marginTop="@dimen/dp8"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="?android:attr/textColorSecondary"
-                app:layout_constraintStart_toEndOf="@id/deviceTypeImageBackground"
+                app:layout_constraintStart_toEndOf="@id/deviceTypeImage"
                 app:layout_constraintTop_toBottomOf="@id/deviceTypeNameTitle" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

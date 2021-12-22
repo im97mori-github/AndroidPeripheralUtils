@@ -12,6 +12,8 @@
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/circled_medical_ketsuatsukei.xml" value="0.18675213675213675" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/ic_baseline_bluetooth_connected_24.xml" value="0.3172995780590717" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/ic_launcher_background.xml" value="0.22760416666666666" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/peripheral_advertising_background.xml" value="0.3172995780590717" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/peripheral_advertising_background_animation.xml" value="0.3172995780590717" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/test.xml" value="0.3172995780590717" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/test2.xml" value="0.33" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/font-v26/rubik.xml" value="0.24166666666666667" />
@@ -77,6 +79,7 @@
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity mViewModel" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingActivity mViewModel" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel PROPERTIES_TYPE_INDICATION" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivity mBinding" />
     </entry_points>
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" />
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" method="AfterTextChangedTextWatcher" />
