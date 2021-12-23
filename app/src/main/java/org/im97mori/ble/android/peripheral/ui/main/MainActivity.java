@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
+
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.MainActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
@@ -89,6 +91,9 @@ public class MainActivity extends BaseActivity {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe());
+            result = true;
+        } else if (R.id.license == item.getItemId()) {
+            startActivity(new Intent(getApplicationContext(), OssLicensesMenuActivity.class));
             result = true;
         } else {
             result = super.onOptionsItemSelected(item);

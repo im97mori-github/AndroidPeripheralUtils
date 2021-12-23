@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'dagger.hilt.android.plugin'
+    id 'com.google.android.gms.oss-licenses-plugin'
 }
 
 android {
@@ -73,4 +74,8 @@ dependencies {
 
     // blp peripheral
     implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.5'
+
+
+    implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
+
 }
