@@ -11,7 +11,6 @@ import android.view.View;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 
@@ -21,6 +20,7 @@ import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContract;
+import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import java.util.Collections;
@@ -52,7 +52,7 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mViewModel = new MockableViewModelProvider(this).get(MainViewModel.class);
         mBinding = MainActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
@@ -72,8 +72,6 @@ public class MainActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         mDisposable.add(mViewModel.getDeviceList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(devices -> {
                     adapter.setDeviceList(devices);
                     mBinding.rootContainer.setVisibility(View.VISIBLE);

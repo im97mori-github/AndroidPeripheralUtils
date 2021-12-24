@@ -60,4 +60,5 @@ public class DeviceListAdapter extends ArrayAdapter<Device> {
                 , 0);
         return convertView;
     }
+
 }

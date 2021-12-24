@@ -1,6 +1,8 @@
 package org.im97mori.ble.android.peripheral.utils;
 
 
+import androidx.lifecycle.ViewModel;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -12,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.DescriptorData;
+import org.im97mori.ble.android.peripheral.ui.main.MainViewModel;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

@@ -15,33 +15,22 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.processors.PublishProcessor;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
-public class MainViewModel extends ViewModel {
+public class FakeMainViewModel extends MainViewModel {
 
-    private final DeviceRepository mDeviceRepository;
+    PublishProcessor<List<Device>> pp = PublishProcessor.create();
 
     @Inject
-    MainViewModel(@NonNull DeviceRepository deviceRepository) {
-        mDeviceRepository = deviceRepository;
+    FakeMainViewModel(@NonNull DeviceRepository deviceRepository) {
+        super(deviceRepository);
     }
 
     @NonNull
     public Flowable<List<Device>> getDeviceList() {
-        return mDeviceRepository.loadDevices()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-    }
-
-    @NonNull
-    public Completable deleteAllDevices() {
-        return mDeviceRepository.deleteAllDevices();
-    }
-
-    @NonNull
-    public Map<Integer, Integer> provideDeviceTypeImageResMap() {
-        return mDeviceRepository.provideDeviceTypeImageResMap();
+        return pp;
     }
 
 }
