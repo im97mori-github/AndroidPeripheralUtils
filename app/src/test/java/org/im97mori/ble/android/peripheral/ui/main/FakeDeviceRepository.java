@@ -1,38 +1,38 @@
 package org.im97mori.ble.android.peripheral.ui.main;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
+import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
 import org.im97mori.ble.android.peripheral.room.Device;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
-import dagger.hilt.android.lifecycle.HiltViewModel;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.processors.PublishProcessor;
 
-@HiltViewModel
-public class FakeMainViewModel extends MainViewModel {
+public class FakeDeviceRepository extends DeviceRepository {
 
-    PublishProcessor<List<Device>> getDeviceListProcessor = PublishProcessor.create();
+    PublishProcessor<List<Device>> getLoadDevicesProcessor = PublishProcessor.create();
 
-    Consumer<Boolean> deleteAllDevicesConsumer;
-
+    private Consumer<Boolean> deleteAllDevicesConsumer;
     @Inject
-    FakeMainViewModel(@NonNull DeviceRepository deviceRepository) {
-        super(deviceRepository);
+    public FakeDeviceRepository(@NonNull DeviceDataSource deviceDataSource, @NonNull @ApplicationContext Context context) {
+        super(deviceDataSource, context);
     }
 
     @NonNull
-    public Flowable<List<Device>> getDeviceList() {
-        return getDeviceListProcessor;
+    @Override
+    public Flowable<List<Device>> loadDevices() {
+        return getLoadDevicesProcessor;
     }
-
 
     @NonNull
     @Override

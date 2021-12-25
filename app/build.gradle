@@ -88,9 +88,14 @@ dependencies {
 
     // robolectoric
     testImplementation 'org.robolectric:robolectric:4.6'
+
+    // espresso
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     testImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
+    testImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
 
+    // mockit
     testImplementation 'org.mockito:mockito-inline:4.2.0'
 
 }

@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.room.Device;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,16 +29,17 @@ public class DeviceListAdapter extends ArrayAdapter<Device> {
     public DeviceListAdapter(@NonNull Context context
             , @NonNull Map<Integer, Integer> deviceTypeImageResMap
             , @NonNull List<Device> deviceList) {
-        super(context, 0, deviceList);
+        super(context, 0, new ArrayList<>(deviceList));
         mDeviceTypeImageResMap = deviceTypeImageResMap;
-        mDeviceList = deviceList;
+        mDeviceList = new ArrayList<>(deviceList);
         mLayoutInflater = LayoutInflater.from(context);
     }
 
     public void setDeviceList(@NonNull List<Device> deviceList) {
         mDeviceList.clear();
         mDeviceList.addAll(deviceList);
-        notifyDataSetChanged();
+        clear();
+        addAll(deviceList);
     }
 
     @Override
