@@ -50,7 +50,7 @@ public class MainViewModel extends ViewModel {
     }
 
     public void dispose() {
-        mDisposable.dispose();
+        mDisposable.clear();
     }
 
 }

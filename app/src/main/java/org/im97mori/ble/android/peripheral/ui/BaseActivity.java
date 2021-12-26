@@ -4,13 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
+// TODO remove this
 public abstract class BaseActivity extends AppCompatActivity {
 
     protected final CompositeDisposable mDisposable = new CompositeDisposable();
 
     @Override
     protected void onStop() {
-        mDisposable.dispose();
+        mDisposable.clear();
         super.onStop();
     }
 

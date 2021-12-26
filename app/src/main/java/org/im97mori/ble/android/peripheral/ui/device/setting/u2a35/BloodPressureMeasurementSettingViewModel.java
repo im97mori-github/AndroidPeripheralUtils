@@ -805,7 +805,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                 if (systolic != null && mDeviceRepository.getSystolicErrorString(systolic) == null
                         && diastolic != null && mDeviceRepository.getDiastolicErrorString(diastolic) == null
                         && meanArterialPressure != null && mDeviceRepository.getMeanArterialPressureErrorString(meanArterialPressure) == null
-                        && (!isTimeStampSupported || (year != null && mDeviceRepository.getDateTimeYearErrorString(year) == null))
+                        && (!isTimeStampSupported || (year != null && mDeviceRepository.getDateTimeYearErrorString(year) == null && month != null && hours != null && minutes != null && seconds != null))
                         && (!isPulseRateSupported || (pulseRate != null && mDeviceRepository.getPulseRateErrorString(pulseRate) == null))
                         && (!isUserIdSupported || (userId != null && mDeviceRepository.getUserIdErrorString(userId) == null))
                         && (!isMeasurementStatusSupported || (bodyMovementDetection != null && cuffFitDetection != null && irregularPulseDetection != null && pulseRateRangeDetection != null && measurementPositionDetection != null))
