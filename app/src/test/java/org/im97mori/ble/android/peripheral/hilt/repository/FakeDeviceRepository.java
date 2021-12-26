@@ -19,9 +19,9 @@ import io.reactivex.rxjava3.processors.PublishProcessor;
 
 public class FakeDeviceRepository extends DeviceRepository {
 
-    public PublishProcessor<List<DeviceSetting>> mLoadDevicesProcessor;
+    public PublishProcessor<List<DeviceSetting>> mLoadAllDeviceSettingsProcessor;
 
-    public CompletableOnSubscribe mCompletableOnSubscribe;
+    public CompletableOnSubscribe mDeleteAllDeviceSettingsSubscribe;
 
     @Inject
     public FakeDeviceRepository(@NonNull DeviceDataSource deviceDataSource, @NonNull @ApplicationContext Context context) {
@@ -31,13 +31,13 @@ public class FakeDeviceRepository extends DeviceRepository {
     @NonNull
     @Override
     public Flowable<List<DeviceSetting>> loadAllDeviceSettings() {
-        return mLoadDevicesProcessor;
+        return mLoadAllDeviceSettingsProcessor;
     }
 
     @NonNull
     @Override
     public Completable deleteAllDeviceSettings() {
-        return Completable.create(mCompletableOnSubscribe);
+        return Completable.create(mDeleteAllDeviceSettingsSubscribe);
     }
 
 }

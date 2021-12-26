@@ -1,6 +1,43 @@
 package org.im97mori.ble.android.peripheral.utils;
 
-// TODO
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
+
+import android.os.Build;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import dagger.hilt.android.testing.HiltAndroidTest;
+import dagger.hilt.android.testing.HiltTestApplication;
+
+@HiltAndroidTest
+@RunWith(RobolectricTestRunner.class)
+@Config(instrumentedPackages = {
+        // required to access final members on androidx.loader.content.ModernAsyncTask
+        "androidx.loader.content"}
+        , application = HiltTestApplication.class
+        , sdk = Build.VERSION_CODES.LOLLIPOP)
 public class ExistObserverTest {
+
+    @Test
+    public void test_onChanged_00001() {
+        final AtomicBoolean result = new AtomicBoolean(true);
+        ExistObserver existObserver = new ExistObserver(result::set);
+        existObserver.onChanged(null);
+        assertFalse(result.get());
+    }
+
+    @Test
+    public void test_onChanged_00002() {
+        final AtomicBoolean result = new AtomicBoolean(false);
+        ExistObserver existObserver = new ExistObserver(result::set);
+        existObserver.onChanged("");
+        assertTrue(result.get());
+    }
 
 }

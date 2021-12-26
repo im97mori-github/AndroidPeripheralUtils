@@ -30,9 +30,11 @@ import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
 import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.core.CompletableEmitter;
+import io.reactivex.rxjava3.observers.TestObserver;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.processors.PublishProcessor;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subscribers.TestSubscriber;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -66,20 +68,20 @@ public class MainViewModelTest {
     @Test
     public void test_observeAllDeviceSettings_00001() {
         List<DeviceSetting> deviceSettingList = Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null));
-        mFakeDeviceRepository.mLoadDevicesProcessor = PublishProcessor.create();
+        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor = PublishProcessor.create();
         mViewModel.observeAllDeviceSettings(devices -> assertEquals(deviceSettingList, devices), throwable -> {
         });
-        mFakeDeviceRepository.mLoadDevicesProcessor.onNext(deviceSettingList);
+        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor.onNext(deviceSettingList);
     }
 
     @Test
     public void test_observeAllDeviceSettings_00002() {
         List<DeviceSetting> deviceSettingList = Arrays.asList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)
                 , new DeviceSetting(2, "b", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null));
-        mFakeDeviceRepository.mLoadDevicesProcessor = PublishProcessor.create();
+        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor = PublishProcessor.create();
         mViewModel.observeAllDeviceSettings(devices -> assertEquals(deviceSettingList, devices), throwable -> {
         });
-        mFakeDeviceRepository.mLoadDevicesProcessor.onNext(deviceSettingList);
+        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor.onNext(deviceSettingList);
     }
 
     @Test
@@ -88,7 +90,7 @@ public class MainViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
-        mFakeDeviceRepository.mCompletableOnSubscribe = atomicReference::set;
+        mFakeDeviceRepository.mDeleteAllDeviceSettingsSubscribe = atomicReference::set;
         mViewModel.observeDeleteAllDeviceSettings(() -> result.set(true), throwable -> {
         });
         atomicReference.get().onComplete();
@@ -100,11 +102,11 @@ public class MainViewModelTest {
     @Test
     public void test_dispose_00001() {
         AtomicBoolean result = new AtomicBoolean(false);
-        mFakeDeviceRepository.mLoadDevicesProcessor = PublishProcessor.create();
+        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor = PublishProcessor.create();
         mViewModel.observeAllDeviceSettings(devices -> result.set(true), throwable -> {
         });
         mViewModel.dispose();
-        mFakeDeviceRepository.mLoadDevicesProcessor.onNext(Collections.emptyList());
+        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor.onNext(Collections.emptyList());
         assertFalse(result.get());
     }
 
@@ -114,7 +116,7 @@ public class MainViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
-        mFakeDeviceRepository.mCompletableOnSubscribe = atomicReference::set;
+        mFakeDeviceRepository.mDeleteAllDeviceSettingsSubscribe = atomicReference::set;
         mViewModel.observeDeleteAllDeviceSettings(() -> result.set(true), throwable -> {
         });
         mViewModel.dispose();
