@@ -1,5 +1,7 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a24;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,17 +41,17 @@ public class ModelNumberStringSettingActivity extends BaseActivity {
         });
         mBinding.isErrorResponse.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsErrorResponse(isChecked));
 
-        mViewModel.observeModelNumberString(this, charSequence -> distinctSetText(mBinding.modelNumberStringEdit, charSequence));
+        mViewModel.observeModelNumberString(this, charSequence -> setTextDistinct(mBinding.modelNumberStringEdit, charSequence));
         mViewModel.observeModelNumberStringError(this, mBinding.modelNumberString::setError);
         mBinding.modelNumberStringEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateModelNumberStringString(editable)));
 
-        mViewModel.observeResponseCode(this, charSequence -> distinctSetText(mBinding.responseCodeEdit, charSequence));
+        mViewModel.observeResponseCode(this, charSequence -> setTextDistinct(mBinding.responseCodeEdit, charSequence));
         mViewModel.observeResponseCodeError(this, mBinding.responseCode::setError);
         mBinding.responseCodeEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseCode(editable)));
 
-        mViewModel.observeResponseDelay(this, charSequence -> distinctSetText(mBinding.responseDelayEdit, charSequence));
+        mViewModel.observeResponseDelay(this, charSequence -> setTextDistinct(mBinding.responseDelayEdit, charSequence));
         mViewModel.observeResponseDelayError(this, mBinding.responseDelay::setError);
         mBinding.responseDelayEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseDelay(editable)));

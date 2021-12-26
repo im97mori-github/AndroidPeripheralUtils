@@ -1,5 +1,7 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2902;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,13 +41,13 @@ public class ClientCharacteristicConfigurationSettingActivity extends BaseActivi
         });
         mBinding.isErrorResponse.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsErrorResponse(isChecked));
 
-        mViewModel.observeResponseCode(this, charSequence -> distinctSetText(mBinding.responseCodeEdit, charSequence));
+        mViewModel.observeResponseCode(this, charSequence -> setTextDistinct(mBinding.responseCodeEdit, charSequence));
         mViewModel.observeResponseCodeError(this, charSequence -> mBinding.responseCode.setError(charSequence));
         mBinding.responseCodeEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseCode(editable)));
 
         mViewModel.observeResponseDelayError(this, charSequence -> mBinding.responseDelay.setError(charSequence));
-        mViewModel.observeResponseDelay(this, charSequence -> distinctSetText(mBinding.responseDelayEdit, charSequence));
+        mViewModel.observeResponseDelay(this, charSequence -> setTextDistinct(mBinding.responseDelayEdit, charSequence));
         mBinding.responseDelayEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseDelay(editable)));
 

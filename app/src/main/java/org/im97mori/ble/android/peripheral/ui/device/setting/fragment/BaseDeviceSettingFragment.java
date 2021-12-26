@@ -11,7 +11,7 @@ public abstract class BaseDeviceSettingFragment extends Fragment {
 
     @Override
     public void onStop() {
-        mDisposable.clear();
+        mDisposable.dispose();
         super.onStop();
     }
 

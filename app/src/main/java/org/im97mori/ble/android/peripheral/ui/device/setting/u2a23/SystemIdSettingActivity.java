@@ -1,5 +1,7 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a23;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,22 +42,22 @@ public class SystemIdSettingActivity extends BaseActivity {
         });
         mBinding.isErrorResponse.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsErrorResponse(isChecked));
 
-        mViewModel.observeManufacturerIdentifier(this, charSequence -> distinctSetText(mBinding.manufacturerIdentifierEdit, charSequence));
+        mViewModel.observeManufacturerIdentifier(this, charSequence -> setTextDistinct(mBinding.manufacturerIdentifierEdit, charSequence));
         mViewModel.observeManufacturerIdentifierError(this, mBinding.manufacturerIdentifier::setError);
         mBinding.manufacturerIdentifierEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateManufacturerIdentifier(editable)));
 
-        mViewModel.observeOrganizationallyUniqueIdentifier(this, charSequence -> distinctSetText(mBinding.organizationallyUniqueIdentifierEdit, charSequence));
+        mViewModel.observeOrganizationallyUniqueIdentifier(this, charSequence -> setTextDistinct(mBinding.organizationallyUniqueIdentifierEdit, charSequence));
         mViewModel.observeOrganizationallyUniqueIdentifierError(this, mBinding.organizationallyUniqueIdentifier::setError);
         mBinding.organizationallyUniqueIdentifierEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateOrganizationallyUniqueIdentifier(editable)));
 
-        mViewModel.observeResponseCode(this, charSequence -> distinctSetText(mBinding.responseCodeEdit, charSequence));
+        mViewModel.observeResponseCode(this, charSequence -> setTextDistinct(mBinding.responseCodeEdit, charSequence));
         mViewModel.observeResponseCodeError(this, mBinding.responseCode::setError);
         mBinding.responseCodeEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseCode(editable)));
 
-        mViewModel.observeResponseDelay(this, charSequence -> distinctSetText(mBinding.responseDelayEdit, charSequence));
+        mViewModel.observeResponseDelay(this, charSequence -> setTextDistinct(mBinding.responseDelayEdit, charSequence));
         mViewModel.observeResponseDelayError(this, mBinding.responseDelay::setError);
         mBinding.responseDelayEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseDelay(editable)));

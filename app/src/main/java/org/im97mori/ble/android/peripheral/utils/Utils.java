@@ -1,7 +1,12 @@
 package org.im97mori.ble.android.peripheral.utils;
 
 
-import androidx.lifecycle.ViewModel;
+import android.text.Editable;
+import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,7 +19,6 @@ import com.google.gson.reflect.TypeToken;
 
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.DescriptorData;
-import org.im97mori.ble.android.peripheral.ui.main.MainViewModel;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -60,6 +64,20 @@ public final class Utils {
                     .create();
         }
         return mGson;
+    }
+
+    public static void setTextDistinct(@NonNull EditText editText, @Nullable CharSequence text) {
+        Editable currentText = editText.getText();
+        if ((currentText == null && text != null)
+                || (currentText != null && text == null)
+                || (currentText != null && !currentText.toString().equals(text.toString()))) {
+            if (editText instanceof AutoCompleteTextView) {
+                ((AutoCompleteTextView) editText).setText(text, false);
+            } else {
+                editText.setText(text);
+            }
+        }
+
     }
 
 }

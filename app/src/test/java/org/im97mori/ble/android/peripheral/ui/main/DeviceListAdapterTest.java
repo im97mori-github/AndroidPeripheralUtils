@@ -42,72 +42,73 @@ import dagger.hilt.android.testing.HiltTestApplication;
 @Config(instrumentedPackages = {
         // required to access final members on androidx.loader.content.ModernAsyncTask
         "androidx.loader.content"}
-        , application = HiltTestApplication.class, sdk = Build.VERSION_CODES.LOLLIPOP)
+        , application = HiltTestApplication.class
+        , sdk = Build.VERSION_CODES.LOLLIPOP)
 public class DeviceListAdapterTest {
 
     @Rule
-    public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+    public HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
     @Inject
     @ApplicationContext
-    Context context;
+    Context mContext;
 
     @Inject
     DeviceRepository mDeviceRepository;
 
     @Before
     public void setUp() {
-        hiltRule.inject();
+        mHiltRule.inject();
     }
 
     @Test
     public void test_setDeviceList_00001() {
         List<Device> list = new ArrayList<>();
-        DeviceListAdapter deviceListAdapter = new DeviceListAdapter(context, mDeviceRepository.provideDeviceTypeImageResMap(), list);
-        assertTrue(deviceListAdapter.isEmpty());
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceRepository.provideDeviceTypeImageResMap(), list);
+        assertTrue(adapter.isEmpty());
 
-        deviceListAdapter.setDeviceList(Collections.singletonList(new Device(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
+        adapter.setDeviceList(Collections.singletonList(new Device(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
 
-        assertFalse(deviceListAdapter.isEmpty());
+        assertFalse(adapter.isEmpty());
     }
 
     @Test
     public void test_setDeviceList_00002() {
-        DeviceListAdapter deviceListAdapter = new DeviceListAdapter(context, mDeviceRepository.provideDeviceTypeImageResMap(), Collections.singletonList(new Device(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
-        assertFalse(deviceListAdapter.isEmpty());
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceRepository.provideDeviceTypeImageResMap(), Collections.singletonList(new Device(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
+        assertFalse(adapter.isEmpty());
 
-        deviceListAdapter.setDeviceList(Collections.emptyList());
+        adapter.setDeviceList(Collections.emptyList());
 
-        assertTrue(deviceListAdapter.isEmpty());
+        assertTrue(adapter.isEmpty());
     }
 
     @Test
     public void test_getItemId_00001() {
         Device device = new Device(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        DeviceListAdapter deviceListAdapter = new DeviceListAdapter(context, mDeviceRepository.provideDeviceTypeImageResMap(), Collections.singletonList(device));
-        assertEquals(device.getId(), deviceListAdapter.getItemId(0));
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceRepository.provideDeviceTypeImageResMap(), Collections.singletonList(device));
+        assertEquals(device.getId(), adapter.getItemId(0));
     }
 
     @Test
     public void test_getItemId_00002() {
         Device device1 = new Device(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
         Device device2 = new Device(2, "b", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        DeviceListAdapter deviceListAdapter = new DeviceListAdapter(context, mDeviceRepository.provideDeviceTypeImageResMap(), Arrays.asList(device1, device2));
-        assertEquals(device2.getId(), deviceListAdapter.getItemId(1));
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceRepository.provideDeviceTypeImageResMap(), Arrays.asList(device1, device2));
+        assertEquals(device2.getId(), adapter.getItemId(1));
     }
 
     @Test
     public void test_getView_00001() {
         Device device = new Device(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
         Map<Integer, Integer> map = mDeviceRepository.provideDeviceTypeImageResMap();
-        DeviceListAdapter deviceListAdapter = new DeviceListAdapter(context, map, Collections.singletonList(device));
-        FrameLayout frameLayout = new FrameLayout(context);
-        View view = deviceListAdapter.getView(0, null, frameLayout);
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, map, Collections.singletonList(device));
+        FrameLayout frameLayout = new FrameLayout(mContext);
+        View view = adapter.getView(0, null, frameLayout);
         TextView textView = view.findViewById(R.id.grid_text);
         assertEquals(device.getDeviceSettingName(), textView.getText().toString());
-        Bitmap bitmap = TestUtils.getBitmap(context.getDrawable(Objects.requireNonNull(map.get(device.getDeviceType()))));
+        Bitmap bitmap = TestUtils.getBitmap(mContext.getDrawable(Objects.requireNonNull(map.get(device.getDeviceType()))));
 
-        assertTrue(bitmap.sameAs(TestUtils.getBitmap(textView.getCompoundDrawables()[1])));
+        assertTrue(bitmap.sameAs(TestUtils.getBitmap(textView.getCompoundDrawablesRelative()[1])));
     }
 
     @Test
@@ -115,14 +116,14 @@ public class DeviceListAdapterTest {
         Device device1 = new Device(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
         Device device2 = new Device(2, "b", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
         Map<Integer, Integer> map = mDeviceRepository.provideDeviceTypeImageResMap();
-        DeviceListAdapter deviceListAdapter = new DeviceListAdapter(context, map, Arrays.asList(device1, device2));
-        FrameLayout frameLayout = new FrameLayout(context);
-        View view = deviceListAdapter.getView(1, null, frameLayout);
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, map, Arrays.asList(device1, device2));
+        FrameLayout frameLayout = new FrameLayout(mContext);
+        View view = adapter.getView(1, null, frameLayout);
         TextView textView = view.findViewById(R.id.grid_text);
         assertEquals(device2.getDeviceSettingName(), textView.getText().toString());
-        Bitmap bitmap = TestUtils.getBitmap(context.getDrawable(Objects.requireNonNull(map.get(device2.getDeviceType()))));
+        Bitmap bitmap = TestUtils.getBitmap(mContext.getDrawable(Objects.requireNonNull(map.get(device2.getDeviceType()))));
 
-        assertTrue(bitmap.sameAs(TestUtils.getBitmap(textView.getCompoundDrawables()[1])));
+        assertTrue(bitmap.sameAs(TestUtils.getBitmap(textView.getCompoundDrawablesRelative()[1])));
     }
 
 }

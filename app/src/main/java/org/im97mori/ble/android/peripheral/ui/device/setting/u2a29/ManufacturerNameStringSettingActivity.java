@@ -1,5 +1,7 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a29;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,17 +41,17 @@ public class ManufacturerNameStringSettingActivity extends BaseActivity {
         });
         mBinding.isErrorResponse.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsErrorResponse(isChecked));
 
-        mViewModel.observeManufacturerNameString(this, charSequence -> distinctSetText(mBinding.manufacturerNameStringEdit, charSequence));
+        mViewModel.observeManufacturerNameString(this, charSequence -> setTextDistinct(mBinding.manufacturerNameStringEdit, charSequence));
         mViewModel.observeManufacturerNameStringError(this, mBinding.manufacturerNameString::setError);
         mBinding.manufacturerNameStringEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateManufacturerNameString(editable)));
 
-        mViewModel.observeResponseCode(this, charSequence -> distinctSetText(mBinding.responseCodeEdit, charSequence));
+        mViewModel.observeResponseCode(this, charSequence -> setTextDistinct(mBinding.responseCodeEdit, charSequence));
         mViewModel.observeResponseCodeError(this, mBinding.responseCode::setError);
         mBinding.responseCodeEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseCode(editable)));
 
-        mViewModel.observeResponseDelay(this, charSequence -> distinctSetText(mBinding.responseDelayEdit, charSequence));
+        mViewModel.observeResponseDelay(this, charSequence -> setTextDistinct(mBinding.responseDelayEdit, charSequence));
         mViewModel.observeResponseDelayError(this, mBinding.responseDelay::setError);
         mBinding.responseDelayEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseDelay(editable)));

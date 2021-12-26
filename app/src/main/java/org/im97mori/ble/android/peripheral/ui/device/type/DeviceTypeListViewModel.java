@@ -24,7 +24,7 @@ public class DeviceTypeListViewModel extends ViewModel {
     }
 
     @NonNull
-    public List<Pair<Integer, String>> getDeviceTypeList() {
+    public List<Pair<Integer, String>> provideDeviceTypeList() {
         return mDeviceRepository.provideDeviceTypeList();
     }
 

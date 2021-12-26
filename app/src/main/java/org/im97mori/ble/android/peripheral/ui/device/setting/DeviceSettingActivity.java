@@ -1,5 +1,7 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
+
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -40,7 +42,7 @@ public class DeviceSettingActivity extends BaseActivity {
             mBinding.deviceSettingCardView.setChecked(TextUtils.isEmpty(s));
         });
         mBinding.deviceNameEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable -> mViewModel.updateDeviceSettingName(editable)));
-        mViewModel.observeDeviceSettingName(this, s -> distinctSetText(mBinding.deviceNameEdit, s));
+        mViewModel.observeDeviceSettingName(this, s -> setTextDistinct(mBinding.deviceNameEdit, s));
 
         mBinding.topAppBar.setOnMenuItemClickListener(this::onOptionsItemSelected);
 

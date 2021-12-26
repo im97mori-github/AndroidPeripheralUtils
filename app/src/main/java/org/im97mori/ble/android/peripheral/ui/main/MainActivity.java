@@ -10,13 +10,13 @@ import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.MainActivityBinding;
-import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContract;
@@ -27,11 +27,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @AndroidEntryPoint
-public class MainActivity extends BaseActivity {
+public class MainActivity extends AppCompatActivity {
 
     private MainViewModel mViewModel;
 
@@ -71,11 +69,16 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mDisposable.add(mViewModel.getDeviceList()
-                .subscribe(devices -> {
-                    adapter.setDeviceList(devices);
-                    mBinding.rootContainer.setVisibility(View.VISIBLE);
-                }, throwable -> LogUtils.stackLog(throwable.getMessage())));
+        mViewModel.observeDevices(devices -> {
+            adapter.setDeviceList(devices);
+            mBinding.rootContainer.setVisibility(View.VISIBLE);
+        }, throwable -> LogUtils.stackLog(throwable.getMessage()));
+    }
+
+    @Override
+    protected void onStop() {
+        mViewModel.dispose();
+        super.onStop();
     }
 
     @Override
@@ -85,10 +88,8 @@ public class MainActivity extends BaseActivity {
             mStartDeviceTypeListActivity.launch(null);
             result = true;
         } else if (R.id.clear_devices == item.getItemId()) {
-            mDisposable.add(mViewModel.deleteAllDevices()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe());
+            mViewModel.observeDeleteAllDevices(() -> {
+            }, throwable -> LogUtils.stackLog(throwable.getMessage()));
             result = true;
         } else if (R.id.license == item.getItemId()) {
             startActivity(new Intent(getApplicationContext(), OssLicensesMenuActivity.class));

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,11 +32,6 @@ public class DeviceTypeListAdapter extends ArrayAdapter<Pair<Integer, String>> {
         mLayoutInflater = LayoutInflater.from(context);
     }
 
-    @Override
-    public long getItemId(int position) {
-        return super.getItemId(position);
-    }
-
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -43,7 +39,7 @@ public class DeviceTypeListAdapter extends ArrayAdapter<Pair<Integer, String>> {
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.list_item, parent, false);
         }
-        AppCompatTextView textView = (AppCompatTextView) convertView;
+        TextView textView = (TextView) convertView;
         textView.setText(pair.second);
         textView.setCompoundDrawablesRelativeWithIntrinsicBounds(Objects.requireNonNull(mDeviceTypeImageResMap.get(pair.first)), 0, 0, 0);
         return convertView;

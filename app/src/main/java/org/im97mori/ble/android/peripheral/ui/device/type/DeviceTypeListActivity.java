@@ -23,7 +23,9 @@ public class DeviceTypeListActivity extends BaseActivity {
         DeviceTypeListActivityBinding binding = DeviceTypeListActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        DeviceTypeListAdapter adapter = new DeviceTypeListAdapter(this, viewModel.provideDeviceTypeImageResMap(), viewModel.getDeviceTypeList());
+        DeviceTypeListAdapter adapter = new DeviceTypeListAdapter(this
+                , viewModel.provideDeviceTypeImageResMap()
+                , viewModel.provideDeviceTypeList());
         binding.list.setAdapter(adapter);
         binding.list.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent();

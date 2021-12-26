@@ -13,8 +13,9 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
@@ -22,26 +23,34 @@ public class MainViewModel extends ViewModel {
 
     private final DeviceRepository mDeviceRepository;
 
+    protected final CompositeDisposable mDisposable = new CompositeDisposable();
+
     @Inject
     MainViewModel(@NonNull DeviceRepository deviceRepository) {
         mDeviceRepository = deviceRepository;
     }
 
-    @NonNull
-    public Flowable<List<Device>> getDeviceList() {
-        return mDeviceRepository.loadDevices()
+    public void observeDevices(Consumer<List<Device>> onNext, Consumer<Throwable> onError) {
+        mDisposable.add(mDeviceRepository.loadDevices()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onNext, onError));
     }
 
-    @NonNull
-    public Completable deleteAllDevices() {
-        return mDeviceRepository.deleteAllDevices();
+    public void observeDeleteAllDevices(@NonNull Action onComplete, Consumer<Throwable> onError) {
+        mDisposable.add(mDeviceRepository.deleteAllDevices()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onComplete, onError));
     }
 
     @NonNull
     public Map<Integer, Integer> provideDeviceTypeImageResMap() {
         return mDeviceRepository.provideDeviceTypeImageResMap();
+    }
+
+    public void dispose() {
+        mDisposable.dispose();
     }
 
 }
