@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey;
 public class DeviceSetting {
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "device_setting_id", typeAffinity = 1)
+    @ColumnInfo(name = "device_setting_id")
     private final long mId;
 
     @NonNull

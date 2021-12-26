@@ -81,6 +81,31 @@
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel PROPERTIES_TYPE_INDICATION" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivity mBinding" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.MainActivity mBinding" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.room.AppDatabaseTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContractTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListAdapterTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.utils.UtilsTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest mDeviceSettingRepository" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListAdapterTest mDeviceSettingRepository" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModelTest mFakeDeviceSettingRepository" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest mFakeDeviceSettingRepository" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleTest mGson" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleWithUninstallTest mGson" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.room.AppDatabaseTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleWithUninstallTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContractTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListAdapterTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModelTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.utils.MockableViewModelProviderTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.utils.UtilsTest mHiltRule" />
     </entry_points>
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" />
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" method="AfterTextChangedTextWatcher" />
@@ -433,6 +458,167 @@
     <pattern value="org.im97mori.ble.android.peripheral.utils.Utils" method="setTextDistinct" />
     <pattern value="org.im97mori.ble.android.peripheral.utils.Utils" />
     <pattern value="org.im97mori.ble.android.peripheral.utils.Utils" method="Utils" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcherTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.AppDatabaseTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleWithUninstallTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseDeviceSettingFragmentTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileFragmentTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="closeDb" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository" method="createProfileMockCallback" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDao" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource" method="DeviceSettingDataSource" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSourceTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepositoryTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListAdapterTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.ExistObserverTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleWithUninstallTest.FakeApplicationModule" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository" method="FakeDeviceSettingRepository" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.IntegerStringPairTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MapObserverTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MockableViewModelProviderTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdLauncherContractTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingActivityTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingViewModelTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.UtilsTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleWithUninstallTest.FakeApplicationModule" method="provieGson" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.AppDatabaseTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleWithUninstallTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContractTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListAdapterTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModelTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.UtilsTest" method="setUp" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest" method="tearDown" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModelTest" method="tearDown" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="tearDown" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest" method="tearDown" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.AppDatabaseTest" method="test_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_activity_result_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_activity_result_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcherTest" method="test_afterTextChanged_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcherTest" method="test_afterTextChanged_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest" method="test_backPressed_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcherTest" method="test_beforeTextChanged_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingTest" method="test_constructor_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingTest" method="test_constructor_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingTest" method="test_constructor_00003" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.UtilsTest" method="test_createGsonInstance_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContractTest" method="test_createIntent_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_deleteAllDeviceSetting_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_deleteAllDeviceSetting_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_deleteDeviceSetting_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_deleteDeviceSetting_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest" method="test_dispose_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest" method="test_dispose_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_emptyView_visibility_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_emptyView_visibility_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MockableViewModelProviderTest" method="test_get_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MockableViewModelProviderTest" method="test_get_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest" method="test_getItemId_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest" method="test_getItemId_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest" method="test_getView_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListAdapterTest" method="test_getView_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest" method="test_getView_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListAdapterTest" method="test_getView_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MockableViewModelProviderTest" method="test_getViewModelClass_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MockableViewModelProviderTest" method="test_getViewModelClass_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_grid_click_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_grid_click_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_grid_image_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_grid_image_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_grid_text_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_grid_text_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_grid_visibility_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_grid_visibility_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleTest" method="test_inject_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.module.ApplicationModuleWithUninstallTest" method="test_inject_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_insertDeviceSetting_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_insertDeviceSetting_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest" method="test_list_click_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest" method="test_list_image_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest" method="test_list_text_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_loadAllDeviceSetting_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_loadAllDeviceSetting_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_loadAllDeviceSetting_00003" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_loadDeviceSettingById_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_loadDeviceSettingById_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.room.DeviceSettingDaoTest" method="test_loadDeviceSettingById_00003" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_menu_clear_devices_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_menu_create_device_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_menu_license_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest" method="test_observeAllDeviceSettings_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest" method="test_observeAllDeviceSettings_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest" method="test_observeDeleteAllDeviceSettings_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.ExistObserverTest" method="test_onChanged_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MapObserverTest" method="test_onChanged_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.ExistObserverTest" method="test_onChanged_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.MapObserverTest" method="test_onChanged_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcherTest" method="test_onTextChanged_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContractTest" method="test_parseResult_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContractTest" method="test_parseResult_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContractTest" method="test_parseResult_00003" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContractTest" method="test_parseResult_00004" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModelTest" method="test_provideDeviceTypeImageResMap_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListViewModelTest" method="test_provideDeviceTypeList_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_root_container_visibility_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest" method="test_setDeviceList_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.DeviceListAdapterTest" method="test_setDeviceList_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.UtilsTest" method="test_setTextDistinct_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.UtilsTest" method="test_setTextDistinct_00002" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.UtilsTest" method="test_setTextDistinct_00003" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.UtilsTest" method="test_setTextDistinct_00004" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.UtilsTest" method="test_setTextDistinct_00005" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.UtilsTest" method="test_setTextDistinct_00006" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest" method="test_title_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_title_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.utils.IntegerStringPairTest" method="test_toString_00001" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />

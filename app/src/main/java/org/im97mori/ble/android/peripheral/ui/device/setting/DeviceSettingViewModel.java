@@ -164,10 +164,8 @@ public class DeviceSettingViewModel extends ViewModel {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 String deviceNameSetting = mDeviceNameSetting.getValue();
-                String deviceNameSettingErrorString = mDeviceSettingRepository.getDeviceSettingNameErrorString(deviceNameSetting);
                 String moduleDataJson = mBaseDeviceSettingFragment.getModuleDataJson();
-                if (!TextUtils.isEmpty(deviceNameSetting)
-                        && TextUtils.isEmpty(deviceNameSettingErrorString)
+                if (deviceNameSetting != null && mDeviceSettingRepository.getDeviceSettingNameErrorString(deviceNameSetting) == null
                         && !TextUtils.isEmpty(moduleDataJson)) {
                     deviceSetting.setDeviceSettingName(deviceNameSetting);
                     deviceSetting.setDeviceSettingData(moduleDataJson);
