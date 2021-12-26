@@ -6,7 +6,7 @@ import android.os.Build;
 
 import androidx.core.util.Pair;
 
-import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,14 +36,14 @@ public class DeviceTypeListViewModelTest {
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
     @Inject
-    FakeDeviceRepository mFakeDeviceRepository;
+    FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
     private DeviceTypeListViewModel mViewModel;
 
     @Before
     public void setUp() {
         mHiltRule.inject();
-        mViewModel = new DeviceTypeListViewModel(mFakeDeviceRepository);
+        mViewModel = new DeviceTypeListViewModel(mFakeDeviceSettingRepository);
     }
 
     @After
@@ -53,13 +53,13 @@ public class DeviceTypeListViewModelTest {
 
     @Test
     public void test_provideDeviceTypeList_00001() {
-        List<Pair<Integer, String>> original = mFakeDeviceRepository.provideDeviceTypeList();
+        List<Pair<Integer, String>> original = mFakeDeviceSettingRepository.provideDeviceTypeList();
         assertEquals(original, mViewModel.provideDeviceTypeList());
     }
 
     @Test
     public void test_provideDeviceTypeImageResMap_00001() {
-        Map<Integer, Integer> original = mFakeDeviceRepository.provideDeviceTypeImageResMap();
+        Map<Integer, Integer> original = mFakeDeviceSettingRepository.provideDeviceTypeImageResMap();
         assertEquals(original, mViewModel.provideDeviceTypeImageResMap());
     }
 

@@ -14,7 +14,7 @@ import androidx.core.util.Pair;
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceDataSource;
+import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.android.peripheral.utils.IntegerStringPair;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
@@ -41,9 +41,9 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
-public class DeviceRepository {
+public class DeviceSettingRepository {
 
-    private final DeviceDataSource mDeviceDataSource;
+    private final DeviceSettingDataSource mDeviceSettingDataSource;
     private final Context mApplicationContext;
 
     private Map<Integer, Integer> mDeviceTypeImageResIdMap;
@@ -62,9 +62,9 @@ public class DeviceRepository {
     private List<Pair<Integer, String>> mMeasurementPositionDetectionList;
 
     @Inject
-    public DeviceRepository(@NonNull DeviceDataSource deviceDataSource
+    public DeviceSettingRepository(@NonNull DeviceSettingDataSource deviceSettingDataSource
             , @NonNull @ApplicationContext Context context) {
-        mDeviceDataSource = deviceDataSource;
+        mDeviceSettingDataSource = deviceSettingDataSource;
         mApplicationContext = context.getApplicationContext();
     }
 
@@ -206,31 +206,27 @@ public class DeviceRepository {
     }
 
     @NonNull
-    public Flowable<List<DeviceSetting>> loadAllDeviceSettings() {
-        return mDeviceDataSource.loadAllDeviceSettings();
+    public Flowable<List<DeviceSetting>> loadAllDeviceSetting() {
+        return mDeviceSettingDataSource.loadAllDeviceSetting();
     }
 
-    public Single<DeviceSetting> loadDeviceSettingByIdAsSingle(long id) {
-        return mDeviceDataSource.loadDeviceSettingByIdAsSingle(id);
-    }
-
-    public Flowable<DeviceSetting> loadDeviceSettingByIdAsFlowable(long id) {
-        return mDeviceDataSource.loadDeviceSettingByIdAsFlowable(id);
+    public Single<DeviceSetting> loadDeviceSettingById(long id) {
+        return mDeviceSettingDataSource.loadDeviceSettingById(id);
     }
 
     @NonNull
     public Completable insertDeviceSetting(@NonNull DeviceSetting deviceSetting) {
-        return mDeviceDataSource.insertDeviceSetting(deviceSetting);
+        return mDeviceSettingDataSource.insertDeviceSetting(deviceSetting);
     }
 
     @NonNull
     public Completable deleteDeviceSetting(@NonNull DeviceSetting deviceSetting) {
-        return mDeviceDataSource.deleteDeviceSetting(deviceSetting);
+        return mDeviceSettingDataSource.deleteDeviceSetting(deviceSetting);
     }
 
     @NonNull
-    public Completable deleteAllDeviceSettings() {
-        return mDeviceDataSource.deleteAllDeviceSettings();
+    public Completable deleteAllDeviceSetting() {
+        return mDeviceSettingDataSource.deleteAllDeviceSetting();
     }
 
     @Nullable

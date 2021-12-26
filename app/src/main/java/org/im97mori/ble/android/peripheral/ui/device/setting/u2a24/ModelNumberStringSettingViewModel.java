@@ -18,7 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.CharacteristicData;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
 import org.im97mori.ble.characteristic.u2a24.ModelNumberString;
 
@@ -46,8 +46,8 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
     private final MutableLiveData<String> mResponseDelay;
 
     @Inject
-    public ModelNumberStringSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
-        super(deviceRepository, gson);
+    public ModelNumberStringSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+        super(deviceSettingRepository, gson);
 
         mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
         mModelNumberString = savedStateHandle.getLiveData(KEY_MODEL_NUMBER_NAME_STRING);
@@ -115,7 +115,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
     @MainThread
     public void observeModelNumberStringError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mModelNumberString).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getModelNumbertringErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getModelNumbertringErrorString(s)));
     }
 
     @MainThread
@@ -126,7 +126,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
     @MainThread
     public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseCode).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getResponseCodeErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getResponseCodeErrorString(s)));
     }
 
     @MainThread
@@ -137,7 +137,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
     @MainThread
     public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getResponseDelayErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
     @MainThread
@@ -173,10 +173,10 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
                 String responseDelay = mResponseDelay.getValue();
                 String modelNumberString = mModelNumberString.getValue();
 
-                if (responseDelay != null && mDeviceRepository.getResponseDelayErrorString(responseDelay) == null) {
+                if (responseDelay != null && mDeviceSettingRepository.getResponseDelayErrorString(responseDelay) == null) {
                     characteristicData.delay = Long.parseLong(responseDelay);
                     if (isErrorResponse) {
-                        if (responseCode != null && mDeviceRepository.getResponseCodeErrorString(responseCode) == null) {
+                        if (responseCode != null && mDeviceSettingRepository.getResponseCodeErrorString(responseCode) == null) {
                             characteristicData.data = null;
                             characteristicData.responseCode = Integer.parseInt(responseCode);
 
@@ -187,7 +187,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
                             emitter.onError(new RuntimeException("Validation failed"));
                         }
                     } else {
-                        if (modelNumberString != null && mDeviceRepository.getModelNumbertringErrorString(modelNumberString) == null) {
+                        if (modelNumberString != null && mDeviceSettingRepository.getModelNumbertringErrorString(modelNumberString) == null) {
                             characteristicData.data = new ModelNumberString(modelNumberString).getBytes();
                             characteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
 

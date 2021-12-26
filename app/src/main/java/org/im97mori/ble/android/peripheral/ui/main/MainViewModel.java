@@ -3,7 +3,7 @@ package org.im97mori.ble.android.peripheral.ui.main;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 
 import java.util.List;
@@ -21,24 +21,24 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 @HiltViewModel
 public class MainViewModel extends ViewModel {
 
-    private final DeviceRepository mDeviceRepository;
+    private final DeviceSettingRepository mDeviceSettingRepository;
 
     protected final CompositeDisposable mDisposable = new CompositeDisposable();
 
     @Inject
-    MainViewModel(@NonNull DeviceRepository deviceRepository) {
-        mDeviceRepository = deviceRepository;
+    MainViewModel(@NonNull DeviceSettingRepository deviceSettingRepository) {
+        mDeviceSettingRepository = deviceSettingRepository;
     }
 
-    public void observeAllDeviceSettings(Consumer<List<DeviceSetting>> onNext, Consumer<Throwable> onError) {
-        mDisposable.add(mDeviceRepository.loadAllDeviceSettings()
+    public void observeAllDeviceSetting(Consumer<List<DeviceSetting>> onNext, Consumer<Throwable> onError) {
+        mDisposable.add(mDeviceSettingRepository.loadAllDeviceSetting()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onNext, onError));
     }
 
-    public void observeDeleteAllDeviceSettings(@NonNull Action onComplete, Consumer<Throwable> onError) {
-        mDisposable.add(mDeviceRepository.deleteAllDeviceSettings()
+    public void observeDeleteAllDeviceSetting(@NonNull Action onComplete, Consumer<Throwable> onError) {
+        mDisposable.add(mDeviceSettingRepository.deleteAllDeviceSetting()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onComplete, onError));
@@ -46,7 +46,7 @@ public class MainViewModel extends ViewModel {
 
     @NonNull
     public Map<Integer, Integer> provideDeviceTypeImageResMap() {
-        return mDeviceRepository.provideDeviceTypeImageResMap();
+        return mDeviceSettingRepository.provideDeviceTypeImageResMap();
     }
 
     public void dispose() {

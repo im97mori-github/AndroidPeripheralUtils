@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModel;
 
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -16,21 +16,21 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class DeviceTypeListViewModel extends ViewModel {
 
-    private final DeviceRepository mDeviceRepository;
+    private final DeviceSettingRepository mDeviceSettingRepository;
 
     @Inject
-    public DeviceTypeListViewModel(@NonNull DeviceRepository deviceRepository) {
-        mDeviceRepository = deviceRepository;
+    public DeviceTypeListViewModel(@NonNull DeviceSettingRepository deviceSettingRepository) {
+        mDeviceSettingRepository = deviceSettingRepository;
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideDeviceTypeList() {
-        return mDeviceRepository.provideDeviceTypeList();
+        return mDeviceSettingRepository.provideDeviceTypeList();
     }
 
     @NonNull
     public Map<Integer, Integer> provideDeviceTypeImageResMap() {
-        return mDeviceRepository.provideDeviceTypeImageResMap();
+        return mDeviceSettingRepository.provideDeviceTypeImageResMap();
     }
 
 }

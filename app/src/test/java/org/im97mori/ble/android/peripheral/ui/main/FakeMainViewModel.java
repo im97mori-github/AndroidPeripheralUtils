@@ -2,7 +2,7 @@ package org.im97mori.ble.android.peripheral.ui.main;
 
 import androidx.annotation.NonNull;
 
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 
 import java.util.List;
@@ -18,26 +18,26 @@ import io.reactivex.rxjava3.processors.PublishProcessor;
 @HiltViewModel
 public class FakeMainViewModel extends MainViewModel {
 
-    public final PublishProcessor<List<DeviceSetting>> mObserveAllDeviceSettingsProcessor = PublishProcessor.create();
+    public final PublishProcessor<List<DeviceSetting>> mObserveAllDeviceSettingProcessor = PublishProcessor.create();
 
-    public Action mObserveDeleteAllDeviceSettingsAction;
+    public Action mObserveDeleteAllDeviceSettingAction;
 
     @Inject
-    FakeMainViewModel(@NonNull DeviceRepository deviceRepository) {
-        super(deviceRepository);
+    FakeMainViewModel(@NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
     }
 
     @Override
-    public void observeAllDeviceSettings(io.reactivex.rxjava3.functions.Consumer<List<DeviceSetting>> onNext, @NonNull Consumer<Throwable> onError) {
-        mDisposable.add(mObserveAllDeviceSettingsProcessor.subscribe(onNext, onError));
+    public void observeAllDeviceSetting(io.reactivex.rxjava3.functions.Consumer<List<DeviceSetting>> onNext, @NonNull Consumer<Throwable> onError) {
+        mDisposable.add(mObserveAllDeviceSettingProcessor.subscribe(onNext, onError));
     }
 
     @Override
-    public void observeDeleteAllDeviceSettings(@NonNull Action onComplete, @NonNull Consumer<Throwable> onError) {
-        if (mObserveDeleteAllDeviceSettingsAction == null) {
-            super.observeDeleteAllDeviceSettings(onComplete, onError);
+    public void observeDeleteAllDeviceSetting(@NonNull Action onComplete, @NonNull Consumer<Throwable> onError) {
+        if (mObserveDeleteAllDeviceSettingAction == null) {
+            super.observeDeleteAllDeviceSetting(onComplete, onError);
         } else {
-            mDisposable.add(Completable.fromAction(mObserveDeleteAllDeviceSettingsAction).subscribe(onComplete, onError));
+            mDisposable.add(Completable.fromAction(mObserveDeleteAllDeviceSettingAction).subscribe(onComplete, onError));
         }
     }
 

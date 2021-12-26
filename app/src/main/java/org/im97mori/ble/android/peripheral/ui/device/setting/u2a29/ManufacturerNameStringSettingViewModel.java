@@ -18,7 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.CharacteristicData;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
 import org.im97mori.ble.characteristic.u2a29.ManufacturerNameString;
 
@@ -46,8 +46,8 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
     private final MutableLiveData<String> mResponseDelay;
 
     @Inject
-    public ManufacturerNameStringSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
-        super(deviceRepository, gson);
+    public ManufacturerNameStringSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+        super(deviceSettingRepository, gson);
 
         mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
         mManufacturerNameString = savedStateHandle.getLiveData(KEY_MANUFACTURER_NAME_STRING);
@@ -115,7 +115,7 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
     @MainThread
     public void observeManufacturerNameStringError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mManufacturerNameString).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getManufacturerNameStringErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getManufacturerNameStringErrorString(s)));
     }
 
     @MainThread
@@ -126,7 +126,7 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
     @MainThread
     public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseCode).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getResponseCodeErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getResponseCodeErrorString(s)));
     }
 
     @MainThread
@@ -137,7 +137,7 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
     @MainThread
     public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getResponseDelayErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
     @MainThread
@@ -174,10 +174,10 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
                 String responseDelay = mResponseDelay.getValue();
                 String manufacturerNameString = mManufacturerNameString.getValue();
 
-                if (responseDelay != null && mDeviceRepository.getResponseDelayErrorString(responseDelay) == null) {
+                if (responseDelay != null && mDeviceSettingRepository.getResponseDelayErrorString(responseDelay) == null) {
                     characteristicData.delay = Long.parseLong(responseDelay);
                     if (isErrorResponse) {
-                        if (responseCode != null && mDeviceRepository.getResponseCodeErrorString(responseCode) == null) {
+                        if (responseCode != null && mDeviceSettingRepository.getResponseCodeErrorString(responseCode) == null) {
                             characteristicData.data = null;
                             characteristicData.responseCode = Integer.parseInt(responseCode);
 
@@ -188,7 +188,7 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
                             emitter.onError(new RuntimeException("Validation failed"));
                         }
                     } else {
-                        if (manufacturerNameString != null && mDeviceRepository.getManufacturerNameStringErrorString(manufacturerNameString) == null) {
+                        if (manufacturerNameString != null && mDeviceSettingRepository.getManufacturerNameStringErrorString(manufacturerNameString) == null) {
                             characteristicData.data = new ManufacturerNameString(manufacturerNameString).getBytes();
                             characteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
 

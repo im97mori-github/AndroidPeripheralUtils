@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import androidx.core.util.Pair;
 
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,7 +51,7 @@ public class DeviceTypeListAdapterTest {
     Context mContext;
 
     @Inject
-    DeviceRepository mDeviceRepository;
+    DeviceSettingRepository mDeviceSettingRepository;
 
     @Before
     public void setUp() {
@@ -61,8 +61,8 @@ public class DeviceTypeListAdapterTest {
     @Test
     public void test_getView_00001() {
         Pair<Integer, String> pair = Pair.create(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, "a");
-        Map<Integer, Integer> map = mDeviceRepository.provideDeviceTypeImageResMap();
-        DeviceTypeListAdapter adapter = new DeviceTypeListAdapter(mContext, mDeviceRepository.provideDeviceTypeImageResMap(), Collections.singletonList(pair));
+        Map<Integer, Integer> map = mDeviceSettingRepository.provideDeviceTypeImageResMap();
+        DeviceTypeListAdapter adapter = new DeviceTypeListAdapter(mContext, mDeviceSettingRepository.provideDeviceTypeImageResMap(), Collections.singletonList(pair));
 
         FrameLayout frameLayout = new FrameLayout(mContext);
         View view = adapter.getView(0, null, frameLayout);
@@ -77,7 +77,7 @@ public class DeviceTypeListAdapterTest {
     public void test_getView_00002() {
         Pair<Integer, String> pair1 = Pair.create(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, "a");
         Pair<Integer, String> pair2 = Pair.create(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, "b");
-        Map<Integer, Integer> map = mDeviceRepository.provideDeviceTypeImageResMap();
+        Map<Integer, Integer> map = mDeviceSettingRepository.provideDeviceTypeImageResMap();
         DeviceTypeListAdapter adapter = new DeviceTypeListAdapter(mContext, map, Arrays.asList(pair1, pair2));
         FrameLayout frameLayout = new FrameLayout(mContext);
         View view = adapter.getView(1, null, frameLayout);

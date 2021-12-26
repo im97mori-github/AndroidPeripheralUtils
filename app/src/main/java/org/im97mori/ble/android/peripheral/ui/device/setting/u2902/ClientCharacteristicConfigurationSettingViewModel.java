@@ -20,7 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.DescriptorData;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseDescriptorSettingViewModel;
 import org.im97mori.ble.descriptor.u2902.ClientCharacteristicConfiguration;
 
@@ -55,8 +55,10 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
     private int mPropertyType;
 
     @Inject
-    public ClientCharacteristicConfigurationSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
-        super(deviceRepository, gson);
+    public ClientCharacteristicConfigurationSettingViewModel(@NonNull SavedStateHandle savedStateHandle
+            , @NonNull DeviceSettingRepository deviceSettingRepository
+            , @NonNull Gson gson) {
+        super(deviceSettingRepository, gson);
 
         mSavedStateHandle = savedStateHandle;
 
@@ -102,14 +104,14 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                         mProperties.postValue(false);
                         if (BluetoothGattCharacteristic.PROPERTY_NOTIFY == mPropertyType) {
                             mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
-                                    .postValue(mDeviceRepository.getNotificationsDisabledString());
+                                    .postValue(mDeviceSettingRepository.getNotificationsDisabledString());
                             mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
-                                    .postValue(mDeviceRepository.getNotificationsEnabledString());
+                                    .postValue(mDeviceSettingRepository.getNotificationsEnabledString());
                         } else {
                             mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
-                                    .postValue(mDeviceRepository.getIndicationsDisabledString());
+                                    .postValue(mDeviceSettingRepository.getIndicationsDisabledString());
                             mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
-                                    .postValue(mDeviceRepository.getIndicationsEnabledString());
+                                    .postValue(mDeviceSettingRepository.getIndicationsEnabledString());
                         }
                     }
                 } else {
@@ -117,15 +119,15 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                         if (BluetoothGattCharacteristic.PROPERTY_NOTIFY == mPropertyType) {
                             mProperties.postValue(clientCharacteristicConfiguration.isPropertiesNotificationsEnabled());
                             mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
-                                    .postValue(mDeviceRepository.getNotificationsDisabledString());
+                                    .postValue(mDeviceSettingRepository.getNotificationsDisabledString());
                             mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
-                                    .postValue(mDeviceRepository.getNotificationsEnabledString());
+                                    .postValue(mDeviceSettingRepository.getNotificationsEnabledString());
                         } else {
                             mProperties.postValue(clientCharacteristicConfiguration.isPropertiesIndicationsEnabled());
                             mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
-                                    .postValue(mDeviceRepository.getIndicationsDisabledString());
+                                    .postValue(mDeviceSettingRepository.getIndicationsDisabledString());
                             mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
-                                    .postValue(mDeviceRepository.getIndicationsEnabledString());
+                                    .postValue(mDeviceSettingRepository.getIndicationsEnabledString());
                         }
                     }
                 }
@@ -177,7 +179,7 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
     @MainThread
     public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseCode).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getResponseCodeErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getResponseCodeErrorString(s)));
     }
 
     @MainThread
@@ -188,7 +190,7 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
     @MainThread
     public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getResponseDelayErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
     @MainThread
@@ -224,10 +226,10 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                 String responseDelay = mResponseDelay.getValue();
                 boolean properties = Boolean.TRUE.equals(mProperties.getValue());
 
-                if (responseDelay != null && mDeviceRepository.getResponseDelayErrorString(responseDelay) == null) {
+                if (responseDelay != null && mDeviceSettingRepository.getResponseDelayErrorString(responseDelay) == null) {
                     descriptorData.delay = Long.parseLong(responseDelay);
                     if (isErrorResponse) {
-                        if (responseCode != null && mDeviceRepository.getResponseCodeErrorString(responseCode) == null) {
+                        if (responseCode != null && mDeviceSettingRepository.getResponseCodeErrorString(responseCode) == null) {
                             descriptorData.data = null;
                             descriptorData.responseCode = Integer.parseInt(responseCode);
 

@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModel;
 import com.google.gson.Gson;
 
 import org.im97mori.ble.MockData;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
 
@@ -25,7 +25,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -36,30 +35,30 @@ public class PeripheralViewModel extends ViewModel {
     private static final String KEY_DEVICE_TYPE_IMAGE_RES = "KEY_DEVICE_TYPE_IMAGE_RES";
     private static final String KEY_DEVICE_TYPE_NAME = "KEY_DEVICE_TYPE_NAME";
 
-    private final DeviceRepository mDeviceRepository;
+    private final DeviceSettingRepository mDeviceSettingRepository;
 
     private final Gson mGson;
 
     private final SavedStateHandle mSavedStateHandle;
 
     @Inject
-    public PeripheralViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
-        mDeviceRepository = deviceRepository;
+    public PeripheralViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+        mDeviceSettingRepository = deviceSettingRepository;
         mGson = gson;
         mSavedStateHandle = savedStateHandle;
     }
 
     @NonNull
     @MainThread
-    public Flowable<AbstractProfileMockCallback> setup(@NonNull Intent intent) {
-        return mDeviceRepository
-                .loadDeviceSettingByIdAsFlowable(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
+    public Single<AbstractProfileMockCallback> setup(@NonNull Intent intent) {
+        return mDeviceSettingRepository
+                .loadDeviceSettingById(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
                 .subscribeOn(Schedulers.io())
                 .flatMap(device -> {
                     mSavedStateHandle.<String>getLiveData(KEY_TITLE).postValue(device.getDeviceSettingName());
-                    mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES).postValue(mDeviceRepository.getDeviceTypeImageResId(device.getDeviceType()));
-                    mSavedStateHandle.<String>getLiveData(KEY_DEVICE_TYPE_NAME).postValue(mDeviceRepository.getDeviceTypeName(device.getDeviceType()));
-                    return Flowable.just(mDeviceRepository.createProfileMockCallback(device.getDeviceType()
+                    mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES).postValue(mDeviceSettingRepository.getDeviceTypeImageResId(device.getDeviceType()));
+                    mSavedStateHandle.<String>getLiveData(KEY_DEVICE_TYPE_NAME).postValue(mDeviceSettingRepository.getDeviceTypeName(device.getDeviceType()));
+                    return Single.just(mDeviceSettingRepository.createProfileMockCallback(device.getDeviceType()
                             , mGson.fromJson(device.getDeviceSettingData(), MockData.class)));
                 })
                 .observeOn(AndroidSchedulers.mainThread());
@@ -70,7 +69,7 @@ public class PeripheralViewModel extends ViewModel {
     public Completable deleteDevice(@NonNull Intent intent) {
         return Single.just(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
                 .subscribeOn(Schedulers.io())
-                .flatMapCompletable(id -> mDeviceRepository.deleteDeviceSetting(new DeviceSetting(id)))
+                .flatMapCompletable(id -> mDeviceSettingRepository.deleteDeviceSetting(new DeviceSetting(id)))
                 .subscribeOn(AndroidSchedulers.mainThread());
     }
 

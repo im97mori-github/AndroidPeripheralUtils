@@ -22,7 +22,7 @@ import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.ServiceData;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseServiceSettingViewModel;
 import org.im97mori.ble.android.peripheral.utils.ExistObserver;
 import org.im97mori.ble.characteristic.u2a23.SystemId;
@@ -62,8 +62,8 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     private final MutableLiveData<String> mSystemIdDataJson;
 
     @Inject
-    public DeviceInformationServiceSettingViewModel(@NonNull DeviceRepository deviceRepository, @NonNull SavedStateHandle savedStateHandle, @NonNull Gson gson) {
-        super(deviceRepository, gson);
+    public DeviceInformationServiceSettingViewModel(@NonNull DeviceSettingRepository deviceSettingRepository, @NonNull SavedStateHandle savedStateHandle, @NonNull Gson gson) {
+        super(deviceSettingRepository, gson);
         mSavedStateHandle = savedStateHandle;
 
         mIsSystemIdSupported = savedStateHandle.getLiveData(KEY_IS_SYSTEM_ID_SUPPORTED);

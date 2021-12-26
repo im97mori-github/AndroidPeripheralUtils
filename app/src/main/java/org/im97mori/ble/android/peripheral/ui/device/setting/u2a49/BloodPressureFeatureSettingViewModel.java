@@ -18,7 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.CharacteristicData;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
 import org.im97mori.ble.characteristic.u2a49.BloodPressureFeature;
 
@@ -57,8 +57,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     private final MutableLiveData<String> mResponseDelay;
 
     @Inject
-    public BloodPressureFeatureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
-        super(deviceRepository, gson);
+    public BloodPressureFeatureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+        super(deviceSettingRepository, gson);
 
         mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
 
@@ -198,7 +198,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     @MainThread
     public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseCode).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getResponseCodeErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getResponseCodeErrorString(s)));
     }
 
     @MainThread
@@ -209,7 +209,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     @MainThread
     public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getResponseDelayErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
     @MainThread
@@ -276,10 +276,10 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                 boolean pulseRateRangeDetection = Boolean.TRUE.equals(mPulseRateRangeDetection.getValue());
                 boolean multipleBondDetection = Boolean.TRUE.equals(mMultipleBondDetection.getValue());
 
-                if (responseDelay != null && mDeviceRepository.getResponseDelayErrorString(responseDelay) == null) {
+                if (responseDelay != null && mDeviceSettingRepository.getResponseDelayErrorString(responseDelay) == null) {
                     characteristicData.delay = Long.parseLong(responseDelay);
                     if (isErrorResponse) {
-                        if (responseCode != null && mDeviceRepository.getResponseCodeErrorString(responseCode) == null) {
+                        if (responseCode != null && mDeviceSettingRepository.getResponseCodeErrorString(responseCode) == null) {
                             characteristicData.data = null;
                             characteristicData.responseCode = Integer.parseInt(responseCode);
 

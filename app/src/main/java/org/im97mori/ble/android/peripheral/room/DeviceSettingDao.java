@@ -15,14 +15,11 @@ import io.reactivex.rxjava3.core.Single;
 @Dao
 public interface DeviceSettingDao {
 
-    @Query("SELECT * from device_settings")
-    Flowable<List<DeviceSetting>> loadAllDeviceSettings();
+    @Query("SELECT device_setting_id, device_setting_name, device_type, NULL as device_setting_data from device_setting")
+    Flowable<List<DeviceSetting>> loadAllDeviceSetting();
 
-    @Query("SELECT * FROM device_settings WHERE device_setting_id = :id")
-    Single<DeviceSetting> loadDeviceSettingByIdAsSingle(long id);
-
-    @Query("SELECT * FROM device_settings WHERE device_setting_id = :id")
-    Flowable<DeviceSetting> loadDeviceSettingByIdAsFlowable(long id);
+    @Query("SELECT * FROM device_setting WHERE device_setting_id = :id")
+    Single<DeviceSetting> loadDeviceSettingById(long id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     Completable insertDeviceSetting(DeviceSetting deviceSetting);
@@ -30,7 +27,7 @@ public interface DeviceSettingDao {
     @Delete(entity = DeviceSetting.class)
     Completable deleteDeviceSetting(DeviceSetting deviceSetting);
 
-    @Query("DELETE from device_settings")
-    Completable deleteAllDeviceSettings();
+    @Query("DELETE from device_setting")
+    Completable deleteAllDeviceSetting();
 
 }

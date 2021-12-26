@@ -13,7 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.android.peripheral.test.TestUtils;
 import org.junit.Before;
@@ -54,7 +54,7 @@ public class DeviceListAdapterTest {
     Context mContext;
 
     @Inject
-    DeviceRepository mDeviceRepository;
+    DeviceSettingRepository mDeviceSettingRepository;
 
     @Before
     public void setUp() {
@@ -64,7 +64,7 @@ public class DeviceListAdapterTest {
     @Test
     public void test_setDeviceList_00001() {
         List<DeviceSetting> list = new ArrayList<>();
-        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceRepository.provideDeviceTypeImageResMap(), list);
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceSettingRepository.provideDeviceTypeImageResMap(), list);
         assertTrue(adapter.isEmpty());
 
         adapter.setDeviceList(Collections.singletonList(new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
@@ -74,7 +74,7 @@ public class DeviceListAdapterTest {
 
     @Test
     public void test_setDeviceList_00002() {
-        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceRepository.provideDeviceTypeImageResMap(), Collections.singletonList(new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceSettingRepository.provideDeviceTypeImageResMap(), Collections.singletonList(new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
         assertFalse(adapter.isEmpty());
 
         adapter.setDeviceList(Collections.emptyList());
@@ -85,7 +85,7 @@ public class DeviceListAdapterTest {
     @Test
     public void test_getItemId_00001() {
         DeviceSetting deviceSetting = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceRepository.provideDeviceTypeImageResMap(), Collections.singletonList(deviceSetting));
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceSettingRepository.provideDeviceTypeImageResMap(), Collections.singletonList(deviceSetting));
         assertEquals(deviceSetting.getId(), adapter.getItemId(0));
     }
 
@@ -93,14 +93,14 @@ public class DeviceListAdapterTest {
     public void test_getItemId_00002() {
         DeviceSetting deviceSetting1 = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
         DeviceSetting deviceSetting2 = new DeviceSetting(2, "b", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceRepository.provideDeviceTypeImageResMap(), Arrays.asList(deviceSetting1, deviceSetting2));
+        DeviceListAdapter adapter = new DeviceListAdapter(mContext, mDeviceSettingRepository.provideDeviceTypeImageResMap(), Arrays.asList(deviceSetting1, deviceSetting2));
         assertEquals(deviceSetting2.getId(), adapter.getItemId(1));
     }
 
     @Test
     public void test_getView_00001() {
         DeviceSetting deviceSetting = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        Map<Integer, Integer> map = mDeviceRepository.provideDeviceTypeImageResMap();
+        Map<Integer, Integer> map = mDeviceSettingRepository.provideDeviceTypeImageResMap();
         DeviceListAdapter adapter = new DeviceListAdapter(mContext, map, Collections.singletonList(deviceSetting));
         FrameLayout frameLayout = new FrameLayout(mContext);
         View view = adapter.getView(0, null, frameLayout);
@@ -115,7 +115,7 @@ public class DeviceListAdapterTest {
     public void test_getView_00002() {
         DeviceSetting deviceSetting1 = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
         DeviceSetting deviceSetting2 = new DeviceSetting(2, "b", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        Map<Integer, Integer> map = mDeviceRepository.provideDeviceTypeImageResMap();
+        Map<Integer, Integer> map = mDeviceSettingRepository.provideDeviceTypeImageResMap();
         DeviceListAdapter adapter = new DeviceListAdapter(mContext, map, Arrays.asList(deviceSetting1, deviceSetting2));
         FrameLayout frameLayout = new FrameLayout(mContext);
         View view = adapter.getView(1, null, frameLayout);

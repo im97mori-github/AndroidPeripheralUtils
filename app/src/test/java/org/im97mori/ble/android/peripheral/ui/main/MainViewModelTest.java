@@ -7,7 +7,7 @@ import static junit.framework.TestCase.assertTrue;
 import android.os.Build;
 
 import org.im97mori.ble.android.peripheral.Constants;
-import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.junit.After;
 import org.junit.Before;
@@ -30,11 +30,9 @@ import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
 import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.core.CompletableEmitter;
-import io.reactivex.rxjava3.observers.TestObserver;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.processors.PublishProcessor;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import io.reactivex.rxjava3.subscribers.TestSubscriber;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -49,14 +47,14 @@ public class MainViewModelTest {
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
     @Inject
-    FakeDeviceRepository mFakeDeviceRepository;
+    FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
     private MainViewModel mViewModel;
 
     @Before
     public void setUp() {
         mHiltRule.inject();
-        mViewModel = new MainViewModel(mFakeDeviceRepository);
+        mViewModel = new MainViewModel(mFakeDeviceSettingRepository);
     }
 
     @After
@@ -68,20 +66,20 @@ public class MainViewModelTest {
     @Test
     public void test_observeAllDeviceSettings_00001() {
         List<DeviceSetting> deviceSettingList = Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null));
-        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor = PublishProcessor.create();
-        mViewModel.observeAllDeviceSettings(devices -> assertEquals(deviceSettingList, devices), throwable -> {
+        mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor = PublishProcessor.create();
+        mViewModel.observeAllDeviceSetting(devices -> assertEquals(deviceSettingList, devices), throwable -> {
         });
-        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor.onNext(deviceSettingList);
+        mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor.onNext(deviceSettingList);
     }
 
     @Test
     public void test_observeAllDeviceSettings_00002() {
         List<DeviceSetting> deviceSettingList = Arrays.asList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)
                 , new DeviceSetting(2, "b", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null));
-        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor = PublishProcessor.create();
-        mViewModel.observeAllDeviceSettings(devices -> assertEquals(deviceSettingList, devices), throwable -> {
+        mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor = PublishProcessor.create();
+        mViewModel.observeAllDeviceSetting(devices -> assertEquals(deviceSettingList, devices), throwable -> {
         });
-        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor.onNext(deviceSettingList);
+        mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor.onNext(deviceSettingList);
     }
 
     @Test
@@ -90,8 +88,8 @@ public class MainViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
-        mFakeDeviceRepository.mDeleteAllDeviceSettingsSubscribe = atomicReference::set;
-        mViewModel.observeDeleteAllDeviceSettings(() -> result.set(true), throwable -> {
+        mFakeDeviceSettingRepository.mDeleteAllDeviceSettingSubscribe = atomicReference::set;
+        mViewModel.observeDeleteAllDeviceSetting(() -> result.set(true), throwable -> {
         });
         atomicReference.get().onComplete();
 
@@ -102,11 +100,11 @@ public class MainViewModelTest {
     @Test
     public void test_dispose_00001() {
         AtomicBoolean result = new AtomicBoolean(false);
-        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor = PublishProcessor.create();
-        mViewModel.observeAllDeviceSettings(devices -> result.set(true), throwable -> {
+        mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor = PublishProcessor.create();
+        mViewModel.observeAllDeviceSetting(devices -> result.set(true), throwable -> {
         });
         mViewModel.dispose();
-        mFakeDeviceRepository.mLoadAllDeviceSettingsProcessor.onNext(Collections.emptyList());
+        mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor.onNext(Collections.emptyList());
         assertFalse(result.get());
     }
 
@@ -116,8 +114,8 @@ public class MainViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
-        mFakeDeviceRepository.mDeleteAllDeviceSettingsSubscribe = atomicReference::set;
-        mViewModel.observeDeleteAllDeviceSettings(() -> result.set(true), throwable -> {
+        mFakeDeviceSettingRepository.mDeleteAllDeviceSettingSubscribe = atomicReference::set;
+        mViewModel.observeDeleteAllDeviceSetting(() -> result.set(true), throwable -> {
         });
         mViewModel.dispose();
         atomicReference.get().onComplete();

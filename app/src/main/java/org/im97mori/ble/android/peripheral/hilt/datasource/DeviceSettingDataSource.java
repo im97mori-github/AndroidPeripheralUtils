@@ -17,7 +17,7 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
-public class DeviceDataSource {
+public class DeviceSettingDataSource {
 
     private final Context mApplicationContext;
 
@@ -26,7 +26,7 @@ public class DeviceDataSource {
     private static final String DB_NAME = "app_database.db";
 
     @Inject
-    public DeviceDataSource(@NonNull @ApplicationContext Context context) {
+    public DeviceSettingDataSource(@NonNull @ApplicationContext Context context) {
         mApplicationContext = context.getApplicationContext();
     }
 
@@ -41,19 +41,14 @@ public class DeviceDataSource {
     }
 
     @NonNull
-    public Flowable<List<DeviceSetting>> loadAllDeviceSettings() {
+    public Flowable<List<DeviceSetting>> loadAllDeviceSetting() {
         initDatabase();
-        return mAppDatabase.getDeviceSettingDao().loadAllDeviceSettings();
+        return mAppDatabase.getDeviceSettingDao().loadAllDeviceSetting();
     }
 
-    public Single<DeviceSetting> loadDeviceSettingByIdAsSingle(long id) {
+    public Single<DeviceSetting> loadDeviceSettingById(long id) {
         initDatabase();
-        return mAppDatabase.getDeviceSettingDao().loadDeviceSettingByIdAsSingle(id);
-    }
-
-    public Flowable<DeviceSetting> loadDeviceSettingByIdAsFlowable(long id) {
-        initDatabase();
-        return mAppDatabase.getDeviceSettingDao().loadDeviceSettingByIdAsFlowable(id);
+        return mAppDatabase.getDeviceSettingDao().loadDeviceSettingById(id);
     }
 
     @NonNull
@@ -69,9 +64,9 @@ public class DeviceDataSource {
     }
 
     @NonNull
-    public Completable deleteAllDeviceSettings() {
+    public Completable deleteAllDeviceSetting() {
         initDatabase();
-        return mAppDatabase.getDeviceSettingDao().deleteAllDeviceSettings();
+        return mAppDatabase.getDeviceSettingDao().deleteAllDeviceSetting();
     }
 
 }

@@ -5,15 +5,15 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.gson.Gson;
 
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 
 public abstract class BaseSettingViewModel extends ViewModel {
 
-    protected final DeviceRepository mDeviceRepository;
+    protected final DeviceSettingRepository mDeviceSettingRepository;
     protected final Gson mGson;
 
-    public BaseSettingViewModel(@NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
-        mDeviceRepository = deviceRepository;
+    public BaseSettingViewModel(@NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+        mDeviceSettingRepository = deviceSettingRepository;
         mGson = gson;
     }
 }

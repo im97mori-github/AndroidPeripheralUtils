@@ -23,7 +23,7 @@ import com.google.gson.JsonSyntaxException;
 import org.im97mori.ble.BLEUtils;
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.ServiceData;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseServiceSettingViewModel;
 import org.im97mori.ble.android.peripheral.utils.ExistObserver;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
@@ -77,8 +77,8 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     private final MutableLiveData<String> mBloodPressureFeatureDataJson;
 
     @Inject
-    public BloodPressureServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
-        super(deviceRepository, gson);
+    public BloodPressureServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+        super(deviceSettingRepository, gson);
         mSavedStateHandle = savedStateHandle;
 
         mIsIntermediateCuffPressureSupported = savedStateHandle.getLiveData(KEY_IS_INTERMEDIATE_CUFF_PRESSURE_SUPPORTED);
@@ -150,7 +150,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                                     .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureKpa().getSfloat()));
                         }
                         if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
-                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).postValue(mDeviceRepository.getDateTimeString(bloodPressureMeasurement.getYear()
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).postValue(mDeviceSettingRepository.getDateTimeString(bloodPressureMeasurement.getYear()
                                     , bloodPressureMeasurement.getMonth()
                                     , bloodPressureMeasurement.getDay()
                                     , bloodPressureMeasurement.getHours()
@@ -203,7 +203,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                         }
                         if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(intermediateCuffPressure.getFlags())) {
                             mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP)
-                                    .postValue(mDeviceRepository.getDateTimeString(intermediateCuffPressure.getYear()
+                                    .postValue(mDeviceSettingRepository.getDateTimeString(intermediateCuffPressure.getYear()
                                             , intermediateCuffPressure.getMonth()
                                             , intermediateCuffPressure.getDay()
                                             , intermediateCuffPressure.getHours()
@@ -452,7 +452,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                                 .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureKpa().getSfloat()));
                     }
                     if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
-                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).setValue(mDeviceRepository.getDateTimeString(bloodPressureMeasurement.getYear()
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).setValue(mDeviceSettingRepository.getDateTimeString(bloodPressureMeasurement.getYear()
                                 , bloodPressureMeasurement.getMonth()
                                 , bloodPressureMeasurement.getDay()
                                 , bloodPressureMeasurement.getHours()
@@ -521,7 +521,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                                 .setValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureKpa().getSfloat()));
                     }
                     if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(intermediateCuffPressure.getFlags())) {
-                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP).setValue(mDeviceRepository.getDateTimeString(intermediateCuffPressure.getYear()
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP).setValue(mDeviceSettingRepository.getDateTimeString(intermediateCuffPressure.getYear()
                                 , intermediateCuffPressure.getMonth()
                                 , intermediateCuffPressure.getDay()
                                 , intermediateCuffPressure.getHours()

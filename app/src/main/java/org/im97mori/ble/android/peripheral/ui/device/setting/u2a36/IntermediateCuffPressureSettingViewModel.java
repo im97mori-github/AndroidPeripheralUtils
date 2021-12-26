@@ -22,7 +22,7 @@ import com.google.gson.JsonSyntaxException;
 import org.im97mori.ble.BLEUtils;
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.DescriptorData;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
 import org.im97mori.ble.android.peripheral.utils.ExistObserver;
 import org.im97mori.ble.android.peripheral.utils.MapObserver;
@@ -102,8 +102,8 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     private final MutableLiveData<String> mClientCharacteristicConfigurationJson;
 
     @Inject
-    public IntermediateCuffPressureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
-        super(deviceRepository, gson);
+    public IntermediateCuffPressureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+        super(deviceSettingRepository, gson);
         mSavedStateHandle = savedStateHandle;
 
         mIsMmhg = savedStateHandle.getLiveData(KEY_IS_MMHG);
@@ -369,7 +369,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                         mClientCharacteristicConfigurationJson.postValue(mGson.toJson(descriptorData));
                         if (descriptorData.data != null) {
                             mSavedStateHandle.<String>getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION)
-                                    .postValue(mDeviceRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsDisabled()));
+                                    .postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsDisabled()));
                         }
                     }
                 }
@@ -395,7 +395,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     @MainThread
     public void observeUnit(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mIsMmhg).observe(owner
-                , isMmhg -> observer.onChanged(mDeviceRepository.getUnitString(isMmhg)));
+                , isMmhg -> observer.onChanged(mDeviceSettingRepository.getUnitString(isMmhg)));
     }
 
     @MainThread
@@ -406,7 +406,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     @MainThread
     public void observeCurrentCuffPressureError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mCurrentCuffPressure).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getCurrentCuffPressureErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getCurrentCuffPressureErrorString(s)));
     }
 
     @MainThread
@@ -422,7 +422,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     @MainThread
     public void observeTimeStampYearError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mTimeStampYear).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getDateTimeYearErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getDateTimeYearErrorString(s)));
     }
 
     @MainThread
@@ -463,7 +463,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     @MainThread
     public void observePulseRateError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mPulseRate).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getPulseRateErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getPulseRateErrorString(s)));
     }
 
     @MainThread
@@ -479,7 +479,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     @MainThread
     public void observeUserIdError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mUserId).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getUserIdErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getUserIdErrorString(s)));
     }
 
     @MainThread
@@ -530,7 +530,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     @MainThread
     public void observeNotificationCountError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mNotificationCount).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getIndicationCountErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getIndicationCountErrorString(s)));
     }
 
     @MainThread
@@ -645,7 +645,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                 if (descriptorData.data == null) {
                     liveData.setValue(null);
                 } else {
-                    liveData.postValue(mDeviceRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsDisabled()));
+                    liveData.postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsDisabled()));
                 }
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
@@ -660,52 +660,52 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
 
     @NonNull
     public List<Pair<Integer, String>> provideDateTimeMonthList() {
-        return mDeviceRepository.provideDateTimeMonthList();
+        return mDeviceSettingRepository.provideDateTimeMonthList();
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideDateTimeDayList() {
-        return mDeviceRepository.provideDateTimeDayList();
+        return mDeviceSettingRepository.provideDateTimeDayList();
     }
 
     @NonNull
     public List<String> provideDateTimeHoursList() {
-        return mDeviceRepository.provideDateTimeHoursList();
+        return mDeviceSettingRepository.provideDateTimeHoursList();
     }
 
     @NonNull
     public List<String> provideDateTimeMinutesList() {
-        return mDeviceRepository.provideDateTimeMinutesList();
+        return mDeviceSettingRepository.provideDateTimeMinutesList();
     }
 
     @NonNull
     public List<String> provideDateTimeSecondsList() {
-        return mDeviceRepository.provideDateTimeSecondsList();
+        return mDeviceSettingRepository.provideDateTimeSecondsList();
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideBodyMovementDetectionList() {
-        return mDeviceRepository.provideBodyMovementDetectionList();
+        return mDeviceSettingRepository.provideBodyMovementDetectionList();
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideCuffFitDetectionList() {
-        return mDeviceRepository.provideCuffFitDetectionList();
+        return mDeviceSettingRepository.provideCuffFitDetectionList();
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideIrregularPulseDetectionList() {
-        return mDeviceRepository.provideIrregularPulseDetectionList();
+        return mDeviceSettingRepository.provideIrregularPulseDetectionList();
     }
 
     @NonNull
     public List<Pair<Integer, String>> providePulseRateRangeDetectionList() {
-        return mDeviceRepository.providePulseRateRangeDetectionList();
+        return mDeviceSettingRepository.providePulseRateRangeDetectionList();
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideMeasurementPositionDetectionList() {
-        return mDeviceRepository.provideMeasurementPositionDetectionList();
+        return mDeviceSettingRepository.provideMeasurementPositionDetectionList();
     }
 
     @NonNull
@@ -738,12 +738,12 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                 String indicationCount = mNotificationCount.getValue();
                 String clientCharacteristicConfigurationJson = mClientCharacteristicConfigurationJson.getValue();
 
-                if (curerntCuffPressure != null && mDeviceRepository.getCurrentCuffPressureErrorString(curerntCuffPressure) == null
-                        && (!isTimeStampSupported || (year != null && mDeviceRepository.getDateTimeYearErrorString(year) == null))
-                        && (!isPulseRateSupported || (pulseRate != null && mDeviceRepository.getPulseRateErrorString(pulseRate) == null))
-                        && (!isUserIdSupported || (userId != null && mDeviceRepository.getUserIdErrorString(userId) == null))
+                if (curerntCuffPressure != null && mDeviceSettingRepository.getCurrentCuffPressureErrorString(curerntCuffPressure) == null
+                        && (!isTimeStampSupported || (year != null && mDeviceSettingRepository.getDateTimeYearErrorString(year) == null))
+                        && (!isPulseRateSupported || (pulseRate != null && mDeviceSettingRepository.getPulseRateErrorString(pulseRate) == null))
+                        && (!isUserIdSupported || (userId != null && mDeviceSettingRepository.getUserIdErrorString(userId) == null))
                         && (!isMeasurementStatusSupported || (bodyMovementDetection != null && cuffFitDetection != null && irregularPulseDetection != null && pulseRateRangeDetection != null && measurementPositionDetection != null))
-                        && indicationCount != null && mDeviceRepository.getIndicationCountErrorString(indicationCount) == null
+                        && indicationCount != null && mDeviceSettingRepository.getIndicationCountErrorString(indicationCount) == null
                         && clientCharacteristicConfigurationJson != null) {
                     int flags = 0;
                     if (!isMmhg) {

@@ -22,7 +22,7 @@ import com.google.gson.JsonSyntaxException;
 
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.android.peripheral.Constants;
-import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
+import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseDeviceSettingFragment;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileFragment;
@@ -45,7 +45,7 @@ public class DeviceSettingViewModel extends ViewModel {
     private static final String KEY_FRAGMENT_READY = "KEY_FRAGMENT_READY";
 
     private final SavedStateHandle mSavedStateHandle;
-    private final DeviceRepository mDeviceRepository;
+    private final DeviceSettingRepository mDeviceSettingRepository;
     private final Gson mGson;
 
     private final MutableLiveData<String> mDeviceNameSetting;
@@ -57,9 +57,9 @@ public class DeviceSettingViewModel extends ViewModel {
     private BaseDeviceSettingFragment mBaseDeviceSettingFragment;
 
     @Inject
-    public DeviceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceRepository deviceRepository, @NonNull Gson gson) {
+    public DeviceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
         mSavedStateHandle = savedStateHandle;
-        mDeviceRepository = deviceRepository;
+        mDeviceSettingRepository = deviceSettingRepository;
         mGson = gson;
         mDeviceNameSetting = savedStateHandle.getLiveData(KEY_DEVICE_SETTING_NAME);
     }
@@ -72,7 +72,7 @@ public class DeviceSettingViewModel extends ViewModel {
                     if (VALUE_DEVICE_ID_UNSAVED == id) {
                         return Single.just(new DeviceSetting("", intent.getIntExtra(Constants.IntentKey.KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE)));
                     } else {
-                        return mDeviceRepository.loadDeviceSettingByIdAsSingle(id);
+                        return mDeviceSettingRepository.loadDeviceSettingById(id);
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -84,8 +84,8 @@ public class DeviceSettingViewModel extends ViewModel {
                         // for Activity create
                         MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_DEVICE_TYPE_NAME);
                         if (liveData.getValue() == null) {
-                            liveData.postValue(mDeviceRepository.getDeviceTypeName(mDeviceSetting.getDeviceType()));
-                            mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES_ID).postValue(mDeviceRepository.getDeviceTypeImageResId(mDeviceSetting.getDeviceType()));
+                            liveData.postValue(mDeviceSettingRepository.getDeviceTypeName(mDeviceSetting.getDeviceType()));
+                            mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES_ID).postValue(mDeviceSettingRepository.getDeviceTypeImageResId(mDeviceSetting.getDeviceType()));
                             mDeviceNameSetting.postValue(mDeviceSetting.getDeviceSettingName());
 
                             MockData mockData = null;
@@ -126,7 +126,7 @@ public class DeviceSettingViewModel extends ViewModel {
     @MainThread
     public void observeDeviceSettingNameErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mDeviceNameSetting).observe(owner
-                , s -> observer.onChanged(mDeviceRepository.getDeviceSettingNameErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getDeviceSettingNameErrorString(s)));
     }
 
     @MainThread
@@ -164,7 +164,7 @@ public class DeviceSettingViewModel extends ViewModel {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 String deviceNameSetting = mDeviceNameSetting.getValue();
-                String deviceNameSettingErrorString = mDeviceRepository.getDeviceSettingNameErrorString(deviceNameSetting);
+                String deviceNameSettingErrorString = mDeviceSettingRepository.getDeviceSettingNameErrorString(deviceNameSetting);
                 String moduleDataJson = mBaseDeviceSettingFragment.getModuleDataJson();
                 if (!TextUtils.isEmpty(deviceNameSetting)
                         && TextUtils.isEmpty(deviceNameSettingErrorString)
@@ -178,7 +178,7 @@ public class DeviceSettingViewModel extends ViewModel {
                 }
             }
         }).subscribeOn(Schedulers.io())
-                .flatMapCompletable(mDeviceRepository::insertDeviceSetting)
+                .flatMapCompletable(mDeviceSettingRepository::insertDeviceSetting)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 

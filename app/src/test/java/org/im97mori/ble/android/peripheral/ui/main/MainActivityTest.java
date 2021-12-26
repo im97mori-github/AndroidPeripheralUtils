@@ -110,28 +110,28 @@ public class MainActivityTest {
     @Test
     public void test_root_container_visibility_00001() {
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Collections.emptyList());
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.emptyList());
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
     @Test
     public void test_grid_visibility_00001() {
         onView(withId(R.id.grid)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Collections.emptyList());
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.emptyList());
         onView(withId(R.id.grid)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
     @Test
     public void test_grid_visibility_00002() {
         onView(withId(R.id.grid)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
         onView(withId(R.id.grid)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
     @Test
     public void test_grid_click_00001() {
         final DeviceSetting deviceSetting = new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Collections.singletonList(deviceSetting));
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(deviceSetting));
         onData(is(new BoundedMatcher<Object, DeviceSetting>(DeviceSetting.class) {
             @Override
             public void describeTo(Description description) {
@@ -152,7 +152,7 @@ public class MainActivityTest {
     public void test_grid_click_00002() {
         final DeviceSetting deviceSetting1 = new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
         final DeviceSetting deviceSetting2 = new DeviceSetting(2, "b", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Arrays.asList(deviceSetting1, deviceSetting2));
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Arrays.asList(deviceSetting1, deviceSetting2));
         onData(is(new BoundedMatcher<Object, DeviceSetting>(DeviceSetting.class) {
             @Override
             public void describeTo(Description description) {
@@ -172,7 +172,7 @@ public class MainActivityTest {
     @Test
     public void test_grid_text_00001() {
         final DeviceSetting deviceSetting = new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Collections.singletonList(deviceSetting));
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(deviceSetting));
         onData(is(new BoundedMatcher<Object, DeviceSetting>(DeviceSetting.class) {
             @Override
             public void describeTo(Description description) {
@@ -190,7 +190,7 @@ public class MainActivityTest {
     public void test_grid_text_00002() {
         final DeviceSetting deviceSetting1 = new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
         final DeviceSetting deviceSetting2 = new DeviceSetting(2, "b", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Arrays.asList(deviceSetting1, deviceSetting2));
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Arrays.asList(deviceSetting1, deviceSetting2));
         onData(is(new BoundedMatcher<Object, DeviceSetting>(DeviceSetting.class) {
             @Override
             public void describeTo(Description description) {
@@ -207,7 +207,7 @@ public class MainActivityTest {
     @Test
     public void test_grid_image_00001() {
         final DeviceSetting deviceSetting = new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Collections.singletonList(deviceSetting));
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(deviceSetting));
         onData(is(new BoundedMatcher<Object, DeviceSetting>(DeviceSetting.class) {
             @Override
             public void describeTo(Description description) {
@@ -238,7 +238,7 @@ public class MainActivityTest {
     public void test_grid_image_00002() {
         final DeviceSetting deviceSetting1 = new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
         final DeviceSetting deviceSetting2 = new DeviceSetting(2, "b", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null);
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Arrays.asList(deviceSetting1, deviceSetting2));
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Arrays.asList(deviceSetting1, deviceSetting2));
         onData(is(new BoundedMatcher<Object, DeviceSetting>(DeviceSetting.class) {
             @Override
             public void describeTo(Description description) {
@@ -268,14 +268,14 @@ public class MainActivityTest {
     @Test
     public void test_emptyView_visibility_00001() {
         onView(withId(R.id.empty)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Collections.emptyList());
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.emptyList());
         onView(withId(R.id.empty)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
     @Test
     public void test_emptyView_visibility_00002() {
         onView(withId(R.id.empty)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        mViewModel.mObserveAllDeviceSettingsProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
         onView(withId(R.id.empty)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -290,7 +290,7 @@ public class MainActivityTest {
     @Test
     public void test_menu_clear_devices_00001() {
         final AtomicBoolean result = new AtomicBoolean(false);
-        mViewModel.mObserveDeleteAllDeviceSettingsAction = () -> result.set(true);
+        mViewModel.mObserveDeleteAllDeviceSettingAction = () -> result.set(true);
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withText(R.string.menu_clear_devices)).perform(click());
 

@@ -7,13 +7,14 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "device_settings")
+@Entity(tableName = "device_setting")
 public class DeviceSetting {
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "device_setting_id")
+    @ColumnInfo(name = "device_setting_id", typeAffinity = 1)
     private final long mId;
 
+    @NonNull
     @ColumnInfo(name = "device_setting_name")
     private String mDeviceSettingName;
 
@@ -50,7 +51,7 @@ public class DeviceSetting {
     }
 
 
-    public void setDeviceSettingName(@Nullable String deviceSettingName) {
+    public void setDeviceSettingName(@NonNull String deviceSettingName) {
         this.mDeviceSettingName = deviceSettingName;
     }
 
