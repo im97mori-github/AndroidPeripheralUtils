@@ -17,7 +17,7 @@ import com.google.gson.Gson;
 
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
-import org.im97mori.ble.android.peripheral.room.Device;
+import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
 
 import javax.inject.Inject;
@@ -53,14 +53,14 @@ public class PeripheralViewModel extends ViewModel {
     @MainThread
     public Flowable<AbstractProfileMockCallback> setup(@NonNull Intent intent) {
         return mDeviceRepository
-                .loadDeviceByIdFlowable(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
+                .loadDeviceSettingByIdAsFlowable(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
                 .subscribeOn(Schedulers.io())
                 .flatMap(device -> {
                     mSavedStateHandle.<String>getLiveData(KEY_TITLE).postValue(device.getDeviceSettingName());
-                    mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES).postValue(mDeviceRepository.getDeviceTypeImageRes(device.getDeviceType()));
+                    mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES).postValue(mDeviceRepository.getDeviceTypeImageResId(device.getDeviceType()));
                     mSavedStateHandle.<String>getLiveData(KEY_DEVICE_TYPE_NAME).postValue(mDeviceRepository.getDeviceTypeName(device.getDeviceType()));
                     return Flowable.just(mDeviceRepository.createProfileMockCallback(device.getDeviceType()
-                            , mGson.fromJson(device.getDeviceSetting(), MockData.class)));
+                            , mGson.fromJson(device.getDeviceSettingData(), MockData.class)));
                 })
                 .observeOn(AndroidSchedulers.mainThread());
     }
@@ -70,7 +70,7 @@ public class PeripheralViewModel extends ViewModel {
     public Completable deleteDevice(@NonNull Intent intent) {
         return Single.just(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
                 .subscribeOn(Schedulers.io())
-                .flatMapCompletable(id -> mDeviceRepository.deleteDevice(new Device(id)))
+                .flatMapCompletable(id -> mDeviceRepository.deleteDeviceSetting(new DeviceSetting(id)))
                 .subscribeOn(AndroidSchedulers.mainThread());
     }
 

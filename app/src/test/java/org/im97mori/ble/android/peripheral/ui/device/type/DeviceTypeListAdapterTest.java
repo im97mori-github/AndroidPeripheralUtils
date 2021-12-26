@@ -44,7 +44,7 @@ import dagger.hilt.android.testing.HiltTestApplication;
 public class DeviceTypeListAdapterTest {
 
     @Rule
-    public HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
+    public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
     @Inject
     @ApplicationContext

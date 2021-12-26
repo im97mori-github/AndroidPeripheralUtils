@@ -23,7 +23,7 @@ import com.google.gson.JsonSyntaxException;
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.android.peripheral.Constants;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
-import org.im97mori.ble.android.peripheral.room.Device;
+import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseDeviceSettingFragment;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileFragment;
 
@@ -52,7 +52,7 @@ public class DeviceSettingViewModel extends ViewModel {
 
     private final PublishProcessor<MockData> mMockDataPublishProcessor = PublishProcessor.create();
 
-    private Device mDevice;
+    private DeviceSetting mDeviceSetting;
 
     private BaseDeviceSettingFragment mBaseDeviceSettingFragment;
 
@@ -70,27 +70,27 @@ public class DeviceSettingViewModel extends ViewModel {
         return Single.just(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
                 .flatMap(id -> {
                     if (VALUE_DEVICE_ID_UNSAVED == id) {
-                        return Single.just(new Device("", intent.getIntExtra(Constants.IntentKey.KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE)));
+                        return Single.just(new DeviceSetting("", intent.getIntExtra(Constants.IntentKey.KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE)));
                     } else {
-                        return mDeviceRepository.loadDeviceById(id);
+                        return mDeviceRepository.loadDeviceSettingByIdAsSingle(id);
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .flatMapCompletable(device -> {
                     // for 1st onStart
-                    if (mDevice == null) {
-                        mDevice = device;
+                    if (mDeviceSetting == null) {
+                        mDeviceSetting = device;
 
                         // for Activity create
                         MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_DEVICE_TYPE_NAME);
                         if (liveData.getValue() == null) {
-                            liveData.postValue(mDeviceRepository.getDeviceTypeName(mDevice.getDeviceType()));
-                            mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES_ID).postValue(mDeviceRepository.getDeviceTypeImageRes(mDevice.getDeviceType()));
-                            mDeviceNameSetting.postValue(mDevice.getDeviceSettingName());
+                            liveData.postValue(mDeviceRepository.getDeviceTypeName(mDeviceSetting.getDeviceType()));
+                            mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES_ID).postValue(mDeviceRepository.getDeviceTypeImageResId(mDeviceSetting.getDeviceType()));
+                            mDeviceNameSetting.postValue(mDeviceSetting.getDeviceSettingName());
 
                             MockData mockData = null;
                             try {
-                                mockData = mGson.fromJson(mDevice.getDeviceSetting(), MockData.class);
+                                mockData = mGson.fromJson(mDeviceSetting.getDeviceSettingData(), MockData.class);
                             } catch (JsonSyntaxException e) {
                                 e.printStackTrace();
                             } finally {
@@ -158,9 +158,9 @@ public class DeviceSettingViewModel extends ViewModel {
     @NonNull
     @MainThread
     public Completable save() {
-        return Single.<Device>create(emitter -> {
-            Device device = mDevice;
-            if (device == null) {
+        return Single.<DeviceSetting>create(emitter -> {
+            DeviceSetting deviceSetting = mDeviceSetting;
+            if (deviceSetting == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 String deviceNameSetting = mDeviceNameSetting.getValue();
@@ -169,16 +169,16 @@ public class DeviceSettingViewModel extends ViewModel {
                 if (!TextUtils.isEmpty(deviceNameSetting)
                         && TextUtils.isEmpty(deviceNameSettingErrorString)
                         && !TextUtils.isEmpty(moduleDataJson)) {
-                    device.setDeviceSettingName(deviceNameSetting);
-                    device.setDeviceSetting(moduleDataJson);
-                    mDevice = null;
-                    emitter.onSuccess(device);
+                    deviceSetting.setDeviceSettingName(deviceNameSetting);
+                    deviceSetting.setDeviceSettingData(moduleDataJson);
+                    mDeviceSetting = null;
+                    emitter.onSuccess(deviceSetting);
                 } else {
                     emitter.onError(new RuntimeException("Validation failed"));
                 }
             }
         }).subscribeOn(Schedulers.io())
-                .flatMapCompletable(mDeviceRepository::insertDevices)
+                .flatMapCompletable(mDeviceRepository::insertDeviceSetting)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 

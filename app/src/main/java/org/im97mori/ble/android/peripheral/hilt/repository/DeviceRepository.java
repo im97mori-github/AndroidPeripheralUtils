@@ -15,7 +15,7 @@ import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceDataSource;
-import org.im97mori.ble.android.peripheral.room.Device;
+import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.android.peripheral.utils.IntegerStringPair;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.DateTimeUtils;
@@ -46,7 +46,7 @@ public class DeviceRepository {
     private final DeviceDataSource mDeviceDataSource;
     private final Context mApplicationContext;
 
-    private Map<Integer, Integer> mDeviceTypeImageResMap;
+    private Map<Integer, Integer> mDeviceTypeImageResIdMap;
     private Map<Integer, String> mDeviceTypeNameMap;
     private List<Pair<Integer, String>> mDeviceTypeNameList;
 
@@ -69,10 +69,10 @@ public class DeviceRepository {
     }
 
     private synchronized void initDataType() {
-        if (mDeviceTypeImageResMap == null) {
+        if (mDeviceTypeImageResIdMap == null) {
             Map<Integer, Integer> imageMap = Collections.synchronizedMap(new HashMap<>());
             imageMap.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, R.drawable.medical_ketsuatsukei_aneroid);
-            mDeviceTypeImageResMap = Collections.unmodifiableMap(imageMap);
+            mDeviceTypeImageResIdMap = Collections.unmodifiableMap(imageMap);
 
             Map<Integer, String> nameMap = Collections.synchronizedMap(new HashMap<>());
             nameMap.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mApplicationContext.getString(R.string.blood_pressure_profile));
@@ -206,37 +206,37 @@ public class DeviceRepository {
     }
 
     @NonNull
-    public Flowable<List<Device>> loadDevices() {
-        return mDeviceDataSource.loadDevices();
+    public Flowable<List<DeviceSetting>> loadAllDeviceSettings() {
+        return mDeviceDataSource.loadAllDeviceSettings();
     }
 
-    public Single<Device> loadDeviceById(long id) {
-        return mDeviceDataSource.loadDeviceById(id);
+    public Single<DeviceSetting> loadDeviceSettingByIdAsSingle(long id) {
+        return mDeviceDataSource.loadDeviceSettingByIdAsSingle(id);
     }
 
-    public Flowable<Device> loadDeviceByIdFlowable(long id) {
-        return mDeviceDataSource.loadDeviceByIdFlowable(id);
-    }
-
-    @NonNull
-    public Completable insertDevices(@NonNull Device device) {
-        return mDeviceDataSource.insertDevice(device);
+    public Flowable<DeviceSetting> loadDeviceSettingByIdAsFlowable(long id) {
+        return mDeviceDataSource.loadDeviceSettingByIdAsFlowable(id);
     }
 
     @NonNull
-    public Completable deleteDevice(@NonNull Device device) {
-        return mDeviceDataSource.deleteDevice(device);
+    public Completable insertDeviceSetting(@NonNull DeviceSetting deviceSetting) {
+        return mDeviceDataSource.insertDeviceSetting(deviceSetting);
     }
 
     @NonNull
-    public Completable deleteAllDevices() {
-        return mDeviceDataSource.deleteAllDevices();
+    public Completable deleteDeviceSetting(@NonNull DeviceSetting deviceSetting) {
+        return mDeviceDataSource.deleteDeviceSetting(deviceSetting);
+    }
+
+    @NonNull
+    public Completable deleteAllDeviceSettings() {
+        return mDeviceDataSource.deleteAllDeviceSettings();
     }
 
     @Nullable
-    public Integer getDeviceTypeImageRes(int deviceType) {
+    public Integer getDeviceTypeImageResId(int deviceType) {
         initDataType();
-        return mDeviceTypeImageResMap.get(deviceType);
+        return mDeviceTypeImageResIdMap.get(deviceType);
     }
 
     @Nullable
@@ -248,7 +248,7 @@ public class DeviceRepository {
     @NonNull
     public Map<Integer, Integer> provideDeviceTypeImageResMap() {
         initDataType();
-        return mDeviceTypeImageResMap;
+        return mDeviceTypeImageResIdMap;
     }
 
     @NonNull

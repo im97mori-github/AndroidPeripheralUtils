@@ -11,53 +11,53 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.room.Device;
+import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class DeviceListAdapter extends ArrayAdapter<Device> {
+public class DeviceListAdapter extends ArrayAdapter<DeviceSetting> {
 
     private final LayoutInflater mLayoutInflater;
 
     private final Map<Integer, Integer> mDeviceTypeImageResMap;
 
-    private final List<Device> mDeviceList;
+    private final List<DeviceSetting> mDeviceSettingList;
 
     public DeviceListAdapter(@NonNull Context context
             , @NonNull Map<Integer, Integer> deviceTypeImageResMap
-            , @NonNull List<Device> deviceList) {
-        super(context, 0, new ArrayList<>(deviceList));
+            , @NonNull List<DeviceSetting> deviceSettingList) {
+        super(context, 0, new ArrayList<>(deviceSettingList));
         mDeviceTypeImageResMap = deviceTypeImageResMap;
-        mDeviceList = new ArrayList<>(deviceList);
+        mDeviceSettingList = new ArrayList<>(deviceSettingList);
         mLayoutInflater = LayoutInflater.from(context);
     }
 
-    public void setDeviceList(@NonNull List<Device> deviceList) {
-        mDeviceList.clear();
-        mDeviceList.addAll(deviceList);
+    public void setDeviceList(@NonNull List<DeviceSetting> deviceSettingList) {
+        mDeviceSettingList.clear();
+        mDeviceSettingList.addAll(deviceSettingList);
         clear();
-        addAll(deviceList);
+        addAll(deviceSettingList);
     }
 
     @Override
     public long getItemId(int position) {
-        return mDeviceList.get(position).getId();
+        return mDeviceSettingList.get(position).getId();
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Device device = getItem(position);
+        DeviceSetting deviceSetting = getItem(position);
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.main_grid, parent, false);
         }
         TextView textView = convertView.findViewById(R.id.grid_text);
-        textView.setText(device.getDeviceSettingName());
+        textView.setText(deviceSetting.getDeviceSettingName());
         textView.setCompoundDrawablesRelativeWithIntrinsicBounds(0
-                , Objects.requireNonNull(mDeviceTypeImageResMap.get(device.getDeviceType()))
+                , Objects.requireNonNull(mDeviceTypeImageResMap.get(deviceSetting.getDeviceType()))
                 , 0
                 , 0);
         return convertView;

@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.room.Room;
 
 import org.im97mori.ble.android.peripheral.room.AppDatabase;
-import org.im97mori.ble.android.peripheral.room.Device;
+import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 
 import java.util.List;
 
@@ -41,37 +41,37 @@ public class DeviceDataSource {
     }
 
     @NonNull
-    public Flowable<List<Device>> loadDevices() {
+    public Flowable<List<DeviceSetting>> loadAllDeviceSettings() {
         initDatabase();
-        return mAppDatabase.getDeviceDao().loadDevices().distinct();
+        return mAppDatabase.getDeviceSettingDao().loadAllDeviceSettings();
     }
 
-    public Single<Device> loadDeviceById(long id) {
+    public Single<DeviceSetting> loadDeviceSettingByIdAsSingle(long id) {
         initDatabase();
-        return mAppDatabase.getDeviceDao().loadDeviceById(id);
+        return mAppDatabase.getDeviceSettingDao().loadDeviceSettingByIdAsSingle(id);
     }
 
-    public Flowable<Device> loadDeviceByIdFlowable(long id) {
+    public Flowable<DeviceSetting> loadDeviceSettingByIdAsFlowable(long id) {
         initDatabase();
-        return mAppDatabase.getDeviceDao().loadDeviceByIdFlowable(id);
-    }
-
-    @NonNull
-    public Completable insertDevice(@NonNull Device device) {
-        initDatabase();
-        return mAppDatabase.getDeviceDao().insertDevice(device);
+        return mAppDatabase.getDeviceSettingDao().loadDeviceSettingByIdAsFlowable(id);
     }
 
     @NonNull
-    public Completable deleteDevice(@NonNull Device device) {
+    public Completable insertDeviceSetting(@NonNull DeviceSetting deviceSetting) {
         initDatabase();
-        return mAppDatabase.getDeviceDao().deleteDevice(device);
+        return mAppDatabase.getDeviceSettingDao().insertDeviceSetting(deviceSetting);
     }
 
     @NonNull
-    public Completable deleteAllDevices() {
+    public Completable deleteDeviceSetting(@NonNull DeviceSetting deviceSetting) {
         initDatabase();
-        return mAppDatabase.getDeviceDao().deleteAllDevices();
+        return mAppDatabase.getDeviceSettingDao().deleteDeviceSetting(deviceSetting);
+    }
+
+    @NonNull
+    public Completable deleteAllDeviceSettings() {
+        initDatabase();
+        return mAppDatabase.getDeviceSettingDao().deleteAllDeviceSettings();
     }
 
 }

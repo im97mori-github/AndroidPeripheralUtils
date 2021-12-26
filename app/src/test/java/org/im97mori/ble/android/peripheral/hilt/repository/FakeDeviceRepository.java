@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceDataSource;
-import org.im97mori.ble.android.peripheral.room.Device;
+import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import io.reactivex.rxjava3.processors.PublishProcessor;
 
 public class FakeDeviceRepository extends DeviceRepository {
 
-    public PublishProcessor<List<Device>> mLoadDevicesProcessor;
+    public PublishProcessor<List<DeviceSetting>> mLoadDevicesProcessor;
 
     public CompletableOnSubscribe mCompletableOnSubscribe;
 
@@ -30,13 +30,13 @@ public class FakeDeviceRepository extends DeviceRepository {
 
     @NonNull
     @Override
-    public Flowable<List<Device>> loadDevices() {
+    public Flowable<List<DeviceSetting>> loadAllDeviceSettings() {
         return mLoadDevicesProcessor;
     }
 
     @NonNull
     @Override
-    public Completable deleteAllDevices() {
+    public Completable deleteAllDeviceSettings() {
         return Completable.create(mCompletableOnSubscribe);
     }
 

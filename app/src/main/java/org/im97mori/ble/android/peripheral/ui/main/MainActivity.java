@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mViewModel.observeDevices(devices -> {
+        mViewModel.observeAllDeviceSettings(devices -> {
             adapter.setDeviceList(devices);
             mBinding.rootContainer.setVisibility(View.VISIBLE);
         }, throwable -> LogUtils.stackLog(throwable.getMessage()));
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             mStartDeviceTypeListActivity.launch(null);
             result = true;
         } else if (R.id.clear_devices == item.getItemId()) {
-            mViewModel.observeDeleteAllDevices(() -> {
+            mViewModel.observeDeleteAllDeviceSettings(() -> {
             }, throwable -> LogUtils.stackLog(throwable.getMessage()));
             result = true;
         } else if (R.id.license == item.getItemId()) {

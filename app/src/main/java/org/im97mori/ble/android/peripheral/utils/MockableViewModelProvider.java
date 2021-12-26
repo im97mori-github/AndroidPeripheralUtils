@@ -17,7 +17,8 @@ public class MockableViewModelProvider extends ViewModelProvider {
         return super.get(getViewModelClass(modelClass));
     }
 
-    public static  <T extends ViewModel> Class<? extends T> getViewModelClass(Class<T> clazz) {
+    // for mockit
+    public static <T extends ViewModel> Class<? extends T> getViewModelClass(Class<T> clazz) {
         return clazz;
     }
 

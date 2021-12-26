@@ -59,7 +59,7 @@ import dagger.hilt.android.testing.HiltTestApplication;
 public class DeviceTypeListActivityTest {
 
     @Rule
-    public HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
+    public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
     private ActivityScenario<DeviceTypeListActivity> mScenario;
 

@@ -33,7 +33,7 @@ import dagger.hilt.android.testing.HiltTestApplication;
         , sdk = Build.VERSION_CODES.LOLLIPOP)
 public class DeviceTypeListViewModelTest {
     @Rule
-    public HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
+    public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
     @Inject
     FakeDeviceRepository mFakeDeviceRepository;

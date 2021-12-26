@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceRepository;
-import org.im97mori.ble.android.peripheral.room.Device;
+import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 
 import java.util.List;
 import java.util.Map;
@@ -30,15 +30,15 @@ public class MainViewModel extends ViewModel {
         mDeviceRepository = deviceRepository;
     }
 
-    public void observeDevices(Consumer<List<Device>> onNext, Consumer<Throwable> onError) {
-        mDisposable.add(mDeviceRepository.loadDevices()
+    public void observeAllDeviceSettings(Consumer<List<DeviceSetting>> onNext, Consumer<Throwable> onError) {
+        mDisposable.add(mDeviceRepository.loadAllDeviceSettings()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onNext, onError));
     }
 
-    public void observeDeleteAllDevices(@NonNull Action onComplete, Consumer<Throwable> onError) {
-        mDisposable.add(mDeviceRepository.deleteAllDevices()
+    public void observeDeleteAllDeviceSettings(@NonNull Action onComplete, Consumer<Throwable> onError) {
+        mDisposable.add(mDeviceRepository.deleteAllDeviceSettings()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onComplete, onError));
