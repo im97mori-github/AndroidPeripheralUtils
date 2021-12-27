@@ -28,7 +28,7 @@ public class FakeMainViewModel extends MainViewModel {
     }
 
     @Override
-    public void observeAllDeviceSetting(io.reactivex.rxjava3.functions.Consumer<List<DeviceSetting>> onNext, @NonNull Consumer<Throwable> onError) {
+    public void observeLoadAllDeviceSetting(io.reactivex.rxjava3.functions.Consumer<List<DeviceSetting>> onNext, @NonNull Consumer<Throwable> onError) {
         mDisposable.add(mObserveAllDeviceSettingProcessor.subscribe(onNext, onError));
     }
 

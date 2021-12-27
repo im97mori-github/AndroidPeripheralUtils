@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mViewModel.observeAllDeviceSetting(devices -> {
+        mViewModel.observeLoadAllDeviceSetting(devices -> {
             adapter.setDeviceList(devices);
             mBinding.rootContainer.setVisibility(View.VISIBLE);
         }, throwable -> LogUtils.stackLog(throwable.getMessage()));

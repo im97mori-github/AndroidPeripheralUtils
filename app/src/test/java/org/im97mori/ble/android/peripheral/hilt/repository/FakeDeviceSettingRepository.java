@@ -31,7 +31,7 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
     @NonNull
     @Override
     public Single<List<DeviceSetting>> loadAllDeviceSetting() {
-        return mLoadAllDeviceSettingProcessor.singleOrError();
+        return Single.fromPublisher(mLoadAllDeviceSettingProcessor);
     }
 
     @NonNull

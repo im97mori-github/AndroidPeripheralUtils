@@ -463,7 +463,10 @@ public class DeviceSettingRepository {
             errorString = mApplicationContext.getString(R.string.no_value);
         } else {
             try {
-                Long.parseLong(charSequence.toString());
+                long responseDelay = Long.parseLong(charSequence.toString());
+                if (responseDelay < 0) {
+                    errorString = mApplicationContext.getString(R.string.out_of_range);
+                }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 errorString = mApplicationContext.getString(R.string.wrong_format);
@@ -615,9 +618,9 @@ public class DeviceSettingRepository {
     public String getIndicationsString(boolean enabled) {
         String result;
         if (enabled) {
-            result = mApplicationContext.getString(R.string.indication_enabled);
+            result = getIndicationsEnabledString();
         } else {
-            result = mApplicationContext.getString(R.string.indication_disabled);
+            result = getIndicationsDisabledString();
         }
         return result;
     }
@@ -626,27 +629,31 @@ public class DeviceSettingRepository {
     public String getNotificationsString(boolean enabled) {
         String result;
         if (enabled) {
-            result = mApplicationContext.getString(R.string.notification_enabled);
+            result = getNotificationsEnabledString();
         } else {
-            result = mApplicationContext.getString(R.string.notification_disabled);
+            result = getNotificationsDisabledString();
         }
         return result;
     }
 
     @NonNull
     public AbstractProfileMockCallback createProfileMockCallback(int deviceType, @NonNull MockData mockData) {
-        MockData blsMockData = null;
-        MockData disMockData = null;
-        for (ServiceData serviceData : mockData.serviceDataList) {
-            if (BLOOD_PRESSURE_SERVICE.equals(serviceData.uuid)) {
-                blsMockData = new MockData(Collections.singletonList(serviceData));
-            } else if (DEVICE_INFORMATION_SERVICE.equals(serviceData.uuid)) {
-                disMockData = new MockData(Collections.singletonList(serviceData));
+        if (DEVICE_TYPE_BLOOD_PRESSURE_PROFILE == deviceType) {
+            MockData blsMockData = null;
+            MockData disMockData = null;
+            for (ServiceData serviceData : mockData.serviceDataList) {
+                if (BLOOD_PRESSURE_SERVICE.equals(serviceData.uuid)) {
+                    blsMockData = new MockData(Collections.singletonList(serviceData));
+                } else if (DEVICE_INFORMATION_SERVICE.equals(serviceData.uuid)) {
+                    disMockData = new MockData(Collections.singletonList(serviceData));
+                }
             }
+            return new BloodPressureProfileMockCallback(mApplicationContext
+                    , new BloodPressureServiceMockCallback(Objects.requireNonNull(blsMockData), false)
+                    , disMockData == null ? null : new DeviceInformationServiceMockCallback(disMockData, false));
+        } else {
+            throw new RuntimeException("Not Found");
         }
-        return new BloodPressureProfileMockCallback(mApplicationContext
-                , new BloodPressureServiceMockCallback(Objects.requireNonNull(blsMockData), false)
-                , disMockData == null ? null : new DeviceInformationServiceMockCallback(disMockData, false));
     }
 
 }

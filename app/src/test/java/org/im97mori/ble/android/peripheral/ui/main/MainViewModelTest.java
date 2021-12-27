@@ -64,26 +64,38 @@ public class MainViewModelTest {
     }
 
     @Test
-    public void test_observeAllDeviceSettings_00001() {
+    public void test_observeLoadAllDeviceSetting_00001() {
+        AtomicBoolean result = new AtomicBoolean(false);
         List<DeviceSetting> deviceSettingList = Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null));
         mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor = PublishProcessor.create();
-        mViewModel.observeAllDeviceSetting(devices -> assertEquals(deviceSettingList, devices), throwable -> {
+        mViewModel.observeLoadAllDeviceSetting(devices -> {
+            assertEquals(deviceSettingList, devices);
+            result.set(true);
+        }, throwable -> {
         });
         mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor.onNext(deviceSettingList);
+        mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor.onComplete();
+        assertTrue(result.get());
     }
 
     @Test
-    public void test_observeAllDeviceSettings_00002() {
+    public void test_observeLoadAllDeviceSetting_00002() {
+        AtomicBoolean result = new AtomicBoolean(false);
         List<DeviceSetting> deviceSettingList = Arrays.asList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)
                 , new DeviceSetting(2, "b", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null));
         mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor = PublishProcessor.create();
-        mViewModel.observeAllDeviceSetting(devices -> assertEquals(deviceSettingList, devices), throwable -> {
+        mViewModel.observeLoadAllDeviceSetting(devices -> {
+            assertEquals(deviceSettingList, devices);
+            result.set(true);
+        }, throwable -> {
         });
         mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor.onNext(deviceSettingList);
+        mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor.onComplete();
+        assertTrue(result.get());
     }
 
     @Test
-    public void test_observeDeleteAllDeviceSettings_00001() {
+    public void test_observeDeleteAllDeviceSetting_00001() {
         final AtomicBoolean result = new AtomicBoolean(false);
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
@@ -101,7 +113,7 @@ public class MainViewModelTest {
     public void test_dispose_00001() {
         AtomicBoolean result = new AtomicBoolean(false);
         mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor = PublishProcessor.create();
-        mViewModel.observeAllDeviceSetting(devices -> result.set(true), throwable -> {
+        mViewModel.observeLoadAllDeviceSetting(devices -> result.set(true), throwable -> {
         });
         mViewModel.dispose();
         mFakeDeviceSettingRepository.mLoadAllDeviceSettingProcessor.onNext(Collections.emptyList());

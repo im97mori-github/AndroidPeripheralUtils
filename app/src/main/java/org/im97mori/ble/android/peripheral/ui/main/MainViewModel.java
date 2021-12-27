@@ -30,7 +30,7 @@ public class MainViewModel extends ViewModel {
         mDeviceSettingRepository = deviceSettingRepository;
     }
 
-    public void observeAllDeviceSetting(Consumer<List<DeviceSetting>> onNext, Consumer<Throwable> onError) {
+    public void observeLoadAllDeviceSetting(Consumer<List<DeviceSetting>> onNext, Consumer<Throwable> onError) {
         mDisposable.add(mDeviceSettingRepository.loadAllDeviceSetting()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
