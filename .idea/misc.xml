@@ -619,6 +619,7 @@
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivityTest" method="test_title_00001" />
     <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_title_00001" />
     <pattern value="org.im97mori.ble.android.peripheral.utils.IntegerStringPairTest" method="test_toString_00001" />
+    <pattern value="org.im97mori.ble.android.peripheral.CustomTestRunner" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
