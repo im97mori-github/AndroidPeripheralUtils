@@ -5,10 +5,9 @@ import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.lifecycle.ViewModelProvider;
-
 import org.im97mori.ble.android.peripheral.databinding.DeviceTypeListActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
+import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -19,7 +18,7 @@ public class DeviceTypeListActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DeviceTypeListViewModel viewModel = new ViewModelProvider(this).get(DeviceTypeListViewModel.class);
+        DeviceTypeListViewModel viewModel = new MockableViewModelProvider(this).get(DeviceTypeListViewModel.class);
         DeviceTypeListActivityBinding binding = DeviceTypeListActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

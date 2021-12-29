@@ -9,9 +9,9 @@ import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
@@ -51,7 +51,9 @@ import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivi
 import org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivity;
 import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,15 +86,24 @@ public class MainActivityTest {
 
     private FakeMainViewModel mViewModel;
 
+    private static MockedStatic<MockableViewModelProvider> mockedStatic;
+
+    @BeforeClass
+    public static void setUpClass() {
+        mockedStatic = mockStatic(MockableViewModelProvider.class);
+        mockedStatic.when(() -> MockableViewModelProvider.getViewModelClass(MainViewModel.class)).thenReturn(FakeMainViewModel.class);
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        mockedStatic.close();
+    }
+
     @Before
     public void setUp() {
         mHiltRule.inject();
-        try (MockedStatic<MockableViewModelProvider> mockedStatic = mockStatic(MockableViewModelProvider.class)) {
-            mockedStatic.when(() -> MockableViewModelProvider.getViewModelClass(MainViewModel.class)).thenReturn(FakeMainViewModel.class);
-
-            mScenario = ActivityScenario.launch(MainActivity.class);
-            mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeMainViewModel.class));
-        }
+        mScenario = ActivityScenario.launch(MainActivity.class);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeMainViewModel.class));
         Intents.init();
     }
 
@@ -104,7 +115,7 @@ public class MainActivityTest {
 
     @Test
     public void test_title_00001() {
-        onView(withText(R.string.app_name)).check(matches(withParent(withId(R.id.topAppBar))));
+        onView(withId(R.id.topAppBar)).check(matches(hasDescendant(withText(R.string.app_name))));
     }
 
     @Test

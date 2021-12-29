@@ -78,7 +78,7 @@ public class DeviceSettingDataSourceTest {
 
     @Test
     public void test_loadAllDeviceSetting_00001() {
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
     }
 
@@ -87,7 +87,7 @@ public class DeviceSettingDataSourceTest {
         DeviceSetting original = new DeviceSetting("a", 1);
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
         assertEquals(1, deviceSettingList.size());
         DeviceSetting deviceSetting = deviceSettingList.get(0);
         assertTrue(deviceSetting.getId() > 0);
@@ -101,7 +101,7 @@ public class DeviceSettingDataSourceTest {
         DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
         assertEquals(1, deviceSettingList.size());
         DeviceSetting deviceSetting = deviceSettingList.get(0);
         assertEquals(original.getId(), deviceSetting.getId());
@@ -173,7 +173,7 @@ public class DeviceSettingDataSourceTest {
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDataSource.deleteDeviceSetting(original).blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
     }
 
@@ -199,7 +199,7 @@ public class DeviceSettingDataSourceTest {
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDataSource.deleteAllDeviceSetting().blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
     }
 
@@ -211,7 +211,7 @@ public class DeviceSettingDataSourceTest {
         mDeviceSettingDataSource.insertDeviceSetting(original2).blockingSubscribe();
 
         mDeviceSettingDataSource.deleteAllDeviceSetting().blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
     }
 

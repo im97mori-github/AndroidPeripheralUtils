@@ -70,7 +70,7 @@ public class DeviceSettingDaoTest {
 
     @Test
     public void test_loadAllDeviceSetting_00001() {
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
     }
 
@@ -79,7 +79,7 @@ public class DeviceSettingDaoTest {
         DeviceSetting original = new DeviceSetting("a", 1);
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
         assertEquals(1, deviceSettingList.size());
         DeviceSetting deviceSetting = deviceSettingList.get(0);
         assertTrue(deviceSetting.getId() > 0);
@@ -93,7 +93,7 @@ public class DeviceSettingDaoTest {
         DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
         assertEquals(1, deviceSettingList.size());
         DeviceSetting deviceSetting = deviceSettingList.get(0);
         assertEquals(original.getId(), deviceSetting.getId());
@@ -165,7 +165,7 @@ public class DeviceSettingDaoTest {
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDao.deleteDeviceSetting(original).blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
     }
 
@@ -191,7 +191,7 @@ public class DeviceSettingDaoTest {
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDao.deleteAllDeviceSetting().blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
     }
 
@@ -203,7 +203,7 @@ public class DeviceSettingDaoTest {
         mDeviceSettingDao.insertDeviceSetting(original2).blockingSubscribe();
 
         mDeviceSettingDao.deleteAllDeviceSetting().blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingGet();
+        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
     }
 

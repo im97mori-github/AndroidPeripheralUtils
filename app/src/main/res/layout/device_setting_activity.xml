@@ -86,7 +86,7 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/deviceName"
+                        android:id="@+id/deviceSettingName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/dp16"
@@ -97,7 +97,7 @@
                         app:hintEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/deviceNameEdit"
+                            android:id="@+id/deviceSettingNameEdit"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="text" />
@@ -106,8 +106,8 @@
                 </androidx.appcompat.widget.LinearLayoutCompat>
             </com.google.android.material.card.MaterialCardView>
 
-            <FrameLayout
-                android:id="@+id/container"
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </androidx.appcompat.widget.LinearLayoutCompat>

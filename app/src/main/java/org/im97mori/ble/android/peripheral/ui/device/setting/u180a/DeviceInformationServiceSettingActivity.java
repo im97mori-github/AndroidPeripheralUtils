@@ -8,7 +8,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProvider;
 
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.DeviceInformationServiceSettingActivityBinding;
@@ -16,6 +15,7 @@ import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringLauncherContract;
+import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -39,7 +39,7 @@ public class DeviceInformationServiceSettingActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(DeviceInformationServiceSettingViewModel.class);
+        mViewModel = new MockableViewModelProvider(this).get(DeviceInformationServiceSettingViewModel.class);
 
         mBinding = DeviceInformationServiceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

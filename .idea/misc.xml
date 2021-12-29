@@ -6,6 +6,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/debug/res/layout/hilt_test_activity.xml" value="0.18247863247863247" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.22760416666666666" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/animation_test.xml" value="0.3172995780590717" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/circle_shape.xml" value="0.18675213675213675" />
@@ -16,6 +17,7 @@
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/peripheral_advertising_background_animation.xml" value="0.3172995780590717" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/test.xml" value="0.3172995780590717" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/drawable/test2.xml" value="0.33" />
+        <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/font-v21/rubik.xml" value="0.20726495726495728" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/font-v26/rubik.xml" value="0.24166666666666667" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/font/rubik.xml" value="0.19829059829059828" />
         <entry key="..\:/git/AndroidPeripheralUtils/app/src/main/res/layout/a/blood_pressure_profile_setting_fragment.xml" value="0.3042194092827004" />
@@ -106,6 +108,8 @@
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.main.MainViewModelTest mHiltRule" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.utils.MockableViewModelProviderTest mHiltRule" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.utils.UtilsTest mHiltRule" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSourceTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity mDeviceType" />
     </entry_points>
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" />
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" method="AfterTextChangedTextWatcher" />
@@ -620,6 +624,13 @@
     <pattern value="org.im97mori.ble.android.peripheral.ui.main.MainActivityTest" method="test_title_00001" />
     <pattern value="org.im97mori.ble.android.peripheral.utils.IntegerStringPairTest" method="test_toString_00001" />
     <pattern value="org.im97mori.ble.android.peripheral.CustomTestRunner" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseSettingFragmentViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.FakeBloodPressureProfileViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.FakeDeviceSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.FakeDeviceSettingViewModel" method="fragmentReady" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseSettingFragmentViewModel" method="getModuleDataString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.FakeBloodPressureProfileViewModel" method="getModuleDataString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModel" method="observeDeviceType" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />

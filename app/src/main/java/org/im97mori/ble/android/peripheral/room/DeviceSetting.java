@@ -30,6 +30,11 @@ public class DeviceSetting {
     }
 
     @Ignore
+    public DeviceSetting(int deviceType) {
+        this(0, "", deviceType, null);
+    }
+
+    @Ignore
     public DeviceSetting(@NonNull String deviceSettingName, int deviceType) {
         this(0, deviceSettingName, deviceType, null);
     }

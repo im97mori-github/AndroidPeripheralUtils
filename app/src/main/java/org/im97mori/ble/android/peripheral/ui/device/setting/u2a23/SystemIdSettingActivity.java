@@ -9,12 +9,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProvider;
 
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.SystemIdSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
+import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -29,7 +29,7 @@ public class SystemIdSettingActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(SystemIdSettingViewModel.class);
+        mViewModel = new MockableViewModelProvider(this).get(SystemIdSettingViewModel.class);
 
         mBinding = SystemIdSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

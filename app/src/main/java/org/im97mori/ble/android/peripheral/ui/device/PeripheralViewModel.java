@@ -33,7 +33,7 @@ public class PeripheralViewModel extends ViewModel {
 
     private static final String KEY_TITLE = "KEY_TITLE";
     private static final String KEY_DEVICE_TYPE_IMAGE_RES = "KEY_DEVICE_TYPE_IMAGE_RES";
-    private static final String KEY_DEVICE_TYPE_NAME = "KEY_DEVICE_TYPE_NAME";
+    private static final String KEY_DEVICE_TYPE = "KEY_DEVICE_TYPE";
 
     private final DeviceSettingRepository mDeviceSettingRepository;
 
@@ -57,7 +57,7 @@ public class PeripheralViewModel extends ViewModel {
                 .flatMap(device -> {
                     mSavedStateHandle.<String>getLiveData(KEY_TITLE).postValue(device.getDeviceSettingName());
                     mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES).postValue(mDeviceSettingRepository.getDeviceTypeImageResId(device.getDeviceType()));
-                    mSavedStateHandle.<String>getLiveData(KEY_DEVICE_TYPE_NAME).postValue(mDeviceSettingRepository.getDeviceTypeName(device.getDeviceType()));
+                    mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE).postValue(device.getDeviceType());
                     return Single.just(mDeviceSettingRepository.createProfileMockCallback(device.getDeviceType()
                             , mGson.fromJson(device.getDeviceSettingData(), MockData.class)));
                 })
@@ -84,8 +84,14 @@ public class PeripheralViewModel extends ViewModel {
     }
 
     @MainThread
+    public void observeDeviceType(@NonNull LifecycleOwner owner, @NonNull Observer<Integer> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE)).observe(owner, observer);
+    }
+
+    @MainThread
     public void observeDeviceTypeName(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_DEVICE_TYPE_NAME)).observe(owner, observer);
+        Transformations.distinctUntilChanged(mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE)).observe(owner
+                , integer -> observer.onChanged(mDeviceSettingRepository.getDeviceTypeName(integer)));
     }
 
 }

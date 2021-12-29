@@ -1,6 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device;
 
-import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_UNDEFINED;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVICE_ID_UNSAVED;
 
@@ -15,13 +14,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.room.rxjava3.EmptyResultSetException;
 
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.PeripheralActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
+import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
 import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
 import org.im97mori.stacklog.LogUtils;
 
@@ -35,6 +34,8 @@ public class PeripheralActivity extends BaseActivity {
     private AbstractProfileMockCallback mCallback;
 
     private PeripheralActivityBinding mBinding;
+
+    private Integer mDeviceType;
 
     private final ActivityResultLauncher<Pair<Long, Integer>> mStartDeviceSettingActivity = registerForActivityResult(new DeviceSettingLauncherContract(), result -> {
         if (result) {
@@ -51,13 +52,14 @@ public class PeripheralActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(PeripheralViewModel.class);
+        mViewModel = new MockableViewModelProvider(this).get(PeripheralViewModel.class);
 
         mBinding = PeripheralActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
         mViewModel.observeTitle(this, mBinding.topAppBar::setTitle);
         mViewModel.observeTypeImageRes(this, mBinding.deviceTypeImage::setImageResource);
+        mViewModel.observeDeviceType(this, integer -> mDeviceType = integer);
         mViewModel.observeDeviceTypeName(this, mBinding.deviceTypeName::setText);
 
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
@@ -97,7 +99,8 @@ public class PeripheralActivity extends BaseActivity {
                     mBinding.topAppBar.invalidateMenu();
                     result = true;
                 } else if (R.id.setting == menuItem.getItemId()) {
-                    mStartDeviceSettingActivity.launch(Pair.create(getIntent().getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED), DEVICE_TYPE_UNDEFINED));
+                    mStartDeviceSettingActivity.launch(Pair.create(getIntent().getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED)
+                            , mDeviceType));
                     result = true;
                 } else if (R.id.delete == menuItem.getItemId()) {
                     mDisposable.add(mViewModel.deleteDevice(getIntent()).subscribe(() -> finish()));

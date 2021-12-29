@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
 public class DeviceSettingRepository {
@@ -205,7 +206,7 @@ public class DeviceSettingRepository {
     }
 
     @NonNull
-    public Single<List<DeviceSetting>> loadAllDeviceSetting() {
+    public Flowable<List<DeviceSetting>> loadAllDeviceSetting() {
         return mDeviceSettingDataSource.loadAllDeviceSetting();
     }
 

@@ -9,20 +9,19 @@ import android.view.ViewGroup;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.fragment.app.Fragment;
 
 import org.im97mori.ble.android.peripheral.databinding.BloodPressureProfileSettingFragmentBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel;
-import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseDeviceSettingFragment;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceLauncherContract;
+import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class BloodPressureProfileFragment extends BaseDeviceSettingFragment {
+public class BloodPressureProfileFragment extends Fragment {
 
     private BloodPressureProfileViewModel mViewModel;
     private DeviceSettingViewModel mDeviceSettingViewModel;
@@ -36,8 +35,8 @@ public class BloodPressureProfileFragment extends BaseDeviceSettingFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mViewModel = new ViewModelProvider(requireActivity()).get(BloodPressureProfileViewModel.class);
-        mDeviceSettingViewModel = new ViewModelProvider(requireActivity()).get(DeviceSettingViewModel.class);
+        mViewModel = new MockableViewModelProvider(requireActivity()).get(BloodPressureProfileViewModel.class);
+        mDeviceSettingViewModel = new MockableViewModelProvider(requireActivity()).get(DeviceSettingViewModel.class);
     }
 
     @Nullable
@@ -58,21 +57,13 @@ public class BloodPressureProfileFragment extends BaseDeviceSettingFragment {
         binding.bloodPressureServiceSettingButton.setOnClickListener(v ->
                 mStartBloodPressureServiceSettingActivity.launch(mViewModel.getBlsDataJson()));
 
-        binding.deviceInformationServiceButton.setOnClickListener(v ->
+        binding.deviceInformationServiceSettingButton.setOnClickListener(v ->
                 mStartDeviceInformationServiceSettingActivity.launch(mViewModel.getDisDataJson()));
 
-        mDisposable.add(mDeviceSettingViewModel.observeMockData()
-                .subscribe(mockData -> mDisposable.add(mViewModel.setup(mockData)
-                                .subscribe(() -> mDeviceSettingViewModel.fragmentReady(), throwable -> LogUtils.stackLog(throwable.getMessage())))
-                        , throwable -> LogUtils.stackLog(throwable.getMessage())));
+        mDeviceSettingViewModel.observeMockData(mockData -> mViewModel.observeSetup(mockData
+                , () -> mDeviceSettingViewModel.fragmentReady()
+                , throwable -> LogUtils.stackLog(throwable.getMessage())));
         return binding.getRoot();
-    }
-
-    @Nullable
-    @Override
-    @WorkerThread
-    public String getModuleDataJson() {
-        return mViewModel.getModuleDataString();
     }
 
 }

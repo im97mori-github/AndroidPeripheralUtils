@@ -16,7 +16,7 @@ public class DeviceSettingLauncherContract extends ActivityResultContract<Pair<L
 
     @NonNull
     @Override
-    public Intent createIntent(@NonNull Context context, Pair<Long, Integer> pair) {
+    public Intent createIntent(@NonNull Context context, @NonNull Pair<Long, Integer> pair) {
         Intent intent = new Intent(context.getApplicationContext(), DeviceSettingActivity.class);
         intent.putExtra(KEY_DEVICE_ID, pair.first);
         intent.putExtra(KEY_DEVICE_TYPE, pair.second);

@@ -59,4 +59,15 @@ public class DeviceSettingTest {
         assertEquals(deviceSettingData, deviceSetting.getDeviceSettingData());
     }
 
+    @Test
+    public void test_constructor_00004() {
+        int deviceType = 1;
+        DeviceSetting deviceSetting = new DeviceSetting(deviceType);
+
+        assertEquals(0, deviceSetting.getId());
+        assertEquals("", deviceSetting.getDeviceSettingName());
+        assertEquals(deviceType, deviceSetting.getDeviceType());
+        assertNull(deviceSetting.getDeviceSettingData());
+    }
+
 }
