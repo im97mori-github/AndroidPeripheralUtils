@@ -17,7 +17,7 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public Gson provieGson() {
+    public Gson provideGson() {
         return Utils.createGsonInstance();
     }
 

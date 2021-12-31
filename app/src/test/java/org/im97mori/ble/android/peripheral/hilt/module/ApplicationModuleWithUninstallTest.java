@@ -43,7 +43,7 @@ public class ApplicationModuleWithUninstallTest {
 
         @Provides
         @Singleton
-        public Gson provieGson() {
+        public Gson provideGson() {
             return new GsonBuilder()
                     .setFieldNamingStrategy(UPPER_CAMEL_CASE)
                     .create();

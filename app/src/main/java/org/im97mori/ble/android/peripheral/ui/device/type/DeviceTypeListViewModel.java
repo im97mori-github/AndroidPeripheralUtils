@@ -2,9 +2,9 @@ package org.im97mori.ble.android.peripheral.ui.device.type;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
-import androidx.lifecycle.ViewModel;
 
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
+import org.im97mori.ble.android.peripheral.ui.BaseViewModel;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
-public class DeviceTypeListViewModel extends ViewModel {
+public class DeviceTypeListViewModel extends BaseViewModel {
 
     private final DeviceSettingRepository mDeviceSettingRepository;
 

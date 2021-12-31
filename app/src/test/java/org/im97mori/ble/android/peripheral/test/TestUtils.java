@@ -24,8 +24,8 @@ public final class TestUtils {
         return bitmap;
     }
 
-    public static ActivityScenario<HiltTestAcitivty> createHiltActivity() {
-        Intent intent = Intent.makeMainActivity(new ComponentName(ApplicationProvider.getApplicationContext(), HiltTestAcitivty.class))
+    public static ActivityScenario<HiltTestActivity> createHiltActivity() {
+        Intent intent = Intent.makeMainActivity(new ComponentName(ApplicationProvider.getApplicationContext(), HiltTestActivity.class))
                 .putExtra("androidx.fragment.app.testing.FragmentScenario.EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY", R.style.FragmentScenarioEmptyFragmentActivityTheme);
         return ActivityScenario.launch(intent);
     }

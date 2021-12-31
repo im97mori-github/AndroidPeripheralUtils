@@ -43,6 +43,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
@@ -56,7 +58,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
 
     private static final String KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON = "KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON";
 
-    private static final String KEY_CURRENT_CUFF_PURESSURE = "KEY_CURRENT_CUFF_PURESSURE";
+    private static final String KEY_CURRENT_CUFF_PRESSURE = "KEY_CURRENT_CUFF_PRESSURE";
     private static final String KEY_TIME_STAMP_YEAR = "KEY_TIME_STAMP_YEAR";
     private static final String KEY_TIME_STAMP_MONTH = "KEY_TIME_STAMP_MONTH";
     private static final String KEY_TIME_STAMP_DAY = "KEY_TIME_STAMP_DAY";
@@ -112,7 +114,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
         mIsUserIdSupported = savedStateHandle.getLiveData(KEY_IS_USER_ID_SUPPORTED);
         mIsMeasurementStatusSupported = savedStateHandle.getLiveData(KEY_IS_MEASUREMENT_STATUS_SUPPORTED);
 
-        mCurrentCuffPressure = savedStateHandle.getLiveData(KEY_CURRENT_CUFF_PURESSURE);
+        mCurrentCuffPressure = savedStateHandle.getLiveData(KEY_CURRENT_CUFF_PRESSURE);
         mTimeStampYear = savedStateHandle.getLiveData(KEY_TIME_STAMP_YEAR);
         mTimeStampMonth = savedStateHandle.getLiveData(KEY_TIME_STAMP_MONTH);
         mTimeStampDay = savedStateHandle.getLiveData(KEY_TIME_STAMP_DAY);
@@ -132,9 +134,11 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
         mClientCharacteristicConfigurationJson = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON);
     }
 
-    @NonNull
-    public Completable setup(@NonNull Intent intent) {
-        return Completable.create(emitter -> {
+    @Override
+    public void observeSetup(@NonNull Intent intent
+            , @NonNull Action onComplete
+            , @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
                 try {
                     mCharacteristicData = mGson.fromJson(intent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString())
@@ -384,7 +388,8 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onComplete, onError));
     }
 
     @MainThread
@@ -499,7 +504,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
 
     @MainThread
     public void observeIrregularPulseDetection(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mCuffFitDetection).observe(owner, new MapObserver<>(index -> provideIrregularPulseDetectionList().get(index).second, observer));
+        Transformations.distinctUntilChanged(mIrregularPulseDetection).observe(owner, new MapObserver<>(index -> provideIrregularPulseDetectionList().get(index).second, observer));
     }
 
     @MainThread
@@ -708,16 +713,16 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
         return mDeviceSettingRepository.provideMeasurementPositionDetectionList();
     }
 
-    @NonNull
     @Override
-    public Single<Intent> save() {
-        return Single.<Intent>create(emitter -> {
+    public void observeSave(@NonNull Consumer<Intent> onSuccess
+            , @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Single.<Intent>create(emitter -> {
             CharacteristicData characteristicData = mCharacteristicData;
             if (characteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 boolean isMmhg = Boolean.TRUE.equals(mIsMmhg.getValue());
-                String curerntCuffPressure = mCurrentCuffPressure.getValue();
+                String currentCuffPressure = mCurrentCuffPressure.getValue();
                 boolean isTimeStampSupported = Boolean.TRUE.equals(mIsTimeStampSupported.getValue());
                 String year = mTimeStampYear.getValue();
                 Integer month = mTimeStampMonth.getValue();
@@ -738,7 +743,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                 String indicationCount = mNotificationCount.getValue();
                 String clientCharacteristicConfigurationJson = mClientCharacteristicConfigurationJson.getValue();
 
-                if (curerntCuffPressure != null && mDeviceSettingRepository.getCurrentCuffPressureErrorString(curerntCuffPressure) == null
+                if (currentCuffPressure != null && mDeviceSettingRepository.getCurrentCuffPressureErrorString(currentCuffPressure) == null
                         && (!isTimeStampSupported || (year != null && mDeviceSettingRepository.getDateTimeYearErrorString(year) == null))
                         && (!isPulseRateSupported || (pulseRate != null && mDeviceSettingRepository.getPulseRateErrorString(pulseRate) == null))
                         && (!isUserIdSupported || (userId != null && mDeviceSettingRepository.getUserIdErrorString(userId) == null))
@@ -765,13 +770,13 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     IEEE_11073_20601_SFLOAT currentCuffPressureMmhg;
                     IEEE_11073_20601_SFLOAT currentCuffPressureKpa;
                     if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(flags)) {
-                        currentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(Double.parseDouble(curerntCuffPressure));
+                        currentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(Double.parseDouble(currentCuffPressure));
 
                         currentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(BLEUtils.SFLOAT_NAN);
                     } else {
                         currentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(BLEUtils.SFLOAT_NAN);
 
-                        currentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(Double.parseDouble(curerntCuffPressure));
+                        currentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(Double.parseDouble(currentCuffPressure));
                     }
 
                     if (Boolean.TRUE.equals(isTimeStampSupported)) {
@@ -843,7 +848,8 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onSuccess, onError));
     }
 
 }

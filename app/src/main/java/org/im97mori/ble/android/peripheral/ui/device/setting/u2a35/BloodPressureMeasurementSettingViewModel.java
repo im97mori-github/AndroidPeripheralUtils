@@ -43,6 +43,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
@@ -138,9 +140,11 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
         mClientCharacteristicConfigurationJson = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON);
     }
 
-    @NonNull
-    public Completable setup(@NonNull Intent intent) {
-        return Completable.create(emitter -> {
+    @Override
+    public void observeSetup(@NonNull Intent intent
+            , @NonNull Action onComplete
+            , @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
                 try {
                     mCharacteristicData = mGson.fromJson(intent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString())
@@ -414,7 +418,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onComplete, onError));
     }
 
     @MainThread
@@ -551,7 +556,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
 
     @MainThread
     public void observeIrregularPulseDetection(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mCuffFitDetection).observe(owner, new MapObserver<>(index -> provideIrregularPulseDetectionList().get(index).second, observer));
+        Transformations.distinctUntilChanged(mIrregularPulseDetection).observe(owner, new MapObserver<>(index -> provideIrregularPulseDetectionList().get(index).second, observer));
     }
 
     @MainThread
@@ -770,10 +775,10 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
         return mDeviceSettingRepository.provideMeasurementPositionDetectionList();
     }
 
-    @NonNull
     @Override
-    public Single<Intent> save() {
-        return Single.<Intent>create(emitter -> {
+    public void observeSave(@NonNull Consumer<Intent> onSuccess
+            , @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Single.<Intent>create(emitter -> {
             CharacteristicData characteristicData = mCharacteristicData;
             if (characteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
@@ -923,7 +928,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onSuccess, onError));
     }
 
 }

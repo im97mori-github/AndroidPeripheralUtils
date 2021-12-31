@@ -121,10 +121,13 @@ public class DeviceSettingViewModelTest {
         mViewModel.observeMockData(mockDataReference::set);
 
         Intent intent = new Intent();
-        mViewModel.observeSetup(intent, throwable -> {
-            result.set(true);
-            observeSetupThrowable.set(throwable);
-        });
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                    result.set(true);
+                    observeSetupThrowable.set(throwable);
+                });
 
         assertTrue(result.get());
         assertNotNull(observeSetupThrowable.get());
@@ -160,7 +163,8 @@ public class DeviceSettingViewModelTest {
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_UNDEFINED);
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
             result.set(true);
             observeSetupThrowable.set(throwable);
         });
@@ -196,7 +200,8 @@ public class DeviceSettingViewModelTest {
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
         });
 
         assertNull(observeSetupThrowable.get());
@@ -230,7 +235,8 @@ public class DeviceSettingViewModelTest {
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED);
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
             result.set(true);
             observeSetupThrowable.set(throwable);
         });
@@ -269,7 +275,8 @@ public class DeviceSettingViewModelTest {
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_ID, original.getId());
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
         });
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
@@ -309,7 +316,8 @@ public class DeviceSettingViewModelTest {
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_ID, original.getId());
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
         });
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
@@ -356,7 +364,8 @@ public class DeviceSettingViewModelTest {
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_ID, original.getId());
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
         });
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
@@ -688,7 +697,8 @@ public class DeviceSettingViewModelTest {
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_ID, original.getId());
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
         });
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
@@ -804,7 +814,7 @@ public class DeviceSettingViewModelTest {
     }
 
     @Test
-    public void test_ggetFragmentViewModelClass_00002() {
+    public void test_getFragmentViewModelClass_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -858,7 +868,8 @@ public class DeviceSettingViewModelTest {
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         intent.putExtra(KEY_DEVICE_ID, original.getId());
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
         });
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
@@ -883,7 +894,8 @@ public class DeviceSettingViewModelTest {
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         intent.putExtra(KEY_DEVICE_ID, original.getId());
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
         });
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
@@ -913,7 +925,8 @@ public class DeviceSettingViewModelTest {
         intent.putExtra(KEY_DEVICE_ID, original.getId());
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
 
-        mViewModel.observeSetup(intent, throwable -> {
+        mViewModel.observeSetup(intent, () -> {
+        }, throwable -> {
         });
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();

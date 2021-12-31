@@ -524,7 +524,7 @@ public class DeviceSettingRepository {
     }
 
     @Nullable
-    public String getModelNumbertringErrorString(@Nullable CharSequence charSequence) {
+    public String getModelNumberErrorString(@Nullable CharSequence charSequence) {
         String errorString = null;
 
         if (TextUtils.isEmpty(charSequence)) {

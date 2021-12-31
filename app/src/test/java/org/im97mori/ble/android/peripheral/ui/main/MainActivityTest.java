@@ -49,7 +49,7 @@ import org.im97mori.ble.android.peripheral.test.TestUtils;
 import org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivity;
 import org.im97mori.ble.android.peripheral.ui.device.type.DeviceTypeListActivity;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -86,12 +86,12 @@ public class MainActivityTest {
 
     private FakeMainViewModel mViewModel;
 
-    private static MockedStatic<MockableViewModelProvider> mockedStatic;
+    private static MockedStatic<MockitoViewModelProvider> mockedStatic;
 
     @BeforeClass
     public static void setUpClass() {
-        mockedStatic = mockStatic(MockableViewModelProvider.class);
-        mockedStatic.when(() -> MockableViewModelProvider.getViewModelClass(MainViewModel.class)).thenReturn(FakeMainViewModel.class);
+        mockedStatic = mockStatic(MockitoViewModelProvider.class);
+        mockedStatic.when(() -> MockitoViewModelProvider.getViewModelClass(MainViewModel.class)).thenReturn(FakeMainViewModel.class);
     }
 
     @AfterClass

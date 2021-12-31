@@ -79,7 +79,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp16"
                             android:layout_marginTop="@dimen/dp8"
-                            android:text="@string/systlic"
+                            android:text="@string/systolic"
                             android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                         <TextView

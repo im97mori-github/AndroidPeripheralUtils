@@ -72,7 +72,7 @@ public class DeviceSettingRepositoryTest {
 
     private DeviceSettingRepository mDeviceSettingRepository;
 
-    private final CompositeDisposable mDisposale = new CompositeDisposable();
+    private final CompositeDisposable mDisposable = new CompositeDisposable();
 
     @Before
     public void setUp() {
@@ -83,7 +83,7 @@ public class DeviceSettingRepositoryTest {
 
     @After
     public void tearDown() {
-        mDisposale.clear();
+        mDisposable.clear();
     }
 
     @Test
@@ -91,7 +91,7 @@ public class DeviceSettingRepositoryTest {
         AtomicBoolean result = new AtomicBoolean(false);
         List<DeviceSetting> deviceSettingList = Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null));
         mFakeDeviceSettingDataSource.mLoadAllDeviceSettingProcessor = PublishProcessor.create();
-        mDisposale.add(mDeviceSettingRepository.loadAllDeviceSetting().subscribe(devices -> {
+        mDisposable.add(mDeviceSettingRepository.loadAllDeviceSetting().subscribe(devices -> {
             assertEquals(deviceSettingList, devices);
             result.set(true);
         }, throwable -> {
@@ -107,7 +107,7 @@ public class DeviceSettingRepositoryTest {
         List<DeviceSetting> deviceSettingList = Arrays.asList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)
                 , new DeviceSetting(2, "b", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null));
         mFakeDeviceSettingDataSource.mLoadAllDeviceSettingProcessor = PublishProcessor.create();
-        mDisposale.add(mDeviceSettingRepository.loadAllDeviceSetting().subscribe(devices -> {
+        mDisposable.add(mDeviceSettingRepository.loadAllDeviceSetting().subscribe(devices -> {
             assertEquals(deviceSettingList, devices);
             result.set(true);
         }, throwable -> {
@@ -122,7 +122,7 @@ public class DeviceSettingRepositoryTest {
         AtomicBoolean result = new AtomicBoolean(false);
         DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
         mFakeDeviceSettingDataSource.mLoadDeviceSettingByIdProcessor = PublishProcessor.create();
-        mDisposale.add(mDeviceSettingRepository.loadDeviceSettingById(1).subscribe(deviceSetting -> {
+        mDisposable.add(mDeviceSettingRepository.loadDeviceSettingById(1).subscribe(deviceSetting -> {
             assertEquals(original, deviceSetting);
             result.set(true);
         }));
@@ -135,7 +135,7 @@ public class DeviceSettingRepositoryTest {
     public void test_loadDeviceSettingById_00002() {
         AtomicBoolean result = new AtomicBoolean(false);
         mFakeDeviceSettingDataSource.mLoadDeviceSettingByIdProcessor = PublishProcessor.create();
-        mDisposale.add(mDeviceSettingRepository.loadDeviceSettingById(1).subscribe(deviceSetting -> {
+        mDisposable.add(mDeviceSettingRepository.loadDeviceSettingById(1).subscribe(deviceSetting -> {
         }, throwable -> result.set(true)));
         mFakeDeviceSettingDataSource.mLoadDeviceSettingByIdProcessor.onError(new RuntimeException());
         mFakeDeviceSettingDataSource.mLoadDeviceSettingByIdProcessor.onComplete();
@@ -149,7 +149,7 @@ public class DeviceSettingRepositoryTest {
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mInsertDeviceSettingSubscribe = atomicReference::set;
-        mDisposale.add(mDeviceSettingRepository.insertDeviceSetting(original).subscribe(() -> result.set(true), throwable -> {
+        mDisposable.add(mDeviceSettingRepository.insertDeviceSetting(original).subscribe(() -> result.set(true), throwable -> {
         }));
         atomicReference.get().onComplete();
 
@@ -163,7 +163,7 @@ public class DeviceSettingRepositoryTest {
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mInsertDeviceSettingSubscribe = atomicReference::set;
-        mDisposale.add(mDeviceSettingRepository.insertDeviceSetting(original).subscribe(() -> {
+        mDisposable.add(mDeviceSettingRepository.insertDeviceSetting(original).subscribe(() -> {
         }, throwable -> result.set(true)));
         atomicReference.get().onError(new RuntimeException());
 
@@ -177,7 +177,7 @@ public class DeviceSettingRepositoryTest {
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mDeleteDeviceSettingSubscribe = atomicReference::set;
-        mDisposale.add(mDeviceSettingRepository.deleteDeviceSetting(original).subscribe(() -> result.set(true), throwable -> {
+        mDisposable.add(mDeviceSettingRepository.deleteDeviceSetting(original).subscribe(() -> result.set(true), throwable -> {
         }));
         atomicReference.get().onComplete();
 
@@ -191,7 +191,7 @@ public class DeviceSettingRepositoryTest {
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mDeleteDeviceSettingSubscribe = atomicReference::set;
-        mDisposale.add(mDeviceSettingRepository.deleteDeviceSetting(original).subscribe(() -> {
+        mDisposable.add(mDeviceSettingRepository.deleteDeviceSetting(original).subscribe(() -> {
         }, throwable -> result.set(true)));
         atomicReference.get().onError(new RuntimeException());
 
@@ -204,7 +204,7 @@ public class DeviceSettingRepositoryTest {
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mDeleteAllDeviceSettingSubscribe = atomicReference::set;
-        mDisposale.add(mDeviceSettingRepository.deleteAllDeviceSetting().subscribe(() -> result.set(true), throwable -> {
+        mDisposable.add(mDeviceSettingRepository.deleteAllDeviceSetting().subscribe(() -> result.set(true), throwable -> {
         }));
         atomicReference.get().onComplete();
 
@@ -217,7 +217,7 @@ public class DeviceSettingRepositoryTest {
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mDeleteAllDeviceSettingSubscribe = atomicReference::set;
-        mDisposale.add(mDeviceSettingRepository.deleteAllDeviceSetting().subscribe(() -> result.set(true), throwable -> {
+        mDisposable.add(mDeviceSettingRepository.deleteAllDeviceSetting().subscribe(() -> result.set(true), throwable -> {
         }));
         atomicReference.get().onComplete();
 
@@ -2286,16 +2286,16 @@ public class DeviceSettingRepositoryTest {
     }
 
     @Test
-    public void test_getModelNumbertringErrorString_00001() {
+    public void test_getModelNumberErrorString_00001() {
         CharSequence text = null;
-        String result = mDeviceSettingRepository.getModelNumbertringErrorString(text);
+        String result = mDeviceSettingRepository.getModelNumberErrorString(text);
         assertEquals(mContext.getString(R.string.no_value), result);
     }
 
     @Test
-    public void test_getModelNumbertringErrorString_00002() {
+    public void test_getModelNumberErrorString_00002() {
         CharSequence text = "a";
-        String result = mDeviceSettingRepository.getModelNumbertringErrorString(text);
+        String result = mDeviceSettingRepository.getModelNumberErrorString(text);
         assertNull(result);
     }
 

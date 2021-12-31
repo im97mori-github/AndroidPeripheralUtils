@@ -5,20 +5,23 @@ import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.im97mori.ble.android.peripheral.databinding.DeviceTypeListActivityBinding;
-import org.im97mori.ble.android.peripheral.ui.BaseActivity;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+
+import javax.annotation.Nullable;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class DeviceTypeListActivity extends BaseActivity {
+public class DeviceTypeListActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DeviceTypeListViewModel viewModel = new MockableViewModelProvider(this).get(DeviceTypeListViewModel.class);
+        DeviceTypeListViewModel viewModel = new MockitoViewModelProvider(this).get(DeviceTypeListViewModel.class);
         DeviceTypeListActivityBinding binding = DeviceTypeListActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

@@ -32,12 +32,12 @@ import androidx.test.espresso.matcher.ViewMatchers;
 
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.test.HiltTestAcitivty;
+import org.im97mori.ble.android.peripheral.test.HiltTestActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel;
 import org.im97mori.ble.android.peripheral.ui.device.setting.FakeDeviceSettingViewModel;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingActivity;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -80,18 +80,18 @@ public class BloodPressureProfileFragmentTest {
     @ApplicationContext
     Context mContext;
 
-    private ActivityScenario<HiltTestAcitivty> mScenario;
+    private ActivityScenario<HiltTestActivity> mScenario;
 
-    private static MockedStatic<MockableViewModelProvider> mockedStatic;
+    private static MockedStatic<MockitoViewModelProvider> mockedStatic;
 
     private FakeBloodPressureProfileViewModel mFakeBloodPressureProfileViewModel;
 
     @BeforeClass
     public static void setUpClass() {
-        mockedStatic = mockStatic(MockableViewModelProvider.class);
-        mockedStatic.when(() -> MockableViewModelProvider.getViewModelClass(DeviceSettingViewModel.class))
+        mockedStatic = mockStatic(MockitoViewModelProvider.class);
+        mockedStatic.when(() -> MockitoViewModelProvider.getViewModelClass(DeviceSettingViewModel.class))
                 .thenReturn(FakeDeviceSettingViewModel.class);
-        mockedStatic.when(() -> MockableViewModelProvider.getViewModelClass(BloodPressureProfileViewModel.class))
+        mockedStatic.when(() -> MockitoViewModelProvider.getViewModelClass(BloodPressureProfileViewModel.class))
                 .thenReturn(FakeBloodPressureProfileViewModel.class);
     }
 

@@ -37,6 +37,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
@@ -62,7 +64,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     private final MutableLiveData<String> mSystemIdDataJson;
 
     @Inject
-    public DeviceInformationServiceSettingViewModel(@NonNull DeviceSettingRepository deviceSettingRepository, @NonNull SavedStateHandle savedStateHandle, @NonNull Gson gson) {
+    public DeviceInformationServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
         mSavedStateHandle = savedStateHandle;
 
@@ -73,9 +75,9 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
         mSystemIdDataJson = savedStateHandle.getLiveData(KEY_SYSTEM_ID_DATA_JSON);
     }
 
-    @NonNull
-    public Completable setup(@NonNull Intent intent) {
-        return Completable.create(emitter -> {
+    @Override
+    public void observeSetup(@NonNull Intent intent, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mServiceData == null) {
                 String dataJson = intent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString());
                 try {
@@ -150,7 +152,8 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onComplete, onError));
     }
 
     @MainThread
@@ -281,10 +284,10 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
         }
     }
 
-    @NonNull
+
     @Override
-    public Single<Intent> save() {
-        return Single.<Intent>create(emitter -> {
+    public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Single.<Intent>create(emitter -> {
                     ServiceData serviceData = mServiceData;
                     if (serviceData == null) {
                         emitter.onError(new RuntimeException("Already saved"));
@@ -334,7 +337,8 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                 }
         )
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onSuccess, onError));
     }
 
 }

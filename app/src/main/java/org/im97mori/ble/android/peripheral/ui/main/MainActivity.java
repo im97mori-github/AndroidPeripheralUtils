@@ -10,6 +10,7 @@ import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 
@@ -20,7 +21,7 @@ import org.im97mori.ble.android.peripheral.databinding.MainActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContract;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import java.util.Collections;
@@ -47,10 +48,10 @@ public class MainActivity extends AppCompatActivity {
     });
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mViewModel = new MockableViewModelProvider(this).get(MainViewModel.class);
+        mViewModel = new MockitoViewModelProvider(this).get(MainViewModel.class);
         mBinding = MainActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
@@ -73,12 +74,6 @@ public class MainActivity extends AppCompatActivity {
             adapter.setDeviceList(devices);
             mBinding.rootContainer.setVisibility(View.VISIBLE);
         }, throwable -> LogUtils.stackLog(throwable.getMessage()));
-    }
-
-    @Override
-    protected void onStop() {
-        mViewModel.dispose();
-        super.onStop();
     }
 
     @Override

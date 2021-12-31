@@ -62,26 +62,26 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
             if (mMockData == null) {
                 mMockData = mockData;
 
-                Optional<ServiceData> blsServieDataOptional = mMockData.serviceDataList
+                Optional<ServiceData> blsServiceDataOptional = mMockData.serviceDataList
                         .stream()
                         .filter(serviceData -> serviceData.uuid.equals(BLOOD_PRESSURE_SERVICE))
                         .findAny();
 
-                Optional<ServiceData> disServieDataOptional = mMockData.serviceDataList
+                Optional<ServiceData> disServiceDataOptional = mMockData.serviceDataList
                         .stream()
                         .filter(serviceData -> serviceData.uuid.equals(DEVICE_INFORMATION_SERVICE))
                         .findAny();
 
                 if (mIsDisSupported.getValue() == null) {
-                    mIsDisSupported.postValue(disServieDataOptional.isPresent());
+                    mIsDisSupported.postValue(disServiceDataOptional.isPresent());
                 }
 
-                if (mBlsDataJson.getValue() == null && blsServieDataOptional.isPresent()) {
-                    mBlsDataJson.postValue(mGson.toJson(blsServieDataOptional.get()));
+                if (mBlsDataJson.getValue() == null && blsServiceDataOptional.isPresent()) {
+                    mBlsDataJson.postValue(mGson.toJson(blsServiceDataOptional.get()));
                 }
 
-                if (mDisDataJson.getValue() == null && disServieDataOptional.isPresent()) {
-                    mDisDataJson.postValue(mGson.toJson(disServieDataOptional.get()));
+                if (mDisDataJson.getValue() == null && disServiceDataOptional.isPresent()) {
+                    mDisDataJson.postValue(mGson.toJson(disServiceDataOptional.get()));
                 }
             }
             emitter.onComplete();

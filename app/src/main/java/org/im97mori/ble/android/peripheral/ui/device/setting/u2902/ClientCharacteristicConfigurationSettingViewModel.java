@@ -30,6 +30,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
@@ -70,9 +72,11 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
         mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
     }
 
-    @NonNull
-    public Completable setup(@NonNull Intent intent) {
-        return Completable.create(emitter -> {
+    @Override
+    public void observeSetup(@NonNull Intent intent
+            , @NonNull Action onComplete
+            , @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mDescriptorData == null) {
                 try {
                     mDescriptorData = mGson.fromJson(intent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString())
@@ -146,7 +150,8 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onComplete, onError));
 
     }
 
@@ -213,10 +218,9 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
         mResponseCode.setValue(text);
     }
 
-    @NonNull
     @Override
-    public Single<Intent> save() {
-        return Single.<Intent>create(emitter -> {
+    public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Single.<Intent>create(emitter -> {
             DescriptorData descriptorData = mDescriptorData;
             if (descriptorData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
@@ -264,11 +268,8 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                 }
             }
         })
-                .
-
-                        subscribeOn(Schedulers.io())
-                .
-
-                        observeOn(AndroidSchedulers.mainThread());
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onSuccess, onError));
     }
 }

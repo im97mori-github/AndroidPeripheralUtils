@@ -12,26 +12,24 @@ import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 import androidx.room.rxjava3.EmptyResultSetException;
 
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.PeripheralActivityBinding;
-import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
-import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class PeripheralActivity extends BaseActivity {
+public class PeripheralActivity extends AppCompatActivity {
 
     private PeripheralViewModel mViewModel;
-
-    private AbstractProfileMockCallback mCallback;
 
     private PeripheralActivityBinding mBinding;
 
@@ -39,20 +37,15 @@ public class PeripheralActivity extends BaseActivity {
 
     private final ActivityResultLauncher<Pair<Long, Integer>> mStartDeviceSettingActivity = registerForActivityResult(new DeviceSettingLauncherContract(), result -> {
         if (result) {
-            if (mCallback != null) {
-                mCallback.quit();
-                ((AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground()).stop();
-                mCallback = null;
-            }
-            mBinding.topAppBar.invalidateMenu();
+            mViewModel.clear();
             fetch();
         }
     });
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockableViewModelProvider(this).get(PeripheralViewModel.class);
+        mViewModel = new MockitoViewModelProvider(this).get(PeripheralViewModel.class);
 
         mBinding = PeripheralActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
@@ -61,17 +54,22 @@ public class PeripheralActivity extends BaseActivity {
         mViewModel.observeTypeImageRes(this, mBinding.deviceTypeImage::setImageResource);
         mViewModel.observeDeviceType(this, integer -> mDeviceType = integer);
         mViewModel.observeDeviceTypeName(this, mBinding.deviceTypeName::setText);
+        mViewModel.observeIsReady(this, isReady -> mBinding.topAppBar.invalidateMenu());
+        mViewModel.observeIsStarted(this, isStarted -> {
+            AnimatedVectorDrawable animatedVectorDrawable = (AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground();
+            if (isStarted) {
+                animatedVectorDrawable.start();
+            } else {
+                animatedVectorDrawable.stop();
+            }
+            mBinding.topAppBar.invalidateMenu();
+        });
 
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                if (mCallback == null) {
-                    menu.findItem(R.id.peripheralStart).setEnabled(false);
-                    menu.findItem(R.id.peripheralStop).setEnabled(false);
-                    menu.findItem(R.id.setting).setEnabled(false);
-                    menu.findItem(R.id.delete).setEnabled(false);
-                } else {
-                    if (mCallback.isStarted()) {
+                if (mViewModel.isPeripheralReady()) {
+                    if (mViewModel.isPeripheralStarted()) {
                         menu.findItem(R.id.peripheralStart).setEnabled(false);
                         menu.findItem(R.id.peripheralStop).setEnabled(true);
                         menu.findItem(R.id.setting).setEnabled(false);
@@ -82,6 +80,11 @@ public class PeripheralActivity extends BaseActivity {
                         menu.findItem(R.id.setting).setEnabled(true);
                         menu.findItem(R.id.delete).setEnabled(true);
                     }
+                } else {
+                    menu.findItem(R.id.peripheralStart).setEnabled(false);
+                    menu.findItem(R.id.peripheralStop).setEnabled(false);
+                    menu.findItem(R.id.setting).setEnabled(false);
+                    menu.findItem(R.id.delete).setEnabled(false);
                 }
             }
 
@@ -89,21 +92,17 @@ public class PeripheralActivity extends BaseActivity {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result;
                 if (R.id.peripheralStart == menuItem.getItemId()) {
-                    mCallback.start();
-                    ((AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground()).start();
-                    mBinding.topAppBar.invalidateMenu();
+                    mViewModel.start();
                     result = true;
                 } else if (R.id.peripheralStop == menuItem.getItemId()) {
-                    mCallback.quit();
-                    ((AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground()).stop();
-                    mBinding.topAppBar.invalidateMenu();
+                    mViewModel.quit();
                     result = true;
                 } else if (R.id.setting == menuItem.getItemId()) {
                     mStartDeviceSettingActivity.launch(Pair.create(getIntent().getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED)
                             , mDeviceType));
                     result = true;
                 } else if (R.id.delete == menuItem.getItemId()) {
-                    mDisposable.add(mViewModel.deleteDevice(getIntent()).subscribe(() -> finish()));
+                    mViewModel.observeDeleteDeviceSetting(getIntent(), () -> finish());
                     result = true;
                 } else {
                     result = false;
@@ -116,33 +115,23 @@ public class PeripheralActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (mCallback == null) {
-            fetch();
-        }
+        fetch();
     }
 
     @Override
     protected void onDestroy() {
-        if (mCallback != null) {
-            mCallback.quit();
-            ((AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground()).stop();
-        }
+        mViewModel.quit();
         super.onDestroy();
     }
 
     private void fetch() {
-        if (mCallback == null) {
-            mDisposable.add(mViewModel.setup(getIntent())
-                    .subscribe(profileMockCallback -> {
-                        mCallback = profileMockCallback;
-                        mBinding.rootContainer.setVisibility(View.VISIBLE);
-                        mBinding.topAppBar.invalidateMenu();
-                    }, throwable -> {
-                        LogUtils.stackLog(throwable.getMessage());
-                        if (throwable instanceof EmptyResultSetException) {
-                            finish();
-                        }
-                    }));
+        if (!mViewModel.isPeripheralReady()) {
+            mViewModel.observeSetup(getIntent(), () -> mBinding.rootContainer.setVisibility(View.VISIBLE), throwable -> {
+                LogUtils.stackLog(throwable.getMessage());
+                if (throwable instanceof EmptyResultSetException) {
+                    finish();
+                }
+            });
         }
     }
 

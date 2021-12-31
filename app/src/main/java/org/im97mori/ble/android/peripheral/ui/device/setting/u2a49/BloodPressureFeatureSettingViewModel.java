@@ -28,6 +28,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
@@ -73,9 +75,11 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
         mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
     }
 
-    @NonNull
-    public Completable setup(@NonNull Intent intent) {
-        return Completable.create(emitter -> {
+    @Override
+    public void observeSetup(@NonNull Intent intent
+            , @NonNull Action onComplete
+            , @NonNull Consumer<? super Throwable> onError){
+        mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
                 try {
                     mCharacteristicData = mGson.fromJson(intent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString())
@@ -152,7 +156,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(onComplete, onError));
     }
 
     @MainThread
@@ -257,11 +262,10 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
         mResponseDelay.setValue(text);
     }
 
-
-    @NonNull
     @Override
-    public Single<Intent> save() {
-        return Single.<Intent>create(emitter -> {
+    public void observeSave(@NonNull Consumer<Intent> onSuccess
+            , @NonNull Consumer<? super Throwable> onError){
+        mDisposable.add(Single.<Intent>create(emitter -> {
             CharacteristicData characteristicData = mCharacteristicData;
             if (characteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
@@ -313,7 +317,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(onSuccess, onError));
     }
 
 }

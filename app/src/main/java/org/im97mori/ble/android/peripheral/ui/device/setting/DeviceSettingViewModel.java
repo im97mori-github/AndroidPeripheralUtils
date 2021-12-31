@@ -67,7 +67,7 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
     }
 
     @MainThread
-    public void observeSetup(@NonNull Intent intent, @NonNull Consumer<? super Throwable> onError) {
+    public void observeSetup(@NonNull Intent intent, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Single.just(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
                 .flatMap(id -> {
                     if (VALUE_DEVICE_ID_UNSAVED == id) {
@@ -113,9 +113,9 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> {
-                }, onError));
+                .subscribe(onComplete, onError));
     }
+
 
     @MainThread
     public void observeDeviceTypeImageResId(@NonNull LifecycleOwner owner, @NonNull Observer<Integer> observer) {

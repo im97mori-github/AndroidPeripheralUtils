@@ -39,6 +39,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
@@ -89,9 +91,9 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
 
     }
 
-    @NonNull
-    public Completable setup(@NonNull Intent intent) {
-        return Completable.create(emitter -> {
+    @Override
+    public void observeSetup(@NonNull Intent intent, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mServiceData == null) {
                 String dataJson = intent.getStringExtra(BLOOD_PRESSURE_SERVICE.toString());
                 try {
@@ -253,7 +255,8 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onComplete, onError));
     }
 
     @MainThread
@@ -327,7 +330,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     }
 
     @MainThread
-    public void observeIsBloodPressureMeasuremenMeasurementStatusSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+    public void observeIsBloodPressureMeasurementMeasurementStatusSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
         Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS)).observe(owner, new ExistObserver(observer));
     }
 
@@ -579,10 +582,9 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
         }
     }
 
-    @NonNull
     @Override
-    public Single<Intent> save() {
-        return Single.<Intent>create(emitter -> {
+    public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Single.<Intent>create(emitter -> {
             ServiceData serviceData = mServiceData;
             if (serviceData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
@@ -632,7 +634,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onSuccess, onError));
     }
-
 }

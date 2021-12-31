@@ -50,7 +50,7 @@ dependencies {
     // rxjava3
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 
-    // desugaring
+    // desugar
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     // androidx library
@@ -85,10 +85,10 @@ dependencies {
     // blp peripheral
     implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.5'
 
-    // license acitivty
+    // license activity
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
 
-    // robolectoric
+    // robolectric
     testImplementation 'org.robolectric:robolectric:4.6'
 
     // espresso
@@ -97,7 +97,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
     testImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
 
-    // mockit
+    // mockito
     testImplementation 'org.mockito:mockito-inline:4.2.0'
 
 }

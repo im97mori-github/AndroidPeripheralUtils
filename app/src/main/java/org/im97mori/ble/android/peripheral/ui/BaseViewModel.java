@@ -1,18 +1,15 @@
 package org.im97mori.ble.android.peripheral.ui;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModel;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
-// TODO remove this
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseViewModel extends ViewModel {
 
     protected final CompositeDisposable mDisposable = new CompositeDisposable();
 
-    @Override
-    protected void onStop() {
+    public void dispose() {
         mDisposable.clear();
-        super.onStop();
     }
 
 }

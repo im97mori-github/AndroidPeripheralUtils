@@ -11,7 +11,7 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.AndroidPeripheralUtils">
 
-        <activity android:name=".test.HiltTestAcitivty" />
+        <activity android:name=".test.HiltTestActivity" />
     </application>
 
 </manifest>

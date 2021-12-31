@@ -39,9 +39,9 @@ public class FakeDeviceSettingViewModel extends DeviceSettingViewModel {
     }
 
     @Override
-    public void observeSetup(@NonNull Intent intent, @NonNull Consumer<? super Throwable> onError) {
+    public void observeSetup(@NonNull Intent intent, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.fromPublisher(mObserveSetupProcessor).subscribe(()
-                -> super.observeSetup(intent, onError)));
+                -> super.observeSetup(intent, onComplete, onError)));
     }
 
     @Override

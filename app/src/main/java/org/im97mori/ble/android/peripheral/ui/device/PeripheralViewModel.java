@@ -11,13 +11,13 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModel;
 
 import com.google.gson.Gson;
 
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
+import org.im97mori.ble.android.peripheral.ui.BaseViewModel;
 import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
 
 import javax.inject.Inject;
@@ -26,51 +26,69 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
-public class PeripheralViewModel extends ViewModel {
+public class PeripheralViewModel extends BaseViewModel {
 
     private static final String KEY_TITLE = "KEY_TITLE";
     private static final String KEY_DEVICE_TYPE_IMAGE_RES = "KEY_DEVICE_TYPE_IMAGE_RES";
     private static final String KEY_DEVICE_TYPE = "KEY_DEVICE_TYPE";
-
-    private final DeviceSettingRepository mDeviceSettingRepository;
-
-    private final Gson mGson;
+    private static final String KEY_IS_READY = "KEY_IS_READY";
+    private static final String KEY_IS_STARTED = "KEY_IS_STARTED";
 
     private final SavedStateHandle mSavedStateHandle;
+    private final DeviceSettingRepository mDeviceSettingRepository;
+    private final Gson mGson;
+
+    private AbstractProfileMockCallback mAbstractProfileMockCallback;
 
     @Inject
-    public PeripheralViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+    public PeripheralViewModel(@NonNull SavedStateHandle savedStateHandle
+            , @NonNull DeviceSettingRepository deviceSettingRepository
+            , @NonNull Gson gson) {
+        mSavedStateHandle = savedStateHandle;
         mDeviceSettingRepository = deviceSettingRepository;
         mGson = gson;
-        mSavedStateHandle = savedStateHandle;
+
+        savedStateHandle.set(KEY_IS_READY, false);
     }
 
-    @NonNull
     @MainThread
-    public Single<AbstractProfileMockCallback> setup(@NonNull Intent intent) {
-        return mDeviceSettingRepository
-                .loadDeviceSettingById(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
-                .subscribeOn(Schedulers.io())
-                .flatMap(device -> {
-                    mSavedStateHandle.<String>getLiveData(KEY_TITLE).postValue(device.getDeviceSettingName());
-                    mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES).postValue(mDeviceSettingRepository.getDeviceTypeImageResId(device.getDeviceType()));
-                    mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE).postValue(device.getDeviceType());
-                    return Single.just(mDeviceSettingRepository.createProfileMockCallback(device.getDeviceType()
-                            , mGson.fromJson(device.getDeviceSettingData(), MockData.class)));
-                })
-                .observeOn(AndroidSchedulers.mainThread());
+    public void observeSetup(@NonNull Intent intent
+            , @NonNull Action onSuccess
+            , @NonNull Consumer<? super Throwable> onError) {
+        if (mAbstractProfileMockCallback == null) {
+            mDisposable.add(mDeviceSettingRepository
+                    .loadDeviceSettingById(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
+                    .subscribeOn(Schedulers.io())
+                    .flatMap(deviceSetting -> {
+                        mSavedStateHandle.<String>getLiveData(KEY_TITLE).postValue(deviceSetting.getDeviceSettingName());
+                        mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES).postValue(mDeviceSettingRepository.getDeviceTypeImageResId(deviceSetting.getDeviceType()));
+                        mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE).postValue(deviceSetting.getDeviceType());
+                        return Single.just(mDeviceSettingRepository.createProfileMockCallback(deviceSetting.getDeviceType()
+                                , mGson.fromJson(deviceSetting.getDeviceSettingData(), MockData.class)));
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .flatMapCompletable(abstractProfileMockCallback -> {
+                        mAbstractProfileMockCallback = abstractProfileMockCallback;
+                        mSavedStateHandle.<Boolean>getLiveData(KEY_IS_READY).postValue(isPeripheralReady());
+                        mSavedStateHandle.<Boolean>getLiveData(KEY_IS_STARTED).postValue(mAbstractProfileMockCallback.isStarted());
+                        return Completable.complete();
+                    })
+                    .subscribe(onSuccess, onError));
+        }
     }
 
-    @NonNull
     @MainThread
-    public Completable deleteDevice(@NonNull Intent intent) {
-        return Single.just(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED))
+    public void observeDeleteDeviceSetting(@NonNull Intent intent, @NonNull Action onComplete) {
+        mDisposable.add(mDeviceSettingRepository
+                .deleteDeviceSetting(new DeviceSetting(intent.getLongExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED)))
                 .subscribeOn(Schedulers.io())
-                .flatMapCompletable(id -> mDeviceSettingRepository.deleteDeviceSetting(new DeviceSetting(id)))
-                .subscribeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onComplete));
     }
 
     @MainThread
@@ -92,6 +110,49 @@ public class PeripheralViewModel extends ViewModel {
     public void observeDeviceTypeName(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE)).observe(owner
                 , integer -> observer.onChanged(mDeviceSettingRepository.getDeviceTypeName(integer)));
+    }
+
+    @MainThread
+    public void observeIsReady(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<Boolean>getLiveData(KEY_IS_READY)).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeIsStarted(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<Boolean>getLiveData(KEY_IS_STARTED)).observe(owner, observer);
+    }
+
+    @MainThread
+    public boolean isPeripheralReady() {
+        return mAbstractProfileMockCallback != null;
+    }
+
+    @MainThread
+    public boolean isPeripheralStarted() {
+        return mAbstractProfileMockCallback != null && mAbstractProfileMockCallback.isStarted();
+    }
+
+    @MainThread
+    public void start() {
+        if (mAbstractProfileMockCallback != null && !mAbstractProfileMockCallback.isStarted()) {
+            mAbstractProfileMockCallback.start();
+            mSavedStateHandle.<Boolean>getLiveData(KEY_IS_STARTED).postValue(mAbstractProfileMockCallback.isStarted());
+        }
+    }
+
+    @MainThread
+    public void quit() {
+        if (isPeripheralStarted()) {
+            mAbstractProfileMockCallback.quit();
+            mSavedStateHandle.<Boolean>getLiveData(KEY_IS_STARTED).postValue(mAbstractProfileMockCallback.isStarted());
+        }
+    }
+
+    @MainThread
+    public void clear() {
+        quit();
+        mAbstractProfileMockCallback = null;
+        mSavedStateHandle.<Boolean>getLiveData(KEY_IS_READY).postValue(isPeripheralReady());
     }
 
 }

@@ -4,8 +4,8 @@
     <string name="menu_create_device">Create Device</string>
     <string name="menu_clear_devices">Clear Devices</string>
     <string name="menu_save">Save</string>
-    <string name="menu_peirpheral_start">Peripheral Start</string>
-    <string name="menu_peirpheral_stop">Peripheral Stop</string>
+    <string name="menu_peripheral_start">Peripheral Start</string>
+    <string name="menu_peripheral_stop">Peripheral Stop</string>
     <string name="menu_setting">Setting</string>
     <string name="menu_delete">Delete</string>
     <string name="menu_license">License</string>
@@ -68,7 +68,7 @@
     <string name="utf8s">utf8s</string>
     <string name="mmhg">mmHg</string>
     <string name="kpa">kPa</string>
-    <string name="systlic">Systolic</string>
+    <string name="systolic">Systolic</string>
     <string name="diastolic">Diastolic</string>
     <string name="mean_arterial_pressure">Mean Arterial Pressure</string>
     <string name="current_cuff_pressure">Current Cuff Pressure</string>

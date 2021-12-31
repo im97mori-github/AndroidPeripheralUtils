@@ -65,7 +65,7 @@
                 android:layout_marginStart="@dimen/dp16"
                 android:layout_marginTop="@dimen/dp8"
                 android:layout_marginEnd="@dimen/dp16"
-                android:hint="@string/systlic"
+                android:hint="@string/systolic"
                 app:helperText="@string/sfloat"
                 app:helperTextEnabled="true"
                 app:hintEnabled="true">

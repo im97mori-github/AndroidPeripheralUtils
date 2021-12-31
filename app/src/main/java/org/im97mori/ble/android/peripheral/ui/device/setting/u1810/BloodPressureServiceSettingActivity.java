@@ -8,20 +8,20 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.BloodPressureServiceSettingActivityBinding;
-import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureLauncherContract;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class BloodPressureServiceSettingActivity extends BaseActivity {
+public class BloodPressureServiceSettingActivity extends AppCompatActivity {
 
     private BloodPressureServiceSettingViewModel mViewModel;
 
@@ -39,7 +39,7 @@ public class BloodPressureServiceSettingActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockableViewModelProvider(this).get(BloodPressureServiceSettingViewModel.class);
+        mViewModel = new MockitoViewModelProvider(this).get(BloodPressureServiceSettingViewModel.class);
 
         mBinding = BloodPressureServiceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
@@ -70,7 +70,7 @@ public class BloodPressureServiceSettingActivity extends BaseActivity {
             mBinding.bloodPressureMeasurementUserId.setVisibility(visibility);
         });
         mViewModel.observeBloodPressureMeasurementUserId(this, s -> mBinding.bloodPressureMeasurementUserId.setText(s));
-        mViewModel.observeIsBloodPressureMeasuremenMeasurementStatusSupported(this, check -> {
+        mViewModel.observeIsBloodPressureMeasurementMeasurementStatusSupported(this, check -> {
             int visibility = check ? View.VISIBLE : View.GONE;
             mBinding.bloodPressureMeasurementMeasurementStatusTitle.setVisibility(visibility);
             mBinding.bloodPressureMeasurementMeasurementStatus.setVisibility(visibility);
@@ -122,20 +122,19 @@ public class BloodPressureServiceSettingActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mDisposable.add(mViewModel.setup(getIntent())
-                .subscribe(() -> mBinding.rootContainer.setVisibility(View.VISIBLE), throwable -> LogUtils.stackLog(throwable.getMessage())));
+        mViewModel.observeSetup(getIntent()
+                , () -> mBinding.rootContainer.setVisibility(View.VISIBLE)
+                , throwable -> LogUtils.stackLog(throwable.getMessage()));
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         boolean result;
         if (item.getItemId() == R.id.save) {
-            mDisposable.add(mViewModel.save()
-                    .subscribe(intent -> {
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }, throwable -> Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_SHORT).show())
-            );
+            mViewModel.observeSave(intent -> {
+                setResult(RESULT_OK, intent);
+                finish();
+            }, throwable -> Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_SHORT).show());
             result = true;
         } else {
             result = super.onOptionsItemSelected(item);

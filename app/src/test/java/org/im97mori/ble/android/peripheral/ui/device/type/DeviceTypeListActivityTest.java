@@ -32,7 +32,7 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.test.TestUtils;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,8 +68,8 @@ public class DeviceTypeListActivityTest {
     @Before
     public void setUp() {
         mHiltRule.inject();
-        try (MockedStatic<MockableViewModelProvider> mockedStatic = mockStatic(MockableViewModelProvider.class)) {
-            mockedStatic.when(() -> MockableViewModelProvider.getViewModelClass(DeviceTypeListViewModel.class)).thenReturn(FakeDeviceTypeListViewModel.class);
+        try (MockedStatic<MockitoViewModelProvider> mockedStatic = mockStatic(MockitoViewModelProvider.class)) {
+            mockedStatic.when(() -> MockitoViewModelProvider.getViewModelClass(DeviceTypeListViewModel.class)).thenReturn(FakeDeviceTypeListViewModel.class);
 
             mScenario = ActivityScenario.launch(DeviceTypeListActivity.class);
             mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceTypeListViewModel.class));

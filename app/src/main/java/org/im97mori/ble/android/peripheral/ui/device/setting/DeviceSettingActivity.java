@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentTransaction;
@@ -19,7 +20,7 @@ import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.DeviceSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseSettingFragmentViewModel;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -32,9 +33,9 @@ public class DeviceSettingActivity extends AppCompatActivity {
     private DeviceSettingActivityBinding mBinding;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockableViewModelProvider(this).get(DeviceSettingViewModel.class);
+        mViewModel = new MockitoViewModelProvider(this).get(DeviceSettingViewModel.class);
 
         mBinding = DeviceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
@@ -59,7 +60,7 @@ public class DeviceSettingActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result = false;
                 if (menuItem.getItemId() == R.id.save) {
-                    BaseSettingFragmentViewModel fragmentViewModel = new MockableViewModelProvider(DeviceSettingActivity.this).get(mViewModel.getFragmentViewModelClass(getIntent()));
+                    BaseSettingFragmentViewModel fragmentViewModel = new MockitoViewModelProvider(DeviceSettingActivity.this).get(mViewModel.getFragmentViewModelClass(getIntent()));
                     mViewModel.observeSave(fragmentViewModel::getModuleDataString, () -> {
                         setResult(RESULT_OK);
                         finish();
@@ -85,13 +86,8 @@ public class DeviceSettingActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mViewModel.observeSetup(getIntent(), throwable -> LogUtils.stackLog(throwable.getMessage()));
-    }
-
-    @Override
-    protected void onStop() {
-        mViewModel.dispose();
-        super.onStop();
+        mViewModel.observeSetup(getIntent(), () -> {
+        }, throwable -> LogUtils.stackLog(throwable.getMessage()));
     }
 
 }

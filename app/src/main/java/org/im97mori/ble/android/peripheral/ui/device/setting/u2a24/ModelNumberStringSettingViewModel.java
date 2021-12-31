@@ -28,6 +28,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
@@ -55,9 +57,11 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
         mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
     }
 
-    @NonNull
-    public Completable setup(@NonNull Intent intent) {
-        return Completable.create(emitter -> {
+    @Override
+    public void observeSetup(@NonNull Intent intent
+            , @NonNull Action onComplete
+            , @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
                 try {
                     mCharacteristicData = mGson.fromJson(intent.getStringExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString())
@@ -99,7 +103,8 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onComplete, onError));
     }
 
     @MainThread
@@ -115,7 +120,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
     @MainThread
     public void observeModelNumberStringError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mModelNumberString).observe(owner
-                , s -> observer.onChanged(mDeviceSettingRepository.getModelNumbertringErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getModelNumberErrorString(s)));
     }
 
     @MainThread
@@ -160,10 +165,10 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
         mResponseDelay.setValue(text);
     }
 
-    @NonNull
     @Override
-    public Single<Intent> save() {
-        return Single.<Intent>create(emitter -> {
+    public void observeSave(@NonNull Consumer<Intent> onSuccess
+            , @NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Single.<Intent>create(emitter -> {
             CharacteristicData characteristicData = mCharacteristicData;
             if (characteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
@@ -187,7 +192,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
                             emitter.onError(new RuntimeException("Validation failed"));
                         }
                     } else {
-                        if (modelNumberString != null && mDeviceSettingRepository.getModelNumbertringErrorString(modelNumberString) == null) {
+                        if (modelNumberString != null && mDeviceSettingRepository.getModelNumberErrorString(modelNumberString) == null) {
                             characteristicData.data = new ModelNumberString(modelNumberString).getBytes();
                             characteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
 
@@ -206,6 +211,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
             }
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onSuccess, onError));
     }
 }

@@ -9,18 +9,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.SystemIdSettingActivityBinding;
-import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class SystemIdSettingActivity extends BaseActivity {
+public class SystemIdSettingActivity extends AppCompatActivity {
 
     private SystemIdSettingViewModel mViewModel;
 
@@ -29,7 +29,7 @@ public class SystemIdSettingActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockableViewModelProvider(this).get(SystemIdSettingViewModel.class);
+        mViewModel = new MockitoViewModelProvider(this).get(SystemIdSettingViewModel.class);
 
         mBinding = SystemIdSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
@@ -68,19 +68,19 @@ public class SystemIdSettingActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mDisposable.add(mViewModel.setup(getIntent())
-                .subscribe(() -> mBinding.rootContainer.setVisibility(View.VISIBLE), throwable -> LogUtils.stackLog(throwable.getMessage())));
+        mViewModel.observeSetup(getIntent()
+                , () -> mBinding.rootContainer.setVisibility(View.VISIBLE)
+                , throwable -> LogUtils.stackLog(throwable.getMessage()));
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         boolean result;
         if (item.getItemId() == R.id.save) {
-            mDisposable.add(mViewModel.save()
-                    .subscribe(intent -> {
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }, throwable -> Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_SHORT).show()));
+            mViewModel.observeSave(intent -> {
+                setResult(RESULT_OK, intent);
+                finish();
+            }, throwable -> Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_SHORT).show());
             result = true;
         } else {
             result = super.onOptionsItemSelected(item);

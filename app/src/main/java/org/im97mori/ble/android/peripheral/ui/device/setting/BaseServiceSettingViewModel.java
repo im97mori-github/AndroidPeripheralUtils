@@ -9,21 +9,22 @@ import com.google.gson.Gson;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
 
 public abstract class BaseServiceSettingViewModel extends BaseSettingViewModel {
+
+    protected ServiceData mServiceData;
 
     public BaseServiceSettingViewModel(@NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
     }
 
-    protected ServiceData mServiceData;
+    public abstract void observeSetup(@NonNull Intent intent
+            , @NonNull Action onComplete
+            , @NonNull Consumer<? super Throwable> onError);
 
-    @NonNull
-    public abstract Completable setup(@NonNull Intent intent);
-
-    @NonNull
-    public abstract Single<Intent> save();
+    public abstract void observeSave(@NonNull Consumer<Intent> onSuccess
+            , @NonNull Consumer<? super Throwable> onError);
 
 }

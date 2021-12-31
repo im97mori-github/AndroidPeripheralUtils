@@ -15,7 +15,7 @@ import org.im97mori.ble.android.peripheral.databinding.BloodPressureProfileSetti
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceLauncherContract;
-import org.im97mori.ble.android.peripheral.utils.MockableViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -35,8 +35,8 @@ public class BloodPressureProfileFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mViewModel = new MockableViewModelProvider(requireActivity()).get(BloodPressureProfileViewModel.class);
-        mDeviceSettingViewModel = new MockableViewModelProvider(requireActivity()).get(DeviceSettingViewModel.class);
+        mViewModel = new MockitoViewModelProvider(requireActivity()).get(BloodPressureProfileViewModel.class);
+        mDeviceSettingViewModel = new MockitoViewModelProvider(requireActivity()).get(DeviceSettingViewModel.class);
     }
 
     @Nullable
