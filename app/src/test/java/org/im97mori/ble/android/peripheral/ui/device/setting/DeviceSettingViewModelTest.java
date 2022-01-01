@@ -191,7 +191,6 @@ public class DeviceSettingViewModelTest {
         AtomicReference<String> deviceSettingNameErrorStringReference = new AtomicReference<>();
         AtomicReference<MockData> mockDataReference = new AtomicReference<>();
 
-        AtomicReference<Throwable> observeSetupThrowable = new AtomicReference<>();
         mViewModel.observeDeviceTypeImageResId(new TestLifeCycleOwner(), deviceTypeImageResIdReference::set);
         mViewModel.observeDeviceTypeName(new TestLifeCycleOwner(), deviceTypeNameReference::set);
         mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), deviceSettingNameReference::set);
@@ -203,8 +202,6 @@ public class DeviceSettingViewModelTest {
         mViewModel.observeSetup(intent, () -> {
         }, throwable -> {
         });
-
-        assertNull(observeSetupThrowable.get());
 
         assertEquals(R.drawable.medical_ketsuatsukei_aneroid, deviceTypeImageResIdReference.get().intValue());
         assertEquals(mContext.getString(R.string.blood_pressure_profile), deviceTypeNameReference.get());

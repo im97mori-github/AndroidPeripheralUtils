@@ -6,24 +6,18 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_UNDEFINED;
-import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 
-import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.os.Build;
 
 import androidx.core.util.Pair;
 
-import org.im97mori.ble.MockData;
-import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.Constants;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.datasource.FakeDeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.DateTimeUtils;
-import org.im97mori.ble.profile.blp.peripheral.BloodPressureProfileMockCallback;
-import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -2451,27 +2445,6 @@ public class DeviceSettingRepositoryTest {
         boolean enabled = false;
         String result = mDeviceSettingRepository.getNotificationsString(enabled);
         assertEquals(mContext.getString(R.string.notification_disabled), result);
-    }
-
-    @Test
-    public void test_createProfileMockCallback_00001() {
-        MockData mockData = new MockData();
-        Exception exception = null;
-        try {
-            mDeviceSettingRepository.createProfileMockCallback(DEVICE_TYPE_UNDEFINED, mockData);
-        } catch (Exception e) {
-            exception = e;
-        }
-        assertNotNull(exception);
-        assertEquals("Not Found", exception.getMessage());
-    }
-
-    @Test
-    public void test_createProfileMockCallback_00002() {
-        MockData mockData = new MockData();
-        mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        AbstractProfileMockCallback callback = mDeviceSettingRepository.createProfileMockCallback(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mockData);
-        assertTrue(callback instanceof BloodPressureProfileMockCallback);
     }
 
 }

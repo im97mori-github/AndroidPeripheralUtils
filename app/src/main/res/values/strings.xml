@@ -8,6 +8,8 @@
     <string name="menu_peripheral_stop">Peripheral Stop</string>
     <string name="menu_setting">Setting</string>
     <string name="menu_delete">Delete</string>
+    <string name="menu_bluetooth_enable">BT On</string>
+    <string name="menu_bluetooth_disable">BT Off</string>
     <string name="menu_license">License</string>
 
     <string name="setting">Setting</string>

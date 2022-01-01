@@ -3,7 +3,8 @@ package org.im97mori.ble.android.peripheral.ui.device;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVICE_ID_UNSAVED;
 
-import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +15,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 import androidx.room.rxjava3.EmptyResultSetException;
@@ -35,6 +37,8 @@ public class PeripheralActivity extends AppCompatActivity {
 
     private Integer mDeviceType;
 
+    private Animatable mAnimatedDrawable;
+
     private final ActivityResultLauncher<Pair<Long, Integer>> mStartDeviceSettingActivity = registerForActivityResult(new DeviceSettingLauncherContract(), result -> {
         if (result) {
             mViewModel.clear();
@@ -50,17 +54,30 @@ public class PeripheralActivity extends AppCompatActivity {
         mBinding = PeripheralActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
+        Drawable drawable = AppCompatResources.getDrawable(this, R.drawable.peripheral_advertising_background_animation);
+        mBinding.deviceTypeImage.setBackground(drawable);
+        if (drawable instanceof Animatable) {
+            mAnimatedDrawable = (Animatable) drawable;
+        }
+
         mViewModel.observeTitle(this, mBinding.topAppBar::setTitle);
-        mViewModel.observeTypeImageRes(this, mBinding.deviceTypeImage::setImageResource);
+        mViewModel.observeDeviceTypeImageResId(this, mBinding.deviceTypeImage::setImageResource);
         mViewModel.observeDeviceType(this, integer -> mDeviceType = integer);
         mViewModel.observeDeviceTypeName(this, mBinding.deviceTypeName::setText);
         mViewModel.observeIsReady(this, isReady -> mBinding.topAppBar.invalidateMenu());
         mViewModel.observeIsStarted(this, isStarted -> {
-            AnimatedVectorDrawable animatedVectorDrawable = (AnimatedVectorDrawable) mBinding.deviceTypeImage.getBackground();
-            if (isStarted) {
-                animatedVectorDrawable.start();
-            } else {
-                animatedVectorDrawable.stop();
+            if (mAnimatedDrawable != null) {
+                if (isStarted) {
+                    mAnimatedDrawable.start();
+                } else {
+                    mAnimatedDrawable.stop();
+                }
+            }
+            mBinding.topAppBar.invalidateMenu();
+        });
+        mViewModel.observeIsBluetoothEnabled(this, isEnabled -> {
+            if (!isEnabled) {
+                mViewModel.quit();
             }
             mBinding.topAppBar.invalidateMenu();
         });
@@ -68,23 +85,40 @@ public class PeripheralActivity extends AppCompatActivity {
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                if (mViewModel.isPeripheralReady()) {
-                    if (mViewModel.isPeripheralStarted()) {
-                        menu.findItem(R.id.peripheralStart).setEnabled(false);
-                        menu.findItem(R.id.peripheralStop).setEnabled(true);
-                        menu.findItem(R.id.setting).setEnabled(false);
-                        menu.findItem(R.id.delete).setEnabled(false);
+                if (mBinding.rootContainer.getVisibility() == View.VISIBLE) {
+                    menu.setGroupVisible(R.id.all, true);
+                    if (mViewModel.isBluetoothEnabled()) {
+                        if (mViewModel.isPeripheralReady()) {
+                            if (mViewModel.isPeripheralStarted()) {
+                                menu.findItem(R.id.peripheralStart).setEnabled(false);
+                                menu.findItem(R.id.peripheralStop).setEnabled(true);
+                                menu.findItem(R.id.setting).setEnabled(false);
+                                menu.findItem(R.id.delete).setEnabled(false);
+                            } else {
+                                menu.findItem(R.id.peripheralStart).setEnabled(true);
+                                menu.findItem(R.id.peripheralStop).setEnabled(false);
+                                menu.findItem(R.id.setting).setEnabled(true);
+                                menu.findItem(R.id.delete).setEnabled(true);
+                            }
+                        } else {
+                            menu.findItem(R.id.peripheralStart).setEnabled(false);
+                            menu.findItem(R.id.peripheralStop).setEnabled(false);
+                            menu.findItem(R.id.setting).setEnabled(false);
+                            menu.findItem(R.id.delete).setEnabled(false);
+                        }
+                        menu.findItem(R.id.bluetooth_enable).setEnabled(false);
+                        menu.findItem(R.id.bluetooth_disable).setEnabled(true);
                     } else {
-                        menu.findItem(R.id.peripheralStart).setEnabled(true);
+                        menu.findItem(R.id.peripheralStart).setEnabled(false);
                         menu.findItem(R.id.peripheralStop).setEnabled(false);
                         menu.findItem(R.id.setting).setEnabled(true);
                         menu.findItem(R.id.delete).setEnabled(true);
+
+                        menu.findItem(R.id.bluetooth_enable).setEnabled(true);
+                        menu.findItem(R.id.bluetooth_disable).setEnabled(false);
                     }
                 } else {
-                    menu.findItem(R.id.peripheralStart).setEnabled(false);
-                    menu.findItem(R.id.peripheralStop).setEnabled(false);
-                    menu.findItem(R.id.setting).setEnabled(false);
-                    menu.findItem(R.id.delete).setEnabled(false);
+                    menu.setGroupVisible(R.id.all, false);
                 }
             }
 
@@ -103,6 +137,12 @@ public class PeripheralActivity extends AppCompatActivity {
                     result = true;
                 } else if (R.id.delete == menuItem.getItemId()) {
                     mViewModel.observeDeleteDeviceSetting(getIntent(), () -> finish());
+                    result = true;
+                } else if (R.id.bluetooth_enable == menuItem.getItemId()) {
+                    mViewModel.bluetoothEnable();
+                    result = true;
+                } else if (R.id.bluetooth_disable == menuItem.getItemId()) {
+                    mViewModel.bluetoothDisable();
                     result = true;
                 } else {
                     result = false;
@@ -125,14 +165,16 @@ public class PeripheralActivity extends AppCompatActivity {
     }
 
     private void fetch() {
-        if (!mViewModel.isPeripheralReady()) {
-            mViewModel.observeSetup(getIntent(), () -> mBinding.rootContainer.setVisibility(View.VISIBLE), throwable -> {
-                LogUtils.stackLog(throwable.getMessage());
-                if (throwable instanceof EmptyResultSetException) {
-                    finish();
-                }
-            });
-        }
+        mViewModel.observeSetup(getIntent()
+                , () -> {
+                    mBinding.rootContainer.setVisibility(View.VISIBLE);
+                    mBinding.topAppBar.invalidateMenu();
+                }, throwable -> {
+                    LogUtils.stackLog(throwable.getMessage());
+                    if (throwable instanceof EmptyResultSetException) {
+                        finish();
+                    }
+                });
     }
 
 }

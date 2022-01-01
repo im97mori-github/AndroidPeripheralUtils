@@ -1,8 +1,6 @@
 package org.im97mori.ble.android.peripheral.hilt.repository;
 
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
-import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
-import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -11,8 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
-import org.im97mori.ble.MockData;
-import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
@@ -21,17 +17,12 @@ import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.DateTimeUtils;
 import org.im97mori.ble.characteristic.core.IEEE_11073_20601_SFLOAT;
 import org.im97mori.ble.constants.ErrorCode;
-import org.im97mori.ble.profile.blp.peripheral.BloodPressureProfileMockCallback;
-import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
-import org.im97mori.ble.service.bls.peripheral.BloodPressureServiceMockCallback;
-import org.im97mori.ble.service.dis.peripheral.DeviceInformationServiceMockCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -635,26 +626,6 @@ public class DeviceSettingRepository {
             result = getNotificationsDisabledString();
         }
         return result;
-    }
-
-    @NonNull
-    public AbstractProfileMockCallback createProfileMockCallback(int deviceType, @NonNull MockData mockData) {
-        if (DEVICE_TYPE_BLOOD_PRESSURE_PROFILE == deviceType) {
-            MockData blsMockData = null;
-            MockData disMockData = null;
-            for (ServiceData serviceData : mockData.serviceDataList) {
-                if (BLOOD_PRESSURE_SERVICE.equals(serviceData.uuid)) {
-                    blsMockData = new MockData(Collections.singletonList(serviceData));
-                } else if (DEVICE_INFORMATION_SERVICE.equals(serviceData.uuid)) {
-                    disMockData = new MockData(Collections.singletonList(serviceData));
-                }
-            }
-            return new BloodPressureProfileMockCallback(mApplicationContext
-                    , new BloodPressureServiceMockCallback(Objects.requireNonNull(blsMockData), false)
-                    , disMockData == null ? null : new DeviceInformationServiceMockCallback(disMockData, false));
-        } else {
-            throw new RuntimeException("Not Found");
-        }
     }
 
 }

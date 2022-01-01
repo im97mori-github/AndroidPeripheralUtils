@@ -42,7 +42,6 @@ public class DeviceSettingDataSourceTest {
     @ApplicationContext
     Context mContext;
 
-
     @Before
     public void setUp() {
         mHiltRule.inject();

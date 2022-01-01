@@ -28,12 +28,15 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
 
     public CompletableOnSubscribe mDeleteAllDeviceSettingSubscribe;
 
+    public Consumer<DeviceSetting> mDeleteDeviceSettingConsumer;
+
     public String mGetDeviceSettingNameErrorString;
 
     public Consumer<DeviceSetting> mInsertDeviceSettingConsumer;
 
     @Inject
-    public FakeDeviceSettingRepository(@NonNull DeviceSettingDataSource deviceSettingDataSource, @NonNull @ApplicationContext Context context) {
+    public FakeDeviceSettingRepository(@NonNull DeviceSettingDataSource deviceSettingDataSource
+            , @NonNull @ApplicationContext Context context) {
         super(deviceSettingDataSource, context);
     }
 
@@ -53,6 +56,15 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
     public Completable insertDeviceSetting(@NonNull DeviceSetting deviceSetting) {
         return Completable.create(emitter -> {
             mInsertDeviceSettingConsumer.accept(deviceSetting);
+            emitter.onComplete();
+        });
+    }
+
+    @NonNull
+    @Override
+    public Completable deleteDeviceSetting(@NonNull DeviceSetting deviceSetting) {
+        return Completable.create(emitter -> {
+            mDeleteDeviceSettingConsumer.accept(deviceSetting);
             emitter.onComplete();
         });
     }
