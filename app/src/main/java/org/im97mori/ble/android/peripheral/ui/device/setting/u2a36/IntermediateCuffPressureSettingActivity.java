@@ -50,7 +50,7 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
         mViewModel.observeUnit(this, charSequence -> mBinding.currentCuffPressure.setSuffixText(charSequence));
 
         mViewModel.observeCurrentCuffPressure(this, charSequence -> setTextDistinct(mBinding.currentCuffPressureEdit, charSequence));
-        mViewModel.observeCurrentCuffPressureError(this, charSequence -> mBinding.currentCuffPressure.setError(charSequence));
+        mViewModel.observeCurrentCuffPressureErrorString(this, charSequence -> mBinding.currentCuffPressure.setError(charSequence));
         mBinding.currentCuffPressureEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateCurrentCuffPressure(editable)));
 
@@ -68,7 +68,7 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
         mBinding.isTimeStampSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsTimeStampSupported(isChecked));
 
         mViewModel.observeTimeStampYear(this, charSequence -> setTextDistinct(mBinding.timeStampYearEdit, charSequence));
-        mViewModel.observeTimeStampYearError(this, charSequence -> mBinding.timeStampYear.setError(charSequence));
+        mViewModel.observeTimeStampYearErrorString(this, charSequence -> mBinding.timeStampYear.setError(charSequence));
         mBinding.timeStampYearEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateTimeStampYear(editable)));
 
@@ -99,7 +99,7 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
         mBinding.isPulseRateSupported.setOnCheckedChangeListener((buttonView, isChecked) ->
                 mViewModel.updateIsPulseRateSupported(isChecked));
         mViewModel.observePulseRate(this, charSequence -> setTextDistinct(mBinding.pulseRateEdit, charSequence));
-        mViewModel.observePulseRateError(this, charSequence -> mBinding.pulseRate.setError(charSequence));
+        mViewModel.observePulseRateErrorString(this, charSequence -> mBinding.pulseRate.setError(charSequence));
         mBinding.pulseRateEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updatePulseRate(editable)));
 
@@ -110,7 +110,7 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
         mBinding.isUserIdSupported.setOnCheckedChangeListener((buttonView, isChecked) ->
                 mViewModel.updateIsUserIdSupported(isChecked));
         mViewModel.observeUserId(this, charSequence -> setTextDistinct(mBinding.userIdEdit, charSequence));
-        mViewModel.observeUserIdError(this, charSequence -> mBinding.userId.setError(charSequence));
+        mViewModel.observeUserIdErrorString(this, charSequence -> mBinding.userId.setError(charSequence));
         mBinding.userIdEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateUserId(editable)));
 
@@ -153,7 +153,7 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
                         , BluetoothGattCharacteristic.PROPERTY_NOTIFY)));
 
         mViewModel.observeNotificationCount(this, charSequence -> setTextDistinct(mBinding.notificationCountEdit, charSequence));
-        mViewModel.observeNotificationCountError(this, charSequence -> mBinding.notificationCount.setError(charSequence));
+        mViewModel.observeNotificationCountErrorString(this, charSequence -> mBinding.notificationCount.setError(charSequence));
         mBinding.notificationCountEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateNotificationCount(editable)));
 

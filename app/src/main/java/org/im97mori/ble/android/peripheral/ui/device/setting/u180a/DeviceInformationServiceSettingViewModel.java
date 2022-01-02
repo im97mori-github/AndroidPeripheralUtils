@@ -197,7 +197,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     }
 
     @MainThread
-    public void updateIsSystemIdSupported(@NonNull Boolean checked) {
+    public void updateIsSystemIdSupported(boolean checked) {
         mIsSystemIdSupported.setValue(checked);
     }
 

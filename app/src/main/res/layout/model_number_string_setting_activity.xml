@@ -50,6 +50,8 @@
                 android:layout_marginTop="@dimen/dp8"
                 android:layout_marginEnd="@dimen/dp16"
                 android:hint="@string/model_number_string"
+                app:helperText="@string/utf8s"
+                app:helperTextEnabled="true"
                 app:hintEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -67,7 +69,7 @@
                 android:layout_marginStart="@dimen/dp16"
                 android:layout_marginTop="@dimen/dp8"
                 android:layout_marginEnd="@dimen/dp16"
-                android:hint="@string/error_response"
+                android:hint="@string/response_code"
                 app:helperText="@string/error_response_helper_text"
                 app:helperTextEnabled="true"
                 app:hintEnabled="true"

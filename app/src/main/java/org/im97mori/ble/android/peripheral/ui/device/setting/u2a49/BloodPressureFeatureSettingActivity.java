@@ -53,12 +53,12 @@ public class BloodPressureFeatureSettingActivity extends AppCompatActivity {
         mBinding.isErrorResponse.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsErrorResponse(isChecked));
 
         mViewModel.observeResponseCode(this, charSequence -> setTextDistinct(mBinding.responseCodeEdit, charSequence));
-        mViewModel.observeResponseCodeError(this, charSequence -> mBinding.responseCode.setError(charSequence));
+        mViewModel.observeResponseCodeErrorString(this, charSequence -> mBinding.responseCode.setError(charSequence));
         mBinding.responseCodeEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseCode(editable)));
 
         mViewModel.observeResponseDelay(this, charSequence -> setTextDistinct(mBinding.responseDelayEdit, charSequence));
-        mViewModel.observeResponseDelayError(this, charSequence -> mBinding.responseDelay.setError(charSequence));
+        mViewModel.observeResponseDelayErrorString(this, charSequence -> mBinding.responseDelay.setError(charSequence));
         mBinding.responseDelayEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseDelay(editable)));
 

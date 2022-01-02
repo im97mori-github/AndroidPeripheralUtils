@@ -182,7 +182,7 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
     }
 
     @MainThread
-    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseCodeErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseCode).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseCodeErrorString(s)));
     }
@@ -193,18 +193,18 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
     }
 
     @MainThread
-    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseDelayErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
     @MainThread
-    public void updateIsErrorResponse(@NonNull Boolean checked) {
+    public void updateIsErrorResponse(boolean checked) {
         mIsErrorResponse.setValue(checked);
     }
 
     @MainThread
-    public void updateProperties(@NonNull Boolean checked) {
+    public void updateProperties(boolean checked) {
         mProperties.setValue(checked);
     }
 

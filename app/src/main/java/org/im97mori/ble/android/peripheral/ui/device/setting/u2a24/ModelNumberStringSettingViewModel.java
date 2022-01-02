@@ -37,7 +37,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
 
     private static final String KEY_IS_ERROR_RESPONSE = "KEY_IS_ERROR_RESPONSE";
 
-    private static final String KEY_MODEL_NUMBER_NAME_STRING = "KEY_MODEL_NUMBER_NAME_STRING";
+    private static final String KEY_MODEL_NUMBER_STRING = "KEY_MODEL_NUMBER_STRING";
     private static final String KEY_RESPONSE_CODE = "KEY_RESPONSE_CODE";
     private static final String KEY_RESPONSE_DELAY = "KEY_RESPONSE_DELAY";
 
@@ -54,7 +54,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
         super(deviceSettingRepository, gson);
 
         mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
-        mModelNumberString = savedStateHandle.getLiveData(KEY_MODEL_NUMBER_NAME_STRING);
+        mModelNumberString = savedStateHandle.getLiveData(KEY_MODEL_NUMBER_STRING);
         mResponseCode = savedStateHandle.getLiveData(KEY_RESPONSE_CODE);
         mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
     }
@@ -86,6 +86,8 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
                 if (mModelNumberString.getValue() == null) {
                     if (mCharacteristicData.data != null) {
                         mModelNumberString.postValue(new ModelNumberString(mCharacteristicData.data).getModelNumber());
+                    } else {
+                        mModelNumberString.postValue(null);
                     }
                 }
 
@@ -118,9 +120,9 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
     }
 
     @MainThread
-    public void observeModelNumberStringError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeModelNumberStringErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mModelNumberString).observe(owner
-                , s -> observer.onChanged(mDeviceSettingRepository.getModelNumberErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getModelNumberStringErrorString(s)));
     }
 
     @MainThread
@@ -129,7 +131,7 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
     }
 
     @MainThread
-    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseCodeErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseCode).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseCodeErrorString(s)));
     }
@@ -140,18 +142,18 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
     }
 
     @MainThread
-    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseDelayErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
     @MainThread
-    public void updateIsErrorResponse(@NonNull Boolean checked) {
+    public void updateIsErrorResponse(boolean checked) {
         mIsErrorResponse.setValue(checked);
     }
 
     @MainThread
-    public void updateModelNumberStringString(@NonNull String text) {
+    public void updateModelNumberString(@NonNull String text) {
         mModelNumberString.setValue(text);
     }
 
@@ -187,12 +189,14 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
 
                             Intent intent = new Intent();
                             intent.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+
+                            mCharacteristicData = null;
                             emitter.onSuccess(intent);
                         } else {
                             emitter.onError(new RuntimeException("Validation failed"));
                         }
                     } else {
-                        if (modelNumberString != null && mDeviceSettingRepository.getModelNumberErrorString(modelNumberString) == null) {
+                        if (modelNumberString != null && mDeviceSettingRepository.getModelNumberStringErrorString(modelNumberString) == null) {
                             characteristicData.data = new ModelNumberString(modelNumberString).getBytes();
                             characteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
 

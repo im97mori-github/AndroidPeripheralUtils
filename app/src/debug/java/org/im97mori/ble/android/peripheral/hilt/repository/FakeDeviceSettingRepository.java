@@ -31,6 +31,12 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
     public Consumer<DeviceSetting> mDeleteDeviceSettingConsumer;
 
     public String mGetDeviceSettingNameErrorString;
+    public String mGetModelNumberStringErrorString;
+    public String mGetManufacturerNameStringErrorString;
+    public String mGetResponseCodeErrorString;
+    public String mGetResponseDelayErrorString;
+    public String mGetManufacturerIdentifierErrorString;
+    public String mGetOrganizationallyUniqueIdentifierErrorString;
 
     public Consumer<DeviceSetting> mInsertDeviceSettingConsumer;
 
@@ -82,6 +88,66 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
             return super.getDeviceSettingNameErrorString(charSequence);
         } else {
             return mGetDeviceSettingNameErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getResponseDelayErrorString(@Nullable CharSequence charSequence) {
+        if (mGetResponseDelayErrorString == null) {
+            return super.getResponseDelayErrorString(charSequence);
+        } else {
+            return mGetResponseDelayErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getResponseCodeErrorString(@Nullable CharSequence charSequence) {
+        if (mGetResponseCodeErrorString == null) {
+            return super.getResponseCodeErrorString(charSequence);
+        } else {
+            return mGetResponseCodeErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getManufacturerNameStringErrorString(@Nullable CharSequence charSequence) {
+        if (mGetManufacturerNameStringErrorString == null) {
+            return super.getManufacturerNameStringErrorString(charSequence);
+        } else {
+            return mGetManufacturerNameStringErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getModelNumberStringErrorString(@Nullable CharSequence charSequence) {
+        if (mGetModelNumberStringErrorString == null) {
+            return super.getModelNumberStringErrorString(charSequence);
+        } else {
+            return mGetModelNumberStringErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getManufacturerIdentifierErrorString(@Nullable CharSequence charSequence) {
+        if (mGetManufacturerIdentifierErrorString == null) {
+            return super.getManufacturerIdentifierErrorString(charSequence);
+        } else {
+            return mGetManufacturerIdentifierErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getOrganizationallyUniqueIdentifierErrorString(@Nullable CharSequence charSequence) {
+        if (mGetOrganizationallyUniqueIdentifierErrorString == null) {
+            return super.getOrganizationallyUniqueIdentifierErrorString(charSequence);
+        } else {
+            return mGetOrganizationallyUniqueIdentifierErrorString;
         }
     }
 

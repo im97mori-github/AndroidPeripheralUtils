@@ -2282,14 +2282,14 @@ public class DeviceSettingRepositoryTest {
     @Test
     public void test_getModelNumberErrorString_00001() {
         CharSequence text = null;
-        String result = mDeviceSettingRepository.getModelNumberErrorString(text);
+        String result = mDeviceSettingRepository.getModelNumberStringErrorString(text);
         assertEquals(mContext.getString(R.string.no_value), result);
     }
 
     @Test
     public void test_getModelNumberErrorString_00002() {
         CharSequence text = "a";
-        String result = mDeviceSettingRepository.getModelNumberErrorString(text);
+        String result = mDeviceSettingRepository.getModelNumberStringErrorString(text);
         assertNull(result);
     }
 

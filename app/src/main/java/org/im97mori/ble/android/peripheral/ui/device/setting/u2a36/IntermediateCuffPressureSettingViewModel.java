@@ -409,7 +409,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeCurrentCuffPressureError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeCurrentCuffPressureErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mCurrentCuffPressure).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getCurrentCuffPressureErrorString(s)));
     }
@@ -425,7 +425,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeTimeStampYearError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeTimeStampYearErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mTimeStampYear).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getDateTimeYearErrorString(s)));
     }
@@ -466,7 +466,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observePulseRateError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observePulseRateErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mPulseRate).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getPulseRateErrorString(s)));
     }
@@ -482,7 +482,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeUserIdError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeUserIdErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mUserId).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getUserIdErrorString(s)));
     }
@@ -533,13 +533,13 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeNotificationCountError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeNotificationCountErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mNotificationCount).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getIndicationCountErrorString(s)));
     }
 
     @MainThread
-    public void updateIsMmhg(@NonNull Boolean isMmhg) {
+    public void updateIsMmhg(boolean isMmhg) {
         mIsMmhg.setValue(isMmhg);
     }
 
@@ -549,7 +549,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void updateIsTimeStampSupported(Boolean checked) {
+    public void updateIsTimeStampSupported(boolean checked) {
         mIsTimeStampSupported.setValue(checked);
     }
 
@@ -594,7 +594,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void updateIsUserIdSupported(Boolean checked) {
+    public void updateIsUserIdSupported(boolean checked) {
         mIsUserIdSupported.setValue(checked);
     }
 
@@ -604,7 +604,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void updateIsMeasurementStatusSupported(Boolean checked) {
+    public void updateIsMeasurementStatusSupported(boolean checked) {
         mIsMeasurementStatusSupported.setValue(checked);
     }
 

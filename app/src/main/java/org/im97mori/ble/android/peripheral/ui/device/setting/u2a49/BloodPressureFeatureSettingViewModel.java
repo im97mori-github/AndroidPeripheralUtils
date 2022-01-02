@@ -201,7 +201,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     }
 
     @MainThread
-    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseCodeErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseCode).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseCodeErrorString(s)));
     }
@@ -212,44 +212,44 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     }
 
     @MainThread
-    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseDelayErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
     @MainThread
-    public void updateIsErrorResponse(@NonNull Boolean checked) {
+    public void updateIsErrorResponse(boolean checked) {
         mIsErrorResponse.setValue(checked);
     }
 
     @MainThread
-    public void updateBodyMovementDetection(@NonNull Boolean text) {
-        mBodyMovementDetection.setValue(text);
+    public void updateBodyMovementDetection(boolean checked) {
+        mBodyMovementDetection.setValue(checked);
     }
 
     @MainThread
-    public void updateCuffFitDetection(@NonNull Boolean text) {
-        mCuffFitDetection.setValue(text);
+    public void updateCuffFitDetection(boolean checked) {
+        mCuffFitDetection.setValue(checked);
     }
 
     @MainThread
-    public void updateIrregularPulseDetection(@NonNull Boolean text) {
-        mIrregularPulseDetection.setValue(text);
+    public void updateIrregularPulseDetection(boolean checked) {
+        mIrregularPulseDetection.setValue(checked);
     }
 
     @MainThread
-    public void updateMeasurementPositionDetection(@NonNull Boolean text) {
-        mMeasurementPositionDetection.setValue(text);
+    public void updateMeasurementPositionDetection(boolean checked) {
+        mMeasurementPositionDetection.setValue(checked);
     }
 
     @MainThread
-    public void updatePulseRateRangeDetection(@NonNull Boolean text) {
-        mPulseRateRangeDetection.setValue(text);
+    public void updatePulseRateRangeDetection(boolean checked) {
+        mPulseRateRangeDetection.setValue(checked);
     }
 
     @MainThread
-    public void updateMultipleBondDetection(@NonNull Boolean text) {
-        mMultipleBondDetection.setValue(text);
+    public void updateMultipleBondDetection(boolean checked) {
+        mMultipleBondDetection.setValue(checked);
     }
 
     @MainThread
@@ -289,6 +289,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
 
                             Intent intent = new Intent();
                             intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+
+                            mCharacteristicData = null;
                             emitter.onSuccess(intent);
                         } else {
                             emitter.onError(new RuntimeException("Validation failed"));

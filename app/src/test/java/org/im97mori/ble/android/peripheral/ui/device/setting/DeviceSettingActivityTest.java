@@ -4,7 +4,6 @@ import static android.app.Activity.RESULT_OK;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
@@ -15,9 +14,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
 import android.app.Activity;
@@ -28,6 +27,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
@@ -345,7 +345,10 @@ public class DeviceSettingActivityTest {
         String original = "a";
         AtomicReference<String> deviceSettingName = new AtomicReference<>();
         mFakeDeviceSettingViewModel.mUpdateDeviceSettingNameConsumer = deviceSettingName::set;
-        onView(withId(R.id.deviceSettingNameEdit)).perform(typeText(original));
+        mScenario.onActivity(activity -> {
+            TextView textView = activity.findViewById(R.id.deviceSettingNameEdit);
+            textView.setText(original);
+        });
 
         assertEquals(original, deviceSettingName.get());
     }

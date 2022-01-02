@@ -45,17 +45,17 @@ public class ModelNumberStringSettingActivity extends AppCompatActivity {
         mBinding.isErrorResponse.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsErrorResponse(isChecked));
 
         mViewModel.observeModelNumberString(this, charSequence -> setTextDistinct(mBinding.modelNumberStringEdit, charSequence));
-        mViewModel.observeModelNumberStringError(this, mBinding.modelNumberString::setError);
+        mViewModel.observeModelNumberStringErrorString(this, mBinding.modelNumberString::setError);
         mBinding.modelNumberStringEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
-                -> mViewModel.updateModelNumberStringString(editable)));
+                -> mViewModel.updateModelNumberString(editable)));
 
         mViewModel.observeResponseCode(this, charSequence -> setTextDistinct(mBinding.responseCodeEdit, charSequence));
-        mViewModel.observeResponseCodeError(this, mBinding.responseCode::setError);
+        mViewModel.observeResponseCodeErrorString(this, mBinding.responseCode::setError);
         mBinding.responseCodeEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseCode(editable)));
 
         mViewModel.observeResponseDelay(this, charSequence -> setTextDistinct(mBinding.responseDelayEdit, charSequence));
-        mViewModel.observeResponseDelayError(this, mBinding.responseDelay::setError);
+        mViewModel.observeResponseDelayErrorString(this, mBinding.responseDelay::setError);
         mBinding.responseDelayEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseDelay(editable)));
 

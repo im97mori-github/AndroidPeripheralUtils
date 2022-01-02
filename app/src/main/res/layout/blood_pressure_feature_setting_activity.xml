@@ -109,7 +109,7 @@
                 android:layout_marginStart="@dimen/dp16"
                 android:layout_marginTop="@dimen/dp8"
                 android:layout_marginEnd="@dimen/dp16"
-                android:hint="@string/error_response"
+                android:hint="@string/response_code"
                 android:visibility="gone"
                 app:helperText="@string/error_response_helper_text"
                 app:helperTextEnabled="true"

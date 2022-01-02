@@ -439,7 +439,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeSystolicError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeSystolicErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mSystolic).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getSystolicErrorString(s)));
     }
@@ -450,7 +450,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeDiastolicError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeDiastolicErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mDiastolic).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getDiastolicErrorString(s)));
     }
@@ -461,7 +461,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeMeanArterialPressureError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeMeanArterialPressureErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mMeanArterialPressure).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getMeanArterialPressureErrorString(s)));
     }
@@ -477,7 +477,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeTimeStampYearError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeTimeStampYearErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mTimeStampYear).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getDateTimeYearErrorString(s)));
     }
@@ -518,7 +518,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observePulseRateError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observePulseRateErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mPulseRate).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getPulseRateErrorString(s)));
     }
@@ -534,7 +534,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeUserIdError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeUserIdErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mUserId).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getUserIdErrorString(s)));
     }
@@ -585,13 +585,13 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeIndicationCountError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeIndicationCountErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mIndicationCount).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getIndicationCountErrorString(s)));
     }
 
     @MainThread
-    public void updateIsMmhg(@NonNull Boolean isMmhg) {
+    public void updateIsMmhg(boolean isMmhg) {
         mIsMmhg.setValue(isMmhg);
     }
 
@@ -611,7 +611,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void updateIsTimeStampSupported(Boolean checked) {
+    public void updateIsTimeStampSupported(boolean checked) {
         mIsTimeStampSupported.setValue(checked);
     }
 
@@ -646,7 +646,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void updateIsPulseRateSupported(Boolean checked) {
+    public void updateIsPulseRateSupported(boolean checked) {
         mIsPulseRateSupported.setValue(checked);
     }
 
@@ -656,7 +656,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void updateIsUserIdSupported(Boolean checked) {
+    public void updateIsUserIdSupported(boolean checked) {
         mIsUserIdSupported.setValue(checked);
     }
 
@@ -666,7 +666,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void updateIsMeasurementStatusSupported(Boolean checked) {
+    public void updateIsMeasurementStatusSupported(boolean checked) {
         mIsMeasurementStatusSupported.setValue(checked);
     }
 

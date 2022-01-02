@@ -136,7 +136,7 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
     }
 
     @MainThread
-    public void observeManufacturerIdentifierError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeManufacturerIdentifierErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mManufacturerIdentifier).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getManufacturerIdentifierErrorString(s)));
     }
@@ -147,7 +147,7 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
     }
 
     @MainThread
-    public void observeOrganizationallyUniqueIdentifierError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeOrganizationallyUniqueIdentifierErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mOrganizationallyUniqueIdentifier).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getOrganizationallyUniqueIdentifierErrorString(s)));
     }
@@ -158,7 +158,7 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
     }
 
     @MainThread
-    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseCodeErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseCode).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseCodeErrorString(s)));
     }
@@ -169,13 +169,13 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
     }
 
     @MainThread
-    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseDelayErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
     @MainThread
-    public void updateIsErrorResponse(@NonNull Boolean checked) {
+    public void updateIsErrorResponse(boolean checked) {
         mIsErrorResponse.setValue(checked);
     }
 
@@ -222,6 +222,8 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
 
                             Intent intent = new Intent();
                             intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+
+                            mCharacteristicData = null;
                             emitter.onSuccess(intent);
                         } else {
                             emitter.onError(new RuntimeException("Validation failed"));

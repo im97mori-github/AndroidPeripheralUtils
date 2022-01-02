@@ -54,17 +54,17 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
         });
 
         mViewModel.observeSystolic(this, charSequence -> setTextDistinct(mBinding.systolicEdit, charSequence));
-        mViewModel.observeSystolicError(this, charSequence -> mBinding.systolic.setError(charSequence));
+        mViewModel.observeSystolicErrorString(this, charSequence -> mBinding.systolic.setError(charSequence));
         mBinding.systolicEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateSystolic(editable)));
 
         mViewModel.observeDiastolic(this, charSequence -> setTextDistinct(mBinding.diastolicEdit, charSequence));
-        mViewModel.observeDiastolicError(this, charSequence -> mBinding.diastolic.setError(charSequence));
+        mViewModel.observeDiastolicErrorString(this, charSequence -> mBinding.diastolic.setError(charSequence));
         mBinding.diastolicEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateDiastolic(editable)));
 
         mViewModel.observeMeanArterialPressure(this, charSequence -> setTextDistinct(mBinding.meanArterialPressureEdit, charSequence));
-        mViewModel.observeMeanArterialPressureError(this, charSequence -> mBinding.meanArterialPressure.setError(charSequence));
+        mViewModel.observeMeanArterialPressureErrorString(this, charSequence -> mBinding.meanArterialPressure.setError(charSequence));
         mBinding.meanArterialPressureEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateMeanArterialPressure(editable)));
 
@@ -82,7 +82,7 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
         mBinding.isTimeStampSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsTimeStampSupported(isChecked));
 
         mViewModel.observeTimeStampYear(this, charSequence -> setTextDistinct(mBinding.timeStampYearEdit, charSequence));
-        mViewModel.observeTimeStampYearError(this, charSequence -> mBinding.timeStampYear.setError(charSequence));
+        mViewModel.observeTimeStampYearErrorString(this, charSequence -> mBinding.timeStampYear.setError(charSequence));
         mBinding.timeStampYearEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateTimeStampYear(editable)));
 
@@ -113,7 +113,7 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
         mBinding.isPulseRateSupported.setOnCheckedChangeListener((buttonView, isChecked) ->
                 mViewModel.updateIsPulseRateSupported(isChecked));
         mViewModel.observePulseRate(this, charSequence -> setTextDistinct(mBinding.pulseRateEdit, charSequence));
-        mViewModel.observePulseRateError(this, charSequence -> mBinding.pulseRate.setError(charSequence));
+        mViewModel.observePulseRateErrorString(this, charSequence -> mBinding.pulseRate.setError(charSequence));
         mBinding.pulseRateEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updatePulseRate(editable)));
 
@@ -124,7 +124,7 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
         mBinding.isUserIdSupported.setOnCheckedChangeListener((buttonView, isChecked) ->
                 mViewModel.updateIsUserIdSupported(isChecked));
         mViewModel.observeUserId(this, charSequence -> setTextDistinct(mBinding.userIdEdit, charSequence));
-        mViewModel.observeUserIdError(this, charSequence -> mBinding.userId.setError(charSequence));
+        mViewModel.observeUserIdErrorString(this, charSequence -> mBinding.userId.setError(charSequence));
         mBinding.userIdEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateUserId(editable)));
 
@@ -167,7 +167,7 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
                         , BluetoothGattCharacteristic.PROPERTY_INDICATE)));
 
         mViewModel.observeIndicationCount(this, charSequence -> setTextDistinct(mBinding.indicationCountEdit, charSequence));
-        mViewModel.observeIndicationCountError(this, charSequence -> mBinding.indicationCount.setError(charSequence));
+        mViewModel.observeIndicationCountErrorString(this, charSequence -> mBinding.indicationCount.setError(charSequence));
         mBinding.indicationCountEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateIndicationCount(editable)));
 

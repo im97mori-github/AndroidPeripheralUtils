@@ -51,10 +51,15 @@
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.18675213675213675" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/drawable/peripheral_advertising_background.xml" value="0.18675213675213675" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/drawable/peripheral_advertising_background_animation.xml" value="0.18675213675213675" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_feature_setting_activity.xml" value="0.18547008547008548" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_measurement_setting_activity.xml" value="0.1735042735042735" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_service_setting_activity.xml" value="0.1735042735042735" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/client_characteristic_configuration_setting_activity.xml" value="0.18547008547008548" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/device_setting_activity.xml" value="0.1735042735042735" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/manufacturer_name_string_setting_activity.xml" value="0.36752136752136755" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/model_number_string_setting_activity.xml" value="0.36752136752136755" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/peripheral_activity.xml" value="0.33" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/system_id_setting_activity.xml" value="0.18547008547008548" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/menu/main.xml" value="0.3042194092827004" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/menu/peripheral.xml" value="0.1735042735042735" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/menu/save.xml" value="0.1735042735042735" />
@@ -160,6 +165,9 @@
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelAndroidTest mContext" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelAndroidTest mDeviceSettingDataSource" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelAndroidTest mGson" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.FakeManufacturerNameStringViewModel mFakeDeviceSettingRepository" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.FakeModelNumberStringViewModel mFakeDeviceSettingRepository" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.FakeSystemIdSettingViewModel mFakeDeviceSettingRepository" />
     </entry_points>
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" />
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" method="AfterTextChangedTextWatcher" />
@@ -1180,6 +1188,43 @@
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.FakePeripheralViewModel" method="isBluetoothEnabled" />
     <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.BluetoothSettingRepositoryTest" />
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelAndroidTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.FakeManufacturerNameStringViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.FakeModelNumberStringViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.FakeSystemIdSettingViewModel" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeCurrentCuffPressureErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeDiastolicErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeIndicationCountErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeMeanArterialPressureErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeNotificationCountErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observePulseRateErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observePulseRateErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeResponseCodeErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observeResponseCodeErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingViewModel" method="observeResponseDelayErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingViewModel" method="observeResponseDelayErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.FakeManufacturerNameStringViewModel" method="observeSave" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.FakeModelNumberStringViewModel" method="observeSave" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.FakeSystemIdSettingViewModel" method="observeSave" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.FakeManufacturerNameStringViewModel" method="observeSetup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.FakeModelNumberStringViewModel" method="observeSetup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.FakeSystemIdSettingViewModel" method="observeSetup" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeSystolicErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeTimeStampYearErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeTimeStampYearErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingViewModel" method="observeUserIdErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingViewModel" method="observeUserIdErrorString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.FakeManufacturerNameStringViewModel" method="updateIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.FakeModelNumberStringViewModel" method="updateIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.FakeSystemIdSettingViewModel" method="updateIsErrorResponse" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.FakeSystemIdSettingViewModel" method="updateManufacturerIdentifier" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.FakeManufacturerNameStringViewModel" method="updateManufacturerNameString" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.FakeSystemIdSettingViewModel" method="updateOrganizationallyUniqueIdentifier" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.FakeManufacturerNameStringViewModel" method="updateResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.FakeModelNumberStringViewModel" method="updateResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.FakeSystemIdSettingViewModel" method="updateResponseCode" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.FakeManufacturerNameStringViewModel" method="updateResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.FakeModelNumberStringViewModel" method="updateResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.FakeSystemIdSettingViewModel" method="updateResponseDelay" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />

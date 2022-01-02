@@ -433,11 +433,12 @@ public class DeviceSettingViewModelTest {
         AtomicInteger count = new AtomicInteger(0);
         AtomicReference<Integer> deviceTypeImageResIdReference = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_DEVICE_TYPE_IMAGE_RES_ID", original);
         mViewModel.observeDeviceTypeImageResId(new TestLifeCycleOwner(), integer -> {
             count.incrementAndGet();
             deviceTypeImageResIdReference.set(integer);
         });
+        mSavedStateHandle.set("KEY_DEVICE_TYPE_IMAGE_RES_ID", original);
+        mSavedStateHandle.set("KEY_DEVICE_TYPE_IMAGE_RES_ID", original);
 
         assertEquals(original, deviceTypeImageResIdReference.get().intValue());
         assertEquals(1, count.get());
@@ -492,11 +493,12 @@ public class DeviceSettingViewModelTest {
         AtomicInteger count = new AtomicInteger(0);
         AtomicReference<String> deviceTypeName = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_DEVICE_TYPE_NAME", original);
         mViewModel.observeDeviceTypeName(new TestLifeCycleOwner(), s -> {
             count.incrementAndGet();
             deviceTypeName.set(s);
         });
+        mSavedStateHandle.set("KEY_DEVICE_TYPE_NAME", original);
+        mSavedStateHandle.set("KEY_DEVICE_TYPE_NAME", original);
 
         assertEquals(original, deviceTypeName.get());
         assertEquals(1, count.get());
@@ -523,7 +525,7 @@ public class DeviceSettingViewModelTest {
         AtomicReference<String> deviceSettingName = new AtomicReference<>();
 
         mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), deviceSettingName::set);
-        mSavedStateHandle.set("KEY_DEVICE_SETTING_NAME", original);
+        mViewModel.updateDeviceSettingName(original);
 
         assertEquals(original, deviceSettingName.get());
     }
@@ -536,7 +538,7 @@ public class DeviceSettingViewModelTest {
         String original = "a";
         AtomicReference<String> deviceSettingName = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_DEVICE_SETTING_NAME", original);
+        mViewModel.updateDeviceSettingName(original);
         mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), deviceSettingName::set);
 
         assertEquals(original, deviceSettingName.get());
@@ -551,11 +553,12 @@ public class DeviceSettingViewModelTest {
         AtomicInteger count = new AtomicInteger(0);
         AtomicReference<String> deviceTypeName = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_DEVICE_SETTING_NAME", original);
         mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), s -> {
             count.incrementAndGet();
             deviceTypeName.set(s);
         });
+        mViewModel.updateDeviceSettingName(original);
+        mViewModel.updateDeviceSettingName(original);
 
         assertEquals(original, deviceTypeName.get());
         assertEquals(1, count.get());
@@ -659,11 +662,12 @@ public class DeviceSettingViewModelTest {
         AtomicInteger count = new AtomicInteger(0);
         AtomicReference<Boolean> fragmentReady = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_FRAGMENT_READY", original);
         mViewModel.observeFragmentReady(new TestLifeCycleOwner(), b -> {
             count.incrementAndGet();
             fragmentReady.set(b);
         });
+        mSavedStateHandle.set("KEY_FRAGMENT_READY", original);
+        mSavedStateHandle.set("KEY_FRAGMENT_READY", original);
 
         assertEquals(original, fragmentReady.get().booleanValue());
         assertEquals(1, count.get());
@@ -731,7 +735,7 @@ public class DeviceSettingViewModelTest {
         String before = "a";
         String after = "b";
 
-        mSavedStateHandle.set("KEY_DEVICE_SETTING_NAME", before);
+        mViewModel.updateDeviceSettingName(before);
         assertEquals(before, mSavedStateHandle.get("KEY_DEVICE_SETTING_NAME"));
 
         mViewModel.updateDeviceSettingName(after);

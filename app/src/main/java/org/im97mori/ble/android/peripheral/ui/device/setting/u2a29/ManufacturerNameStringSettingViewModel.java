@@ -118,7 +118,7 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
     }
 
     @MainThread
-    public void observeManufacturerNameStringError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeManufacturerNameStringErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mManufacturerNameString).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getManufacturerNameStringErrorString(s)));
     }
@@ -129,7 +129,7 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
     }
 
     @MainThread
-    public void observeResponseCodeError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseCodeErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseCode).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseCodeErrorString(s)));
     }
@@ -140,13 +140,13 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
     }
 
     @MainThread
-    public void observeResponseDelayError(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeResponseDelayErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
     @MainThread
-    public void updateIsErrorResponse(@NonNull Boolean checked) {
+    public void updateIsErrorResponse(boolean checked) {
         mIsErrorResponse.setValue(checked);
     }
 
@@ -187,6 +187,8 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
 
                             Intent intent = new Intent();
                             intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+
+                            mCharacteristicData = null;
                             emitter.onSuccess(intent);
                         } else {
                             emitter.onError(new RuntimeException("Validation failed"));
