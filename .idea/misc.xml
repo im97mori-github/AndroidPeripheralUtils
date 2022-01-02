@@ -55,6 +55,7 @@
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_service_setting_activity.xml" value="0.1735042735042735" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/device_setting_activity.xml" value="0.1735042735042735" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/peripheral_activity.xml" value="0.33" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/menu/main.xml" value="0.3042194092827004" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/menu/peripheral.xml" value="0.1735042735042735" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/menu/save.xml" value="0.1735042735042735" />
       </map>
@@ -150,6 +151,15 @@
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.utils.MockitoViewModelProviderTest mHiltRule" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity mAnimatedDrawable" />
       <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.hilt.repository.FakeBluetoothSettingRepository mRemoveBluetoothStatusConsumerAction" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralActivityTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelTest mDeviceSettingDataSource" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelTest mGson" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.hilt.repository.BluetoothSettingRepositoryTest mBluetoothSettingRepository" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.hilt.repository.BluetoothSettingRepositoryTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelAndroidTest mContext" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelAndroidTest mDeviceSettingDataSource" />
+      <entry_point TYPE="field" FQNAME="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelAndroidTest mGson" />
     </entry_points>
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" />
     <pattern value="org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher" method="AfterTextChangedTextWatcher" />
@@ -1165,6 +1175,11 @@
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModel" method="observeIsBluetoothEnabled" />
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.FakePeripheralViewModel" method="observeSetup" />
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.FakePeripheralViewModel" method="start" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.FakePeripheralViewModel" method="bluetoothDisable" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.FakePeripheralViewModel" method="bluetoothEnable" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.FakePeripheralViewModel" method="isBluetoothEnabled" />
+    <pattern value="org.im97mori.ble.android.peripheral.hilt.repository.BluetoothSettingRepositoryTest" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.PeripheralViewModelAndroidTest" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />

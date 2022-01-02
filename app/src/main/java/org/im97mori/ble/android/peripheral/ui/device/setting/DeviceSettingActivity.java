@@ -70,7 +70,6 @@ public class DeviceSettingActivity extends AppCompatActivity {
                 return result;
             }
         });
-        mBinding.topAppBar.setOnMenuItemClickListener(this::onOptionsItemSelected);
 
         mViewModel.observeFragmentReady(this, ready -> {
             mBinding.rootContainer.setVisibility(ready ? View.VISIBLE : View.GONE);

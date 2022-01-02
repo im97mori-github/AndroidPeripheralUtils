@@ -3,6 +3,8 @@ package org.im97mori.ble.android.peripheral.ui.device.setting.u2a24;
 import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -10,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuProvider;
 
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.ModelNumberStringSettingActivityBinding;
@@ -56,30 +59,40 @@ public class ModelNumberStringSettingActivity extends AppCompatActivity {
         mBinding.responseDelayEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseDelay(editable)));
 
-        mBinding.topAppBar.setOnMenuItemClickListener(this::onOptionsItemSelected);
+        mBinding.topAppBar.addMenuProvider(new MenuProvider() {
+
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menu.findItem(R.id.save).setEnabled(mBinding.rootContainer.getVisibility() == View.VISIBLE);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                boolean result = false;
+                if (menuItem.getItemId() == R.id.save) {
+                    mViewModel.observeSave(intent -> {
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }, throwable
+                            -> Toast.makeText(ModelNumberStringSettingActivity.this
+                            , throwable.getMessage()
+                            , Toast.LENGTH_SHORT).show());
+                    result = true;
+                }
+                return result;
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mViewModel.observeSetup(getIntent()
-                , () -> mBinding.rootContainer.setVisibility(View.VISIBLE)
+                , () -> {
+                    mBinding.rootContainer.setVisibility(View.VISIBLE);
+                    mBinding.topAppBar.invalidateMenu();
+                }
                 , throwable -> LogUtils.stackLog(throwable.getMessage()));
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        boolean result;
-        if (item.getItemId() == R.id.save) {
-            mViewModel.observeSave(intent -> {
-                setResult(RESULT_OK, intent);
-                finish();
-            }, throwable -> Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_SHORT).show());
-            result = true;
-        } else {
-            result = super.onOptionsItemSelected(item);
-        }
-        return result;
     }
 
 }

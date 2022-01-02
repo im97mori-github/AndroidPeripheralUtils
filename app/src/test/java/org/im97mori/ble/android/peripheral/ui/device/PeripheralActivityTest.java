@@ -51,7 +51,6 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.gson.Gson;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -102,9 +101,6 @@ public class PeripheralActivityTest {
     private ActivityScenario<PeripheralActivity> mScenario;
 
     private FakePeripheralViewModel mViewModel;
-
-    @Inject
-    Gson mGson;
 
     @Inject
     @ApplicationContext

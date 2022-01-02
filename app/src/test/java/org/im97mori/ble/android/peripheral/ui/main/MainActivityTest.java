@@ -291,7 +291,17 @@ public class MainActivityTest {
     }
 
     @Test
+    public void test_menu_00001() {
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
+        mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
+        onView(withText(R.string.menu_create_device)).perform(click());
+
+        intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceTypeListActivity.class)));
+    }
+
+    @Test
     public void test_menu_create_device_00001() {
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withText(R.string.menu_create_device)).perform(click());
 
@@ -302,6 +312,7 @@ public class MainActivityTest {
     public void test_menu_clear_devices_00001() {
         final AtomicBoolean result = new AtomicBoolean(false);
         mViewModel.mObserveDeleteAllDeviceSettingAction = () -> result.set(true);
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withText(R.string.menu_clear_devices)).perform(click());
 
@@ -310,6 +321,7 @@ public class MainActivityTest {
 
     @Test
     public void test_menu_license_00001() {
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withText(R.string.menu_license)).perform(click());
         intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), OssLicensesMenuActivity.class)));
@@ -322,6 +334,7 @@ public class MainActivityTest {
         ActivityResult result = new ActivityResult(Activity.RESULT_OK, resultData);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceTypeListActivity.class))).respondWith(result);
 
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withText(R.string.menu_create_device)).perform(click());
 
@@ -335,6 +348,7 @@ public class MainActivityTest {
         ActivityResult result = new ActivityResult(Activity.RESULT_CANCELED, null);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceTypeListActivity.class))).respondWith(result);
 
+        mViewModel.mObserveAllDeviceSettingProcessor.onNext(Collections.singletonList(new DeviceSetting(1, "a", Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, null)));
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withText(R.string.menu_create_device)).perform(click());
 

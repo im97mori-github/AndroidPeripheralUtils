@@ -27,7 +27,6 @@ public class MockitoViewModelProvider extends ViewModelProvider {
         if (viewModel instanceof BaseViewModel) {
             mLifecycleOwner.getLifecycle().addObserver((LifecycleEventObserver) (source, event) -> {
                 if (ON_STOP == event) {
-
                     ((BaseViewModel) viewModel).dispose();
                 }
             });

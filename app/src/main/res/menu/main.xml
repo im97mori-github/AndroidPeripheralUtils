@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/create_device"
-        android:title="@string/menu_create_device" />
+    <group
+        android:id="@+id/all"
+        android:visible="false">
+        <item
+            android:id="@+id/create_device"
+            android:title="@string/menu_create_device" />
 
-    <item
-        android:id="@+id/clear_devices"
-        android:title="@string/menu_clear_devices" />
+        <item
+            android:id="@+id/clear_devices"
+            android:title="@string/menu_clear_devices" />
 
-    <item
-        android:id="@+id/license"
-        android:title="@string/menu_license" />
-
+        <item
+            android:id="@+id/license"
+            android:title="@string/menu_license" />
+    </group>
 </menu>

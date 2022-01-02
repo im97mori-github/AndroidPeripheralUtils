@@ -5,6 +5,8 @@ import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVI
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -13,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
+import androidx.core.view.MenuProvider;
 
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 
@@ -65,6 +68,29 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mBinding.topAppBar.setOnMenuItemClickListener(this::onOptionsItemSelected);
+        mBinding.topAppBar.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menu.setGroupVisible(R.id.all, mBinding.rootContainer.getVisibility() == View.VISIBLE);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                boolean result = false;
+                if (R.id.create_device == menuItem.getItemId()) {
+                    mStartDeviceTypeListActivity.launch(null);
+                    result = true;
+                } else if (R.id.clear_devices == menuItem.getItemId()) {
+                    mViewModel.observeDeleteAllDeviceSetting(() -> {
+                    }, throwable -> LogUtils.stackLog(throwable.getMessage()));
+                    result = true;
+                } else if (R.id.license == menuItem.getItemId()) {
+                    startActivity(new Intent(getApplicationContext(), OssLicensesMenuActivity.class));
+                    result = true;
+                }
+                return result;
+            }
+        });
     }
 
     @Override
@@ -73,26 +99,8 @@ public class MainActivity extends AppCompatActivity {
         mViewModel.observeLoadAllDeviceSetting(devices -> {
             adapter.setDeviceList(devices);
             mBinding.rootContainer.setVisibility(View.VISIBLE);
+            mBinding.topAppBar.invalidateMenu();
         }, throwable -> LogUtils.stackLog(throwable.getMessage()));
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        boolean result;
-        if (R.id.create_device == item.getItemId()) {
-            mStartDeviceTypeListActivity.launch(null);
-            result = true;
-        } else if (R.id.clear_devices == item.getItemId()) {
-            mViewModel.observeDeleteAllDeviceSetting(() -> {
-            }, throwable -> LogUtils.stackLog(throwable.getMessage()));
-            result = true;
-        } else if (R.id.license == item.getItemId()) {
-            startActivity(new Intent(getApplicationContext(), OssLicensesMenuActivity.class));
-            result = true;
-        } else {
-            result = super.onOptionsItemSelected(item);
-        }
-        return result;
     }
 
 }
