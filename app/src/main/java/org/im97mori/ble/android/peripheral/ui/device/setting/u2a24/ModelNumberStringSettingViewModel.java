@@ -48,7 +48,9 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
     private final MutableLiveData<String> mResponseDelay;
 
     @Inject
-    public ModelNumberStringSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+    public ModelNumberStringSettingViewModel(@NonNull SavedStateHandle savedStateHandle
+            , @NonNull DeviceSettingRepository deviceSettingRepository
+            , @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
 
         mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
@@ -84,8 +86,6 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
                 if (mModelNumberString.getValue() == null) {
                     if (mCharacteristicData.data != null) {
                         mModelNumberString.postValue(new ModelNumberString(mCharacteristicData.data).getModelNumber());
-                    } else {
-                        mModelNumberString.postValue(null);
                     }
                 }
 

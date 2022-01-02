@@ -2,10 +2,12 @@ package org.im97mori.ble.android.peripheral.ui.device.type;
 
 import static junit.framework.TestCase.assertEquals;
 
+import android.content.Context;
 import android.os.Build;
 
 import androidx.core.util.Pair;
 
+import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -20,6 +22,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
@@ -32,17 +35,25 @@ import dagger.hilt.android.testing.HiltTestApplication;
         , application = HiltTestApplication.class
         , sdk = Build.VERSION_CODES.LOLLIPOP)
 public class DeviceTypeListViewModelTest {
+
     @Rule
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
+    private FakeDeviceSettingRepository mFakeDeviceSettingRepository;
+
     @Inject
-    FakeDeviceSettingRepository mFakeDeviceSettingRepository;
+    DeviceSettingDataSource mDeviceSettingDataSource;
+
+    @Inject
+    @ApplicationContext
+    Context mContext;
 
     private DeviceTypeListViewModel mViewModel;
 
     @Before
     public void setUp() {
         mHiltRule.inject();
+        mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
         mViewModel = new DeviceTypeListViewModel(mFakeDeviceSettingRepository);
     }
 

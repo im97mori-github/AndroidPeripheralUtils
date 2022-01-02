@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
@@ -72,7 +73,9 @@ public class DeviceSettingViewModelTest {
     public final InstantTaskExecutorRule mInstantTaskRule = new InstantTaskExecutorRule();
 
     @Inject
-    FakeDeviceSettingRepository mFakeDeviceSettingRepository;
+    DeviceSettingDataSource mDeviceSettingDataSource;
+
+    private FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
     @Inject
     @ApplicationContext
@@ -89,6 +92,7 @@ public class DeviceSettingViewModelTest {
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
+        mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
         mViewModel = new DeviceSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository, mGson);
     }
 

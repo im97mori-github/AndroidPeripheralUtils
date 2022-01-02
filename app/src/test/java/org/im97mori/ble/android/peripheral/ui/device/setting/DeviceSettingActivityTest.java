@@ -41,7 +41,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestUtils;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.FakeBloodPressureProfileViewModel;
@@ -94,9 +93,6 @@ public class DeviceSettingActivityTest {
     @Inject
     @ApplicationContext
     Context mContext;
-
-    @Inject
-    FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
     private static MockedStatic<MockitoViewModelProvider> mockedStatic;
 

@@ -9,6 +9,7 @@ import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 
 import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.os.Build;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
@@ -18,6 +19,7 @@ import com.google.gson.Gson;
 
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
+import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
 import org.junit.After;
@@ -34,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
@@ -62,7 +65,11 @@ public class BloodPressureProfileViewModelTest {
     private BloodPressureProfileViewModel mViewModel;
 
     @Inject
-    FakeDeviceSettingRepository mFakeDeviceSettingRepository;
+    DeviceSettingDataSource mDeviceSettingDataSource;
+
+    @Inject
+    @ApplicationContext
+    Context mContext;
 
     @Inject
     Gson mGson;
@@ -71,7 +78,9 @@ public class BloodPressureProfileViewModelTest {
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
-        mViewModel = new BloodPressureProfileViewModel(mSavedStateHandle, mFakeDeviceSettingRepository, mGson);
+        mViewModel = new BloodPressureProfileViewModel(mSavedStateHandle
+                , new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext)
+                , mGson);
     }
 
     @After

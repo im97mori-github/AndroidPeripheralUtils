@@ -4,9 +4,11 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
+import android.content.Context;
 import android.os.Build;
 
 import org.im97mori.ble.android.peripheral.Constants;
+import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.junit.After;
@@ -25,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
@@ -46,14 +49,21 @@ public class MainViewModelTest {
     @Rule
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
-    @Inject
-    FakeDeviceSettingRepository mFakeDeviceSettingRepository;
+    private FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
     private MainViewModel mViewModel;
+
+    @Inject
+    DeviceSettingDataSource mDeviceSettingDataSource;
+
+    @Inject
+    @ApplicationContext
+    Context mContext;
 
     @Before
     public void setUp() {
         mHiltRule.inject();
+        mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
         mViewModel = new MainViewModel(mFakeDeviceSettingRepository);
     }
 
