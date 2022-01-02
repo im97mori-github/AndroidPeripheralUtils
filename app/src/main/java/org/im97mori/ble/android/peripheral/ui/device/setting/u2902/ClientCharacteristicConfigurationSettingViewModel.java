@@ -165,7 +165,6 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
         Transformations.distinctUntilChanged(mProperties).observe(owner, observer);
     }
 
-
     @MainThread
     public void observePropertiesDisabled(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)).observe(owner, observer);
@@ -239,6 +238,8 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
 
                             Intent intent = new Intent();
                             intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+
+                            mDescriptorData = null;
                             emitter.onSuccess(intent);
                         } else {
                             emitter.onError(new RuntimeException("Validation failed"));

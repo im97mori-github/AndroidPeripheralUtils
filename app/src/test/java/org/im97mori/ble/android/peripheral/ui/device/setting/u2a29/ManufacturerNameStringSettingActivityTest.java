@@ -393,8 +393,6 @@ public class ManufacturerNameStringSettingActivityTest {
 
         CharacteristicData characteristicData = new CharacteristicData();
         characteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        characteristicData = new CharacteristicData();
-        characteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
         characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
         characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         characteristicData.data = new ManufacturerNameString("a").getBytes();

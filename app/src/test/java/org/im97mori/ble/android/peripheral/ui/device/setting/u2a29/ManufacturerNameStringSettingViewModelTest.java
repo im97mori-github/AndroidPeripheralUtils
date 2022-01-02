@@ -314,115 +314,6 @@ public class ManufacturerNameStringSettingViewModelTest {
     }
 
     @Test
-    public void test_observeManufacturerNameString_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), modelNumberStringReference::set);
-
-        assertNull(modelNumberStringReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerNameString_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), modelNumberStringReference::set);
-        mViewModel.updateManufacturerNameString(original);
-
-        assertEquals(original, modelNumberStringReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerNameString_00003() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
-
-        mViewModel.updateManufacturerNameString(original);
-        mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), modelNumberStringReference::set);
-
-        assertEquals(original, modelNumberStringReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerNameString_00004() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), aBoolean -> {
-            count.incrementAndGet();
-            modelNumberStringReference.set(aBoolean);
-        });
-        mViewModel.updateManufacturerNameString(original);
-        mViewModel.updateManufacturerNameString(original);
-
-        assertEquals(original, modelNumberStringReference.get());
-        assertEquals(1, count.get());
-    }
-
-    @Test
-    public void test_observeManufacturerNameStringErrorString_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        mFakeDeviceSettingRepository.mGetManufacturerNameStringErrorString = "a";
-        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerNameStringErrorString(new TestLifeCycleOwner(), modelNumberStringErrorStringReference::set);
-
-        assertNull(modelNumberStringErrorStringReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerNameStringErrorString_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        mFakeDeviceSettingRepository.mGetManufacturerNameStringErrorString = original;
-        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerNameStringErrorString(new TestLifeCycleOwner(), modelNumberStringErrorStringReference::set);
-        mViewModel.updateManufacturerNameString(null);
-
-        assertEquals(original, modelNumberStringErrorStringReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerNameStringErrorString_00003() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicInteger count = new AtomicInteger(0);
-        mFakeDeviceSettingRepository.mGetManufacturerNameStringErrorString = original;
-        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerNameStringErrorString(new TestLifeCycleOwner(), s -> {
-            count.incrementAndGet();
-            modelNumberStringErrorStringReference.set(s);
-        });
-        mViewModel.updateManufacturerNameString(null);
-        mViewModel.updateManufacturerNameString(null);
-
-        assertEquals(original, modelNumberStringErrorStringReference.get());
-        assertEquals(1, count.get());
-    }
-
-    @Test
     public void test_observeResponseCode_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
@@ -670,35 +561,6 @@ public class ManufacturerNameStringSettingViewModelTest {
     }
 
     @Test
-    public void test_updateManufacturerNameString_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String after = "b";
-
-        assertNull(mSavedStateHandle.get("KEY_MANUFACTURER_NAME_STRING"));
-        mViewModel.updateManufacturerNameString(after);
-
-        assertEquals(after, mSavedStateHandle.get("KEY_MANUFACTURER_NAME_STRING"));
-    }
-
-    @Test
-    public void test_updateManufacturerNameString_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String before = "a";
-        String after = "b";
-
-        mViewModel.updateManufacturerNameString(before);
-        assertEquals(before, mSavedStateHandle.get("KEY_MANUFACTURER_NAME_STRING"));
-
-        mViewModel.updateManufacturerNameString(after);
-
-        assertEquals(after, mSavedStateHandle.get("KEY_MANUFACTURER_NAME_STRING"));
-    }
-
-    @Test
     public void test_updateResponseCode_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
@@ -894,6 +756,144 @@ public class ManufacturerNameStringSettingViewModelTest {
         assertEquals(delay, characteristicData.delay);
         assertEquals(BluetoothGatt.GATT_SUCCESS, characteristicData.responseCode);
         assertEquals(manufacturerNameString, new ManufacturerNameString(characteristicData.data).getManufacturerName());
+    }
+
+    @Test
+    public void test_observeManufacturerNameString_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), modelNumberStringReference::set);
+
+        assertNull(modelNumberStringReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerNameString_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), modelNumberStringReference::set);
+        mViewModel.updateManufacturerNameString(original);
+
+        assertEquals(original, modelNumberStringReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerNameString_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
+
+        mViewModel.updateManufacturerNameString(original);
+        mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), modelNumberStringReference::set);
+
+        assertEquals(original, modelNumberStringReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerNameString_00004() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicInteger count = new AtomicInteger(0);
+        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), aBoolean -> {
+            count.incrementAndGet();
+            modelNumberStringReference.set(aBoolean);
+        });
+        mViewModel.updateManufacturerNameString(original);
+        mViewModel.updateManufacturerNameString(original);
+
+        assertEquals(original, modelNumberStringReference.get());
+        assertEquals(1, count.get());
+    }
+
+    @Test
+    public void test_observeManufacturerNameStringErrorString_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        mFakeDeviceSettingRepository.mGetManufacturerNameStringErrorString = "a";
+        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerNameStringErrorString(new TestLifeCycleOwner(), modelNumberStringErrorStringReference::set);
+
+        assertNull(modelNumberStringErrorStringReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerNameStringErrorString_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        mFakeDeviceSettingRepository.mGetManufacturerNameStringErrorString = original;
+        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerNameStringErrorString(new TestLifeCycleOwner(), modelNumberStringErrorStringReference::set);
+        mViewModel.updateManufacturerNameString(null);
+
+        assertEquals(original, modelNumberStringErrorStringReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerNameStringErrorString_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicInteger count = new AtomicInteger(0);
+        mFakeDeviceSettingRepository.mGetManufacturerNameStringErrorString = original;
+        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerNameStringErrorString(new TestLifeCycleOwner(), s -> {
+            count.incrementAndGet();
+            modelNumberStringErrorStringReference.set(s);
+        });
+        mViewModel.updateManufacturerNameString(null);
+        mViewModel.updateManufacturerNameString(null);
+
+        assertEquals(original, modelNumberStringErrorStringReference.get());
+        assertEquals(1, count.get());
+    }
+
+    @Test
+    public void test_updateManufacturerNameString_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String after = "b";
+
+        assertNull(mSavedStateHandle.get("KEY_MANUFACTURER_NAME_STRING"));
+        mViewModel.updateManufacturerNameString(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_MANUFACTURER_NAME_STRING"));
+    }
+
+    @Test
+    public void test_updateManufacturerNameString_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String before = "a";
+        String after = "b";
+
+        mViewModel.updateManufacturerNameString(before);
+        assertEquals(before, mSavedStateHandle.get("KEY_MANUFACTURER_NAME_STRING"));
+
+        mViewModel.updateManufacturerNameString(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_MANUFACTURER_NAME_STRING"));
     }
 
 }

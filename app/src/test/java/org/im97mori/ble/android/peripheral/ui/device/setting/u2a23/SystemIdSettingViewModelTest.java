@@ -331,224 +331,6 @@ public class SystemIdSettingViewModelTest {
     }
 
     @Test
-    public void test_observeManufacturerIdentifier_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
-
-        assertNull(manufacturerIdentifierReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerIdentifier_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "1";
-        AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
-        mViewModel.updateManufacturerIdentifier(original);
-
-        assertEquals(original, manufacturerIdentifierReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerIdentifier_00003() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "1";
-        AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
-
-        mViewModel.updateManufacturerIdentifier(original);
-        mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
-
-        assertEquals(original, manufacturerIdentifierReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerIdentifier_00004() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "1";
-        AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), aBoolean -> {
-            count.incrementAndGet();
-            manufacturerIdentifierReference.set(aBoolean);
-        });
-        mViewModel.updateManufacturerIdentifier(original);
-        mViewModel.updateManufacturerIdentifier(original);
-
-        assertEquals(original, manufacturerIdentifierReference.get());
-        assertEquals(1, count.get());
-    }
-
-    @Test
-    public void test_observeManufacturerIdentifierErrorString_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        mFakeDeviceSettingRepository.mGetManufacturerIdentifierErrorString = "a";
-        AtomicReference<String> manufacturerIdentifierErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerIdentifierErrorString(new TestLifeCycleOwner(), manufacturerIdentifierErrorStringReference::set);
-
-        assertNull(manufacturerIdentifierErrorStringReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerIdentifierErrorString_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        mFakeDeviceSettingRepository.mGetManufacturerIdentifierErrorString = original;
-        AtomicReference<String> manufacturerIdentifierErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerIdentifierErrorString(new TestLifeCycleOwner(), manufacturerIdentifierErrorStringReference::set);
-        mViewModel.updateManufacturerIdentifier(null);
-
-        assertEquals(original, manufacturerIdentifierErrorStringReference.get());
-    }
-
-    @Test
-    public void test_observeManufacturerIdentifierErrorString_00003() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicInteger count = new AtomicInteger(0);
-        mFakeDeviceSettingRepository.mGetManufacturerIdentifierErrorString = original;
-        AtomicReference<String> manufacturerIdentifierErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeManufacturerIdentifierErrorString(new TestLifeCycleOwner(), s -> {
-            count.incrementAndGet();
-            manufacturerIdentifierErrorStringReference.set(s);
-        });
-        mViewModel.updateManufacturerIdentifier(null);
-        mViewModel.updateManufacturerIdentifier(null);
-
-        assertEquals(original, manufacturerIdentifierErrorStringReference.get());
-        assertEquals(1, count.get());
-    }
-
-    @Test
-    public void test_observeOrganizationallyUniqueIdentifier_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        AtomicReference<String> organizationallyUniqueIdentifier = new AtomicReference<>();
-
-        mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifier::set);
-
-        assertNull(organizationallyUniqueIdentifier.get());
-    }
-
-    @Test
-    public void test_observeOrganizationallyUniqueIdentifier_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "1";
-        AtomicReference<String> organizationallyUniqueIdentifier = new AtomicReference<>();
-
-        mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifier::set);
-        mViewModel.updateOrganizationallyUniqueIdentifier(original);
-
-        assertEquals(original, organizationallyUniqueIdentifier.get());
-    }
-
-    @Test
-    public void test_observeOrganizationallyUniqueIdentifier_00003() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "1";
-        AtomicReference<String> organizationallyUniqueIdentifier = new AtomicReference<>();
-
-        mViewModel.updateOrganizationallyUniqueIdentifier(original);
-        mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifier::set);
-
-        assertEquals(original, organizationallyUniqueIdentifier.get());
-    }
-
-    @Test
-    public void test_observeOrganizationallyUniqueIdentifier_00004() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "1";
-        AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<String> organizationallyUniqueIdentifier = new AtomicReference<>();
-
-        mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), aBoolean -> {
-            count.incrementAndGet();
-            organizationallyUniqueIdentifier.set(aBoolean);
-        });
-        mViewModel.updateOrganizationallyUniqueIdentifier(original);
-        mViewModel.updateOrganizationallyUniqueIdentifier(original);
-
-        assertEquals(original, organizationallyUniqueIdentifier.get());
-        assertEquals(1, count.get());
-    }
-
-    @Test
-    public void test_observeOrganizationallyUniqueIdentifierErrorString_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        mFakeDeviceSettingRepository.mGetOrganizationallyUniqueIdentifierErrorString = "a";
-        AtomicReference<String> organizationallyUniqueIdentifierErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeOrganizationallyUniqueIdentifierErrorString(new TestLifeCycleOwner(), organizationallyUniqueIdentifierErrorStringReference::set);
-
-        assertNull(organizationallyUniqueIdentifierErrorStringReference.get());
-    }
-
-    @Test
-    public void test_observeOrganizationallyUniqueIdentifierErrorString_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        mFakeDeviceSettingRepository.mGetOrganizationallyUniqueIdentifierErrorString = original;
-        AtomicReference<String> organizationallyUniqueIdentifierErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeOrganizationallyUniqueIdentifierErrorString(new TestLifeCycleOwner(), organizationallyUniqueIdentifierErrorStringReference::set);
-        mViewModel.updateOrganizationallyUniqueIdentifier(null);
-
-        assertEquals(original, organizationallyUniqueIdentifierErrorStringReference.get());
-    }
-
-    @Test
-    public void test_observeOrganizationallyUniqueIdentifierErrorString_00003() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicInteger count = new AtomicInteger(0);
-        mFakeDeviceSettingRepository.mGetOrganizationallyUniqueIdentifierErrorString = original;
-        AtomicReference<String> organizationallyUniqueIdentifierErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeOrganizationallyUniqueIdentifierErrorString(new TestLifeCycleOwner(), s -> {
-            count.incrementAndGet();
-            organizationallyUniqueIdentifierErrorStringReference.set(s);
-        });
-        mViewModel.updateOrganizationallyUniqueIdentifier(null);
-        mViewModel.updateOrganizationallyUniqueIdentifier(null);
-
-        assertEquals(original, organizationallyUniqueIdentifierErrorStringReference.get());
-        assertEquals(1, count.get());
-    }
-
-    @Test
     public void test_observeResponseCode_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
@@ -796,64 +578,6 @@ public class SystemIdSettingViewModelTest {
     }
 
     @Test
-    public void test_updateManufacturerIdentifier_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String after = "1";
-
-        assertNull(mSavedStateHandle.get("KEY_MANUFACTURER_IDENTIFIER"));
-        mViewModel.updateManufacturerIdentifier(after);
-
-        assertEquals(after, mSavedStateHandle.get("KEY_MANUFACTURER_IDENTIFIER"));
-    }
-
-    @Test
-    public void test_updateManufacturerIdentifier_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String before = "1";
-        String after = "2";
-
-        mViewModel.updateManufacturerIdentifier(before);
-        assertEquals(before, mSavedStateHandle.get("KEY_MANUFACTURER_IDENTIFIER"));
-
-        mViewModel.updateManufacturerIdentifier(after);
-
-        assertEquals(after, mSavedStateHandle.get("KEY_MANUFACTURER_IDENTIFIER"));
-    }
-
-    @Test
-    public void test_updateOrganizationallyUniqueIdentifier_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String after = "1";
-
-        assertNull(mSavedStateHandle.get("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER"));
-        mViewModel.updateOrganizationallyUniqueIdentifier(after);
-
-        assertEquals(after, mSavedStateHandle.get("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER"));
-    }
-
-    @Test
-    public void test_updateOrganizationallyUniqueIdentifier_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String before = "1";
-        String after = "2";
-
-        mViewModel.updateOrganizationallyUniqueIdentifier(before);
-        assertEquals(before, mSavedStateHandle.get("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER"));
-
-        mViewModel.updateOrganizationallyUniqueIdentifier(after);
-
-        assertEquals(after, mSavedStateHandle.get("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER"));
-    }
-
-    @Test
     public void test_updateResponseCode_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
@@ -1079,5 +803,282 @@ public class SystemIdSettingViewModelTest {
         assertEquals(manufacturerIdentifier, String.valueOf(systemId.getManufacturerIdentifier()));
         assertEquals(organizationallyUniqueIdentifier, String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
     }
+
+    @Test
+    public void test_observeManufacturerIdentifier_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
+
+        assertNull(manufacturerIdentifierReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerIdentifier_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "1";
+        AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
+        mViewModel.updateManufacturerIdentifier(original);
+
+        assertEquals(original, manufacturerIdentifierReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerIdentifier_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "1";
+        AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
+
+        mViewModel.updateManufacturerIdentifier(original);
+        mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
+
+        assertEquals(original, manufacturerIdentifierReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerIdentifier_00004() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "1";
+        AtomicInteger count = new AtomicInteger(0);
+        AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), aBoolean -> {
+            count.incrementAndGet();
+            manufacturerIdentifierReference.set(aBoolean);
+        });
+        mViewModel.updateManufacturerIdentifier(original);
+        mViewModel.updateManufacturerIdentifier(original);
+
+        assertEquals(original, manufacturerIdentifierReference.get());
+        assertEquals(1, count.get());
+    }
+
+    @Test
+    public void test_observeManufacturerIdentifierErrorString_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        mFakeDeviceSettingRepository.mGetManufacturerIdentifierErrorString = "a";
+        AtomicReference<String> manufacturerIdentifierErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerIdentifierErrorString(new TestLifeCycleOwner(), manufacturerIdentifierErrorStringReference::set);
+
+        assertNull(manufacturerIdentifierErrorStringReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerIdentifierErrorString_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        mFakeDeviceSettingRepository.mGetManufacturerIdentifierErrorString = original;
+        AtomicReference<String> manufacturerIdentifierErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerIdentifierErrorString(new TestLifeCycleOwner(), manufacturerIdentifierErrorStringReference::set);
+        mViewModel.updateManufacturerIdentifier(null);
+
+        assertEquals(original, manufacturerIdentifierErrorStringReference.get());
+    }
+
+    @Test
+    public void test_observeManufacturerIdentifierErrorString_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicInteger count = new AtomicInteger(0);
+        mFakeDeviceSettingRepository.mGetManufacturerIdentifierErrorString = original;
+        AtomicReference<String> manufacturerIdentifierErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeManufacturerIdentifierErrorString(new TestLifeCycleOwner(), s -> {
+            count.incrementAndGet();
+            manufacturerIdentifierErrorStringReference.set(s);
+        });
+        mViewModel.updateManufacturerIdentifier(null);
+        mViewModel.updateManufacturerIdentifier(null);
+
+        assertEquals(original, manufacturerIdentifierErrorStringReference.get());
+        assertEquals(1, count.get());
+    }
+
+    @Test
+    public void test_observeOrganizationallyUniqueIdentifier_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<String> organizationallyUniqueIdentifier = new AtomicReference<>();
+
+        mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifier::set);
+
+        assertNull(organizationallyUniqueIdentifier.get());
+    }
+
+    @Test
+    public void test_observeOrganizationallyUniqueIdentifier_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "1";
+        AtomicReference<String> organizationallyUniqueIdentifier = new AtomicReference<>();
+
+        mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifier::set);
+        mViewModel.updateOrganizationallyUniqueIdentifier(original);
+
+        assertEquals(original, organizationallyUniqueIdentifier.get());
+    }
+
+    @Test
+    public void test_observeOrganizationallyUniqueIdentifier_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "1";
+        AtomicReference<String> organizationallyUniqueIdentifier = new AtomicReference<>();
+
+        mViewModel.updateOrganizationallyUniqueIdentifier(original);
+        mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifier::set);
+
+        assertEquals(original, organizationallyUniqueIdentifier.get());
+    }
+
+    @Test
+    public void test_observeOrganizationallyUniqueIdentifier_00004() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "1";
+        AtomicInteger count = new AtomicInteger(0);
+        AtomicReference<String> organizationallyUniqueIdentifier = new AtomicReference<>();
+
+        mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), aBoolean -> {
+            count.incrementAndGet();
+            organizationallyUniqueIdentifier.set(aBoolean);
+        });
+        mViewModel.updateOrganizationallyUniqueIdentifier(original);
+        mViewModel.updateOrganizationallyUniqueIdentifier(original);
+
+        assertEquals(original, organizationallyUniqueIdentifier.get());
+        assertEquals(1, count.get());
+    }
+
+    @Test
+    public void test_observeOrganizationallyUniqueIdentifierErrorString_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        mFakeDeviceSettingRepository.mGetOrganizationallyUniqueIdentifierErrorString = "a";
+        AtomicReference<String> organizationallyUniqueIdentifierErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeOrganizationallyUniqueIdentifierErrorString(new TestLifeCycleOwner(), organizationallyUniqueIdentifierErrorStringReference::set);
+
+        assertNull(organizationallyUniqueIdentifierErrorStringReference.get());
+    }
+
+    @Test
+    public void test_observeOrganizationallyUniqueIdentifierErrorString_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        mFakeDeviceSettingRepository.mGetOrganizationallyUniqueIdentifierErrorString = original;
+        AtomicReference<String> organizationallyUniqueIdentifierErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeOrganizationallyUniqueIdentifierErrorString(new TestLifeCycleOwner(), organizationallyUniqueIdentifierErrorStringReference::set);
+        mViewModel.updateOrganizationallyUniqueIdentifier(null);
+
+        assertEquals(original, organizationallyUniqueIdentifierErrorStringReference.get());
+    }
+
+    @Test
+    public void test_observeOrganizationallyUniqueIdentifierErrorString_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicInteger count = new AtomicInteger(0);
+        mFakeDeviceSettingRepository.mGetOrganizationallyUniqueIdentifierErrorString = original;
+        AtomicReference<String> organizationallyUniqueIdentifierErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeOrganizationallyUniqueIdentifierErrorString(new TestLifeCycleOwner(), s -> {
+            count.incrementAndGet();
+            organizationallyUniqueIdentifierErrorStringReference.set(s);
+        });
+        mViewModel.updateOrganizationallyUniqueIdentifier(null);
+        mViewModel.updateOrganizationallyUniqueIdentifier(null);
+
+        assertEquals(original, organizationallyUniqueIdentifierErrorStringReference.get());
+        assertEquals(1, count.get());
+    }
+
+    @Test
+    public void test_updateManufacturerIdentifier_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String after = "1";
+
+        assertNull(mSavedStateHandle.get("KEY_MANUFACTURER_IDENTIFIER"));
+        mViewModel.updateManufacturerIdentifier(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_MANUFACTURER_IDENTIFIER"));
+    }
+
+    @Test
+    public void test_updateManufacturerIdentifier_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String before = "1";
+        String after = "2";
+
+        mViewModel.updateManufacturerIdentifier(before);
+        assertEquals(before, mSavedStateHandle.get("KEY_MANUFACTURER_IDENTIFIER"));
+
+        mViewModel.updateManufacturerIdentifier(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_MANUFACTURER_IDENTIFIER"));
+    }
+
+    @Test
+    public void test_updateOrganizationallyUniqueIdentifier_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String after = "1";
+
+        assertNull(mSavedStateHandle.get("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER"));
+        mViewModel.updateOrganizationallyUniqueIdentifier(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER"));
+    }
+
+    @Test
+    public void test_updateOrganizationallyUniqueIdentifier_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String before = "1";
+        String after = "2";
+
+        mViewModel.updateOrganizationallyUniqueIdentifier(before);
+        assertEquals(before, mSavedStateHandle.get("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER"));
+
+        mViewModel.updateOrganizationallyUniqueIdentifier(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER"));
+    }
+
 
 }

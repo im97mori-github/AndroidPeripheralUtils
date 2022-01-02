@@ -393,8 +393,6 @@ public class SystemIdSettingActivityTest {
 
         CharacteristicData characteristicData = new CharacteristicData();
         characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        characteristicData = new CharacteristicData();
-        characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
         characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
         characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         characteristicData.data = new SystemId(1, 2).getBytes();

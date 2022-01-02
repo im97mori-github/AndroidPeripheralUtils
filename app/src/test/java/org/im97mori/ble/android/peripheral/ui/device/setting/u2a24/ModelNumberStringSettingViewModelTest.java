@@ -313,115 +313,6 @@ public class ModelNumberStringSettingViewModelTest {
     }
 
     @Test
-    public void test_observeModelNumberString_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
-
-        mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
-
-        assertNull(modelNumberStringReference.get());
-    }
-
-    @Test
-    public void test_observeModelNumberString_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
-
-        mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
-        mViewModel.updateModelNumberString(original);
-
-        assertEquals(original, modelNumberStringReference.get());
-    }
-
-    @Test
-    public void test_observeModelNumberString_00003() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
-
-        mViewModel.updateModelNumberString(original);
-        mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
-
-        assertEquals(original, modelNumberStringReference.get());
-    }
-
-    @Test
-    public void test_observeModelNumberString_00004() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
-
-        mViewModel.observeModelNumberString(new TestLifeCycleOwner(), aBoolean -> {
-            count.incrementAndGet();
-            modelNumberStringReference.set(aBoolean);
-        });
-        mViewModel.updateModelNumberString(original);
-        mViewModel.updateModelNumberString(original);
-
-        assertEquals(original, modelNumberStringReference.get());
-        assertEquals(1, count.get());
-    }
-
-    @Test
-    public void test_observeModelNumberStringErrorString_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        mFakeDeviceSettingRepository.mGetModelNumberStringErrorString = "a";
-        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeModelNumberStringErrorString(new TestLifeCycleOwner(), modelNumberStringErrorStringReference::set);
-
-        assertNull(modelNumberStringErrorStringReference.get());
-    }
-
-    @Test
-    public void test_observeModelNumberStringErrorString_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        mFakeDeviceSettingRepository.mGetModelNumberStringErrorString = original;
-        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeModelNumberStringErrorString(new TestLifeCycleOwner(), modelNumberStringErrorStringReference::set);
-        mViewModel.updateModelNumberString(null);
-
-        assertEquals(original, modelNumberStringErrorStringReference.get());
-    }
-
-    @Test
-    public void test_observeModelNumberStringErrorString_00003() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicInteger count = new AtomicInteger(0);
-        mFakeDeviceSettingRepository.mGetModelNumberStringErrorString = original;
-        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
-
-        mViewModel.observeModelNumberStringErrorString(new TestLifeCycleOwner(), s -> {
-            count.incrementAndGet();
-            modelNumberStringErrorStringReference.set(s);
-        });
-        mViewModel.updateModelNumberString(null);
-        mViewModel.updateModelNumberString(null);
-
-        assertEquals(original, modelNumberStringErrorStringReference.get());
-        assertEquals(1, count.get());
-    }
-
-    @Test
     public void test_observeResponseCode_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
@@ -669,35 +560,6 @@ public class ModelNumberStringSettingViewModelTest {
     }
 
     @Test
-    public void test_updateModelNumberString_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String after = "b";
-
-        assertNull(mSavedStateHandle.get("KEY_MODEL_NUMBER_STRING"));
-        mViewModel.updateModelNumberString(after);
-
-        assertEquals(after, mSavedStateHandle.get("KEY_MODEL_NUMBER_STRING"));
-    }
-
-    @Test
-    public void test_updateModelNumberString_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String before = "a";
-        String after = "b";
-
-        mViewModel.updateModelNumberString(before);
-        assertEquals(before, mSavedStateHandle.get("KEY_MODEL_NUMBER_STRING"));
-
-        mViewModel.updateModelNumberString(after);
-
-        assertEquals(after, mSavedStateHandle.get("KEY_MODEL_NUMBER_STRING"));
-    }
-
-    @Test
     public void test_updateResponseCode_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
@@ -893,6 +755,145 @@ public class ModelNumberStringSettingViewModelTest {
         assertEquals(delay, characteristicData.delay);
         assertEquals(BluetoothGatt.GATT_SUCCESS, characteristicData.responseCode);
         assertEquals(modelNumberString, new ModelNumberString(characteristicData.data).getModelNumber());
+    }
+
+    @Test
+    public void test_observeModelNumberString_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
+
+        mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
+
+        assertNull(modelNumberStringReference.get());
+    }
+
+    @Test
+    public void test_observeModelNumberString_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
+
+        mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
+        mViewModel.updateModelNumberString(original);
+
+        assertEquals(original, modelNumberStringReference.get());
+    }
+
+    @Test
+    public void test_observeModelNumberString_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
+
+        mViewModel.updateModelNumberString(original);
+        mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
+
+        assertEquals(original, modelNumberStringReference.get());
+    }
+
+    @Test
+    public void test_observeModelNumberString_00004() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicInteger count = new AtomicInteger(0);
+        AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
+
+        mViewModel.observeModelNumberString(new TestLifeCycleOwner(), aBoolean -> {
+            count.incrementAndGet();
+            modelNumberStringReference.set(aBoolean);
+        });
+        mViewModel.updateModelNumberString(original);
+        mViewModel.updateModelNumberString(original);
+
+        assertEquals(original, modelNumberStringReference.get());
+        assertEquals(1, count.get());
+    }
+
+    @Test
+    public void test_observeModelNumberStringErrorString_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        mFakeDeviceSettingRepository.mGetModelNumberStringErrorString = "a";
+        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeModelNumberStringErrorString(new TestLifeCycleOwner(), modelNumberStringErrorStringReference::set);
+
+        assertNull(modelNumberStringErrorStringReference.get());
+    }
+
+    @Test
+    public void test_observeModelNumberStringErrorString_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        mFakeDeviceSettingRepository.mGetModelNumberStringErrorString = original;
+        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeModelNumberStringErrorString(new TestLifeCycleOwner(), modelNumberStringErrorStringReference::set);
+        mViewModel.updateModelNumberString(null);
+
+        assertEquals(original, modelNumberStringErrorStringReference.get());
+    }
+
+    @Test
+    public void test_observeModelNumberStringErrorString_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicInteger count = new AtomicInteger(0);
+        mFakeDeviceSettingRepository.mGetModelNumberStringErrorString = original;
+        AtomicReference<String> modelNumberStringErrorStringReference = new AtomicReference<>();
+
+        mViewModel.observeModelNumberStringErrorString(new TestLifeCycleOwner(), s -> {
+            count.incrementAndGet();
+            modelNumberStringErrorStringReference.set(s);
+        });
+        mViewModel.updateModelNumberString(null);
+        mViewModel.updateModelNumberString(null);
+
+        assertEquals(original, modelNumberStringErrorStringReference.get());
+        assertEquals(1, count.get());
+    }
+
+
+    @Test
+    public void test_updateModelNumberString_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String after = "b";
+
+        assertNull(mSavedStateHandle.get("KEY_MODEL_NUMBER_STRING"));
+        mViewModel.updateModelNumberString(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_MODEL_NUMBER_STRING"));
+    }
+
+    @Test
+    public void test_updateModelNumberString_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String before = "a";
+        String after = "b";
+
+        mViewModel.updateModelNumberString(before);
+        assertEquals(before, mSavedStateHandle.get("KEY_MODEL_NUMBER_STRING"));
+
+        mViewModel.updateModelNumberString(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_MODEL_NUMBER_STRING"));
     }
 
 }

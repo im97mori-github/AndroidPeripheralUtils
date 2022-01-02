@@ -393,8 +393,6 @@ public class ModelNumberStringSettingActivityTest {
 
         CharacteristicData characteristicData = new CharacteristicData();
         characteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        characteristicData = new CharacteristicData();
-        characteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
         characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
         characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         characteristicData.data = new ModelNumberString("a").getBytes();
