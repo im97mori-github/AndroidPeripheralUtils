@@ -57,7 +57,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
         , sdk = Build.VERSION_CODES.LOLLIPOP)
 public class ManufacturerNameStringSettingViewModelTest {
 
-
     @Rule(order = 1)
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 

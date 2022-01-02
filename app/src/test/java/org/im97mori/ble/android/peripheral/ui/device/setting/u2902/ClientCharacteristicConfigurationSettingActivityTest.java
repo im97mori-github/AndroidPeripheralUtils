@@ -468,7 +468,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdatePropertiesConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_propertiesRadioGroup_00001");
+        mViewModel.mObserveSetupProcessor.onNext("test_propertiesRadioGroup_00002");
         mViewModel.mObserveSetupProcessor.onComplete();
         mScenario.onActivity(activity -> {
             RadioGroup radioGroup = activity.findViewById(R.id.propertiesRadioGroup);

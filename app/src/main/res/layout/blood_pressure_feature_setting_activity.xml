@@ -83,7 +83,7 @@
                 android:text="@string/pulse_rate_range_detection_support" />
 
             <CheckBox
-                android:id="@+id/is_measurement_position_detection_supported"
+                android:id="@+id/isMeasurementPositionDetectionSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"
@@ -93,7 +93,7 @@
                 android:text="@string/measurement_position_detection_support" />
 
             <CheckBox
-                android:id="@+id/is_multiple_bond_supported"
+                android:id="@+id/isMultipleBondSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp16"

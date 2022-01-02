@@ -40,8 +40,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     private static final String KEY_BODY_MOVEMENT_DETECTION = "KEY_BODY_MOVEMENT_DETECTION";
     private static final String KEY_CUFF_FIT_DETECTION = "KEY_CUFF_FIT_DETECTION";
     private static final String KEY_IRREGULAR_PULSE_DETECTION = "KEY_IRREGULAR_PULSE_DETECTION";
-    private static final String KEY_MEASUREMENT_POSITION_DETECTION = "KEY_MEASUREMENT_POSITION_DETECTION";
     private static final String KEY_PULSE_RATE_RANGE_DETECTION = "KEY_PULSE_RATE_RANGE_DETECTION";
+    private static final String KEY_MEASUREMENT_POSITION_DETECTION = "KEY_MEASUREMENT_POSITION_DETECTION";
     private static final String KEY_MULTIPLE_BOND_DETECTION = "KEY_MULTIPLE_BOND_DETECTION";
     private static final String KEY_RESPONSE_CODE = "KEY_RESPONSE_CODE";
     private static final String KEY_RESPONSE_DELAY = "KEY_RESPONSE_DELAY";
@@ -51,8 +51,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     private final MutableLiveData<Boolean> mBodyMovementDetection;
     private final MutableLiveData<Boolean> mCuffFitDetection;
     private final MutableLiveData<Boolean> mIrregularPulseDetection;
-    private final MutableLiveData<Boolean> mMeasurementPositionDetection;
     private final MutableLiveData<Boolean> mPulseRateRangeDetection;
+    private final MutableLiveData<Boolean> mMeasurementPositionDetection;
     private final MutableLiveData<Boolean> mMultipleBondDetection;
 
     private final MutableLiveData<String> mResponseCode;
@@ -67,8 +67,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
         mBodyMovementDetection = savedStateHandle.getLiveData(KEY_BODY_MOVEMENT_DETECTION);
         mCuffFitDetection = savedStateHandle.getLiveData(KEY_CUFF_FIT_DETECTION);
         mIrregularPulseDetection = savedStateHandle.getLiveData(KEY_IRREGULAR_PULSE_DETECTION);
-        mMeasurementPositionDetection = savedStateHandle.getLiveData(KEY_MEASUREMENT_POSITION_DETECTION);
         mPulseRateRangeDetection = savedStateHandle.getLiveData(KEY_PULSE_RATE_RANGE_DETECTION);
+        mMeasurementPositionDetection = savedStateHandle.getLiveData(KEY_MEASUREMENT_POSITION_DETECTION);
         mMultipleBondDetection = savedStateHandle.getLiveData(KEY_MULTIPLE_BOND_DETECTION);
 
         mResponseCode = savedStateHandle.getLiveData(KEY_RESPONSE_CODE);
@@ -78,7 +78,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     @Override
     public void observeSetup(@NonNull Intent intent
             , @NonNull Action onComplete
-            , @NonNull Consumer<? super Throwable> onError){
+            , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
                 try {
@@ -107,37 +107,49 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                 }
 
                 if (mBodyMovementDetection.getValue() == null) {
-                    if (bloodPressureFeature != null) {
+                    if (bloodPressureFeature == null) {
+                        mBodyMovementDetection.postValue(false);
+                    } else {
                         mBodyMovementDetection.postValue(bloodPressureFeature.isBodyMovementDetectionSupported());
                     }
                 }
 
                 if (mCuffFitDetection.getValue() == null) {
-                    if (bloodPressureFeature != null) {
+                    if (bloodPressureFeature == null) {
+                        mCuffFitDetection.postValue(false);
+                    } else {
                         mCuffFitDetection.postValue(bloodPressureFeature.isCuffFitDetectionSupported());
                     }
                 }
 
                 if (mIrregularPulseDetection.getValue() == null) {
-                    if (bloodPressureFeature != null) {
+                    if (bloodPressureFeature == null) {
+                        mIrregularPulseDetection.postValue(false);
+                    } else {
                         mIrregularPulseDetection.postValue(bloodPressureFeature.isIrregularPulseDetectionSupported());
                     }
                 }
 
-                if (mMeasurementPositionDetection.getValue() == null) {
-                    if (bloodPressureFeature != null) {
-                        mMeasurementPositionDetection.postValue(bloodPressureFeature.isMeasurementPositionDetectionSupported());
-                    }
-                }
-
                 if (mPulseRateRangeDetection.getValue() == null) {
-                    if (bloodPressureFeature != null) {
+                    if (bloodPressureFeature == null) {
+                        mPulseRateRangeDetection.postValue(false);
+                    } else {
                         mPulseRateRangeDetection.postValue(bloodPressureFeature.isPulseRateRangeDetectionSupported());
                     }
                 }
 
+                if (mMeasurementPositionDetection.getValue() == null) {
+                    if (bloodPressureFeature == null) {
+                        mMeasurementPositionDetection.postValue(false);
+                    } else {
+                        mMeasurementPositionDetection.postValue(bloodPressureFeature.isMeasurementPositionDetectionSupported());
+                    }
+                }
+
                 if (mMultipleBondDetection.getValue() == null) {
-                    if (bloodPressureFeature != null) {
+                    if (bloodPressureFeature == null) {
+                        mMultipleBondDetection.postValue(false);
+                    } else {
                         mMultipleBondDetection.postValue(bloodPressureFeature.isMultipleBondSupported());
                     }
                 }
@@ -157,7 +169,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(onComplete, onError));
+                .subscribe(onComplete, onError));
     }
 
     @MainThread
@@ -181,13 +193,13 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     }
 
     @MainThread
-    public void observeMeasurementPositionDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mMeasurementPositionDetection).observe(owner, observer);
+    public void observePulseRateRangeDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mPulseRateRangeDetection).observe(owner, observer);
     }
 
     @MainThread
-    public void observePulseRateRangeDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mPulseRateRangeDetection).observe(owner, observer);
+    public void observeMeasurementPositionDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mMeasurementPositionDetection).observe(owner, observer);
     }
 
     @MainThread
@@ -238,13 +250,13 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     }
 
     @MainThread
-    public void updateMeasurementPositionDetection(boolean checked) {
-        mMeasurementPositionDetection.setValue(checked);
+    public void updatePulseRateRangeDetection(boolean checked) {
+        mPulseRateRangeDetection.setValue(checked);
     }
 
     @MainThread
-    public void updatePulseRateRangeDetection(boolean checked) {
-        mPulseRateRangeDetection.setValue(checked);
+    public void updateMeasurementPositionDetection(boolean checked) {
+        mMeasurementPositionDetection.setValue(checked);
     }
 
     @MainThread
@@ -264,7 +276,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
 
     @Override
     public void observeSave(@NonNull Consumer<Intent> onSuccess
-            , @NonNull Consumer<? super Throwable> onError){
+            , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Single.<Intent>create(emitter -> {
             CharacteristicData characteristicData = mCharacteristicData;
             if (characteristicData == null) {
@@ -320,7 +332,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(onSuccess, onError));
+                .subscribe(onSuccess, onError));
     }
 
 }
