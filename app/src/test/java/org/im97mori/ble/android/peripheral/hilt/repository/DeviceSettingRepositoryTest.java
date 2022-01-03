@@ -29,6 +29,7 @@ import org.robolectric.annotation.Config;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -2378,6 +2379,22 @@ public class DeviceSettingRepositoryTest {
     }
 
     @Test
+    public void test_getHexString_00001() {
+        int decimal = 10;
+        int length = 2;
+        String result = mDeviceSettingRepository.getHexString(decimal, length);
+        assertEquals("0x0a", result);
+    }
+
+    @Test
+    public void test_getHexString_00002() {
+        int decimal = 16;
+        int length = 4;
+        String result = mDeviceSettingRepository.getHexString(decimal, length);
+        assertEquals("0x0010", result);
+    }
+
+    @Test
     public void test_getDateTimeString_00001() {
         int year = 1;
         int month = 2;
@@ -2386,7 +2403,8 @@ public class DeviceSettingRepositoryTest {
         int minutes = 5;
         int seconds = 6;
         String result = mDeviceSettingRepository.getDateTimeString(year, month, day, hours, minutes, seconds);
-        assertEquals(String.format("%1$s %2$s %3$s %4$s %5$s %6$s"
+        assertEquals(String.format(Locale.US
+                , "%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d"
                 , year
                 , month
                 , day

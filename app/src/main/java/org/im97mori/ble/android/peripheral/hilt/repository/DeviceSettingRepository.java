@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -576,8 +577,15 @@ public class DeviceSettingRepository {
     }
 
     @NonNull
+    public String getHexString(int target, int length) {
+        return String.format(Locale.US
+                , "0x%1$0" + length + "x", target);
+    }
+
+    @NonNull
     public String getDateTimeString(int year, int month, int day, int hours, int minutes, int seconds) {
-        return String.format("%1$s %2$s %3$s %4$s %5$s %6$s"
+        return String.format(Locale.US
+                , "%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d"
                 , year
                 , month
                 , day

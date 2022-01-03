@@ -88,7 +88,6 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
         mBloodPressureMeasurementDataJson = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON);
         mIntermediateCuffPressureDataJson = savedStateHandle.getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON);
         mBloodPressureFeatureDataJson = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON);
-
     }
 
     @Override
@@ -129,13 +128,13 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                         mBloodPressureMeasurementDataJson.postValue(mGson.toJson(characteristicData));
                         BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
                         mSavedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS)
-                                .postValue(Integer.toHexString(bloodPressureMeasurement.getFlags()));
+                                .postValue(mDeviceSettingRepository.getHexString(bloodPressureMeasurement.getFlags(), 2));
                         if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
                             mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC)
-                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
+                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueSystolicMmhg().getSfloat()));
                         } else {
                             mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC)
-                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
+                                    .postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueSystolicKpa().getSfloat()));
                         }
                         if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
                             mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC)
@@ -173,11 +172,16 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                         }
                         if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
                             mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).
-                                    postValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0)));
+                                    postValue(mDeviceSettingRepository.getHexString(BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0), 4));
                         } else {
                             mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).postValue(null);
                         }
                     } else {
+                        mBloodPressureMeasurementDataJson.postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEAN_ARTERIAL_PRESSURE).postValue(null);
                         mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_TIME_STAMP).postValue(null);
                         mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_PULSE_RATE).postValue(null);
                         mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_USER_ID).postValue(null);
@@ -195,7 +199,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                         mIntermediateCuffPressureDataJson.postValue(mGson.toJson(characteristicData));
                         IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
                         mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS)
-                                .postValue(Integer.toHexString(intermediateCuffPressure.getFlags()));
+                                .postValue(mDeviceSettingRepository.getHexString(intermediateCuffPressure.getFlags(), 2));
                         if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(intermediateCuffPressure.getFlags())) {
                             mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE)
                                     .postValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureMmhg().getSfloat()));
@@ -226,11 +230,14 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                         }
                         if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(intermediateCuffPressure.getFlags())) {
                             mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS)
-                                    .postValue(Integer.toHexString(BLEUtils.createUInt16(intermediateCuffPressure.getMeasurementStatus(), 0)));
+                                    .postValue(mDeviceSettingRepository.getHexString(BLEUtils.createUInt16(intermediateCuffPressure.getMeasurementStatus(), 0), 4));
                         } else {
                             mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS).postValue(null);
                         }
                     } else {
+                        mIntermediateCuffPressureDataJson.postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS).postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE).postValue(null);
                         mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_TIME_STAMP).postValue(null);
                         mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_PULSE_RATE).postValue(null);
                         mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_USER_ID).postValue(null);
@@ -242,10 +249,15 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     if (bloodPressureFeatureOptional.isPresent()) {
                         CharacteristicData characteristicData = bloodPressureFeatureOptional.get();
                         mBloodPressureFeatureDataJson.postValue(mGson.toJson(characteristicData));
-                        if (characteristicData.data != null) {
+                        if (characteristicData.data == null) {
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).postValue(null);
+                        } else {
                             BloodPressureFeature bloodPressureFeature = new BloodPressureFeature(characteristicData.data);
-                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).postValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0)));
+                            mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).postValue(mDeviceSettingRepository.getHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0), 4));
                         }
+                    } else {
+                        mBloodPressureFeatureDataJson.postValue(null);
+                        mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).postValue(null);
                     }
                 }
 
@@ -265,6 +277,11 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     }
 
     @MainThread
+    public void observeIsIntermediateCuffPressureSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mIsIntermediateCuffPressureSupported).observe(owner, observer);
+    }
+
+    @MainThread
     public void observeHasIntermediateCuffPressureDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
         Transformations.distinctUntilChanged(mIntermediateCuffPressureDataJson).observe(owner, new ExistObserver(observer));
     }
@@ -272,11 +289,6 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     @MainThread
     public void observeHasBloodPressureFeatureDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
         Transformations.distinctUntilChanged(mBloodPressureFeatureDataJson).observe(owner, new ExistObserver(observer));
-    }
-
-    @MainThread
-    public void observeIsIntermediateCuffPressureSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mIsIntermediateCuffPressureSupported).observe(owner, observer);
     }
 
     @MainThread
@@ -338,7 +350,6 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     public void observeBloodPressureMeasurementMeasurementStatus(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS)).observe(owner, observer);
     }
-
 
     @MainThread
     public void observeIntermediateCuffPressureFlags(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
@@ -432,13 +443,13 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).setValue(null);
                 } else {
                     BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
-                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS).setValue(Integer.toHexString(bloodPressureMeasurement.getFlags()));
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS).setValue(mDeviceSettingRepository.getHexString(bloodPressureMeasurement.getFlags(), 2));
                     if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
                         mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC)
-                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
+                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueSystolicMmhg().getSfloat()));
                     } else {
                         mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC)
-                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
+                                .setValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueSystolicKpa().getSfloat()));
                     }
                     if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags())) {
                         mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DIASTOLIC)
@@ -476,7 +487,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     }
                     if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
                         mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS)
-                                .setValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0)));
+                                .setValue(mDeviceSettingRepository.getHexString(BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0), 4));
                     } else {
                         mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_MEASUREMENT_STATUS).setValue(null);
                     }
@@ -515,7 +526,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS).setValue(null);
                 } else {
                     IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
-                    mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS).setValue(Integer.toHexString(intermediateCuffPressure.getFlags()));
+                    mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_FLAGS).setValue(mDeviceSettingRepository.getHexString(intermediateCuffPressure.getFlags(), 2));
                     if (BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(intermediateCuffPressure.getFlags())) {
                         mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_CURRENT_CUFF_PRESSURE)
                                 .setValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureMmhg().getSfloat()));
@@ -545,7 +556,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     }
                     if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(intermediateCuffPressure.getFlags())) {
                         mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS)
-                                .setValue(Integer.toHexString(BLEUtils.createUInt16(intermediateCuffPressure.getMeasurementStatus(), 0)));
+                                .setValue(mDeviceSettingRepository.getHexString(BLEUtils.createUInt16(intermediateCuffPressure.getMeasurementStatus(), 0), 4));
                     } else {
                         mSavedStateHandle.<String>getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS).setValue(null);
                     }
@@ -574,7 +585,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).setValue(null);
                 } else {
                     BloodPressureFeature bloodPressureFeature = new BloodPressureFeature(characteristicData.data);
-                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).setValue(Integer.toHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0)));
+                    mSavedStateHandle.<String>getLiveData(KEY_BLOOD_PRESSURE_FEATURE).setValue(mDeviceSettingRepository.getHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0), 4));
                 }
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
