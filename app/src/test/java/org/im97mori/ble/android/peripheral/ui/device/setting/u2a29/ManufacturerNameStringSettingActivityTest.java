@@ -398,7 +398,7 @@ public class ManufacturerNameStringSettingActivityTest {
         characteristicData.data = new ManufacturerNameString("a").getBytes();
         String json = mGson.toJson(characteristicData);
         Intent original = new Intent();
-        original.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        original.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), json);
         mViewModel.mObserveSaveProcessor.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();

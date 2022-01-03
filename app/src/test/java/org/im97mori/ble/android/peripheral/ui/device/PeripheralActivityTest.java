@@ -604,7 +604,7 @@ public class PeripheralActivityTest {
         mViewModel.mObserveSetupProcessor.onNext("test_menu_peripheralStart_00001");
         mViewModel.mObserveSetupProcessor.onComplete();
 
-        onView(withId(R.id.peripheralStart)).perform(click());
+        mScenario.onActivity(activity -> activity.findViewById(R.id.peripheralStart).performClick());
 
         assertTrue(mViewModel.mIsStartCalled);
 

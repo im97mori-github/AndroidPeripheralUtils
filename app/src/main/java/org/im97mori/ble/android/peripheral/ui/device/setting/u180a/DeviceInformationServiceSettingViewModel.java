@@ -46,22 +46,22 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
 
     private static final String KEY_IS_SYSTEM_ID_SUPPORTED = "KEY_IS_SYSTEM_ID_SUPPORTED";
 
-    private static final String KEY_MANUFACTURER_NAME_STRING_DATA_JSON = "KEY_MANUFACTURER_NAME_STRING_DATA_JSON";
-    private static final String KEY_MODEL_NUMBER_STRING_DATA_JSON = "KEY_MODEL_NUMBER_STRING_DATA_JSON";
     private static final String KEY_SYSTEM_ID_DATA_JSON = "KEY_SYSTEM_ID_DATA_JSON";
+    private static final String KEY_MODEL_NUMBER_STRING_DATA_JSON = "KEY_MODEL_NUMBER_STRING_DATA_JSON";
+    private static final String KEY_MANUFACTURER_NAME_STRING_DATA_JSON = "KEY_MANUFACTURER_NAME_STRING_DATA_JSON";
 
-    private static final String KEY_MANUFACTURER_NAME_STRING = "KEY_MANUFACTURER_NAME_STRING";
-    private static final String KEY_MODEL_NUMBER_STRING = "KEY_MODEL_NUMBER_STRING";
     private static final String KEY_MANUFACTURER_IDENTIFIER = "KEY_MANUFACTURER_IDENTIFIER";
     private static final String KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER = "KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER";
+    private static final String KEY_MODEL_NUMBER_STRING = "KEY_MODEL_NUMBER_STRING";
+    private static final String KEY_MANUFACTURER_NAME_STRING = "KEY_MANUFACTURER_NAME_STRING";
 
     private final SavedStateHandle mSavedStateHandle;
 
     private final MutableLiveData<Boolean> mIsSystemIdSupported;
 
-    private final MutableLiveData<String> mManufacturerNameStringDataJson;
-    private final MutableLiveData<String> mModelNumberStringDataJson;
     private final MutableLiveData<String> mSystemIdDataJson;
+    private final MutableLiveData<String> mModelNumberStringDataJson;
+    private final MutableLiveData<String> mManufacturerNameStringDataJson;
 
     @Inject
     public DeviceInformationServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
@@ -70,9 +70,9 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
 
         mIsSystemIdSupported = savedStateHandle.getLiveData(KEY_IS_SYSTEM_ID_SUPPORTED);
 
-        mManufacturerNameStringDataJson = savedStateHandle.getLiveData(KEY_MANUFACTURER_NAME_STRING_DATA_JSON);
-        mModelNumberStringDataJson = savedStateHandle.getLiveData(KEY_MODEL_NUMBER_STRING_DATA_JSON);
         mSystemIdDataJson = savedStateHandle.getLiveData(KEY_SYSTEM_ID_DATA_JSON);
+        mModelNumberStringDataJson = savedStateHandle.getLiveData(KEY_MODEL_NUMBER_STRING_DATA_JSON);
+        mManufacturerNameStringDataJson = savedStateHandle.getLiveData(KEY_MANUFACTURER_NAME_STRING_DATA_JSON);
     }
 
     @Override
@@ -92,9 +92,9 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                     mServiceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
                 }
 
-                Optional<CharacteristicData> manufacturerNameStringOptional = mServiceData.characteristicDataList
+                Optional<CharacteristicData> systemIdOptional = mServiceData.characteristicDataList
                         .stream()
-                        .filter(characteristicData -> characteristicData.uuid.equals(MANUFACTURER_NAME_STRING_CHARACTERISTIC))
+                        .filter(characteristicData -> characteristicData.uuid.equals(SYSTEM_ID_CHARACTERISTIC))
                         .findAny();
 
                 Optional<CharacteristicData> modelNumberStringOptional = mServiceData.characteristicDataList
@@ -102,32 +102,10 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                         .filter(characteristicData -> characteristicData.uuid.equals(MODEL_NUMBER_STRING_CHARACTERISTIC))
                         .findAny();
 
-                Optional<CharacteristicData> systemIdOptional = mServiceData.characteristicDataList
+                Optional<CharacteristicData> manufacturerNameStringOptional = mServiceData.characteristicDataList
                         .stream()
-                        .filter(characteristicData -> characteristicData.uuid.equals(SYSTEM_ID_CHARACTERISTIC))
+                        .filter(characteristicData -> characteristicData.uuid.equals(MANUFACTURER_NAME_STRING_CHARACTERISTIC))
                         .findAny();
-
-                if (mManufacturerNameStringDataJson.getValue() == null) {
-                    if (manufacturerNameStringOptional.isPresent()) {
-                        CharacteristicData characteristicData = manufacturerNameStringOptional.get();
-                        mManufacturerNameStringDataJson.postValue(mGson.toJson(characteristicData));
-                        if (characteristicData.data != null) {
-                            mSavedStateHandle.<String>getLiveData(KEY_MANUFACTURER_NAME_STRING)
-                                    .postValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
-                        }
-                    }
-                }
-
-                if (mModelNumberStringDataJson.getValue() == null) {
-                    if (modelNumberStringOptional.isPresent()) {
-                        CharacteristicData characteristicData = modelNumberStringOptional.get();
-                        mModelNumberStringDataJson.postValue(mGson.toJson(characteristicData));
-                        if (characteristicData.data != null) {
-                            mSavedStateHandle.<String>getLiveData(KEY_MODEL_NUMBER_STRING)
-                                    .postValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
-                        }
-                    }
-                }
 
                 if (mIsSystemIdSupported.getValue() == null) {
                     mIsSystemIdSupported.postValue(systemIdOptional.isPresent());
@@ -144,8 +122,37 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                             mSavedStateHandle.<String>getLiveData(KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER)
                                     .postValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
                         }
+                    } else {
+                        mSystemIdDataJson.postValue(null);
                     }
                 }
+
+                if (mModelNumberStringDataJson.getValue() == null) {
+                    if (modelNumberStringOptional.isPresent()) {
+                        CharacteristicData characteristicData = modelNumberStringOptional.get();
+                        mModelNumberStringDataJson.postValue(mGson.toJson(characteristicData));
+                        if (characteristicData.data != null) {
+                            mSavedStateHandle.<String>getLiveData(KEY_MODEL_NUMBER_STRING)
+                                    .postValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
+                        }
+                    } else {
+                        mModelNumberStringDataJson.postValue(null);
+                    }
+                }
+
+                if (mManufacturerNameStringDataJson.getValue() == null) {
+                    if (manufacturerNameStringOptional.isPresent()) {
+                        CharacteristicData characteristicData = manufacturerNameStringOptional.get();
+                        mManufacturerNameStringDataJson.postValue(mGson.toJson(characteristicData));
+                        if (characteristicData.data != null) {
+                            mSavedStateHandle.<String>getLiveData(KEY_MANUFACTURER_NAME_STRING)
+                                    .postValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
+                        }
+                    } else {
+                        mManufacturerNameStringDataJson.postValue(null);
+                    }
+                }
+
                 emitter.onComplete();
             } else {
                 emitter.onError(new RuntimeException("Initialized"));
@@ -157,13 +164,8 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     }
 
     @MainThread
-    public void observeHasManufacturerNameStringDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mManufacturerNameStringDataJson).observe(owner, new ExistObserver(observer));
-    }
-
-    @MainThread
-    public void observeHasModelNumberStringDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mModelNumberStringDataJson).observe(owner, new ExistObserver(observer));
+    public void observeIsSystemIdSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mIsSystemIdSupported).observe(owner, observer);
     }
 
     @MainThread
@@ -172,18 +174,13 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     }
 
     @MainThread
-    public void observeIsSystemIdSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mIsSystemIdSupported).observe(owner, observer);
+    public void observeHasModelNumberStringDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mModelNumberStringDataJson).observe(owner, new ExistObserver(observer));
     }
 
     @MainThread
-    public void observeManufacturerNameString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_MANUFACTURER_NAME_STRING)).observe(owner, observer);
-    }
-
-    @MainThread
-    public void observeModelNumberString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_MODEL_NUMBER_STRING)).observe(owner, observer);
+    public void observeHasManufacturerNameStringDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mManufacturerNameStringDataJson).observe(owner, new ExistObserver(observer));
     }
 
     @MainThread
@@ -197,29 +194,44 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     }
 
     @MainThread
+    public void observeModelNumberString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_MODEL_NUMBER_STRING)).observe(owner, observer);
+    }
+
+    @MainThread
+    public void observeManufacturerNameString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_MANUFACTURER_NAME_STRING)).observe(owner, observer);
+    }
+
+    @MainThread
     public void updateIsSystemIdSupported(boolean checked) {
         mIsSystemIdSupported.setValue(checked);
     }
 
     @Nullable
     @MainThread
-    public String getManufacturerNameStringDataJson() {
-        return mManufacturerNameStringDataJson.getValue();
+    public String getSystemIdDataJson() {
+        return mSystemIdDataJson.getValue();
     }
 
     @MainThread
-    public void setManufacturerNameStringDataJson(@Nullable String manufacturerNameStringDataJson) {
-        mManufacturerNameStringDataJson.setValue(manufacturerNameStringDataJson);
-        MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_MANUFACTURER_NAME_STRING);
-        if (manufacturerNameStringDataJson == null) {
-            liveData.setValue(null);
+    public void setSystemIdDataJson(@Nullable String systemIdDataJson) {
+        mSystemIdDataJson.setValue(systemIdDataJson);
+        MutableLiveData<String> manufacturerIdentifierLiveData = mSavedStateHandle.getLiveData(KEY_MANUFACTURER_IDENTIFIER);
+        MutableLiveData<String> organizationallyUniqueIdentifierLiveData = mSavedStateHandle.getLiveData(KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER);
+        if (systemIdDataJson == null) {
+            manufacturerIdentifierLiveData.setValue(null);
+            organizationallyUniqueIdentifierLiveData.setValue(null);
         } else {
             try {
-                CharacteristicData characteristicData = mGson.fromJson(manufacturerNameStringDataJson, CharacteristicData.class);
+                CharacteristicData characteristicData = mGson.fromJson(systemIdDataJson, CharacteristicData.class);
                 if (characteristicData.data == null) {
-                    liveData.setValue(null);
+                    manufacturerIdentifierLiveData.setValue(null);
+                    organizationallyUniqueIdentifierLiveData.setValue(null);
                 } else {
-                    liveData.setValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
+                    SystemId systemId = new SystemId(characteristicData.data);
+                    manufacturerIdentifierLiveData.setValue(String.valueOf(systemId.getManufacturerIdentifier()));
+                    organizationallyUniqueIdentifierLiveData.setValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
                 }
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
@@ -255,35 +267,29 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
 
     @Nullable
     @MainThread
-    public String getSystemIdDataJson() {
-        return mSystemIdDataJson.getValue();
+    public String getManufacturerNameStringDataJson() {
+        return mManufacturerNameStringDataJson.getValue();
     }
 
     @MainThread
-    public void setSystemIdDataJson(@Nullable String systemIdDataJson) {
-        mSystemIdDataJson.setValue(systemIdDataJson);
-        MutableLiveData<String> manufacturerIdentifierLiveData = mSavedStateHandle.getLiveData(KEY_MANUFACTURER_IDENTIFIER);
-        MutableLiveData<String> organizationallyUniqueIdentifierLiveData = mSavedStateHandle.getLiveData(KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER);
-        if (systemIdDataJson == null) {
-            manufacturerIdentifierLiveData.setValue(null);
-            organizationallyUniqueIdentifierLiveData.setValue(null);
+    public void setManufacturerNameStringDataJson(@Nullable String manufacturerNameStringDataJson) {
+        mManufacturerNameStringDataJson.setValue(manufacturerNameStringDataJson);
+        MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_MANUFACTURER_NAME_STRING);
+        if (manufacturerNameStringDataJson == null) {
+            liveData.setValue(null);
         } else {
             try {
-                CharacteristicData characteristicData = mGson.fromJson(systemIdDataJson, CharacteristicData.class);
+                CharacteristicData characteristicData = mGson.fromJson(manufacturerNameStringDataJson, CharacteristicData.class);
                 if (characteristicData.data == null) {
-                    manufacturerIdentifierLiveData.setValue(null);
-                    organizationallyUniqueIdentifierLiveData.setValue(null);
+                    liveData.setValue(null);
                 } else {
-                    SystemId systemId = new SystemId(characteristicData.data);
-                    manufacturerIdentifierLiveData.setValue(String.valueOf(systemId.getManufacturerIdentifier()));
-                    organizationallyUniqueIdentifierLiveData.setValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
+                    liveData.setValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
                 }
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }
     }
-
 
     @Override
     public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
@@ -294,12 +300,14 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                     } else {
                         serviceData.characteristicDataList.clear();
 
-                        String manufacturerNameStringJson = mManufacturerNameStringDataJson.getValue();
-                        if (manufacturerNameStringJson != null) {
-                            try {
-                                serviceData.characteristicDataList.add(mGson.fromJson(manufacturerNameStringJson, CharacteristicData.class));
-                            } catch (JsonSyntaxException e) {
-                                e.printStackTrace();
+                        if (Boolean.TRUE.equals(mIsSystemIdSupported.getValue())) {
+                            String systemIdJson = mSystemIdDataJson.getValue();
+                            if (systemIdJson != null) {
+                                try {
+                                    serviceData.characteristicDataList.add(mGson.fromJson(systemIdJson, CharacteristicData.class));
+                                } catch (JsonSyntaxException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
 
@@ -312,14 +320,12 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                             }
                         }
 
-                        if (Boolean.TRUE.equals(mIsSystemIdSupported.getValue())) {
-                            String systemIdJson = mSystemIdDataJson.getValue();
-                            if (systemIdJson != null) {
-                                try {
-                                    serviceData.characteristicDataList.add(mGson.fromJson(systemIdJson, CharacteristicData.class));
-                                } catch (JsonSyntaxException e) {
-                                    e.printStackTrace();
-                                }
+                        String manufacturerNameStringJson = mManufacturerNameStringDataJson.getValue();
+                        if (manufacturerNameStringJson != null) {
+                            try {
+                                serviceData.characteristicDataList.add(mGson.fromJson(manufacturerNameStringJson, CharacteristicData.class));
+                            } catch (JsonSyntaxException e) {
+                                e.printStackTrace();
                             }
                         }
 

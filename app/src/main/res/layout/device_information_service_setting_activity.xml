@@ -32,11 +32,23 @@
             android:visibility="gone"
             tools:visibility="visible">
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/manufacturerNameStringCardView"
+            <CheckBox
+                android:id="@+id/isSystemIdSupported"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/dp8"
+                android:layout_marginStart="@dimen/dp16"
+                android:layout_marginTop="@dimen/dp8"
+                android:layout_marginEnd="@dimen/dp16"
+                android:gravity="center_vertical"
+                android:text="@string/system_id_support" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/systemIdCardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp8"
+                android:layout_marginEnd="@dimen/dp8"
+                android:layout_marginBottom="@dimen/dp8"
                 android:checkable="true">
 
                 <androidx.appcompat.widget.LinearLayoutCompat
@@ -51,19 +63,46 @@
                         android:padding="@dimen/dp16">
 
                         <TextView
+                            android:id="@+id/systemIdCardViewTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/dp8"
-                            android:text="@string/manufacturer_name_string"
+                            android:text="@string/system_id"
                             android:textAppearance="?attr/textAppearanceBodyLarge" />
 
                         <TextView
-                            android:id="@+id/manufacturerNameString"
+                            android:id="@+id/manufacturerIdentifierTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
                             android:layout_marginTop="@dimen/dp8"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
-                            android:textColor="?android:attr/textColorSecondary" />
+                            android:text="@string/manufacturer_identifier"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/manufacturerIdentifier"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                        <TextView
+                            android:id="@+id/organizationallyUniqueIdentifierTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:text="@string/organizationally_unique_identifier"
+                            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                        <TextView
+                            android:id="@+id/organizationallyUniqueIdentifier"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp16"
+                            android:layout_marginTop="@dimen/dp8"
+                            android:textAppearance="?attr/textAppearanceBodySmall" />
                     </androidx.appcompat.widget.LinearLayoutCompat>
 
                     <com.google.android.material.divider.MaterialDivider
@@ -79,11 +118,10 @@
                         android:layout_margin="@dimen/dp8">
 
                         <Button
-                            android:id="@+id/manufacturerNameStringSettingButton"
+                            android:id="@+id/systemIdSettingButton"
                             style="?attr/borderlessButtonStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/dp8"
                             android:text="@string/setting" />
 
                     </FrameLayout>
@@ -109,6 +147,7 @@
                         android:padding="@dimen/dp16">
 
                         <TextView
+                            android:id="@+id/modelNumberStringCardViewTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/dp8"
@@ -147,22 +186,11 @@
                 </androidx.appcompat.widget.LinearLayoutCompat>
             </com.google.android.material.card.MaterialCardView>
 
-            <CheckBox
-                android:id="@+id/isSystemIdSupported"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dp16"
-                android:layout_marginTop="@dimen/dp8"
-                android:layout_marginEnd="@dimen/dp16"
-                android:gravity="center_vertical"
-                android:text="@string/system_id_support" />
-
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/systemIdCardView"
+                android:id="@+id/manufacturerNameStringCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dp8"
-                android:layout_marginEnd="@dimen/dp8"
+                android:layout_margin="@dimen/dp8"
                 android:checkable="true">
 
                 <androidx.appcompat.widget.LinearLayoutCompat
@@ -177,43 +205,20 @@
                         android:padding="@dimen/dp16">
 
                         <TextView
+                            android:id="@+id/manufacturerNameStringCardViewTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/dp8"
-                            android:text="@string/system_id"
+                            android:text="@string/manufacturer_name_string"
                             android:textAppearance="?attr/textAppearanceBodyLarge" />
 
                         <TextView
+                            android:id="@+id/manufacturerNameString"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/dp16"
                             android:layout_marginTop="@dimen/dp8"
-                            android:text="@string/manufacturer_identifier"
-                            android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-                        <TextView
-                            android:id="@+id/manufacturerIdentifier"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/dp16"
-                            android:layout_marginTop="@dimen/dp8"
-                            android:textAppearance="?attr/textAppearanceBodySmall" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/dp16"
-                            android:layout_marginTop="@dimen/dp8"
-                            android:text="@string/organizationally_unique_identifier"
-                            android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-                        <TextView
-                            android:id="@+id/organizationallyUniqueIdentifier"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/dp16"
-                            android:layout_marginTop="@dimen/dp8"
-                            android:textAppearance="?attr/textAppearanceBodySmall" />
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?android:attr/textColorSecondary" />
                     </androidx.appcompat.widget.LinearLayoutCompat>
 
                     <com.google.android.material.divider.MaterialDivider
@@ -229,10 +234,11 @@
                         android:layout_margin="@dimen/dp8">
 
                         <Button
-                            android:id="@+id/systemIdSettingButton"
+                            android:id="@+id/manufacturerNameStringSettingButton"
                             style="?attr/borderlessButtonStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/dp8"
                             android:text="@string/setting" />
 
                     </FrameLayout>

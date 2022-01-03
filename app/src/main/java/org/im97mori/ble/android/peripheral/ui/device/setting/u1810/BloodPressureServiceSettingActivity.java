@@ -28,16 +28,16 @@ public class BloodPressureServiceSettingActivity extends AppCompatActivity {
 
     private BloodPressureServiceSettingViewModel mViewModel;
 
-    final ActivityResultLauncher<String> mStartBloodPressureMeasurementSettingActivity = registerForActivityResult(new BloodPressureMeasurementLauncherContract()
+    private final ActivityResultLauncher<String> mStartBloodPressureMeasurementSettingActivity = registerForActivityResult(new BloodPressureMeasurementLauncherContract()
             , result -> mViewModel.setBloodPressureMeasurementDataJson(result));
 
-    final ActivityResultLauncher<String> mStartIntermediateCuffPressureSettingActivity = registerForActivityResult(new IntermediateCuffPressureLauncherContract()
+    private final ActivityResultLauncher<String> mStartIntermediateCuffPressureSettingActivity = registerForActivityResult(new IntermediateCuffPressureLauncherContract()
             , result -> mViewModel.setIntermediateCuffPressureDataJson(result));
 
-    final ActivityResultLauncher<String> mBloodPressureFeatureSettingActivity = registerForActivityResult(new BloodPressureFeatureLauncherContract()
+    private final ActivityResultLauncher<String> mBloodPressureFeatureSettingActivity = registerForActivityResult(new BloodPressureFeatureLauncherContract()
             , result -> mViewModel.setBloodPressureFeatureDataJson(result));
 
-    BloodPressureServiceSettingActivityBinding mBinding;
+    private BloodPressureServiceSettingActivityBinding mBinding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,7 +79,6 @@ public class BloodPressureServiceSettingActivity extends AppCompatActivity {
             mBinding.bloodPressureMeasurementMeasurementStatus.setVisibility(visibility);
         });
         mViewModel.observeBloodPressureMeasurementMeasurementStatus(this, s -> mBinding.bloodPressureMeasurementMeasurementStatus.setText(s));
-
 
         mViewModel.observeIsIntermediateCuffPressureSupported(this, check -> {
             mBinding.isIntermediateCuffPressureSupported.setChecked(check);

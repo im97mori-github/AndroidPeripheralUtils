@@ -24,7 +24,7 @@ import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
-import org.im97mori.ble.characteristic.u2a29.ManufacturerNameString;
+import org.im97mori.ble.characteristic.u2a24.ModelNumberString;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -211,7 +211,7 @@ public class ManufacturerNameStringSettingViewModelTest {
         characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
         characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ManufacturerNameString(original).getBytes();
+        characteristicData.data = new ModelNumberString(original).getBytes();
         characteristicData.delay = 1;
         intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
         mViewModel.observeSetup(intent
@@ -754,7 +754,7 @@ public class ManufacturerNameStringSettingViewModelTest {
         assertNotNull(characteristicData);
         assertEquals(delay, characteristicData.delay);
         assertEquals(BluetoothGatt.GATT_SUCCESS, characteristicData.responseCode);
-        assertEquals(manufacturerNameString, new ManufacturerNameString(characteristicData.data).getManufacturerName());
+        assertEquals(manufacturerNameString, new ModelNumberString(characteristicData.data).getModelNumber());
     }
 
     @Test

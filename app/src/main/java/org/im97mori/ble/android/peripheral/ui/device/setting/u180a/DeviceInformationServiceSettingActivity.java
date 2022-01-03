@@ -28,14 +28,14 @@ public class DeviceInformationServiceSettingActivity extends AppCompatActivity {
 
     private DeviceInformationServiceSettingViewModel mViewModel;
 
-    private final ActivityResultLauncher<String> mStartManufacturerNameStringSettingActivity
-            = registerForActivityResult(new ManufacturerNameStringLauncherContract(), result -> mViewModel.setManufacturerNameStringDataJson(result));
+    private final ActivityResultLauncher<String> mStartSystemIdSettingActivity
+            = registerForActivityResult(new SystemIdLauncherContract(), result -> mViewModel.setSystemIdDataJson(result));
 
     private final ActivityResultLauncher<String> mStartModelNumberStringSettingActivity
             = registerForActivityResult(new ModelNumberStringLauncherContract(), result -> mViewModel.setModelNumberStringDataJson(result));
 
-    private final ActivityResultLauncher<String> mStartSystemIdSettingActivity
-            = registerForActivityResult(new SystemIdLauncherContract(), result -> mViewModel.setSystemIdDataJson(result));
+    private final ActivityResultLauncher<String> mStartManufacturerNameStringSettingActivity
+            = registerForActivityResult(new ManufacturerNameStringLauncherContract(), result -> mViewModel.setManufacturerNameStringDataJson(result));
 
     private DeviceInformationServiceSettingActivityBinding mBinding;
 
@@ -47,24 +47,24 @@ public class DeviceInformationServiceSettingActivity extends AppCompatActivity {
         mBinding = DeviceInformationServiceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
-        mViewModel.observeHasManufacturerNameStringDataJson(this, mBinding.manufacturerNameStringCardView::setChecked);
-        mViewModel.observeHasModelNumberStringDataJson(this, mBinding.modelNumberStringCardView::setChecked);
-        mViewModel.observeHasSystemIdDataJson(this, mBinding.systemIdCardView::setChecked);
         mViewModel.observeIsSystemIdSupported(this, check -> {
             mBinding.isSystemIdSupported.setChecked(check);
             mBinding.systemIdCardView.setVisibility(check ? View.VISIBLE : View.GONE);
         });
+        mViewModel.observeHasSystemIdDataJson(this, mBinding.systemIdCardView::setChecked);
+        mViewModel.observeHasModelNumberStringDataJson(this, mBinding.modelNumberStringCardView::setChecked);
+        mViewModel.observeHasManufacturerNameStringDataJson(this, mBinding.manufacturerNameStringCardView::setChecked);
 
-        mViewModel.observeManufacturerNameString(this, mBinding.manufacturerNameString::setText);
-        mViewModel.observeModelNumberString(this, mBinding.modelNumberString::setText);
         mViewModel.observeManufacturerIdentifier(this, mBinding.manufacturerIdentifier::setText);
         mViewModel.observeOrganizationallyUniqueIdentifier(this, mBinding.organizationallyUniqueIdentifier::setText);
+        mViewModel.observeModelNumberString(this, mBinding.modelNumberString::setText);
+        mViewModel.observeManufacturerNameString(this, mBinding.manufacturerNameString::setText);
 
         mBinding.isSystemIdSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsSystemIdSupported(isChecked));
 
-        mBinding.manufacturerNameStringSettingButton.setOnClickListener(v -> mStartManufacturerNameStringSettingActivity.launch(mViewModel.getManufacturerNameStringDataJson()));
-        mBinding.modelNumberStringSettingButton.setOnClickListener(v -> mStartModelNumberStringSettingActivity.launch(mViewModel.getModelNumberStringDataJson()));
         mBinding.systemIdSettingButton.setOnClickListener(v -> mStartSystemIdSettingActivity.launch(mViewModel.getSystemIdDataJson()));
+        mBinding.modelNumberStringSettingButton.setOnClickListener(v -> mStartModelNumberStringSettingActivity.launch(mViewModel.getModelNumberStringDataJson()));
+        mBinding.manufacturerNameStringSettingButton.setOnClickListener(v -> mStartManufacturerNameStringSettingActivity.launch(mViewModel.getManufacturerNameStringDataJson()));
 
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
 

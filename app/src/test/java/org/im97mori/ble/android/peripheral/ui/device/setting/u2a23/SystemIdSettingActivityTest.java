@@ -398,7 +398,7 @@ public class SystemIdSettingActivityTest {
         characteristicData.data = new SystemId(1, 2).getBytes();
         String json = mGson.toJson(characteristicData);
         Intent original = new Intent();
-        original.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        original.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), json);
         mViewModel.mObserveSaveProcessor.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();

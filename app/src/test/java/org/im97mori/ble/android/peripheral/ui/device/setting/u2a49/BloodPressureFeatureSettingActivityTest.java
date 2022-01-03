@@ -77,7 +77,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
         , sdk = Build.VERSION_CODES.LOLLIPOP)
 public class BloodPressureFeatureSettingActivityTest {
 
-
     @Rule(order = 1)
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
@@ -408,7 +407,7 @@ public class BloodPressureFeatureSettingActivityTest {
                 , false).getBytes();
         String json = mGson.toJson(characteristicData);
         Intent original = new Intent();
-        original.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        original.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), json);
         mViewModel.mObserveSaveProcessor.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();

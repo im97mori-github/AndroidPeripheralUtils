@@ -34,7 +34,7 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
 
     private BloodPressureMeasurementSettingActivityBinding mBinding;
 
-    final ActivityResultLauncher<Pair<String, Integer>> mStartClientCharacteristicConfigurationSettingActivity = registerForActivityResult(new ClientCharacteristicConfigurationLauncherContract()
+    private final ActivityResultLauncher<Pair<String, Integer>> mStartClientCharacteristicConfigurationSettingActivity = registerForActivityResult(new ClientCharacteristicConfigurationLauncherContract()
             , result -> mViewModel.setClientCharacteristicConfigurationDescriptorJson(result));
 
     @Override

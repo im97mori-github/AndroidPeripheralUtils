@@ -399,7 +399,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
         descriptorData.data = new ClientCharacteristicConfiguration(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE).getProperties();
         String json = mGson.toJson(descriptorData);
         Intent original = new Intent();
-        original.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+        original.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), json);
         mViewModel.mObserveSaveProcessor.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();

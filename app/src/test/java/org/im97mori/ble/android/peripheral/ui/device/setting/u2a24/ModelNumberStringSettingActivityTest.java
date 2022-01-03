@@ -181,7 +181,7 @@ public class ModelNumberStringSettingActivityTest {
         mViewModel.mUpdateIsErrorResponseConsumer = result::set;
         mViewModel.mObserveSetupProcessor.onNext("test_updateIsErrorResponse_00001");
         mViewModel.mObserveSetupProcessor.onComplete();
-        onView(withId(R.id.isErrorResponse)).perform(click());
+        mScenario.onActivity(activity -> activity.findViewById(R.id.isErrorResponse).performClick());
 
         assertTrue(result.get());
     }
@@ -398,7 +398,7 @@ public class ModelNumberStringSettingActivityTest {
         characteristicData.data = new ModelNumberString("a").getBytes();
         String json = mGson.toJson(characteristicData);
         Intent original = new Intent();
-        original.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        original.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), json);
         mViewModel.mObserveSaveProcessor.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
