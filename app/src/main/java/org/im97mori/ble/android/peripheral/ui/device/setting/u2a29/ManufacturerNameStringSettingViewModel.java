@@ -82,10 +82,10 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
                 }
 
                 if (mManufacturerNameString.getValue() == null) {
-                    if (mCharacteristicData.data != null) {
-                        mManufacturerNameString.postValue(new ManufacturerNameString(mCharacteristicData.data).getManufacturerName());
-                    } else {
+                    if (mCharacteristicData.data == null) {
                         mManufacturerNameString.postValue(null);
+                    } else {
+                        mManufacturerNameString.postValue(new ManufacturerNameString(mCharacteristicData.data).getManufacturerName());
                     }
                 }
 

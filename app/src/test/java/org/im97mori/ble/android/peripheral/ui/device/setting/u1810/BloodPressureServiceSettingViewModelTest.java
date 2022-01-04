@@ -182,36 +182,36 @@ public class BloodPressureServiceSettingViewModelTest {
 
         assertTrue(result.get());
 
-        assertFalse(hasBloodPressureMeasurementDataJsonReference.get());
+        TestCase.assertNull(hasBloodPressureMeasurementDataJsonReference.get());
         assertFalse(isIntermediateCuffPressureSupportedReference.get());
-        assertFalse(hasIntermediateCuffPressureDataJsonReference.get());
-        assertFalse(hasBloodPressureFeatureDataJsonReference.get());
+        TestCase.assertNull(hasIntermediateCuffPressureDataJsonReference.get());
+        TestCase.assertNull(hasBloodPressureFeatureDataJsonReference.get());
 
-        assertNull(bloodPressureMeasurementFlagsReference.get());
-        assertNull(bloodPressureMeasurementSystolicReference.get());
-        assertNull(bloodPressureMeasurementDiastolicReference.get());
-        assertNull(bloodPressureMeanArterialPressureReference.get());
+        assertEquals("", bloodPressureMeasurementFlagsReference.get());
+        assertEquals("", bloodPressureMeasurementSystolicReference.get());
+        assertEquals("", bloodPressureMeasurementDiastolicReference.get());
+        assertEquals("", bloodPressureMeanArterialPressureReference.get());
         assertFalse(isBloodPressureMeasurementTimeStampSupportedReference.get());
-        assertNull(bloodPressureMeasurementTimeStampReference.get());
+        assertEquals("", bloodPressureMeasurementTimeStampReference.get());
         assertFalse(bloodPressureMeasurementPulseRateSupportedReference.get());
-        assertNull(bloodPressureMeasurementPulseRateReference.get());
+        assertEquals("", bloodPressureMeasurementPulseRateReference.get());
         assertFalse(isBloodPressureMeasurementUserIdSupportedReference.get());
-        assertNull(bloodPressureMeasurementUserIdReference.get());
+        assertEquals("", bloodPressureMeasurementUserIdReference.get());
         assertFalse(isBloodPressureMeasurementMeasurementStatusSupportedReference.get());
-        assertNull(bloodPressureMeasurementMeasurementStatusReference.get());
+        assertEquals("", bloodPressureMeasurementMeasurementStatusReference.get());
 
-        assertNull(intermediateCuffPressureFlagsReference.get());
-        assertNull(intermediateCuffPressureCurrentCuffPressureReference.get());
+        assertEquals("", intermediateCuffPressureFlagsReference.get());
+        assertEquals("", intermediateCuffPressureCurrentCuffPressureReference.get());
         assertFalse(isIntermediateCuffPressureTimeStampSupportedReference.get());
-        assertNull(intermediateCuffPressureTimeStampReference.get());
+        assertEquals("", intermediateCuffPressureTimeStampReference.get());
         assertFalse(intermediateCuffPressurePulseRateSupportedReference.get());
-        assertNull(intermediateCuffPressurePulseRateReference.get());
+        assertEquals("", intermediateCuffPressurePulseRateReference.get());
         assertFalse(isIntermediateCuffPressureUserIdSupportedReference.get());
-        assertNull(intermediateCuffPressureUserIdReference.get());
+        assertEquals("", intermediateCuffPressureUserIdReference.get());
         assertFalse(isIntermediateCuffPressureMeasurementStatusSupportedReference.get());
-        assertNull(intermediateCuffPressureMeasurementStatusReference.get());
+        assertEquals("", intermediateCuffPressureMeasurementStatusReference.get());
 
-        assertNull(bloodPressureFeatureReference.get());
+        assertEquals("", bloodPressureFeatureReference.get());
     }
 
     @Test
@@ -294,36 +294,36 @@ public class BloodPressureServiceSettingViewModelTest {
 
         assertTrue(result.get());
 
-        assertFalse(hasBloodPressureMeasurementDataJsonReference.get());
+        TestCase.assertNull(hasBloodPressureMeasurementDataJsonReference.get());
         assertFalse(isIntermediateCuffPressureSupportedReference.get());
-        assertFalse(hasIntermediateCuffPressureDataJsonReference.get());
-        assertFalse(hasBloodPressureFeatureDataJsonReference.get());
+        TestCase.assertNull(hasIntermediateCuffPressureDataJsonReference.get());
+        TestCase.assertNull(hasBloodPressureFeatureDataJsonReference.get());
 
-        assertNull(bloodPressureMeasurementFlagsReference.get());
-        assertNull(bloodPressureMeasurementSystolicReference.get());
-        assertNull(bloodPressureMeasurementDiastolicReference.get());
-        assertNull(bloodPressureMeanArterialPressureReference.get());
+        assertEquals("", bloodPressureMeasurementFlagsReference.get());
+        assertEquals("", bloodPressureMeasurementSystolicReference.get());
+        assertEquals("", bloodPressureMeasurementDiastolicReference.get());
+        assertEquals("", bloodPressureMeanArterialPressureReference.get());
         assertFalse(isBloodPressureMeasurementTimeStampSupportedReference.get());
-        assertNull(bloodPressureMeasurementTimeStampReference.get());
+        assertEquals("", bloodPressureMeasurementTimeStampReference.get());
         assertFalse(bloodPressureMeasurementPulseRateSupportedReference.get());
-        assertNull(bloodPressureMeasurementPulseRateReference.get());
+        assertEquals("", bloodPressureMeasurementPulseRateReference.get());
         assertFalse(isBloodPressureMeasurementUserIdSupportedReference.get());
-        assertNull(bloodPressureMeasurementUserIdReference.get());
+        assertEquals("", bloodPressureMeasurementUserIdReference.get());
         assertFalse(isBloodPressureMeasurementMeasurementStatusSupportedReference.get());
-        assertNull(bloodPressureMeasurementMeasurementStatusReference.get());
+        assertEquals("", bloodPressureMeasurementMeasurementStatusReference.get());
 
-        assertNull(intermediateCuffPressureFlagsReference.get());
-        assertNull(intermediateCuffPressureCurrentCuffPressureReference.get());
+        assertEquals("", intermediateCuffPressureFlagsReference.get());
+        assertEquals("", intermediateCuffPressureCurrentCuffPressureReference.get());
         assertFalse(isIntermediateCuffPressureTimeStampSupportedReference.get());
-        assertNull(intermediateCuffPressureTimeStampReference.get());
+        assertEquals("", intermediateCuffPressureTimeStampReference.get());
         assertFalse(intermediateCuffPressurePulseRateSupportedReference.get());
-        assertNull(intermediateCuffPressurePulseRateReference.get());
+        assertEquals("", intermediateCuffPressurePulseRateReference.get());
         assertFalse(isIntermediateCuffPressureUserIdSupportedReference.get());
-        assertNull(intermediateCuffPressureUserIdReference.get());
+        assertEquals("", intermediateCuffPressureUserIdReference.get());
         assertFalse(isIntermediateCuffPressureMeasurementStatusSupportedReference.get());
-        assertNull(intermediateCuffPressureMeasurementStatusReference.get());
+        assertEquals("", intermediateCuffPressureMeasurementStatusReference.get());
 
-        assertNull(bloodPressureFeatureReference.get());
+        assertEquals("", bloodPressureFeatureReference.get());
     }
 
     @Test
@@ -511,24 +511,24 @@ public class BloodPressureServiceSettingViewModelTest {
         assertEquals(bloodPressureMeasurementCompoundValueDiastolicMmhg.getSfloat(), Double.parseDouble(bloodPressureMeasurementDiastolicReference.get()));
         assertEquals(bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg.getSfloat(), Double.parseDouble(bloodPressureMeanArterialPressureReference.get()));
         assertFalse(isBloodPressureMeasurementTimeStampSupportedReference.get());
-        assertNull(bloodPressureMeasurementTimeStampReference.get());
+        assertEquals("", bloodPressureMeasurementTimeStampReference.get());
         assertFalse(bloodPressureMeasurementPulseRateSupportedReference.get());
-        assertNull(bloodPressureMeasurementPulseRateReference.get());
+        assertEquals("", bloodPressureMeasurementPulseRateReference.get());
         assertFalse(isBloodPressureMeasurementUserIdSupportedReference.get());
-        assertNull(bloodPressureMeasurementUserIdReference.get());
+        assertEquals("", bloodPressureMeasurementUserIdReference.get());
         assertFalse(isBloodPressureMeasurementMeasurementStatusSupportedReference.get());
-        assertNull(bloodPressureMeasurementMeasurementStatusReference.get());
+        assertEquals("", bloodPressureMeasurementMeasurementStatusReference.get());
 
         assertEquals(mFakeDeviceSettingRepository.getHexString(intermediateCuffPressureFlags, 2), intermediateCuffPressureFlagsReference.get());
         assertEquals(intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg.getSfloat(), Double.parseDouble(intermediateCuffPressureCurrentCuffPressureReference.get()));
         assertFalse(isIntermediateCuffPressureTimeStampSupportedReference.get());
-        assertNull(intermediateCuffPressureTimeStampReference.get());
+        assertEquals("", intermediateCuffPressureTimeStampReference.get());
         assertFalse(intermediateCuffPressurePulseRateSupportedReference.get());
-        assertNull(intermediateCuffPressurePulseRateReference.get());
+        assertEquals("", intermediateCuffPressurePulseRateReference.get());
         assertFalse(isIntermediateCuffPressureUserIdSupportedReference.get());
-        assertNull(intermediateCuffPressureUserIdReference.get());
+        assertEquals("", intermediateCuffPressureUserIdReference.get());
         assertFalse(isIntermediateCuffPressureMeasurementStatusSupportedReference.get());
-        assertNull(intermediateCuffPressureMeasurementStatusReference.get());
+        assertEquals("", intermediateCuffPressureMeasurementStatusReference.get());
 
         assertEquals(mFakeDeviceSettingRepository.getHexString(BLEUtils.createUInt16(bloodPressureFeature.getBytes(), 0), 4), bloodPressureFeatureReference.get());
     }
@@ -3315,13 +3315,13 @@ public class BloodPressureServiceSettingViewModelTest {
         assertEquals(bloodPressureMeasurementCompoundValueDiastolicMmhg.getSfloat(), Double.parseDouble(bloodPressureMeasurementDiastolicReference.get()));
         assertEquals(bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg.getSfloat(), Double.parseDouble(bloodPressureMeanArterialPressureReference.get()));
         assertFalse(isBloodPressureMeasurementTimeStampSupportedReference.get());
-        assertNull(bloodPressureMeasurementTimeStampReference.get());
+        assertEquals("", bloodPressureMeasurementTimeStampReference.get());
         assertFalse(bloodPressureMeasurementPulseRateSupportedReference.get());
-        assertNull(bloodPressureMeasurementPulseRateReference.get());
+        assertEquals("", bloodPressureMeasurementPulseRateReference.get());
         assertFalse(isBloodPressureMeasurementUserIdSupportedReference.get());
-        assertNull(bloodPressureMeasurementUserIdReference.get());
+        assertEquals("", bloodPressureMeasurementUserIdReference.get());
         assertFalse(isBloodPressureMeasurementMeasurementStatusSupportedReference.get());
-        assertNull(bloodPressureMeasurementMeasurementStatusReference.get());
+        assertEquals("", bloodPressureMeasurementMeasurementStatusReference.get());
     }
 
     @Test
@@ -3455,13 +3455,13 @@ public class BloodPressureServiceSettingViewModelTest {
         assertEquals(bloodPressureMeasurementCompoundValueDiastolicKpa.getSfloat(), Double.parseDouble(bloodPressureMeasurementDiastolicReference.get()));
         assertEquals(bloodPressureMeasurementCompoundValueMeanArterialPressureKpa.getSfloat(), Double.parseDouble(bloodPressureMeanArterialPressureReference.get()));
         assertFalse(isBloodPressureMeasurementTimeStampSupportedReference.get());
-        assertNull(bloodPressureMeasurementTimeStampReference.get());
+        assertEquals("", bloodPressureMeasurementTimeStampReference.get());
         assertFalse(bloodPressureMeasurementPulseRateSupportedReference.get());
-        assertNull(bloodPressureMeasurementPulseRateReference.get());
+        assertEquals("", bloodPressureMeasurementPulseRateReference.get());
         assertFalse(isBloodPressureMeasurementUserIdSupportedReference.get());
-        assertNull(bloodPressureMeasurementUserIdReference.get());
+        assertEquals("", bloodPressureMeasurementUserIdReference.get());
         assertFalse(isBloodPressureMeasurementMeasurementStatusSupportedReference.get());
-        assertNull(bloodPressureMeasurementMeasurementStatusReference.get());
+        assertEquals("", bloodPressureMeasurementMeasurementStatusReference.get());
     }
 
     @Test
@@ -3553,18 +3553,18 @@ public class BloodPressureServiceSettingViewModelTest {
         assertNull(mViewModel.getBloodPressureMeasurementDataJson());
         assertFalse(hasBloodPressureMeasurementDataJsonReference.get());
 
-        assertNull(bloodPressureMeasurementFlagsReference.get());
-        assertNull(bloodPressureMeasurementSystolicReference.get());
-        assertNull(bloodPressureMeasurementDiastolicReference.get());
-        assertNull(bloodPressureMeanArterialPressureReference.get());
+        assertEquals("", bloodPressureMeasurementFlagsReference.get());
+        assertEquals("", bloodPressureMeasurementSystolicReference.get());
+        assertEquals("", bloodPressureMeasurementDiastolicReference.get());
+        assertEquals("", bloodPressureMeanArterialPressureReference.get());
         assertFalse(isBloodPressureMeasurementTimeStampSupportedReference.get());
-        assertNull(bloodPressureMeasurementTimeStampReference.get());
+        assertEquals("", bloodPressureMeasurementTimeStampReference.get());
         assertFalse(bloodPressureMeasurementPulseRateSupportedReference.get());
-        assertNull(bloodPressureMeasurementPulseRateReference.get());
+        assertEquals("", bloodPressureMeasurementPulseRateReference.get());
         assertFalse(isBloodPressureMeasurementUserIdSupportedReference.get());
-        assertNull(bloodPressureMeasurementUserIdReference.get());
+        assertEquals("", bloodPressureMeasurementUserIdReference.get());
         assertFalse(isBloodPressureMeasurementMeasurementStatusSupportedReference.get());
-        assertNull(bloodPressureMeasurementMeasurementStatusReference.get());
+        assertEquals("", bloodPressureMeasurementMeasurementStatusReference.get());
     }
 
     @Test
@@ -3664,13 +3664,13 @@ public class BloodPressureServiceSettingViewModelTest {
         assertEquals(mFakeDeviceSettingRepository.getHexString(intermediateCuffPressureFlags, 2), intermediateCuffPressureFlagsReference.get());
         assertEquals(intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg.getSfloat(), Double.parseDouble(intermediateCuffPressureCurrentCuffPressureReference.get()));
         assertFalse(isIntermediateCuffPressureTimeStampSupportedReference.get());
-        assertNull(intermediateCuffPressureTimeStampReference.get());
+        assertEquals("", intermediateCuffPressureTimeStampReference.get());
         assertFalse(intermediateCuffPressurePulseRateSupportedReference.get());
-        assertNull(intermediateCuffPressurePulseRateReference.get());
+        assertEquals("", intermediateCuffPressurePulseRateReference.get());
         assertFalse(isIntermediateCuffPressureUserIdSupportedReference.get());
-        assertNull(intermediateCuffPressureUserIdReference.get());
+        assertEquals("", intermediateCuffPressureUserIdReference.get());
         assertFalse(isIntermediateCuffPressureMeasurementStatusSupportedReference.get());
-        assertNull(intermediateCuffPressureMeasurementStatusReference.get());
+        assertEquals("", intermediateCuffPressureMeasurementStatusReference.get());
     }
 
     @Test
@@ -3789,13 +3789,13 @@ public class BloodPressureServiceSettingViewModelTest {
         assertEquals(mFakeDeviceSettingRepository.getHexString(intermediateCuffPressureFlags, 2), intermediateCuffPressureFlagsReference.get());
         assertEquals(intermediateCuffPressureCompoundValueCurrentCuffPressureKpa.getSfloat(), Double.parseDouble(intermediateCuffPressureCurrentCuffPressureReference.get()));
         assertFalse(isIntermediateCuffPressureTimeStampSupportedReference.get());
-        assertNull(intermediateCuffPressureTimeStampReference.get());
+        assertEquals("", intermediateCuffPressureTimeStampReference.get());
         assertFalse(intermediateCuffPressurePulseRateSupportedReference.get());
-        assertNull(intermediateCuffPressurePulseRateReference.get());
+        assertEquals("", intermediateCuffPressurePulseRateReference.get());
         assertFalse(isIntermediateCuffPressureUserIdSupportedReference.get());
-        assertNull(intermediateCuffPressureUserIdReference.get());
+        assertEquals("", intermediateCuffPressureUserIdReference.get());
         assertFalse(isIntermediateCuffPressureMeasurementStatusSupportedReference.get());
-        assertNull(intermediateCuffPressureMeasurementStatusReference.get());
+        assertEquals("", intermediateCuffPressureMeasurementStatusReference.get());
     }
 
     @Test
@@ -3878,16 +3878,16 @@ public class BloodPressureServiceSettingViewModelTest {
 
         assertFalse(hasIntermediateCuffPressureDataJsonReference.get());
 
-        assertNull(intermediateCuffPressureFlagsReference.get());
-        assertNull(intermediateCuffPressureCurrentCuffPressureReference.get());
+        assertEquals("", intermediateCuffPressureFlagsReference.get());
+        assertEquals("", intermediateCuffPressureCurrentCuffPressureReference.get());
         assertFalse(isIntermediateCuffPressureTimeStampSupportedReference.get());
-        assertNull(intermediateCuffPressureTimeStampReference.get());
+        assertEquals("", intermediateCuffPressureTimeStampReference.get());
         assertFalse(intermediateCuffPressurePulseRateSupportedReference.get());
-        assertNull(intermediateCuffPressurePulseRateReference.get());
+        assertEquals("", intermediateCuffPressurePulseRateReference.get());
         assertFalse(isIntermediateCuffPressureUserIdSupportedReference.get());
-        assertNull(intermediateCuffPressureUserIdReference.get());
+        assertEquals("", intermediateCuffPressureUserIdReference.get());
         assertFalse(isIntermediateCuffPressureMeasurementStatusSupportedReference.get());
-        assertNull(intermediateCuffPressureMeasurementStatusReference.get());
+        assertEquals("", intermediateCuffPressureMeasurementStatusReference.get());
     }
 
 }

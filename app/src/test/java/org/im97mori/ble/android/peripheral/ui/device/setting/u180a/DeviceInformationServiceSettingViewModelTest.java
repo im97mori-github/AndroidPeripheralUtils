@@ -134,9 +134,9 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertTrue(result.get());
 
         assertFalse(isSystemIdSupportedReference.get());
-        assertFalse(hasSystemIdDataJsonReference.get());
-        assertFalse(hasModelNumberStringDataJsonReference.get());
-        assertFalse(hasManufacturerNameStringDataJsonReference.get());
+        assertNull(hasSystemIdDataJsonReference.get());
+        assertNull(hasModelNumberStringDataJsonReference.get());
+        assertNull(hasManufacturerNameStringDataJsonReference.get());
         assertNull(manufacturerIdentifierReference.get());
         assertNull(organizationallyUniqueIdentifierReference.get());
         assertNull(modelNumberStringReference.get());
@@ -181,9 +181,9 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertTrue(result.get());
 
         assertFalse(isSystemIdSupportedReference.get());
-        assertFalse(hasSystemIdDataJsonReference.get());
-        assertFalse(hasModelNumberStringDataJsonReference.get());
-        assertFalse(hasManufacturerNameStringDataJsonReference.get());
+        assertNull(hasSystemIdDataJsonReference.get());
+        assertNull(hasModelNumberStringDataJsonReference.get());
+        assertNull(hasManufacturerNameStringDataJsonReference.get());
         assertNull(manufacturerIdentifierReference.get());
         assertNull(organizationallyUniqueIdentifierReference.get());
         assertNull(modelNumberStringReference.get());
@@ -247,7 +247,7 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertTrue(result.get());
 
         assertFalse(isSystemIdSupportedReference.get());
-        assertFalse(hasSystemIdDataJsonReference.get());
+        assertNull(hasSystemIdDataJsonReference.get());
         assertTrue(hasModelNumberStringDataJsonReference.get());
         assertTrue(hasManufacturerNameStringDataJsonReference.get());
         assertNull(manufacturerIdentifierReference.get());

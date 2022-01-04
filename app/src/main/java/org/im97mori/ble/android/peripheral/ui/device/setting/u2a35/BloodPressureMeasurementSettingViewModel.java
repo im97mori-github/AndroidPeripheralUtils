@@ -75,6 +75,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     private static final String KEY_PULSE_RATE_RANGE_DETECTION = "KEY_PULSE_RATE_RANGE_DETECTION";
     private static final String KEY_MEASUREMENT_POSITION_DETECTION = "KEY_MEASUREMENT_POSITION_DETECTION";
     private static final String KEY_INDICATION_COUNT = "KEY_INDICATION_COUNT";
+
     private static final String KEY_CLIENT_CHARACTERISTIC_CONFIGURATION = "KEY_CLIENT_CHARACTERISTIC_CONFIGURATION";
 
     private final SavedStateHandle mSavedStateHandle;
@@ -106,18 +107,19 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     private final MutableLiveData<String> mIndicationCount;
 
     private final MutableLiveData<String> mClientCharacteristicConfigurationJson;
+    private final MutableLiveData<String> mClientCharacteristicConfiguration;
 
     @Inject
     public BloodPressureMeasurementSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
         mSavedStateHandle = savedStateHandle;
 
-        mIsMmhg = savedStateHandle.getLiveData(KEY_IS_MMHG);
         mIsTimeStampSupported = savedStateHandle.getLiveData(KEY_IS_TIME_STAMP_SUPPORTED);
         mIsPulseRateSupported = savedStateHandle.getLiveData(KEY_IS_PULSE_RATE_SUPPORTED);
         mIsUserIdSupported = savedStateHandle.getLiveData(KEY_IS_USER_ID_SUPPORTED);
         mIsMeasurementStatusSupported = savedStateHandle.getLiveData(KEY_IS_MEASUREMENT_STATUS_SUPPORTED);
 
+        mIsMmhg = savedStateHandle.getLiveData(KEY_IS_MMHG);
         mSystolic = savedStateHandle.getLiveData(KEY_SYSTOLIC);
         mDiastolic = savedStateHandle.getLiveData(KEY_DIASTOLIC);
         mMeanArterialPressure = savedStateHandle.getLiveData(KEY_MEAN_ARTERIAL_PRESSURE);
@@ -134,10 +136,10 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
         mIrregularPulseDetection = savedStateHandle.getLiveData(KEY_IRREGULAR_PULSE_DETECTION);
         mPulseRateRangeDetection = savedStateHandle.getLiveData(KEY_PULSE_RATE_RANGE_DETECTION);
         mMeasurementPositionDetection = savedStateHandle.getLiveData(KEY_MEASUREMENT_POSITION_DETECTION);
-
         mIndicationCount = savedStateHandle.getLiveData(KEY_INDICATION_COUNT);
 
         mClientCharacteristicConfigurationJson = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON);
+        mClientCharacteristicConfiguration = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION);
     }
 
     @Override
@@ -233,6 +235,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     } else {
                         if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
                             mTimeStampYear.postValue(String.valueOf(bloodPressureMeasurement.getYear()));
+                        } else {
+                            mTimeStampYear.postValue(null);
                         }
                     }
                 }
@@ -297,6 +301,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     } else {
                         if (BloodPressureMeasurementUtils.isFlagsPulseRatePresent(bloodPressureMeasurement.getFlags())) {
                             mPulseRate.postValue(String.valueOf(bloodPressureMeasurement.getPulseRate().getSfloat()));
+                        } else {
+                            mPulseRate.postValue(null);
                         }
                     }
                 }
@@ -315,6 +321,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     } else {
                         if (BloodPressureMeasurementUtils.isFlagsUserIdPresent(bloodPressureMeasurement.getFlags())) {
                             mUserId.postValue(String.valueOf(bloodPressureMeasurement.getUserId()));
+                        } else {
+                            mUserId.postValue(null);
                         }
                     }
                 }
@@ -401,9 +409,11 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     if (clientCharacteristicConfigurationOptional.isPresent()) {
                         DescriptorData descriptorData = clientCharacteristicConfigurationOptional.get();
                         mClientCharacteristicConfigurationJson.postValue(mGson.toJson(descriptorData));
-                        if (descriptorData.data != null) {
-                            mSavedStateHandle.<String>getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION)
-                                    .postValue(mDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsDisabled()));
+                        if (descriptorData.data == null) {
+                            mClientCharacteristicConfiguration.postValue(null);
+                        } else {
+                            mClientCharacteristicConfiguration
+                                    .postValue(mDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsEnabled()));
                         }
                     }
                 }
@@ -546,31 +556,36 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
 
     @MainThread
     public void observeBodyMovementDetection(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mBodyMovementDetection).observe(owner, new MapObserver<>(index -> provideBodyMovementDetectionList().get(index).second, observer));
+        Transformations.distinctUntilChanged(mBodyMovementDetection).observe(owner
+                , new MapObserver<>(index -> provideBodyMovementDetectionList().get(index).second, observer));
     }
 
     @MainThread
     public void observeCuffFitDetection(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mCuffFitDetection).observe(owner, new MapObserver<>(index -> provideCuffFitDetectionList().get(index).second, observer));
+        Transformations.distinctUntilChanged(mCuffFitDetection).observe(owner
+                , new MapObserver<>(index -> provideCuffFitDetectionList().get(index).second, observer));
     }
 
     @MainThread
     public void observeIrregularPulseDetection(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mIrregularPulseDetection).observe(owner, new MapObserver<>(index -> provideIrregularPulseDetectionList().get(index).second, observer));
+        Transformations.distinctUntilChanged(mIrregularPulseDetection).observe(owner
+                , new MapObserver<>(index -> provideIrregularPulseDetectionList().get(index).second, observer));
     }
 
     @MainThread
     public void observePulseRateRangeDetection(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mPulseRateRangeDetection).observe(owner, new MapObserver<>(index -> providePulseRateRangeDetectionList().get(index).second, observer));
+        Transformations.distinctUntilChanged(mPulseRateRangeDetection).observe(owner
+                , new MapObserver<>(index -> providePulseRateRangeDetectionList().get(index).second, observer));
     }
 
     @MainThread
     public void observeMeasurementPositionDetection(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mMeasurementPositionDetection).observe(owner, new MapObserver<>(index -> provideMeasurementPositionDetectionList().get(index).second, observer));
+        Transformations.distinctUntilChanged(mMeasurementPositionDetection).observe(owner
+                , new MapObserver<>(index -> provideMeasurementPositionDetectionList().get(index).second, observer));
     }
 
     @MainThread
-    public void observeHasClientCharacteristicConfigurationData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+    public void observeHasClientCharacteristicConfigurationDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
         Transformations.distinctUntilChanged(mClientCharacteristicConfigurationJson).observe(owner, new ExistObserver(observer));
     }
 
@@ -700,29 +715,28 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
         mIndicationCount.setValue(text);
     }
 
+    @Nullable
+    public String getClientCharacteristicConfigurationDescriptorJson() {
+        return mClientCharacteristicConfigurationJson.getValue();
+    }
+
     @MainThread
     public void setClientCharacteristicConfigurationDescriptorJson(@Nullable String clientCharacteristicConfigurationJson) {
         mClientCharacteristicConfigurationJson.setValue(clientCharacteristicConfigurationJson);
-        MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION);
         if (clientCharacteristicConfigurationJson == null) {
-            liveData.setValue(null);
+            mClientCharacteristicConfiguration.setValue(null);
         } else {
             try {
                 DescriptorData descriptorData = mGson.fromJson(clientCharacteristicConfigurationJson, DescriptorData.class);
                 if (descriptorData.data == null) {
-                    liveData.setValue(null);
+                    mClientCharacteristicConfiguration.setValue(null);
                 } else {
-                    liveData.postValue(mDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsDisabled()));
+                    mClientCharacteristicConfiguration.postValue(mDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsEnabled()));
                 }
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Nullable
-    public String getClientCharacteristicConfigurationDescriptorJson() {
-        return mClientCharacteristicConfigurationJson.getValue();
     }
 
     @NonNull
@@ -810,7 +824,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                 if (systolic != null && mDeviceSettingRepository.getSystolicErrorString(systolic) == null
                         && diastolic != null && mDeviceSettingRepository.getDiastolicErrorString(diastolic) == null
                         && meanArterialPressure != null && mDeviceSettingRepository.getMeanArterialPressureErrorString(meanArterialPressure) == null
-                        && (!isTimeStampSupported || (year != null && mDeviceSettingRepository.getDateTimeYearErrorString(year) == null && month != null && hours != null && minutes != null && seconds != null))
+                        && (!isTimeStampSupported || (year != null && mDeviceSettingRepository.getDateTimeYearErrorString(year) == null && month != null && day != null && hours != null && minutes != null && seconds != null))
                         && (!isPulseRateSupported || (pulseRate != null && mDeviceSettingRepository.getPulseRateErrorString(pulseRate) == null))
                         && (!isUserIdSupported || (userId != null && mDeviceSettingRepository.getUserIdErrorString(userId) == null))
                         && (!isMeasurementStatusSupported || (bodyMovementDetection != null && cuffFitDetection != null && irregularPulseDetection != null && pulseRateRangeDetection != null && measurementPositionDetection != null))

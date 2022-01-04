@@ -5,6 +5,7 @@ import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
@@ -22,6 +23,7 @@ import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
@@ -38,6 +40,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 
@@ -241,6 +244,122 @@ public class DeviceInformationServiceSettingActivityTest {
         pressBack();
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         TestCase.assertEquals(Activity.RESULT_CANCELED, activityResult.getResultCode());
+    }
+
+    @Test
+    public void test_activity_result_1_00001() {
+        Intent resultData = new Intent();
+        String after = "b";
+        resultData.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), after);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), SystemIdSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+
+        mViewModel.setSystemIdDataJson(null);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.systemIdSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertEquals(after, mViewModel.getSystemIdDataJson());
+    }
+
+    @Test
+    public void test_activity_result_1_00002() {
+        Intent resultData = new Intent();
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), SystemIdSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+
+        String before = "a";
+        mViewModel.setSystemIdDataJson(before);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.systemIdSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertNull(mViewModel.getSystemIdDataJson());
+    }
+
+    @Test
+    public void test_activity_result_2_00001() {
+        Intent resultData = new Intent();
+        String after = "b";
+        resultData.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), after);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ModelNumberStringSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+
+        mViewModel.setModelNumberStringDataJson(null);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.modelNumberStringSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertEquals(after, mViewModel.getModelNumberStringDataJson());
+    }
+
+    @Test
+    public void test_activity_result_2_00002() {
+        Intent resultData = new Intent();
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ModelNumberStringSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+
+        mViewModel.setModelNumberStringDataJson(null);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.modelNumberStringSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertNull(mViewModel.getModelNumberStringDataJson());
+    }
+
+    @Test
+    public void test_activity_result_3_00001() {
+        Intent resultData = new Intent();
+        String after = "b";
+        resultData.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), after);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ManufacturerNameStringSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+
+        mViewModel.setManufacturerNameStringDataJson(null);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.manufacturerNameStringSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertEquals(after, mViewModel.getManufacturerNameStringDataJson());
+    }
+
+    @Test
+    public void test_activity_result_3_00002() {
+        Intent resultData = new Intent();
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ManufacturerNameStringSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+
+        String before = "a";
+        mViewModel.setManufacturerNameStringDataJson(before);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.manufacturerNameStringSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertNull(mViewModel.getManufacturerNameStringDataJson());
     }
 
     @Test

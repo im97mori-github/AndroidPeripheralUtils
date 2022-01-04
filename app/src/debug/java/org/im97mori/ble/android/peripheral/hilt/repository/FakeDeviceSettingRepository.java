@@ -37,6 +37,13 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
     public String mGetResponseDelayErrorString;
     public String mGetManufacturerIdentifierErrorString;
     public String mGetOrganizationallyUniqueIdentifierErrorString;
+    public String mGetSystolicErrorString;
+    public String mGetDiastolicErrorString;
+    public String mGetMeanArterialPressureErrorString;
+    public String mGetDateTimeYearErrorString;
+    public String mGetPulseRateErrorString;
+    public String mGetUserIdErrorString;
+    public String mGetIndicationCountErrorString;
 
     public Consumer<DeviceSetting> mInsertDeviceSettingConsumer;
 
@@ -93,6 +100,82 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
 
     @Nullable
     @Override
+    public String getSystolicErrorString(@Nullable CharSequence charSequence) {
+        if (mGetSystolicErrorString == null) {
+            return super.getSystolicErrorString(charSequence);
+        } else {
+            return mGetSystolicErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getDiastolicErrorString(@Nullable CharSequence charSequence) {
+        if (mGetDiastolicErrorString == null) {
+            return super.getDiastolicErrorString(charSequence);
+        } else {
+            return mGetDiastolicErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getMeanArterialPressureErrorString(@Nullable CharSequence charSequence) {
+        if (mGetMeanArterialPressureErrorString == null) {
+            return super.getMeanArterialPressureErrorString(charSequence);
+        } else {
+            return mGetMeanArterialPressureErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getPulseRateErrorString(@Nullable CharSequence charSequence) {
+        if (mGetPulseRateErrorString == null) {
+            return super.getPulseRateErrorString(charSequence);
+        } else {
+            return mGetPulseRateErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getUserIdErrorString(@Nullable CharSequence charSequence) {
+        if (mGetUserIdErrorString == null) {
+            return super.getUserIdErrorString(charSequence);
+        } else {
+            return mGetUserIdErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getNotificationCountErrorString(@Nullable CharSequence charSequence) {
+        return super.getNotificationCountErrorString(charSequence);
+    }
+
+    @Nullable
+    @Override
+    public String getIndicationCountErrorString(@Nullable CharSequence charSequence) {
+        if (mGetIndicationCountErrorString == null) {
+            return super.getIndicationCountErrorString(charSequence);
+        } else {
+            return mGetIndicationCountErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getDateTimeYearErrorString(@Nullable CharSequence charSequence) {
+        if (mGetDateTimeYearErrorString == null) {
+            return super.getDateTimeYearErrorString(charSequence);
+        } else {
+            return mGetDateTimeYearErrorString;
+        }
+    }
+
+    @Nullable
+    @Override
     public String getResponseDelayErrorString(@Nullable CharSequence charSequence) {
         if (mGetResponseDelayErrorString == null) {
             return super.getResponseDelayErrorString(charSequence);
@@ -109,6 +192,12 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
         } else {
             return mGetResponseCodeErrorString;
         }
+    }
+
+    @Nullable
+    @Override
+    public String getCurrentCuffPressureErrorString(@Nullable CharSequence charSequence) {
+        return super.getCurrentCuffPressureErrorString(charSequence);
     }
 
     @Nullable

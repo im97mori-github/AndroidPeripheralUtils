@@ -86,6 +86,7 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
         mBinding.timeStampYearEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateTimeStampYear(editable)));
 
+        mBinding.timeStampMonthEdit.performValidation();
         mBinding.timeStampMonthEdit.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, mViewModel.provideDateTimeMonthList()));
         mViewModel.observeTimeStampMonth(this, charSequence -> setTextDistinct(mBinding.timeStampMonthEdit, charSequence));
         mBinding.timeStampMonthEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateTimeStampMonth(position));
@@ -159,7 +160,7 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
         mViewModel.observeMeasurementPositionDetection(this, charSequence -> setTextDistinct(mBinding.measurementPositionDetectionEdit, charSequence));
         mBinding.measurementPositionDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateMeasurementPositionDetection(position));
 
-        mViewModel.observeHasClientCharacteristicConfigurationData(this, check -> mBinding.clientCharacteristicConfigurationCardView.setChecked(check));
+        mViewModel.observeHasClientCharacteristicConfigurationDataJson(this, check -> mBinding.clientCharacteristicConfigurationCardView.setChecked(check));
 
         mViewModel.observeClientCharacteristicConfiguration(this, s -> mBinding.clientCharacteristicConfiguration.setText(s));
         mBinding.clientCharacteristicConfigurationSettingButton.setOnClickListener(v ->

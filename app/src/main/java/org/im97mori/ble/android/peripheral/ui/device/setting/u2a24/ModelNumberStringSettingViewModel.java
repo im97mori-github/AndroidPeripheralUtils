@@ -84,10 +84,10 @@ public class ModelNumberStringSettingViewModel extends BaseCharacteristicViewMod
                 }
 
                 if (mModelNumberString.getValue() == null) {
-                    if (mCharacteristicData.data != null) {
-                        mModelNumberString.postValue(new ModelNumberString(mCharacteristicData.data).getModelNumber());
-                    } else {
+                    if (mCharacteristicData.data == null) {
                         mModelNumberString.postValue(null);
+                    } else {
+                        mModelNumberString.postValue(new ModelNumberString(mCharacteristicData.data).getModelNumber());
                     }
                 }
 

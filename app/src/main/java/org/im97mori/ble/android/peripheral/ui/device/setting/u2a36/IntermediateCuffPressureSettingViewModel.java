@@ -178,9 +178,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                 }
 
                 if (mCurrentCuffPressure.getValue() == null) {
-                    if (intermediateCuffPressure == null) {
-                        mCurrentCuffPressure.postValue(null);
-                    } else {
+                    if (intermediateCuffPressure != null) {
                         if (isMmhg) {
                             mCurrentCuffPressure.postValue(String.valueOf(intermediateCuffPressure.getIntermediateCuffPressureCompoundValueCurrentCuffPressureMmhg().getSfloat()));
                         } else {
@@ -203,6 +201,8 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     } else {
                         if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(intermediateCuffPressure.getFlags())) {
                             mTimeStampYear.postValue(String.valueOf(intermediateCuffPressure.getYear()));
+                        } else {
+                            mTimeStampYear.postValue(null);
                         }
                     }
                 }
@@ -267,6 +267,8 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     } else {
                         if (BloodPressureMeasurementUtils.isFlagsPulseRatePresent(intermediateCuffPressure.getFlags())) {
                             mPulseRate.postValue(String.valueOf(intermediateCuffPressure.getPulseRate().getSfloat()));
+                        } else {
+                            mPulseRate.postValue(null);
                         }
                     }
                 }
@@ -285,6 +287,8 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     } else {
                         if (BloodPressureMeasurementUtils.isFlagsUserIdPresent(intermediateCuffPressure.getFlags())) {
                             mUserId.postValue(String.valueOf(intermediateCuffPressure.getUserId()));
+                        } else {
+                            mUserId.postValue(null);
                         }
                     }
                 }
@@ -371,9 +375,11 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     if (clientCharacteristicConfigurationOptional.isPresent()) {
                         DescriptorData descriptorData = clientCharacteristicConfigurationOptional.get();
                         mClientCharacteristicConfigurationJson.postValue(mGson.toJson(descriptorData));
-                        if (descriptorData.data != null) {
+                        if (descriptorData.data == null) {
+                            mSavedStateHandle.<String>getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION).postValue(null);
+                        } else {
                             mSavedStateHandle.<String>getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION)
-                                    .postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsDisabled()));
+                                    .postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesNotificationsEnabled()));
                         }
                     }
                 }
@@ -638,6 +644,11 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
         mNotificationCount.setValue(text);
     }
 
+    @Nullable
+    public String getClientCharacteristicConfigurationDescriptorJson() {
+        return mClientCharacteristicConfigurationJson.getValue();
+    }
+
     @MainThread
     public void setClientCharacteristicConfigurationDescriptorJson(@Nullable String clientCharacteristicConfigurationJson) {
         mClientCharacteristicConfigurationJson.setValue(clientCharacteristicConfigurationJson);
@@ -650,17 +661,12 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                 if (descriptorData.data == null) {
                     liveData.setValue(null);
                 } else {
-                    liveData.postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsDisabled()));
+                    liveData.postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesNotificationsEnabled()));
                 }
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Nullable
-    public String getClientCharacteristicConfigurationDescriptorJson() {
-        return mClientCharacteristicConfigurationJson.getValue();
     }
 
     @NonNull

@@ -4,6 +4,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
@@ -12,6 +13,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.android.peripheral.test.TestUtils.createHiltActivity;
@@ -19,8 +21,11 @@ import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 import static org.mockito.Mockito.mockStatic;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
@@ -282,6 +287,55 @@ public class BloodPressureProfileFragmentTest {
 
         intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceInformationServiceSettingActivity.class)));
         intended(hasExtra(DEVICE_INFORMATION_SERVICE.toString(), original));
+    }
+
+    @Test
+    public void test_activity_result_00001() {
+        Intent resultData = new Intent();
+        String after = "b";
+        resultData.putExtra(BLOOD_PRESSURE_SERVICE.toString(), after);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), BloodPressureServiceSettingActivity.class))).respondWith(result);
+
+        mScenario = createHiltActivity();
+        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
+        mScenario.onActivity(activity -> {
+            activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow();
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        String before = "a";
+        mFakeBloodPressureProfileViewModel.setBlsDataJson(before);
+
+        onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
+
+        assertEquals(after, mFakeBloodPressureProfileViewModel.getBlsDataJson());
+    }
+
+    @Test
+    public void test_activity_result_00002() {
+        Intent resultData = new Intent();
+        String after = "b";
+        resultData.putExtra(DEVICE_INFORMATION_SERVICE.toString(), after);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceInformationServiceSettingActivity.class))).respondWith(result);
+
+        mScenario = createHiltActivity();
+        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
+        mScenario.onActivity(activity -> {
+            activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow();
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        String before = "a";
+        mFakeBloodPressureProfileViewModel.setDisDataJson(before);
+
+        onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
+        onView(withId(R.id.deviceInformationServiceSettingButton)).perform(click());
+
+        onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
+
+        assertEquals(after, mFakeBloodPressureProfileViewModel.getDisDataJson());
     }
 
 }

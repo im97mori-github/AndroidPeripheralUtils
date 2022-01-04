@@ -5,6 +5,7 @@ import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
@@ -22,6 +23,7 @@ import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
@@ -39,6 +41,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 
@@ -316,6 +319,123 @@ public class BloodPressureServiceSettingActivityTest {
         pressBack();
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         TestCase.assertEquals(Activity.RESULT_CANCELED, activityResult.getResultCode());
+    }
+
+    @Test
+    public void test_activity_result_1_00001() {
+        Intent resultData = new Intent();
+        String after = "b";
+        resultData.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), after);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), BloodPressureMeasurementSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        mViewModel.setBloodPressureMeasurementDataJson(null);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.bloodPressureMeasurementSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertEquals(after, mViewModel.getBloodPressureMeasurementDataJson());
+    }
+
+    @Test
+    public void test_activity_result_1_00002() {
+        Intent resultData = new Intent();
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), BloodPressureMeasurementSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        String before = "a";
+        mViewModel.setBloodPressureMeasurementDataJson(before);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.bloodPressureMeasurementSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertNull(mViewModel.getBloodPressureMeasurementDataJson());
+    }
+
+    @Test
+    public void test_activity_result_2_00001() {
+        Intent resultData = new Intent();
+        String after = "b";
+        resultData.putExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString(), after);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), IntermediateCuffPressureSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        mViewModel.setIntermediateCuffPressureDataJson(null);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.intermediateCuffPressureSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertEquals(after, mViewModel.getIntermediateCuffPressureDataJson());
+    }
+
+    @Test
+    public void test_activity_result_2_00002() {
+        Intent resultData = new Intent();
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), IntermediateCuffPressureSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        String before = "a";
+        mViewModel.setIntermediateCuffPressureDataJson(before);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.intermediateCuffPressureSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertNull(mViewModel.getIntermediateCuffPressureDataJson());
+    }
+
+    @Test
+    public void test_activity_result_3_00001() {
+        Intent resultData = new Intent();
+        String after = "b";
+        resultData.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), after);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), BloodPressureFeatureSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        mViewModel.setBloodPressureFeatureDataJson(null);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.bloodPressureFeatureSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertEquals(after, mViewModel.getBloodPressureFeatureDataJson());
+    }
+
+    @Test
+    public void test_activity_result_3_00002() {
+        Intent resultData = new Intent();
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, resultData);
+        intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), BloodPressureFeatureSettingActivity.class))).respondWith(result);
+
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        String before = "a";
+        mViewModel.setBloodPressureFeatureDataJson(before);
+
+        mScenario.onActivity(activity -> activity.findViewById(R.id.bloodPressureFeatureSettingButton).performClick());
+        Espresso.onIdle();
+
+        assertNull( mViewModel.getBloodPressureFeatureDataJson());
     }
 
     @Test

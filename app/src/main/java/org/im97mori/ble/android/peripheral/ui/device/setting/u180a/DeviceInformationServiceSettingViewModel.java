@@ -122,8 +122,6 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                             mSavedStateHandle.<String>getLiveData(KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER)
                                     .postValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
                         }
-                    } else {
-                        mSystemIdDataJson.postValue(null);
                     }
                 }
 
@@ -135,8 +133,6 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                             mSavedStateHandle.<String>getLiveData(KEY_MODEL_NUMBER_STRING)
                                     .postValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
                         }
-                    } else {
-                        mModelNumberStringDataJson.postValue(null);
                     }
                 }
 
@@ -148,8 +144,6 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                             mSavedStateHandle.<String>getLiveData(KEY_MANUFACTURER_NAME_STRING)
                                     .postValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
                         }
-                    } else {
-                        mManufacturerNameStringDataJson.postValue(null);
                     }
                 }
 
