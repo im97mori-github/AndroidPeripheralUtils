@@ -24,7 +24,7 @@ import org.im97mori.ble.android.peripheral.databinding.MainActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.PeripheralActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.type.DeviceListLauncherContract;
-import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import java.util.Collections;
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mViewModel = new MockitoViewModelProvider(this).get(MainViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this).get(MainViewModel.class);
         mBinding = MainActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 

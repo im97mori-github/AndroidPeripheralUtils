@@ -1,5 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u180a;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.MANUFACTURER_NAME_STRING_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.MODEL_NUMBER_STRING_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.SYSTEM_ID_CHARACTERISTIC;
@@ -93,7 +94,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                 try {
                     mServiceData = mGson.fromJson(dataJson, ServiceData.class);
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
 
                 if (mServiceData == null) {
@@ -273,7 +274,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                     organizationallyUniqueIdentifierLiveData.setValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
                 }
             } catch (JsonSyntaxException e) {
-                e.printStackTrace();
+                stackLog(e);
             }
         }
     }
@@ -299,7 +300,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                     liveData.setValue(new ModelNumberString(characteristicData.data).getModelNumber());
                 }
             } catch (JsonSyntaxException e) {
-                e.printStackTrace();
+                stackLog(e);
             }
         }
     }
@@ -325,7 +326,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                     liveData.setValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
                 }
             } catch (JsonSyntaxException e) {
-                e.printStackTrace();
+                stackLog(e);
             }
         }
     }
@@ -345,7 +346,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                                 try {
                                     serviceData.characteristicDataList.add(mGson.fromJson(systemIdJson, CharacteristicData.class));
                                 } catch (JsonSyntaxException e) {
-                                    e.printStackTrace();
+                                    stackLog(e);
                                 }
                             }
                         }
@@ -355,7 +356,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                             try {
                                 serviceData.characteristicDataList.add(mGson.fromJson(modelNumberStringJson, CharacteristicData.class));
                             } catch (JsonSyntaxException e) {
-                                e.printStackTrace();
+                                stackLog(e);
                             }
                         }
 
@@ -364,7 +365,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                             try {
                                 serviceData.characteristicDataList.add(mGson.fromJson(manufacturerNameStringJson, CharacteristicData.class));
                             } catch (JsonSyntaxException e) {
-                                e.printStackTrace();
+                                stackLog(e);
                             }
                         }
 

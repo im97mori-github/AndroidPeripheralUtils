@@ -8,7 +8,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.im97mori.ble.android.peripheral.databinding.DeviceTypeListActivityBinding;
-import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 
 import javax.annotation.Nullable;
 
@@ -21,7 +21,7 @@ public class DeviceTypeListActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DeviceTypeListViewModel viewModel = new MockitoViewModelProvider(this).get(DeviceTypeListViewModel.class);
+        DeviceTypeListViewModel viewModel = new AutoDisposeViewModelProvider(this).get(DeviceTypeListViewModel.class);
         DeviceTypeListActivityBinding binding = DeviceTypeListActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

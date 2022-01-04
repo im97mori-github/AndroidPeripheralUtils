@@ -1,5 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 
@@ -140,14 +141,14 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
                 try {
                     mMockData.serviceDataList.add(mGson.fromJson(mBlsDataJson.getValue(), ServiceData.class));
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
             }
             if (mDisDataJson.getValue() != null) {
                 try {
                     mMockData.serviceDataList.add(mGson.fromJson(mDisDataJson.getValue(), ServiceData.class));
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
             }
             return mGson.toJson(mMockData);

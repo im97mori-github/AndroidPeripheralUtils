@@ -18,7 +18,7 @@ import org.im97mori.ble.android.peripheral.databinding.BloodPressureServiceSetti
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureLauncherContract;
-import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -42,7 +42,7 @@ public class BloodPressureServiceSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockitoViewModelProvider(this).get(BloodPressureServiceSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this).get(BloodPressureServiceSettingViewModel.class);
 
         mBinding = BloodPressureServiceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

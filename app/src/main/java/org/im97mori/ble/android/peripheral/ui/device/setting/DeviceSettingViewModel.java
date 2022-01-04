@@ -5,6 +5,7 @@ import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_T
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVICE_ID_UNSAVED;
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 
 import android.content.Intent;
 
@@ -98,7 +99,7 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
                             try {
                                 mockData = mGson.fromJson(mDeviceSetting.getDeviceSettingData(), MockData.class);
                             } catch (JsonSyntaxException e) {
-                                e.printStackTrace();
+                                stackLog(e);
                             } finally {
                                 if (mockData == null) {
                                     mockData = new MockData();

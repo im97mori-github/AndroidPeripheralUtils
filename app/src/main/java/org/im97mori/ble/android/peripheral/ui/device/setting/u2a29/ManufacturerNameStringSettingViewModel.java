@@ -1,5 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a29;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.MANUFACTURER_NAME_STRING_CHARACTERISTIC;
 
 import android.bluetooth.BluetoothGatt;
@@ -67,7 +68,7 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
                     mCharacteristicData = mGson.fromJson(intent.getStringExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString())
                             , CharacteristicData.class);
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
 
                 if (mCharacteristicData == null) {

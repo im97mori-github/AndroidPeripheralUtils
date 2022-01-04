@@ -1,6 +1,7 @@
 package org.im97mori.ble.android.peripheral.hilt.repository;
 
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -325,7 +326,7 @@ public class DeviceSettingRepository {
             try {
                 new IEEE_11073_20601_SFLOAT(Double.parseDouble(charSequence.toString()));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -342,7 +343,7 @@ public class DeviceSettingRepository {
             try {
                 new IEEE_11073_20601_SFLOAT(Double.parseDouble(charSequence.toString()));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -359,7 +360,7 @@ public class DeviceSettingRepository {
             try {
                 new IEEE_11073_20601_SFLOAT(Double.parseDouble(charSequence.toString()));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -376,7 +377,7 @@ public class DeviceSettingRepository {
             try {
                 new IEEE_11073_20601_SFLOAT(Double.parseDouble(charSequence.toString()));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -396,7 +397,7 @@ public class DeviceSettingRepository {
                     errorString = mApplicationContext.getString(R.string.out_of_range);
                 }
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -416,7 +417,7 @@ public class DeviceSettingRepository {
                     errorString = mApplicationContext.getString(R.string.out_of_range);
                 }
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -441,7 +442,7 @@ public class DeviceSettingRepository {
                     errorString = mApplicationContext.getString(R.string.out_of_range);
                 }
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -461,7 +462,7 @@ public class DeviceSettingRepository {
                     errorString = mApplicationContext.getString(R.string.out_of_range);
                 }
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -481,7 +482,7 @@ public class DeviceSettingRepository {
                     errorString = mApplicationContext.getString(R.string.out_of_range);
                 }
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -498,7 +499,7 @@ public class DeviceSettingRepository {
             try {
                 new IEEE_11073_20601_SFLOAT(Double.parseDouble(charSequence.toString()));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -538,7 +539,7 @@ public class DeviceSettingRepository {
                     errorString = mApplicationContext.getString(R.string.out_of_range);
                 }
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }
@@ -558,7 +559,7 @@ public class DeviceSettingRepository {
                     errorString = mApplicationContext.getString(R.string.out_of_range);
                 }
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                stackLog(e);
                 errorString = mApplicationContext.getString(R.string.wrong_format);
             }
         }

@@ -1,5 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u1810;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
@@ -132,7 +133,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                 try {
                     mServiceData = mGson.fromJson(dataJson, ServiceData.class);
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
 
                 if (mServiceData == null) {
@@ -603,7 +604,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     }
                 }
             } catch (JsonSyntaxException e) {
-                e.printStackTrace();
+                stackLog(e);
             }
         }
     }
@@ -672,7 +673,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     }
                 }
             } catch (JsonSyntaxException e) {
-                e.printStackTrace();
+                stackLog(e);
             }
         }
     }
@@ -699,7 +700,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                             .setValue(mDeviceSettingRepository.getHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0), 4));
                 }
             } catch (JsonSyntaxException e) {
-                e.printStackTrace();
+                stackLog(e);
             }
         }
     }
@@ -718,7 +719,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     try {
                         serviceData.characteristicDataList.add(mGson.fromJson(bloodPressureMeasurementJson, CharacteristicData.class));
                     } catch (JsonSyntaxException e) {
-                        e.printStackTrace();
+                        stackLog(e);
                     }
                 }
 
@@ -728,7 +729,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                         try {
                             serviceData.characteristicDataList.add(mGson.fromJson(intermediateCuffPressureJson, CharacteristicData.class));
                         } catch (JsonSyntaxException e) {
-                            e.printStackTrace();
+                            stackLog(e);
                         }
                     }
                 }
@@ -738,7 +739,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     try {
                         serviceData.characteristicDataList.add(mGson.fromJson(bloodPressureFeatureJson, CharacteristicData.class));
                     } catch (JsonSyntaxException e) {
-                        e.printStackTrace();
+                        stackLog(e);
                     }
                 }
 

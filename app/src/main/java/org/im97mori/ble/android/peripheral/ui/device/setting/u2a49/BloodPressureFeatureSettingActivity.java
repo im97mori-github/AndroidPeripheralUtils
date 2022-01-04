@@ -17,7 +17,7 @@ import androidx.core.view.MenuProvider;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.BloodPressureFeatureSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
-import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -32,7 +32,7 @@ public class BloodPressureFeatureSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockitoViewModelProvider(this).get(BloodPressureFeatureSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this).get(BloodPressureFeatureSettingViewModel.class);
 
         mBinding = BloodPressureFeatureSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

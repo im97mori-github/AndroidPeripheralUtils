@@ -1,5 +1,7 @@
 package org.im97mori.ble.android.peripheral.hilt.repository;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -27,7 +29,7 @@ public class FakeBluetoothSettingRepository extends BluetoothSettingRepository {
             try {
                 mAddBluetoothStatusConsumerAction.run();
             } catch (Throwable throwable) {
-                throwable.printStackTrace();
+                stackLog(throwable);
             }
         }
         super.addBluetoothStatusConsumer(consumer);
@@ -39,7 +41,7 @@ public class FakeBluetoothSettingRepository extends BluetoothSettingRepository {
             try {
                 mRemoveBluetoothStatusConsumerAction.run();
             } catch (Throwable throwable) {
-                throwable.printStackTrace();
+                stackLog(throwable);
             }
         }
         super.removeBluetoothStatusConsumer(consumer);

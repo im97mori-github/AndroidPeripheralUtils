@@ -20,7 +20,7 @@ import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.DeviceSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseSettingFragmentViewModel;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
-import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -35,7 +35,7 @@ public class DeviceSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockitoViewModelProvider(this).get(DeviceSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this).get(DeviceSettingViewModel.class);
 
         mBinding = DeviceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
@@ -60,7 +60,7 @@ public class DeviceSettingActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result = false;
                 if (menuItem.getItemId() == R.id.save) {
-                    BaseSettingFragmentViewModel fragmentViewModel = new MockitoViewModelProvider(DeviceSettingActivity.this).get(mViewModel.getFragmentViewModelClass(getIntent()));
+                    BaseSettingFragmentViewModel fragmentViewModel = new AutoDisposeViewModelProvider(DeviceSettingActivity.this).get(mViewModel.getFragmentViewModelClass(getIntent()));
                     mViewModel.observeSave(fragmentViewModel::getModuleDataString, () -> {
                         setResult(RESULT_OK);
                         finish();

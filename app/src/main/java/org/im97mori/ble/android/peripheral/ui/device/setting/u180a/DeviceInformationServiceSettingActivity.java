@@ -18,7 +18,7 @@ import org.im97mori.ble.android.peripheral.databinding.DeviceInformationServiceS
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringLauncherContract;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringLauncherContract;
-import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -42,7 +42,7 @@ public class DeviceInformationServiceSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockitoViewModelProvider(this).get(DeviceInformationServiceSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this).get(DeviceInformationServiceSettingViewModel.class);
 
         mBinding = DeviceInformationServiceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

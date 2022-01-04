@@ -22,7 +22,7 @@ import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.BloodPressureMeasurementSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationLauncherContract;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
-import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -40,7 +40,7 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockitoViewModelProvider(this).get(BloodPressureMeasurementSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this).get(BloodPressureMeasurementSettingViewModel.class);
 
         mBinding = BloodPressureMeasurementSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

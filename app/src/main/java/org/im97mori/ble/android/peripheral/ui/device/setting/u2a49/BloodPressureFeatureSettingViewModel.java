@@ -1,5 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a49;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
 
 import android.bluetooth.BluetoothGatt;
@@ -85,7 +86,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                     mCharacteristicData = mGson.fromJson(intent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString())
                             , CharacteristicData.class);
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
 
                 if (mCharacteristicData == null) {

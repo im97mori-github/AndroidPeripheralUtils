@@ -1,5 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a35;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 
@@ -149,7 +150,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     mCharacteristicData = mGson.fromJson(intent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString())
                             , CharacteristicData.class);
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
 
                 if (mCharacteristicData == null) {
@@ -740,7 +741,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     mClientCharacteristicConfiguration.postValue(mDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsEnabled()));
                 }
             } catch (JsonSyntaxException e) {
-                e.printStackTrace();
+                stackLog(e);
             }
         }
     }

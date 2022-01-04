@@ -23,7 +23,7 @@ public class MainViewModel extends BaseViewModel {
     private final DeviceSettingRepository mDeviceSettingRepository;
 
     @Inject
-    MainViewModel(@NonNull DeviceSettingRepository deviceSettingRepository) {
+    public MainViewModel(@NonNull DeviceSettingRepository deviceSettingRepository) {
         mDeviceSettingRepository = deviceSettingRepository;
     }
 

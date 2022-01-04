@@ -1,5 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a36;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 
@@ -143,7 +144,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     mCharacteristicData = mGson.fromJson(intent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString())
                             , CharacteristicData.class);
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
 
                 if (mCharacteristicData == null) {
@@ -673,7 +674,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     mClientCharacteristicConfiguration.postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesNotificationsEnabled()));
                 }
             } catch (JsonSyntaxException e) {
-                e.printStackTrace();
+                stackLog(e);
             }
         }
     }

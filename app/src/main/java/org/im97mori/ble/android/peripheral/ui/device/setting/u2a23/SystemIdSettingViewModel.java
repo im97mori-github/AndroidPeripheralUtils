@@ -1,5 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a23;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.SYSTEM_ID_CHARACTERISTIC;
 
 import android.bluetooth.BluetoothGatt;
@@ -70,7 +71,7 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
                     mCharacteristicData = mGson.fromJson(intent.getStringExtra(SYSTEM_ID_CHARACTERISTIC.toString())
                             , CharacteristicData.class);
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
 
                 if (mCharacteristicData == null) {

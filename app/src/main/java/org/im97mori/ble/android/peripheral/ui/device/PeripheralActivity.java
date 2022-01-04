@@ -23,7 +23,7 @@ import androidx.room.rxjava3.EmptyResultSetException;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.PeripheralActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
-import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -49,7 +49,7 @@ public class PeripheralActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockitoViewModelProvider(this).get(PeripheralViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this).get(PeripheralViewModel.class);
 
         mBinding = PeripheralActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

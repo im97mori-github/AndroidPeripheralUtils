@@ -17,7 +17,7 @@ import androidx.core.view.MenuProvider;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.ManufacturerNameStringSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
-import org.im97mori.ble.android.peripheral.utils.MockitoViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -32,7 +32,7 @@ public class ManufacturerNameStringSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new MockitoViewModelProvider(this).get(ManufacturerNameStringSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this).get(ManufacturerNameStringSettingViewModel.class);
 
         mBinding = ManufacturerNameStringSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

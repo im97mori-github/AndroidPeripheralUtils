@@ -1,6 +1,7 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2902;
 
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_PROPERTIES_TYPE;
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 
 import android.bluetooth.BluetoothGatt;
@@ -82,7 +83,7 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                     mDescriptorData = mGson.fromJson(intent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString())
                             , DescriptorData.class);
                 } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
+                    stackLog(e);
                 }
 
                 if (mDescriptorData == null) {
