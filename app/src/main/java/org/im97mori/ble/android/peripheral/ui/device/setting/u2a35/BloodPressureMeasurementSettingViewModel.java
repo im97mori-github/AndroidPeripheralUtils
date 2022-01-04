@@ -78,8 +78,6 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
 
     private static final String KEY_CLIENT_CHARACTERISTIC_CONFIGURATION = "KEY_CLIENT_CHARACTERISTIC_CONFIGURATION";
 
-    private final SavedStateHandle mSavedStateHandle;
-
     private final MutableLiveData<Boolean> mIsMmhg;
 
     private final MutableLiveData<Boolean> mIsTimeStampSupported;
@@ -112,7 +110,6 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     @Inject
     public BloodPressureMeasurementSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
-        mSavedStateHandle = savedStateHandle;
 
         mIsTimeStampSupported = savedStateHandle.getLiveData(KEY_IS_TIME_STAMP_SUPPORTED);
         mIsPulseRateSupported = savedStateHandle.getLiveData(KEY_IS_PULSE_RATE_SUPPORTED);
@@ -401,20 +398,29 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     }
                 }
 
-                if (mClientCharacteristicConfigurationJson.getValue() == null) {
-                    Optional<DescriptorData> clientCharacteristicConfigurationOptional = mCharacteristicData.descriptorDataList
-                            .stream()
-                            .filter(descriptorData -> descriptorData.uuid.equals(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR))
-                            .findAny();
-                    if (clientCharacteristicConfigurationOptional.isPresent()) {
-                        DescriptorData descriptorData = clientCharacteristicConfigurationOptional.get();
-                        mClientCharacteristicConfigurationJson.postValue(mGson.toJson(descriptorData));
-                        if (descriptorData.data == null) {
-                            mClientCharacteristicConfiguration.postValue(null);
-                        } else {
-                            mClientCharacteristicConfiguration
-                                    .postValue(mDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsEnabled()));
-                        }
+                ClientCharacteristicConfiguration clientCharacteristicConfiguration;
+                Optional<DescriptorData> clientCharacteristicConfigurationOptional = mCharacteristicData.descriptorDataList
+                        .stream()
+                        .filter(descriptorData -> descriptorData.uuid.equals(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR))
+                        .findAny();
+                if (clientCharacteristicConfigurationOptional.isPresent()) {
+                    DescriptorData descriptorData = clientCharacteristicConfigurationOptional.get();
+                    mClientCharacteristicConfigurationJson.postValue(mGson.toJson(descriptorData));
+                    if (descriptorData.data == null) {
+                        clientCharacteristicConfiguration = null;
+                    } else {
+                        clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(descriptorData.data);
+                    }
+                } else {
+                    clientCharacteristicConfiguration = null;
+                }
+
+                if (mClientCharacteristicConfiguration.getValue() == null) {
+                    if (clientCharacteristicConfiguration == null) {
+                        mClientCharacteristicConfiguration.postValue("");
+                    } else {
+                        mClientCharacteristicConfiguration
+                                .postValue(mDeviceSettingRepository.getIndicationsString(clientCharacteristicConfiguration.isPropertiesIndicationsEnabled()));
                     }
                 }
 
@@ -591,7 +597,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
 
     @MainThread
     public void observeClientCharacteristicConfiguration(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        Transformations.distinctUntilChanged(mSavedStateHandle.<String>getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION)).observe(owner, observer);
+        Transformations.distinctUntilChanged(mClientCharacteristicConfiguration).observe(owner, observer);
     }
 
     @MainThread
@@ -724,12 +730,12 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     public void setClientCharacteristicConfigurationDescriptorJson(@Nullable String clientCharacteristicConfigurationJson) {
         mClientCharacteristicConfigurationJson.setValue(clientCharacteristicConfigurationJson);
         if (clientCharacteristicConfigurationJson == null) {
-            mClientCharacteristicConfiguration.setValue(null);
+            mClientCharacteristicConfiguration.setValue("");
         } else {
             try {
                 DescriptorData descriptorData = mGson.fromJson(clientCharacteristicConfigurationJson, DescriptorData.class);
                 if (descriptorData.data == null) {
-                    mClientCharacteristicConfiguration.setValue(null);
+                    mClientCharacteristicConfiguration.setValue("");
                 } else {
                     mClientCharacteristicConfiguration.postValue(mDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsEnabled()));
                 }

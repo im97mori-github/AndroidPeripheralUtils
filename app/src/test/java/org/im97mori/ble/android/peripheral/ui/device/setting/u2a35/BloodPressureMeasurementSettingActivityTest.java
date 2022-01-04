@@ -23,7 +23,6 @@ import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils
 import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
 import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-import static org.im97mori.ble.constants.CharacteristicUUID.MODEL_NUMBER_STRING_CHARACTERISTIC;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1574,7 +1573,7 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
         DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
+        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
         clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
         clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
         String originalClientCharacteristicConfigurationDescriptorData = mGson.toJson(clientCharacteristicConfigurationDescriptorData);
@@ -1591,7 +1590,7 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
         DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
+        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
         clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
         clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
         String originalClientCharacteristicConfigurationDescriptorData = mGson.toJson(clientCharacteristicConfigurationDescriptorData);

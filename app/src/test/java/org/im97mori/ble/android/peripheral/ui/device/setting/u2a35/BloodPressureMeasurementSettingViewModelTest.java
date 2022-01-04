@@ -225,7 +225,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         assertNull(pulseRateRangeDetectionReference.get());
         assertNull(measurementPositionDetectionReference.get());
         assertNull(hasClientCharacteristicConfigurationDataJsonReference.get());
-        assertNull(clientCharacteristicConfigurationReference.get());
+        assertEquals("", clientCharacteristicConfigurationReference.get());
         assertEquals(-1, Integer.parseInt(indicationCountReference.get()));
         assertNull(indicationCountErrorStringReference.get());
     }
@@ -345,7 +345,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         assertNull(pulseRateRangeDetectionReference.get());
         assertNull(measurementPositionDetectionReference.get());
         assertNull(hasClientCharacteristicConfigurationDataJsonReference.get());
-        assertNull(clientCharacteristicConfigurationReference.get());
+        assertEquals("", clientCharacteristicConfigurationReference.get());
         assertEquals(-1, Integer.parseInt(indicationCountReference.get()));
         assertNull(indicationCountErrorStringReference.get());
     }
@@ -505,7 +505,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         assertNull(pulseRateRangeDetectionReference.get());
         assertNull(measurementPositionDetectionReference.get());
         assertNull(hasClientCharacteristicConfigurationDataJsonReference.get());
-        assertNull(clientCharacteristicConfigurationReference.get());
+        assertEquals("", clientCharacteristicConfigurationReference.get());
         assertEquals(-1, Integer.parseInt(indicationCountReference.get()));
         assertNull(indicationCountErrorStringReference.get());
     }
@@ -880,7 +880,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00007() {
+    public void test_observeSave_1_00006() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -903,6 +903,43 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateIsTimeStampSupported(true);
         mViewModel.updateTimeStampYear("5555");
         mViewModel.updateTimeStampDay(0);
+        mViewModel.updateTimeStampHours(0);
+        mViewModel.updateTimeStampMinutes(0);
+        mViewModel.updateTimeStampSeconds(0);
+
+        AtomicReference<Throwable> throwableReference = new AtomicReference<>();
+        mViewModel.observeSave(resultIntent -> {
+        }, throwableReference::set);
+
+        assertNotNull(throwableReference.get());
+
+        TestCase.assertEquals("Validation failed", throwableReference.get().getMessage());
+    }
+
+    @Test
+    public void test_observeSave_1_00007() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateSystolic("1");
+        mViewModel.updateDiastolic("2");
+        mViewModel.updateMeanArterialPressure("3");
+
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
+        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
+        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
+        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
+        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+
+        mViewModel.updateIsTimeStampSupported(true);
+        mViewModel.updateTimeStampYear("5555");
+        mViewModel.updateTimeStampMonth(0);
         mViewModel.updateTimeStampHours(0);
         mViewModel.updateTimeStampMinutes(0);
         mViewModel.updateTimeStampSeconds(0);
@@ -940,7 +977,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateIsTimeStampSupported(true);
         mViewModel.updateTimeStampYear("5555");
         mViewModel.updateTimeStampMonth(0);
-        mViewModel.updateTimeStampHours(0);
+        mViewModel.updateTimeStampDay(0);
         mViewModel.updateTimeStampMinutes(0);
         mViewModel.updateTimeStampSeconds(0);
 
@@ -978,7 +1015,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateTimeStampYear("5555");
         mViewModel.updateTimeStampMonth(0);
         mViewModel.updateTimeStampDay(0);
-        mViewModel.updateTimeStampMinutes(0);
+        mViewModel.updateTimeStampHours(0);
         mViewModel.updateTimeStampSeconds(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
@@ -1016,7 +1053,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateTimeStampMonth(0);
         mViewModel.updateTimeStampDay(0);
         mViewModel.updateTimeStampHours(0);
-        mViewModel.updateTimeStampSeconds(0);
+        mViewModel.updateTimeStampMinutes(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.observeSave(resultIntent -> {
@@ -1048,12 +1085,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
-        mViewModel.updateIsTimeStampSupported(true);
-        mViewModel.updateTimeStampYear("5555");
-        mViewModel.updateTimeStampMonth(0);
-        mViewModel.updateTimeStampDay(0);
-        mViewModel.updateTimeStampHours(0);
-        mViewModel.updateTimeStampMinutes(0);
+        mViewModel.updateIsPulseRateSupported(true);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.observeSave(resultIntent -> {
@@ -1085,7 +1117,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
-        mViewModel.updateIsPulseRateSupported(true);
+        mViewModel.updateIsUserIdSupported(true);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.observeSave(resultIntent -> {
@@ -1117,7 +1149,11 @@ public class BloodPressureMeasurementSettingViewModelTest {
         clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
-        mViewModel.updateIsUserIdSupported(true);
+        mViewModel.updateIsMeasurementStatusSupported(true);
+        mViewModel.updateCuffFitDetection(0);
+        mViewModel.updateIrregularPulseDetection(0);
+        mViewModel.updatePulseRateRangeDetection(0);
+        mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.observeSave(resultIntent -> {
@@ -1150,7 +1186,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsMeasurementStatusSupported(true);
-        mViewModel.updateCuffFitDetection(0);
+        mViewModel.updateBodyMovementDetection(0);
         mViewModel.updateIrregularPulseDetection(0);
         mViewModel.updatePulseRateRangeDetection(0);
         mViewModel.updateMeasurementPositionDetection(0);
@@ -1187,7 +1223,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
 
         mViewModel.updateIsMeasurementStatusSupported(true);
         mViewModel.updateBodyMovementDetection(0);
-        mViewModel.updateIrregularPulseDetection(0);
+        mViewModel.updateCuffFitDetection(0);
         mViewModel.updatePulseRateRangeDetection(0);
         mViewModel.updateMeasurementPositionDetection(0);
 
@@ -1224,7 +1260,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateIsMeasurementStatusSupported(true);
         mViewModel.updateBodyMovementDetection(0);
         mViewModel.updateCuffFitDetection(0);
-        mViewModel.updatePulseRateRangeDetection(0);
+        mViewModel.updateIrregularPulseDetection(0);
         mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
@@ -1261,7 +1297,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateBodyMovementDetection(0);
         mViewModel.updateCuffFitDetection(0);
         mViewModel.updateIrregularPulseDetection(0);
-        mViewModel.updateMeasurementPositionDetection(0);
+        mViewModel.updatePulseRateRangeDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.observeSave(resultIntent -> {
@@ -1293,42 +1329,6 @@ public class BloodPressureMeasurementSettingViewModelTest {
         clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
-        mViewModel.updateIsMeasurementStatusSupported(true);
-        mViewModel.updateBodyMovementDetection(0);
-        mViewModel.updateCuffFitDetection(0);
-        mViewModel.updateIrregularPulseDetection(0);
-        mViewModel.updatePulseRateRangeDetection(0);
-
-        AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
-
-        assertNotNull(throwableReference.get());
-
-        TestCase.assertEquals("Validation failed", throwableReference.get().getMessage());
-    }
-
-    @Test
-    public void test_observeSave_1_00019() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        Intent intent = new Intent();
-        mViewModel.observeSetup(intent
-                , () -> {
-                }
-                , throwable -> {
-                });
-        mViewModel.updateSystolic("1");
-        mViewModel.updateDiastolic("2");
-        mViewModel.updateMeanArterialPressure("3");
-
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
-
         mViewModel.updateIndicationCount("");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
@@ -1341,7 +1341,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00020() {
+    public void test_observeSave_1_00019() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -4475,7 +4475,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(null);
 
         TestCase.assertNull(mViewModel.getClientCharacteristicConfigurationDescriptorJson());
-        TestCase.assertNull(clientCharacteristicConfigurationReference.get());
+        assertEquals("", clientCharacteristicConfigurationReference.get());
     }
 
     @Test

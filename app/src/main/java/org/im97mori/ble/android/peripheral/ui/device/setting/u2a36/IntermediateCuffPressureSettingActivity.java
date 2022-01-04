@@ -145,7 +145,7 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
         mViewModel.observeMeasurementPositionDetection(this, charSequence -> setTextDistinct(mBinding.measurementPositionDetectionEdit, charSequence));
         mBinding.measurementPositionDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateMeasurementPositionDetection(position));
 
-        mViewModel.observeHasClientCharacteristicConfigurationData(this, check -> mBinding.clientCharacteristicConfigurationCardView.setChecked(check));
+        mViewModel.observeHasClientCharacteristicConfigurationDataJson(this, check -> mBinding.clientCharacteristicConfigurationCardView.setChecked(check));
 
         mViewModel.observeClientCharacteristicConfiguration(this, s -> mBinding.clientCharacteristicConfiguration.setText(s));
         mBinding.clientCharacteristicConfigurationSettingButton.setOnClickListener(v ->

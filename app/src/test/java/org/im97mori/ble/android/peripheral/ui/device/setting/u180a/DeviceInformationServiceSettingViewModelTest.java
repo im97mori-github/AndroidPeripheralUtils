@@ -137,10 +137,10 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertNull(hasSystemIdDataJsonReference.get());
         assertNull(hasModelNumberStringDataJsonReference.get());
         assertNull(hasManufacturerNameStringDataJsonReference.get());
-        assertNull(manufacturerIdentifierReference.get());
-        assertNull(organizationallyUniqueIdentifierReference.get());
-        assertNull(modelNumberStringReference.get());
-        assertNull(manufacturerNameStringReference.get());
+        assertEquals("", manufacturerIdentifierReference.get());
+        assertEquals("", organizationallyUniqueIdentifierReference.get());
+        assertEquals("", modelNumberStringReference.get());
+        assertEquals("", manufacturerNameStringReference.get());
     }
 
     @Test
@@ -184,10 +184,10 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertNull(hasSystemIdDataJsonReference.get());
         assertNull(hasModelNumberStringDataJsonReference.get());
         assertNull(hasManufacturerNameStringDataJsonReference.get());
-        assertNull(manufacturerIdentifierReference.get());
-        assertNull(organizationallyUniqueIdentifierReference.get());
-        assertNull(modelNumberStringReference.get());
-        assertNull(manufacturerNameStringReference.get());
+        assertEquals("", manufacturerIdentifierReference.get());
+        assertEquals("", organizationallyUniqueIdentifierReference.get());
+        assertEquals("", modelNumberStringReference.get());
+        assertEquals("", manufacturerNameStringReference.get());
     }
 
     @Test
@@ -250,8 +250,8 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertNull(hasSystemIdDataJsonReference.get());
         assertTrue(hasModelNumberStringDataJsonReference.get());
         assertTrue(hasManufacturerNameStringDataJsonReference.get());
-        assertNull(manufacturerIdentifierReference.get());
-        assertNull(organizationallyUniqueIdentifierReference.get());
+        assertEquals("", manufacturerIdentifierReference.get());
+        assertEquals("", organizationallyUniqueIdentifierReference.get());
         assertEquals(originalModelNumberString, modelNumberStringReference.get());
         assertEquals(originalManufacturerNameString, manufacturerNameStringReference.get());
     }

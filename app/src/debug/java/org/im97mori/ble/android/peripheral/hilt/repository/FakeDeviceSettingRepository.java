@@ -44,6 +44,8 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
     public String mGetPulseRateErrorString;
     public String mGetUserIdErrorString;
     public String mGetIndicationCountErrorString;
+    public String mGetCurrentCuffPressureErrorString;
+    public String mGetNotificationCountErrorString;
 
     public Consumer<DeviceSetting> mInsertDeviceSettingConsumer;
 
@@ -151,7 +153,11 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
     @Nullable
     @Override
     public String getNotificationCountErrorString(@Nullable CharSequence charSequence) {
-        return super.getNotificationCountErrorString(charSequence);
+        if (mGetNotificationCountErrorString == null) {
+            return super.getNotificationCountErrorString(charSequence);
+        } else {
+            return mGetNotificationCountErrorString;
+        }
     }
 
     @Nullable
@@ -197,7 +203,11 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
     @Nullable
     @Override
     public String getCurrentCuffPressureErrorString(@Nullable CharSequence charSequence) {
-        return super.getCurrentCuffPressureErrorString(charSequence);
+        if (mGetCurrentCuffPressureErrorString == null) {
+            return super.getCurrentCuffPressureErrorString(charSequence);
+        } else {
+            return mGetCurrentCuffPressureErrorString;
+        }
     }
 
     @Nullable
