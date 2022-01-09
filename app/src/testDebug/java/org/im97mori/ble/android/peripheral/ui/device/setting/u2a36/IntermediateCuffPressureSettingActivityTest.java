@@ -17,6 +17,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
 import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT;
 import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE;
 import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED;
@@ -45,6 +46,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -78,6 +80,7 @@ import org.mockito.MockedStatic;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -165,8 +168,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        mViewModel.mObserveSetupProcessor.onNext("test_root_container_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -186,8 +188,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_save_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).check(matches(isEnabled()));
     }
@@ -198,8 +199,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_save_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).perform(click());
 
@@ -251,7 +251,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         String json = mGson.toJson(intermediateCuffPressureCharacteristicData);
         Intent original = new Intent();
         original.putExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString(), json);
-        mViewModel.mObserveSaveProcessor.onNext(original);
+        mViewModel.mObserveSaveSubject.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(Activity.RESULT_OK, activityResult.getResultCode());
@@ -318,14 +318,30 @@ public class IntermediateCuffPressureSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsMmhgConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_unitRadioGroup_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             RadioGroup radioGroup = activity.findViewById(R.id.unitRadioGroup);
             radioGroup.check(R.id.mmhgRadioButton);
         });
 
         assertTrue(result.get());
+    }
+
+    @Test
+    public void test_recreate_root_container_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
     @Test
@@ -336,8 +352,7 @@ public class IntermediateCuffPressureSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsMmhgConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_unitRadioGroup_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             RadioGroup radioGroup = activity.findViewById(R.id.unitRadioGroup);
             radioGroup.check(R.id.mmhgRadioButton);
@@ -400,8 +415,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_currentCuffPressure_error_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
                 -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.currentCuffPressure)).getError()).toString()));
     }
@@ -415,8 +429,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         String original = "a";
         AtomicReference<String> result = new AtomicReference<>();
         mViewModel.mUpdateCurrentCuffPressureConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateCurrentCuffPressure_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             TextView textView = activity.findViewById(R.id.currentCuffPressureEdit);
             textView.setText(original);
@@ -440,8 +453,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isTimeStampSupported_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isTimeStampSupported)).check(matches(isNotChecked()));
     }
 
@@ -451,8 +463,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isTimeStampSupported_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isTimeStampSupported)).check(matches(isChecked()));
     }
 
@@ -464,8 +475,7 @@ public class IntermediateCuffPressureSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsTimeStampSupportedConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateIsTimeStampSupported_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> activity.findViewById(R.id.isTimeStampSupported).performClick());
 
         assertTrue(result.get());
@@ -477,8 +487,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampYear_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -488,8 +497,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampYear_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -528,8 +536,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampYear_error_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
                 -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.timeStampYear)).getError()).toString()));
     }
@@ -543,8 +550,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         String original = "a";
         AtomicReference<String> result = new AtomicReference<>();
         mViewModel.mUpdateTimeStampYearConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateTimeStampYear_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             TextView textView = activity.findViewById(R.id.timeStampYearEdit);
             textView.setText(original);
@@ -559,8 +565,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampMonth_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -570,8 +575,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampMonth_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -603,8 +607,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdateTimeStampMonthConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateTimeStampMonth_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.timeStampMonthEdit);
             textView.showDropDown();
@@ -621,8 +624,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampDay_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -632,8 +634,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampDay_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -665,8 +666,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdateTimeStampDayConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateTimeStampDay_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.timeStampDayEdit);
             textView.showDropDown();
@@ -683,8 +683,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampHours_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -694,8 +693,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampHours_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -727,8 +725,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdateTimeStampHoursConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateTimeStampHours_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.timeStampHoursEdit);
             textView.showDropDown();
@@ -745,8 +742,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampMinutes_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -756,8 +752,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampMinutes_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -789,8 +784,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdateTimeStampMinutesConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateTimeStampMinutes_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.timeStampMinutesEdit);
             textView.showDropDown();
@@ -807,8 +801,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampSeconds_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -818,8 +811,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_timeStampSeconds_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -851,8 +843,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdateTimeStampSecondsConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateTimeStampSeconds_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.timeStampSecondsEdit);
             textView.showDropDown();
@@ -871,8 +862,7 @@ public class IntermediateCuffPressureSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsPulseRateSupportedConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_isPulseRateSupported_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> activity.findViewById(R.id.isPulseRateSupported).performClick());
 
         assertTrue(result.get());
@@ -884,8 +874,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isPulseRateSupported_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isPulseRateSupported)).check(matches(isNotChecked()));
     }
 
@@ -895,8 +884,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isPulseRateSupported_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isPulseRateSupported)).check(matches(isChecked()));
     }
 
@@ -906,8 +894,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_pulseRate_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -917,8 +904,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_pulseRate_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -957,8 +943,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_pulseRate_error_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
                 -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.pulseRate)).getError()).toString()));
     }
@@ -972,8 +957,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         String original = "a";
         AtomicReference<String> result = new AtomicReference<>();
         mViewModel.mUpdatePulseRateConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updatePulseRate_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             TextView textView = activity.findViewById(R.id.pulseRateEdit);
             textView.setText(original);
@@ -990,8 +974,7 @@ public class IntermediateCuffPressureSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsUserIdSupportedConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_isUserIdSupported_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> activity.findViewById(R.id.isUserIdSupported).performClick());
 
         assertTrue(result.get());
@@ -1003,8 +986,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isUserIdSupported_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isUserIdSupported)).check(matches(isNotChecked()));
     }
 
@@ -1014,8 +996,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isUserIdSupported_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isUserIdSupported)).check(matches(isChecked()));
     }
 
@@ -1025,8 +1006,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_userId_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -1036,8 +1016,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_userId_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -1076,8 +1055,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_userId_error_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
                 -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.userId)).getError()).toString()));
     }
@@ -1091,8 +1069,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         String original = "a";
         AtomicReference<String> result = new AtomicReference<>();
         mViewModel.mUpdateUserIdConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateUserId_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             TextView textView = activity.findViewById(R.id.userIdEdit);
             textView.setText(original);
@@ -1109,8 +1086,7 @@ public class IntermediateCuffPressureSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsMeasurementStatusSupportedConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_isMeasurementStatusSupported_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> activity.findViewById(R.id.isMeasurementStatusSupported).performClick());
 
         assertTrue(result.get());
@@ -1122,8 +1098,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isMeasurementStatusSupported_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMeasurementStatusSupported)).check(matches(isNotChecked()));
     }
 
@@ -1133,8 +1108,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isMeasurementStatusSupported_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMeasurementStatusSupported)).check(matches(isChecked()));
     }
 
@@ -1144,8 +1118,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_bodyMovementDetection_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -1155,8 +1128,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_bodyMovementDetection_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -1178,8 +1150,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdateBodyMovementDetectionConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_bodyMovementDetection_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.bodyMovementDetectionEdit);
             textView.showDropDown();
@@ -1196,8 +1167,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_cuffFitDetection_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -1207,8 +1177,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_cuffFitDetection_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -1230,8 +1199,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdateCuffFitDetectionConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_cuffFitDetection_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.cuffFitDetectionEdit);
             textView.showDropDown();
@@ -1248,8 +1216,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_irregularPulseDetection_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -1259,8 +1226,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_irregularPulseDetection_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -1282,8 +1248,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdateIrregularPulseDetectionConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_irregularPulseDetection_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.irregularPulseDetectionEdit);
             textView.showDropDown();
@@ -1300,8 +1265,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_pulseRateRangeDetection_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -1311,8 +1275,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_irregularPulseDetection_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -1334,8 +1297,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdatePulseRateRangeDetectionConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_pulseRateRangeDetection_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.pulseRateRangeDetectionEdit);
             textView.showDropDown();
@@ -1352,8 +1314,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_measurementPositionDetection_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -1363,8 +1324,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_measurementPositionDetection_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -1386,8 +1346,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         int original = 1;
         AtomicReference<Integer> result = new AtomicReference<>();
         mViewModel.mUpdateMeasurementPositionDetectionConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_measurementPositionDetection_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             AutoCompleteTextView textView = activity.findViewById(R.id.measurementPositionDetectionEdit);
             textView.showDropDown();
@@ -1404,9 +1363,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_clientCharacteristicConfigurationCardView_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.clientCharacteristicConfigurationCardView)).check(matches(isNotChecked()));
     }
@@ -1417,9 +1374,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_clientCharacteristicConfigurationCardView_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.clientCharacteristicConfigurationCardView)).check(matches(isChecked()));
     }
@@ -1491,9 +1446,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_clientCharacteristicConfigurationSettingButton_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.clientCharacteristicConfigurationSettingButton).performClick());
 
@@ -1507,9 +1460,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_clientCharacteristicConfigurationSettingButton_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.clientCharacteristicConfigurationSettingButton).performClick());
 
@@ -1552,8 +1503,7 @@ public class IntermediateCuffPressureSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_notificationCount_error_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
                 -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.notificationCount)).getError()).toString()));
     }
@@ -1567,14 +1517,1037 @@ public class IntermediateCuffPressureSettingActivityTest {
         String original = "a";
         AtomicReference<String> result = new AtomicReference<>();
         mViewModel.mUpdateNotificationCountConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateNotificationCount_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             TextView textView = activity.findViewById(R.id.notificationCountEdit);
             textView.setText(original);
         });
 
         assertEquals(original, result.get());
+    }
+
+    @Test
+    public void test_recreate_unitRadioGroup_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.updateIsMmhg(true);
+        mScenario.onActivity(activity -> {
+            RadioGroup radioGroup = activity.findViewById(R.id.unitRadioGroup);
+            assertEquals(R.id.mmhgRadioButton, radioGroup.getCheckedRadioButtonId());
+        });
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity -> {
+            RadioGroup radioGroup = activity.findViewById(R.id.unitRadioGroup);
+            assertEquals(R.id.mmhgRadioButton, radioGroup.getCheckedRadioButtonId());
+        });
+    }
+
+    @Test
+    public void test_recreate_unitRadioGroup_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.updateIsMmhg(false);
+        mScenario.onActivity(activity -> {
+            RadioGroup radioGroup = activity.findViewById(R.id.unitRadioGroup);
+            assertEquals(R.id.kpaRadioButton, radioGroup.getCheckedRadioButtonId());
+        });
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity -> {
+            RadioGroup radioGroup = activity.findViewById(R.id.unitRadioGroup);
+            assertEquals(R.id.kpaRadioButton, radioGroup.getCheckedRadioButtonId());
+        });
+    }
+
+    @Test
+    public void test_recreate_mmhgRadioButton_title_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.mmhgRadioButton)).check(matches(withText(R.string.mmhg)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.mmhgRadioButton)).check(matches(withText(R.string.mmhg)));
+    }
+
+    @Test
+    public void test_recreate_kpaRadioButton_title_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.kpaRadioButton)).check(matches(withText(R.string.kpa)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.kpaRadioButton)).check(matches(withText(R.string.kpa)));
+    }
+
+    @Test
+    public void test_recreate_currentCuffPressure_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.updateCurrentCuffPressure("1");
+        onView(withId(R.id.currentCuffPressureEdit)).check(matches(withText("1")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.currentCuffPressureEdit)).check(matches(withText("1")));
+    }
+
+    @Test
+    public void test_recreate_currentCuffPressure_error_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.currentCuffPressure)).getError()).toString()));
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.currentCuffPressure)).getError()).toString()));
+    }
+
+    @Test
+    public void test_recreate_isTimeStampSupported_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.isTimeStampSupported)).check(matches(isNotChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.isTimeStampSupported)).check(matches(isNotChecked()));
+    }
+
+    @Test
+    public void test_recreate_isTimeStampSupported_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.isTimeStampSupported)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.isTimeStampSupported)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_timeStampYear_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampYear_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampYear)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampYear_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.updateTimeStampYear("5555");
+        onView(withId(R.id.timeStampYearEdit)).check(matches(withText("5555")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampYearEdit)).check(matches(withText("5555")));
+    }
+
+    @Test
+    public void test_recreate_timeStampYear_error_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.timeStampYear)).getError()).toString()));
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.timeStampYear)).getError()).toString()));
+    }
+
+    @Test
+    public void test_recreate_timeStampMonth_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampMonth_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampMonth)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampMonth_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<Pair<Integer, String>> list = mFakeDeviceSettingRepository.provideDateTimeMonthList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        Pair<Integer, String> target = list.get(index);
+        mViewModel.updateTimeStampMonth(index);
+        onView(withId(R.id.timeStampMonthEdit)).check(matches(withText(target.toString())));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampMonthEdit)).check(matches(withText(target.toString())));
+    }
+
+    @Test
+    public void test_recreate_timeStampDay_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampDay_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampDay)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampDay_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<Pair<Integer, String>> list = mFakeDeviceSettingRepository.provideDateTimeDayList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        Pair<Integer, String> target = list.get(index);
+        mViewModel.updateTimeStampDay(index);
+        onView(withId(R.id.timeStampDayEdit)).check(matches(withText(target.toString())));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampDayEdit)).check(matches(withText(target.toString())));
+    }
+
+    @Test
+    public void test_recreate_timeStampHours_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampHours_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampHours)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampHours_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<String> list = mFakeDeviceSettingRepository.provideDateTimeHoursList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        String target = list.get(index);
+        mViewModel.updateTimeStampHours(index);
+        onView(withId(R.id.timeStampHoursEdit)).check(matches(withText(target)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampHoursEdit)).check(matches(withText(target)));
+    }
+
+    @Test
+    public void test_recreate_timeStampMinutes_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampMinutes_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampMinutes)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampMinutes_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<String> list = mFakeDeviceSettingRepository.provideDateTimeMinutesList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        String target = list.get(index);
+        mViewModel.updateTimeStampMinutes(index);
+        onView(withId(R.id.timeStampMinutesEdit)).check(matches(withText(target)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampMinutesEdit)).check(matches(withText(target)));
+    }
+
+    @Test
+    public void test_recreate_timeStampSeconds_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampSeconds_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.timeStampSeconds)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_timeStampSeconds_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<String> list = mFakeDeviceSettingRepository.provideDateTimeSecondsList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        String target = list.get(index);
+        mViewModel.updateTimeStampSeconds(index);
+        onView(withId(R.id.timeStampSecondsEdit)).check(matches(withText(target)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.timeStampSecondsEdit)).check(matches(withText(target)));
+    }
+
+    @Test
+    public void test_recreate_isPulseRateSupported_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.isPulseRateSupported)).check(matches(isNotChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.isPulseRateSupported)).check(matches(isNotChecked()));
+    }
+
+    @Test
+    public void test_recreate_isPulseRateSupported_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.isPulseRateSupported)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.isPulseRateSupported)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_pulseRate_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_pulseRate_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.pulseRate)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_pulseRate_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.updatePulseRate("1");
+        onView(withId(R.id.pulseRateEdit)).check(matches(withText("1")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.pulseRateEdit)).check(matches(withText("1")));
+    }
+
+    @Test
+    public void test_recreate_pulseRate_error_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.pulseRate)).getError()).toString()));
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.pulseRate)).getError()).toString()));
+    }
+
+    @Test
+    public void test_recreate_isUserIdSupported_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.isUserIdSupported)).check(matches(isNotChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.isUserIdSupported)).check(matches(isNotChecked()));
+    }
+
+    @Test
+    public void test_recreate_isUserIdSupported_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.isUserIdSupported)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.isUserIdSupported)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_userId_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_userId_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.userId)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_userId_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.updateUserId("1");
+        onView(withId(R.id.userIdEdit)).check(matches(withText("1")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.userIdEdit)).check(matches(withText("1")));
+    }
+
+    @Test
+    public void test_recreate_userId_error_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.userId)).getError()).toString()));
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.userId)).getError()).toString()));
+    }
+
+    @Test
+    public void test_recreate_isMeasurementStatusSupported_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.isMeasurementStatusSupported)).check(matches(isNotChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.isMeasurementStatusSupported)).check(matches(isNotChecked()));
+    }
+
+    @Test
+    public void test_recreate_isMeasurementStatusSupported_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.isMeasurementStatusSupported)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.isMeasurementStatusSupported)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_bodyMovementDetection_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_bodyMovementDetection_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.bodyMovementDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_bodyMovementDetection_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<Pair<Integer, String>> list = mFakeDeviceSettingRepository.provideBodyMovementDetectionList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        Pair<Integer, String> target = list.get(index);
+        mViewModel.updateBodyMovementDetection(index);
+        onView(withId(R.id.bodyMovementDetectionEdit)).check(matches(withText(target.toString())));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bodyMovementDetectionEdit)).check(matches(withText(target.toString())));
+    }
+
+    @Test
+    public void test_recreate_cuffFitDetection_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_cuffFitDetection_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.cuffFitDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_cuffFitDetection_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<Pair<Integer, String>> list = mFakeDeviceSettingRepository.provideCuffFitDetectionList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        Pair<Integer, String> target = list.get(index);
+        mViewModel.updateCuffFitDetection(index);
+        onView(withId(R.id.cuffFitDetectionEdit)).check(matches(withText(target.toString())));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.cuffFitDetectionEdit)).check(matches(withText(target.toString())));
+    }
+
+    @Test
+    public void test_recreate_irregularPulseDetection_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_irregularPulseDetection_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.irregularPulseDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_irregularPulseDetection_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<Pair<Integer, String>> list = mFakeDeviceSettingRepository.provideIrregularPulseDetectionList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        Pair<Integer, String> target = list.get(index);
+        mViewModel.updateIrregularPulseDetection(index);
+        onView(withId(R.id.irregularPulseDetectionEdit)).check(matches(withText(target.toString())));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.irregularPulseDetectionEdit)).check(matches(withText(target.toString())));
+    }
+
+    @Test
+    public void test_recreate_pulseRateRangeDetection_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_pulseRateRangeDetection_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.pulseRateRangeDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_pulseRateRangeDetection_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<Pair<Integer, String>> list = mFakeDeviceSettingRepository.providePulseRateRangeDetectionList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        Pair<Integer, String> target = list.get(index);
+        mViewModel.updatePulseRateRangeDetection(index);
+        onView(withId(R.id.pulseRateRangeDetectionEdit)).check(matches(withText(target.toString())));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.pulseRateRangeDetectionEdit)).check(matches(withText(target.toString())));
+    }
+
+    @Test
+    public void test_recreate_measurementPositionDetection_visibility_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_measurementPositionDetection_visibility_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.measurementPositionDetection)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_measurementPositionDetection_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        List<Pair<Integer, String>> list = mFakeDeviceSettingRepository.provideMeasurementPositionDetectionList();
+        assertFalse(list.isEmpty());
+        int index = list.size() - 1;
+        Pair<Integer, String> target = list.get(index);
+        mViewModel.updateMeasurementPositionDetection(index);
+        onView(withId(R.id.measurementPositionDetectionEdit)).check(matches(withText(target.toString())));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.measurementPositionDetectionEdit)).check(matches(withText(target.toString())));
+    }
+
+    @Test
+    public void test_recreate_clientCharacteristicConfigurationCardView_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.clientCharacteristicConfigurationCardView)).check(matches(isNotChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.clientCharacteristicConfigurationCardView)).check(matches(isNotChecked()));
+    }
+
+    @Test
+    public void test_recreate_clientCharacteristicConfigurationCardView_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.clientCharacteristicConfigurationCardView)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.clientCharacteristicConfigurationCardView)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_clientCharacteristicConfiguration_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
+        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
+        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
+        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
+        String originalClientCharacteristicConfigurationDescriptorData = mGson.toJson(clientCharacteristicConfigurationDescriptorData);
+        mViewModel.setClientCharacteristicConfigurationDescriptorJson(originalClientCharacteristicConfigurationDescriptorData);
+
+        onView(withId(R.id.clientCharacteristicConfiguration))
+                .check(matches(withText(mFakeDeviceSettingRepository.getNotificationsDisabledString())));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.clientCharacteristicConfiguration))
+                .check(matches(withText(mFakeDeviceSettingRepository.getNotificationsDisabledString())));
+    }
+
+    @Test
+    public void test_recreate_clientCharacteristicConfiguration_00002() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
+        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
+        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
+        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE;
+        String originalClientCharacteristicConfigurationDescriptorData = mGson.toJson(clientCharacteristicConfigurationDescriptorData);
+        mViewModel.setClientCharacteristicConfigurationDescriptorJson(originalClientCharacteristicConfigurationDescriptorData);
+
+        onView(withId(R.id.clientCharacteristicConfiguration))
+                .check(matches(withText(mFakeDeviceSettingRepository.getNotificationsEnabledString())));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.clientCharacteristicConfiguration))
+                .check(matches(withText(mFakeDeviceSettingRepository.getNotificationsEnabledString())));
+    }
+
+    @Test
+    public void test_recreate_notificationCount_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.updateNotificationCount("1");
+        onView(withId(R.id.notificationCountEdit)).check(matches(withText("1")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.notificationCountEdit)).check(matches(withText("1")));
+    }
+
+    @Test
+    public void test_recreate_notificationCount_error_00001() {
+        Intent intent = new Intent(mContext, IntermediateCuffPressureSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeIntermediateCuffPressureSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.notificationCount)).getError()).toString()));
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.notificationCount)).getError()).toString()));
     }
 
 }

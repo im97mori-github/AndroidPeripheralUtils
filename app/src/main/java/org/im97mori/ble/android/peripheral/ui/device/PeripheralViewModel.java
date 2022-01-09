@@ -95,7 +95,10 @@ public class PeripheralViewModel extends BaseViewModel {
                         return Completable.complete();
                     })
                     .subscribe(onSuccess, onError));
+        } else {
+            mDisposable.add(Completable.complete().subscribe(onSuccess, onError));
         }
+
         mBluetoothSettingRepository.addBluetoothStatusConsumer(mConsumer);
     }
 

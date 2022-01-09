@@ -8,7 +8,6 @@ import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_T
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_UNDEFINED;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
-import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVICE_ID_UNSAVED;
 import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 
 import android.bluetooth.BluetoothGattService;
@@ -104,87 +103,6 @@ public class DeviceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSetup_1_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        AtomicBoolean result = new AtomicBoolean(false);
-
-        AtomicReference<Integer> deviceTypeImageResIdReference = new AtomicReference<>();
-        AtomicReference<String> deviceTypeNameReference = new AtomicReference<>();
-        AtomicReference<String> deviceSettingNameReference = new AtomicReference<>();
-        AtomicReference<String> deviceSettingNameErrorStringReference = new AtomicReference<>();
-        AtomicReference<MockData> mockDataReference = new AtomicReference<>();
-
-        AtomicReference<Throwable> observeSetupThrowable = new AtomicReference<>();
-
-        mViewModel.observeDeviceTypeImageResId(new TestLifeCycleOwner(), deviceTypeImageResIdReference::set);
-        mViewModel.observeDeviceTypeName(new TestLifeCycleOwner(), deviceTypeNameReference::set);
-        mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), deviceSettingNameReference::set);
-        mViewModel.observeDeviceSettingNameErrorString(new TestLifeCycleOwner(), deviceSettingNameErrorStringReference::set);
-        mViewModel.observeMockData(mockDataReference::set);
-
-        Intent intent = new Intent();
-        mViewModel.observeSetup(intent
-                , () -> {
-                }
-                , throwable -> {
-                    result.set(true);
-                    observeSetupThrowable.set(throwable);
-                });
-
-        assertTrue(result.get());
-        assertNotNull(observeSetupThrowable.get());
-        assertEquals("No Data", observeSetupThrowable.get().getMessage());
-
-        assertNull(deviceTypeImageResIdReference.get());
-        assertNull(deviceTypeNameReference.get());
-        assertNull(deviceSettingNameReference.get());
-        assertNull(deviceSettingNameErrorStringReference.get());
-        assertNull(mockDataReference.get());
-    }
-
-    @Test
-    public void test_observeSetup_2_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        AtomicBoolean result = new AtomicBoolean(false);
-
-        AtomicReference<Integer> deviceTypeImageResIdReference = new AtomicReference<>();
-        AtomicReference<String> deviceTypeNameReference = new AtomicReference<>();
-        AtomicReference<String> deviceSettingNameReference = new AtomicReference<>();
-        AtomicReference<String> deviceSettingNameErrorStringReference = new AtomicReference<>();
-        AtomicReference<MockData> mockDataReference = new AtomicReference<>();
-
-        AtomicReference<Throwable> observeSetupThrowable = new AtomicReference<>();
-
-        mViewModel.observeDeviceTypeImageResId(new TestLifeCycleOwner(), deviceTypeImageResIdReference::set);
-        mViewModel.observeDeviceTypeName(new TestLifeCycleOwner(), deviceTypeNameReference::set);
-        mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), deviceSettingNameReference::set);
-        mViewModel.observeDeviceSettingNameErrorString(new TestLifeCycleOwner(), deviceSettingNameErrorStringReference::set);
-        mViewModel.observeMockData(mockDataReference::set);
-
-        Intent intent = new Intent();
-        intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_UNDEFINED);
-        mViewModel.observeSetup(intent, () -> {
-        }, throwable -> {
-            result.set(true);
-            observeSetupThrowable.set(throwable);
-        });
-
-        assertTrue(result.get());
-        assertNotNull(observeSetupThrowable.get());
-        assertEquals("No Data", observeSetupThrowable.get().getMessage());
-
-        assertNull(deviceTypeImageResIdReference.get());
-        assertNull(deviceTypeNameReference.get());
-        assertNull(deviceSettingNameReference.get());
-        assertNull(deviceSettingNameErrorStringReference.get());
-        assertNull(mockDataReference.get());
-    }
-
-    @Test
     public void test_observeSetup_3_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
@@ -212,45 +130,6 @@ public class DeviceSettingViewModelTest {
         assertEquals("", deviceSettingNameReference.get());
         assertEquals(mContext.getString(R.string.no_value), deviceSettingNameErrorStringReference.get());
         assertNotNull(mockDataReference.get());
-    }
-
-    @Test
-    public void test_observeSetup_4_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        AtomicBoolean result = new AtomicBoolean(false);
-
-        AtomicReference<Integer> deviceTypeImageResIdReference = new AtomicReference<>();
-        AtomicReference<String> deviceTypeNameReference = new AtomicReference<>();
-        AtomicReference<String> deviceSettingNameReference = new AtomicReference<>();
-        AtomicReference<String> deviceSettingNameErrorStringReference = new AtomicReference<>();
-        AtomicReference<MockData> mockDataReference = new AtomicReference<>();
-
-        AtomicReference<Throwable> observeSetupThrowable = new AtomicReference<>();
-        mViewModel.observeDeviceTypeImageResId(new TestLifeCycleOwner(), deviceTypeImageResIdReference::set);
-        mViewModel.observeDeviceTypeName(new TestLifeCycleOwner(), deviceTypeNameReference::set);
-        mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), deviceSettingNameReference::set);
-        mViewModel.observeDeviceSettingNameErrorString(new TestLifeCycleOwner(), deviceSettingNameErrorStringReference::set);
-        mViewModel.observeMockData(mockDataReference::set);
-
-        Intent intent = new Intent();
-        intent.putExtra(KEY_DEVICE_ID, VALUE_DEVICE_ID_UNSAVED);
-        mViewModel.observeSetup(intent, () -> {
-        }, throwable -> {
-            result.set(true);
-            observeSetupThrowable.set(throwable);
-        });
-
-        assertTrue(result.get());
-        assertNotNull(observeSetupThrowable.get());
-        assertEquals("No Data", observeSetupThrowable.get().getMessage());
-
-        assertNull(deviceTypeImageResIdReference.get());
-        assertNull(deviceTypeNameReference.get());
-        assertNull(deviceSettingNameReference.get());
-        assertNull(deviceSettingNameErrorStringReference.get());
-        assertNull(mockDataReference.get());
     }
 
     @Test

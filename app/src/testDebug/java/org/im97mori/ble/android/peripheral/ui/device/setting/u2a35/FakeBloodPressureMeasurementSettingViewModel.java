@@ -16,18 +16,18 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.processors.PublishProcessor;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
 public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureMeasurementSettingViewModel {
 
-    public final PublishProcessor<String> mObserveSetupProcessor = PublishProcessor.create();
+    public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
 
     public final FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
     private final SavedStateHandle mSavedStateHandle;
 
-    public final PublishProcessor<Intent> mObserveSaveProcessor = PublishProcessor.create();
+    public final PublishSubject<Intent> mObserveSaveSubject = PublishSubject.create();
 
     public java.util.function.Consumer<Boolean> mUpdateIsMmhgConsumer;
     public java.util.function.Consumer<String> mUpdateSystolicConsumer;
@@ -63,10 +63,11 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
 
     @Override
     public void observeSetup(@NonNull Intent intent, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSetupProcessor
+        mDisposable.add(mObserveSetupSubject
                 .subscribe(s -> mDisposable.add(Single.<String>create(emitter -> emitter.onSuccess(s))
                         .flatMapCompletable(t -> {
                             switch (t) {
+                                // @formatter:off
                                 case "test_systolic_error_00002": test_systolic_error_00002(); break;
                                 case "test_diastolic_error_00002": test_diastolic_error_00002(); break;
                                 case "test_meanArterialPressure_error_00002": test_meanArterialPressure_error_00002(); break;
@@ -110,6 +111,49 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
                                 case "test_clientCharacteristicConfigurationCardView_00002": test_clientCharacteristicConfigurationCardView_00002(); break;
                                 case "test_clientCharacteristicConfigurationSettingButton_00002": test_clientCharacteristicConfigurationSettingButton_00002(); break;
                                 case "test_indicationCount_error_00002": test_indicationCount_error_00002(); break;
+                                case "test_recreate_systolic_error_00001": test_recreate_systolic_error_00001(); break;
+                                case "test_recreate_diastolic_error_00001": test_recreate_diastolic_error_00001(); break;
+                                case "test_recreate_meanArterialPressure_error_00001": test_recreate_meanArterialPressure_error_00001(); break;
+                                case "test_recreate_isTimeStampSupported_00001": test_recreate_isTimeStampSupported_00001(); break;
+                                case "test_recreate_isTimeStampSupported_00002": test_recreate_isTimeStampSupported_00002(); break;
+                                case "test_recreate_timeStampYear_visibility_00001": test_recreate_timeStampYear_visibility_00001(); break;
+                                case "test_recreate_timeStampYear_visibility_00002": test_recreate_timeStampYear_visibility_00002(); break;
+                                case "test_recreate_timeStampYear_error_00001": test_recreate_timeStampYear_error_00001(); break;
+                                case "test_recreate_timeStampMonth_visibility_00001": test_recreate_timeStampMonth_visibility_00001(); break;
+                                case "test_recreate_timeStampMonth_visibility_00002": test_recreate_timeStampMonth_visibility_00002(); break;
+                                case "test_recreate_timeStampDay_visibility_00001": test_recreate_timeStampDay_visibility_00001(); break;
+                                case "test_recreate_timeStampDay_visibility_00002": test_recreate_timeStampDay_visibility_00002(); break;
+                                case "test_recreate_timeStampHours_visibility_00001": test_recreate_timeStampHours_visibility_00001(); break;
+                                case "test_recreate_timeStampHours_visibility_00002": test_recreate_timeStampHours_visibility_00002(); break;
+                                case "test_recreate_timeStampMinutes_visibility_00001": test_recreate_timeStampMinutes_visibility_00001(); break;
+                                case "test_recreate_timeStampMinutes_visibility_00002": test_recreate_timeStampMinutes_visibility_00002(); break;
+                                case "test_recreate_timeStampSeconds_visibility_00001": test_recreate_timeStampSeconds_visibility_00001(); break;
+                                case "test_recreate_timeStampSeconds_visibility_00002": test_recreate_timeStampSeconds_visibility_00002(); break;
+                                case "test_recreate_isPulseRateSupported_00001": test_recreate_isPulseRateSupported_00001(); break;
+                                case "test_recreate_isPulseRateSupported_00002": test_recreate_isPulseRateSupported_00002(); break;
+                                case "test_recreate_pulseRate_visibility_00001": test_recreate_pulseRate_visibility_00001(); break;
+                                case "test_recreate_pulseRate_visibility_00002": test_recreate_pulseRate_visibility_00002(); break;
+                                case "test_recreate_pulseRate_error_00001": test_recreate_pulseRate_error_00001(); break;
+                                case "test_recreate_isUserIdSupported_00001": test_recreate_isUserIdSupported_00001(); break;
+                                case "test_recreate_isUserIdSupported_00002": test_recreate_isUserIdSupported_00002(); break;
+                                case "test_recreate_userId_visibility_00001": test_recreate_userId_visibility_00001(); break;
+                                case "test_recreate_userId_visibility_00002": test_recreate_userId_visibility_00002(); break;
+                                case "test_recreate_userId_error_00001": test_recreate_userId_error_00001(); break;
+                                case "test_recreate_isMeasurementStatusSupported_00001": test_recreate_isMeasurementStatusSupported_00001(); break;
+                                case "test_recreate_isMeasurementStatusSupported_00002": test_recreate_isMeasurementStatusSupported_00002(); break;
+                                case "test_recreate_bodyMovementDetection_visibility_00001": test_recreate_bodyMovementDetection_visibility_00001(); break;
+                                case "test_recreate_bodyMovementDetection_visibility_00002": test_recreate_bodyMovementDetection_visibility_00002(); break;
+                                case "test_recreate_cuffFitDetection_visibility_00001": test_recreate_cuffFitDetection_visibility_00001(); break;
+                                case "test_recreate_cuffFitDetection_visibility_00002": test_recreate_cuffFitDetection_visibility_00002(); break;
+                                case "test_recreate_irregularPulseDetection_visibility_00001": test_recreate_irregularPulseDetection_visibility_00001(); break;
+                                case "test_recreate_irregularPulseDetection_visibility_00002": test_recreate_irregularPulseDetection_visibility_00002(); break;
+                                case "test_recreate_pulseRateRangeDetection_visibility_00001": test_recreate_pulseRateRangeDetection_visibility_00001(); break;
+                                case "test_recreate_pulseRateRangeDetection_visibility_00002": test_recreate_pulseRateRangeDetection_visibility_00002(); break;
+                                case "test_recreate_measurementPositionDetection_visibility_00001": test_recreate_measurementPositionDetection_visibility_00001(); break;
+                                case "test_recreate_measurementPositionDetection_visibility_00002": test_recreate_measurementPositionDetection_visibility_00002(); break;
+                                case "test_recreate_clientCharacteristicConfigurationCardView_00002": test_recreate_clientCharacteristicConfigurationCardView_00002(); break;
+                                case "test_recreate_indicationCount_error_00001": test_recreate_indicationCount_error_00001(); break;
+                                // @formatter:on
                                 default:
                             }
                             return Completable.complete();
@@ -294,7 +338,7 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
 
     @Override
     public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSaveProcessor.subscribe(onSuccess, onError));
+        mDisposable.add(mObserveSaveSubject.subscribe(onSuccess, onError));
     }
 
     private void test_systolic_error_00002() {
@@ -466,6 +510,174 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
     }
 
     private void test_indicationCount_error_00002() {
+        mSavedStateHandle.set("KEY_INDICATION_COUNT", "");
+    }
+
+    private void test_recreate_systolic_error_00001() {
+        mSavedStateHandle.set("KEY_SYSTOLIC", "");
+    }
+
+    private void test_recreate_diastolic_error_00001() {
+        mSavedStateHandle.set("KEY_DIASTOLIC", "");
+    }
+
+    private void test_recreate_meanArterialPressure_error_00001() {
+        mSavedStateHandle.set("KEY_MEAN_ARTERIAL_PRESSURE", "");
+    }
+
+    private void test_recreate_isTimeStampSupported_00001() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", false);
+    }
+
+    private void test_recreate_isTimeStampSupported_00002() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", true);
+    }
+
+    private void test_recreate_timeStampYear_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", false);
+    }
+
+    private void test_recreate_timeStampYear_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", true);
+    }
+
+    private void test_recreate_timeStampYear_error_00001() {
+        mSavedStateHandle.set("KEY_TIME_STAMP_YEAR", "");
+    }
+
+    private void test_recreate_timeStampMonth_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", false);
+    }
+
+    private void test_recreate_timeStampMonth_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", true);
+    }
+
+    private void test_recreate_timeStampDay_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", false);
+    }
+
+    private void test_recreate_timeStampDay_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", true);
+    }
+
+    private void test_recreate_timeStampHours_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", false);
+    }
+
+    private void test_recreate_timeStampHours_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", true);
+    }
+
+    private void test_recreate_timeStampMinutes_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", false);
+    }
+
+    private void test_recreate_timeStampMinutes_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", true);
+    }
+
+    private void test_recreate_timeStampSeconds_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", false);
+    }
+
+    private void test_recreate_timeStampSeconds_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_TIME_STAMP_SUPPORTED", true);
+    }
+
+    private void test_recreate_isPulseRateSupported_00001() {
+        mSavedStateHandle.set("KEY_IS_PULSE_RATE_SUPPORTED", false);
+    }
+
+    private void test_recreate_isPulseRateSupported_00002() {
+        mSavedStateHandle.set("KEY_IS_PULSE_RATE_SUPPORTED", true);
+    }
+
+    private void test_recreate_pulseRate_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_PULSE_RATE_SUPPORTED", false);
+    }
+
+    private void test_recreate_pulseRate_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_PULSE_RATE_SUPPORTED", true);
+    }
+
+    private void test_recreate_pulseRate_error_00001() {
+        mSavedStateHandle.set("KEY_PULSE_RATE", "");
+    }
+
+    private void test_recreate_isUserIdSupported_00001() {
+        mSavedStateHandle.set("KEY_IS_USER_ID_SUPPORTED", false);
+    }
+
+    private void test_recreate_isUserIdSupported_00002() {
+        mSavedStateHandle.set("KEY_IS_USER_ID_SUPPORTED", true);
+    }
+
+    private void test_recreate_userId_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_USER_ID_SUPPORTED", false);
+    }
+
+    private void test_recreate_userId_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_USER_ID_SUPPORTED", true);
+    }
+
+    private void test_recreate_userId_error_00001() {
+        mSavedStateHandle.set("KEY_USER_ID", "");
+    }
+
+    private void test_recreate_isMeasurementStatusSupported_00001() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", false);
+    }
+
+    private void test_recreate_isMeasurementStatusSupported_00002() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", true);
+    }
+
+    private void test_recreate_bodyMovementDetection_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", false);
+    }
+
+    private void test_recreate_bodyMovementDetection_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", true);
+    }
+
+    private void test_recreate_cuffFitDetection_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", false);
+    }
+
+    private void test_recreate_cuffFitDetection_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", true);
+    }
+
+    private void test_recreate_irregularPulseDetection_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", false);
+    }
+
+    private void test_recreate_irregularPulseDetection_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", true);
+    }
+
+    private void test_recreate_pulseRateRangeDetection_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", false);
+    }
+
+    private void test_recreate_pulseRateRangeDetection_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", true);
+    }
+
+    private void test_recreate_measurementPositionDetection_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", false);
+    }
+
+    private void test_recreate_measurementPositionDetection_visibility_00002() {
+        mSavedStateHandle.set("KEY_IS_MEASUREMENT_STATUS_SUPPORTED", true);
+    }
+
+    private void test_recreate_clientCharacteristicConfigurationCardView_00002() {
+        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON", "");
+    }
+
+    private void test_recreate_indicationCount_error_00001() {
         mSavedStateHandle.set("KEY_INDICATION_COUNT", "");
     }
 

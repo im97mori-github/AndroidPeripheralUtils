@@ -95,78 +95,76 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                     mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
                     mCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
                 }
-
-                if (mIsErrorResponse.getValue() == null) {
-                    mIsErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
-                }
-
-                BloodPressureFeature bloodPressureFeature;
-                if (mCharacteristicData.data == null) {
-                    bloodPressureFeature = null;
-                } else {
-                    bloodPressureFeature = new BloodPressureFeature(mCharacteristicData.data);
-                }
-
-                if (mBodyMovementDetection.getValue() == null) {
-                    if (bloodPressureFeature == null) {
-                        mBodyMovementDetection.postValue(false);
-                    } else {
-                        mBodyMovementDetection.postValue(bloodPressureFeature.isBodyMovementDetectionSupported());
-                    }
-                }
-
-                if (mCuffFitDetection.getValue() == null) {
-                    if (bloodPressureFeature == null) {
-                        mCuffFitDetection.postValue(false);
-                    } else {
-                        mCuffFitDetection.postValue(bloodPressureFeature.isCuffFitDetectionSupported());
-                    }
-                }
-
-                if (mIrregularPulseDetection.getValue() == null) {
-                    if (bloodPressureFeature == null) {
-                        mIrregularPulseDetection.postValue(false);
-                    } else {
-                        mIrregularPulseDetection.postValue(bloodPressureFeature.isIrregularPulseDetectionSupported());
-                    }
-                }
-
-                if (mPulseRateRangeDetection.getValue() == null) {
-                    if (bloodPressureFeature == null) {
-                        mPulseRateRangeDetection.postValue(false);
-                    } else {
-                        mPulseRateRangeDetection.postValue(bloodPressureFeature.isPulseRateRangeDetectionSupported());
-                    }
-                }
-
-                if (mMeasurementPositionDetection.getValue() == null) {
-                    if (bloodPressureFeature == null) {
-                        mMeasurementPositionDetection.postValue(false);
-                    } else {
-                        mMeasurementPositionDetection.postValue(bloodPressureFeature.isMeasurementPositionDetectionSupported());
-                    }
-                }
-
-                if (mMultipleBondDetection.getValue() == null) {
-                    if (bloodPressureFeature == null) {
-                        mMultipleBondDetection.postValue(false);
-                    } else {
-                        mMultipleBondDetection.postValue(bloodPressureFeature.isMultipleBondSupported());
-                    }
-                }
-
-                if (mResponseDelay.getValue() == null) {
-                    mResponseDelay.postValue(String.valueOf(mCharacteristicData.delay));
-                }
-
-                if (mResponseCode.getValue() == null) {
-                    mResponseCode.postValue(String.valueOf(mCharacteristicData.responseCode));
-                }
-
-                emitter.onComplete();
-            } else {
-                emitter.onError(new RuntimeException("Initialized"));
             }
+
+            if (mIsErrorResponse.getValue() == null) {
+                mIsErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
+            }
+
+            BloodPressureFeature bloodPressureFeature;
+            if (mCharacteristicData.data == null) {
+                bloodPressureFeature = null;
+            } else {
+                bloodPressureFeature = new BloodPressureFeature(mCharacteristicData.data);
+            }
+
+            if (mBodyMovementDetection.getValue() == null) {
+                if (bloodPressureFeature == null) {
+                    mBodyMovementDetection.postValue(false);
+                } else {
+                    mBodyMovementDetection.postValue(bloodPressureFeature.isBodyMovementDetectionSupported());
+                }
+            }
+
+            if (mCuffFitDetection.getValue() == null) {
+                if (bloodPressureFeature == null) {
+                    mCuffFitDetection.postValue(false);
+                } else {
+                    mCuffFitDetection.postValue(bloodPressureFeature.isCuffFitDetectionSupported());
+                }
+            }
+
+            if (mIrregularPulseDetection.getValue() == null) {
+                if (bloodPressureFeature == null) {
+                    mIrregularPulseDetection.postValue(false);
+                } else {
+                    mIrregularPulseDetection.postValue(bloodPressureFeature.isIrregularPulseDetectionSupported());
+                }
+            }
+
+            if (mPulseRateRangeDetection.getValue() == null) {
+                if (bloodPressureFeature == null) {
+                    mPulseRateRangeDetection.postValue(false);
+                } else {
+                    mPulseRateRangeDetection.postValue(bloodPressureFeature.isPulseRateRangeDetectionSupported());
+                }
+            }
+
+            if (mMeasurementPositionDetection.getValue() == null) {
+                if (bloodPressureFeature == null) {
+                    mMeasurementPositionDetection.postValue(false);
+                } else {
+                    mMeasurementPositionDetection.postValue(bloodPressureFeature.isMeasurementPositionDetectionSupported());
+                }
+            }
+
+            if (mMultipleBondDetection.getValue() == null) {
+                if (bloodPressureFeature == null) {
+                    mMultipleBondDetection.postValue(false);
+                } else {
+                    mMultipleBondDetection.postValue(bloodPressureFeature.isMultipleBondSupported());
+                }
+            }
+
+            if (mResponseDelay.getValue() == null) {
+                mResponseDelay.postValue(String.valueOf(mCharacteristicData.delay));
+            }
+
+            if (mResponseCode.getValue() == null) {
+                mResponseCode.postValue(String.valueOf(mCharacteristicData.responseCode));
+            }
+
+            emitter.onComplete();
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -279,8 +277,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     public void observeSave(@NonNull Consumer<Intent> onSuccess
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Single.<Intent>create(emitter -> {
-            CharacteristicData characteristicData = mCharacteristicData;
-            if (characteristicData == null) {
+            if (mCharacteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 boolean isErrorResponse = Boolean.TRUE.equals(mIsErrorResponse.getValue());
@@ -294,14 +291,14 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                 boolean multipleBondDetection = Boolean.TRUE.equals(mMultipleBondDetection.getValue());
 
                 if (responseDelay != null && mDeviceSettingRepository.getResponseDelayErrorString(responseDelay) == null) {
-                    characteristicData.delay = Long.parseLong(responseDelay);
+                    mCharacteristicData.delay = Long.parseLong(responseDelay);
                     if (isErrorResponse) {
                         if (responseCode != null && mDeviceSettingRepository.getResponseCodeErrorString(responseCode) == null) {
-                            characteristicData.data = null;
-                            characteristicData.responseCode = Integer.parseInt(responseCode);
+                            mCharacteristicData.data = null;
+                            mCharacteristicData.responseCode = Integer.parseInt(responseCode);
 
                             Intent intent = new Intent();
-                            intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+                            intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
                             mCharacteristicData = null;
                             emitter.onSuccess(intent);
@@ -309,7 +306,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                             emitter.onError(new RuntimeException("Validation failed"));
                         }
                     } else {
-                        characteristicData.data = new BloodPressureFeature(bodyMovementDetection
+                        mCharacteristicData.data = new BloodPressureFeature(bodyMovementDetection
                                 , cuffFitDetection
                                 , irregularPulseDetection
                                 , measurementPositionDetection
@@ -318,10 +315,10 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                                 , false
                                 , false
                                 , false).getBytes();
-                        characteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
+                        mCharacteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
 
                         Intent intent = new Intent();
-                        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+                        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
                         mCharacteristicData = null;
                         emitter.onSuccess(intent);

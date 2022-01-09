@@ -13,12 +13,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.processors.PublishProcessor;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
 public class FakeMainViewModel extends MainViewModel {
 
-    public final PublishProcessor<List<DeviceSetting>> mObserveAllDeviceSettingProcessor = PublishProcessor.create();
+    public final PublishSubject<List<DeviceSetting>> mObserveAllDeviceSettingSubject = PublishSubject.create();
 
     public Action mObserveDeleteAllDeviceSettingAction;
 
@@ -29,7 +29,7 @@ public class FakeMainViewModel extends MainViewModel {
 
     @Override
     public void observeLoadAllDeviceSetting(Consumer<List<DeviceSetting>> onNext, @NonNull Consumer<Throwable> onError) {
-        mDisposable.add(mObserveAllDeviceSettingProcessor.subscribe(onNext, onError));
+        mDisposable.add(mObserveAllDeviceSettingSubject.subscribe(onNext, onError));
     }
 
     @Override

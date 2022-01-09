@@ -15,16 +15,16 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.processors.PublishProcessor;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
 public class FakeDeviceSettingViewModel extends DeviceSettingViewModel {
 
-    public final PublishProcessor<String> mObserveSetupProcessor = PublishProcessor.create();
-    public final PublishProcessor<Object> mFragmentReadyProcessor = PublishProcessor.create();
+    public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
+    public final PublishSubject<String> mFragmentReadySubject = PublishSubject.create();
     public java.util.function.Consumer<String> mUpdateDeviceSettingNameConsumer;
     public java.util.function.Consumer<String> mObserveSaveConsumer;
 
@@ -40,8 +40,10 @@ public class FakeDeviceSettingViewModel extends DeviceSettingViewModel {
 
     @Override
     public void observeSetup(@NonNull Intent intent, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(Completable.fromPublisher(mObserveSetupProcessor).subscribe(()
-                -> super.observeSetup(intent, onComplete, onError)));
+        mDisposable.add(mObserveSetupSubject
+                .subscribe(s
+                        -> mDisposable.add(Single.create(emitter -> emitter.onSuccess(s)).subscribe(o -> super.observeSetup(intent, onComplete, onError))))
+        );
     }
 
     @Override
@@ -54,7 +56,8 @@ public class FakeDeviceSettingViewModel extends DeviceSettingViewModel {
 
     @Override
     public void fragmentReady() {
-        mDisposable.add(Completable.fromPublisher(mFragmentReadyProcessor).subscribe(super::fragmentReady));
+        mDisposable.add(mFragmentReadySubject.subscribe(o
+                -> mDisposable.add(Single.create(emitter -> emitter.onSuccess(o)).subscribe(o1 -> super.fragmentReady()))));
     }
 
     @Override

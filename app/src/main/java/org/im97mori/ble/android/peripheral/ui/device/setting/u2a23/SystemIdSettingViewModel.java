@@ -80,46 +80,44 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
                     mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
                     mCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
                 }
-
-                if (mIsErrorResponse.getValue() == null) {
-                    mIsErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
-                }
-
-                SystemId systemId;
-                if (mCharacteristicData.data == null) {
-                    systemId = null;
-                } else {
-                    systemId = new SystemId(mCharacteristicData.data);
-                }
-
-                if (mManufacturerIdentifier.getValue() == null) {
-                    if (systemId == null) {
-                        mManufacturerIdentifier.postValue(null);
-                    } else {
-                        mManufacturerIdentifier.postValue(String.valueOf(systemId.getManufacturerIdentifier()));
-                    }
-                }
-
-                if (mOrganizationallyUniqueIdentifier.getValue() == null) {
-                    if (systemId == null) {
-                        mOrganizationallyUniqueIdentifier.postValue(null);
-                    } else {
-                        mOrganizationallyUniqueIdentifier.postValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
-                    }
-                }
-
-                if (mResponseCode.getValue() == null) {
-                    mResponseCode.postValue(String.valueOf(mCharacteristicData.responseCode));
-                }
-
-                if (mResponseDelay.getValue() == null) {
-                    mResponseDelay.postValue(String.valueOf(mCharacteristicData.delay));
-                }
-
-                emitter.onComplete();
-            } else {
-                emitter.onError(new RuntimeException("Initialized"));
             }
+
+            if (mIsErrorResponse.getValue() == null) {
+                mIsErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
+            }
+
+            SystemId systemId;
+            if (mCharacteristicData.data == null) {
+                systemId = null;
+            } else {
+                systemId = new SystemId(mCharacteristicData.data);
+            }
+
+            if (mManufacturerIdentifier.getValue() == null) {
+                if (systemId == null) {
+                    mManufacturerIdentifier.postValue(null);
+                } else {
+                    mManufacturerIdentifier.postValue(String.valueOf(systemId.getManufacturerIdentifier()));
+                }
+            }
+
+            if (mOrganizationallyUniqueIdentifier.getValue() == null) {
+                if (systemId == null) {
+                    mOrganizationallyUniqueIdentifier.postValue(null);
+                } else {
+                    mOrganizationallyUniqueIdentifier.postValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
+                }
+            }
+
+            if (mResponseCode.getValue() == null) {
+                mResponseCode.postValue(String.valueOf(mCharacteristicData.responseCode));
+            }
+
+            if (mResponseDelay.getValue() == null) {
+                mResponseDelay.postValue(String.valueOf(mCharacteristicData.delay));
+            }
+
+            emitter.onComplete();
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -204,8 +202,7 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
     public void observeSave(@NonNull Consumer<Intent> onSuccess
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Single.<Intent>create(emitter -> {
-            CharacteristicData characteristicData = mCharacteristicData;
-            if (characteristicData == null) {
+            if (mCharacteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 boolean isErrorResponse = Boolean.TRUE.equals(mIsErrorResponse.getValue());
@@ -215,14 +212,14 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
                 String organizationallyUniqueIdentifier = mOrganizationallyUniqueIdentifier.getValue();
 
                 if (responseDelay != null && mDeviceSettingRepository.getResponseDelayErrorString(responseDelay) == null) {
-                    characteristicData.delay = Long.parseLong(responseDelay);
+                    mCharacteristicData.delay = Long.parseLong(responseDelay);
                     if (isErrorResponse) {
                         if (responseCode != null && mDeviceSettingRepository.getResponseCodeErrorString(responseCode) == null) {
-                            characteristicData.data = null;
-                            characteristicData.responseCode = Integer.parseInt(responseCode);
+                            mCharacteristicData.data = null;
+                            mCharacteristicData.responseCode = Integer.parseInt(responseCode);
 
                             Intent intent = new Intent();
-                            intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+                            intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
                             mCharacteristicData = null;
                             emitter.onSuccess(intent);
@@ -232,11 +229,11 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
                     } else {
                         if (manufacturerIdentifier != null && mDeviceSettingRepository.getManufacturerNameStringErrorString(manufacturerIdentifier) == null
                                 && organizationallyUniqueIdentifier != null && mDeviceSettingRepository.getOrganizationallyUniqueIdentifierErrorString(organizationallyUniqueIdentifier) == null) {
-                            characteristicData.data = new SystemId(Long.parseLong(manufacturerIdentifier), Integer.parseInt(organizationallyUniqueIdentifier)).getBytes();
-                            characteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
+                            mCharacteristicData.data = new SystemId(Long.parseLong(manufacturerIdentifier), Integer.parseInt(organizationallyUniqueIdentifier)).getBytes();
+                            mCharacteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
 
                             Intent intent = new Intent();
-                            intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+                            intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
                             mCharacteristicData = null;
                             emitter.onSuccess(intent);

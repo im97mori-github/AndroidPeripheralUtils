@@ -16,18 +16,18 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.processors.PublishProcessor;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
 public class FakeSystemIdSettingViewModel extends SystemIdSettingViewModel {
 
-    public final PublishProcessor<String> mObserveSetupProcessor = PublishProcessor.create();
+    public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
 
     public final FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
     private final SavedStateHandle mSavedStateHandle;
 
-    public final PublishProcessor<Intent> mObserveSaveProcessor = PublishProcessor.create();
+    public final PublishSubject<Intent> mObserveSaveSubject = PublishSubject.create();
 
     public java.util.function.Consumer<Boolean> mUpdateIsErrorResponseConsumer;
     public java.util.function.Consumer<String> mUpdateManufacturerIdentifierConsumer;
@@ -46,7 +46,7 @@ public class FakeSystemIdSettingViewModel extends SystemIdSettingViewModel {
 
     @Override
     public void observeSetup(@NonNull Intent intent, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSetupProcessor
+        mDisposable.add(mObserveSetupSubject
                 .subscribe(s -> mDisposable.add(Single.<String>create(emitter -> emitter.onSuccess(s))
                         .flatMapCompletable(t -> {
                             switch (t) {
@@ -80,11 +80,32 @@ public class FakeSystemIdSettingViewModel extends SystemIdSettingViewModel {
                                 case "test_updateResponseCode_00001":
                                     test_updateResponseCode_00001();
                                     break;
+                                case "test_recreate_isErrorResponse_00001":
+                                    test_recreate_isErrorResponse_00001();
+                                    break;
+                                case "test_recreate_responseCode_visibility_00001":
+                                    test_recreate_responseCode_visibility_00001();
+                                    break;
+                                case "test_recreate_responseCode_00001":
+                                    test_recreate_responseCode_00001();
+                                    break;
+                                case "test_recreate_responseCode_error_00001":
+                                    test_recreate_responseCode_error_00001();
+                                    break;
+                                case "test_recreate_responseDelay_00001":
+                                    test_recreate_responseDelay_00001();
+                                    break;
+                                case "test_recreate_responseDelay_error_00001":
+                                    test_recreate_responseDelay_error_00001();
+                                    break;
                                 case "test_manufacturerIdentifier_visibility_00001":
                                     test_manufacturerIdentifier_visibility_00001();
                                     break;
                                 case "test_manufacturerIdentifier_visibility_00002":
                                     test_manufacturerIdentifier_visibility_00002();
+                                    break;
+                                case "test_manufacturerIdentifier_00001":
+                                    test_manufacturerIdentifier_00001();
                                     break;
                                 case "test_manufacturerIdentifier_error_00002":
                                     test_manufacturerIdentifier_error_00002();
@@ -98,11 +119,32 @@ public class FakeSystemIdSettingViewModel extends SystemIdSettingViewModel {
                                 case "test_organizationallyUniqueIdentifier_visibility_00002":
                                     test_organizationallyUniqueIdentifier_visibility_00002();
                                     break;
+                                case "test_organizationallyUniqueIdentifier_00001":
+                                    test_organizationallyUniqueIdentifier_00001();
+                                    break;
                                 case "test_organizationallyUniqueIdentifier_error_00002":
                                     test_organizationallyUniqueIdentifier_error_00002();
                                     break;
                                 case "test_updateOrganizationallyUniqueIdentifier_00001":
                                     test_updateOrganizationallyUniqueIdentifier_00001();
+                                    break;
+                                case "test_recreate_manufacturerIdentifier_visibility_00001":
+                                    test_recreate_manufacturerIdentifier_visibility_00001();
+                                    break;
+                                case "test_recreate_manufacturerIdentifier_00001":
+                                    test_recreate_manufacturerIdentifier_00001();
+                                    break;
+                                case "test_recreate_manufacturerIdentifier_error_00001":
+                                    test_recreate_manufacturerIdentifier_error_00001();
+                                    break;
+                                case "test_recreate_organizationallyUniqueIdentifier_visibility_00001":
+                                    test_recreate_organizationallyUniqueIdentifier_visibility_00001();
+                                    break;
+                                case "test_recreate_organizationallyUniqueIdentifier_00001":
+                                    test_recreate_organizationallyUniqueIdentifier_00001();
+                                    break;
+                                case "test_recreate_organizationallyUniqueIdentifier_error_00001":
+                                    test_recreate_organizationallyUniqueIdentifier_error_00001();
                                     break;
                                 default:
                             }
@@ -152,7 +194,7 @@ public class FakeSystemIdSettingViewModel extends SystemIdSettingViewModel {
 
     @Override
     public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSaveProcessor.subscribe(onSuccess, onError));
+        mDisposable.add(mObserveSaveSubject.subscribe(onSuccess, onError));
     }
 
     private void test_isErrorResponse_00002() {
@@ -195,20 +237,36 @@ public class FakeSystemIdSettingViewModel extends SystemIdSettingViewModel {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 
+    private void test_recreate_isErrorResponse_00001() {
+        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
+    }
+
+    private void test_recreate_responseCode_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
+    }
+
+    private void test_recreate_responseCode_00001() {
+        mSavedStateHandle.set("KEY_RESPONSE_CODE", "1");
+    }
+
+    private void test_recreate_responseCode_error_00001() {
+        mSavedStateHandle.set("KEY_RESPONSE_CODE", "");
+    }
+
+    private void test_recreate_responseDelay_00001() {
+        mSavedStateHandle.set("KEY_RESPONSE_DELAY", "1");
+    }
+
+    private void test_recreate_responseDelay_error_00001() {
+        mSavedStateHandle.set("KEY_RESPONSE_DELAY", "");
+    }
+
     private void test_manufacturerIdentifier_visibility_00001() {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", false);
     }
 
     private void test_manufacturerIdentifier_visibility_00002() {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
-    }
-
-    private void test_manufacturerIdentifier_error_00002() {
-        mSavedStateHandle.set("KEY_MANUFACTURER_IDENTIFIER", "");
-    }
-
-    private void test_updateManufacturerIdentifier_00001() {
-        mSavedStateHandle.set("KEY_MANUFACTURER_IDENTIFIER", "1");
     }
 
     private void test_organizationallyUniqueIdentifier_visibility_00001() {
@@ -219,12 +277,52 @@ public class FakeSystemIdSettingViewModel extends SystemIdSettingViewModel {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 
+    private void test_manufacturerIdentifier_00001() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_IDENTIFIER", "1");
+    }
+
+    private void test_manufacturerIdentifier_error_00002() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_IDENTIFIER", "");
+    }
+
+    private void test_updateManufacturerIdentifier_00001() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_IDENTIFIER", "1");
+    }
+
+    private void test_organizationallyUniqueIdentifier_00001() {
+        mSavedStateHandle.set("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER", "1");
+    }
+
     private void test_organizationallyUniqueIdentifier_error_00002() {
         mSavedStateHandle.set("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER", "");
     }
 
     private void test_updateOrganizationallyUniqueIdentifier_00001() {
         mSavedStateHandle.set("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER", "1");
+    }
+
+    private void test_recreate_manufacturerIdentifier_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
+    }
+
+    private void test_recreate_manufacturerIdentifier_00001() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_IDENTIFIER", "1");
+    }
+
+    private void test_recreate_manufacturerIdentifier_error_00001() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_IDENTIFIER", "");
+    }
+
+    private void test_recreate_organizationallyUniqueIdentifier_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
+    }
+
+    private void test_recreate_organizationallyUniqueIdentifier_00001() {
+        mSavedStateHandle.set("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER", "1");
+    }
+
+    private void test_recreate_organizationallyUniqueIdentifier_error_00001() {
+        mSavedStateHandle.set("KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER", "");
     }
 
 }

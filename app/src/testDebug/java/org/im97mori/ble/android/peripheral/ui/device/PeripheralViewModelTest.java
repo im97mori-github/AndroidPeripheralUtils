@@ -190,6 +190,7 @@ public class PeripheralViewModelTest {
                 , throwable -> {
                 });
 
+        mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor = PublishProcessor.create();
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
@@ -200,7 +201,7 @@ public class PeripheralViewModelTest {
         assertTrue(isReadyReference.get());
         assertFalse(isStartedReference.get());
 
-        assertFalse(result.get());
+        assertTrue(result.get());
     }
 
     @Test

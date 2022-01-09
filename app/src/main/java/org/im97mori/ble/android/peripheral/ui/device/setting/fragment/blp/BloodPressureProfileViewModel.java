@@ -60,30 +60,28 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
 
     public void observeSetup(@NonNull MockData mockData, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
-            if (mMockData == null) {
-                mMockData = mockData;
+            mMockData = mockData;
 
-                Optional<ServiceData> blsServiceDataOptional = mMockData.serviceDataList
-                        .stream()
-                        .filter(serviceData -> serviceData.uuid.equals(BLOOD_PRESSURE_SERVICE))
-                        .findAny();
+            Optional<ServiceData> blsServiceDataOptional = mMockData.serviceDataList
+                    .stream()
+                    .filter(serviceData -> serviceData.uuid.equals(BLOOD_PRESSURE_SERVICE))
+                    .findAny();
 
-                Optional<ServiceData> disServiceDataOptional = mMockData.serviceDataList
-                        .stream()
-                        .filter(serviceData -> serviceData.uuid.equals(DEVICE_INFORMATION_SERVICE))
-                        .findAny();
+            Optional<ServiceData> disServiceDataOptional = mMockData.serviceDataList
+                    .stream()
+                    .filter(serviceData -> serviceData.uuid.equals(DEVICE_INFORMATION_SERVICE))
+                    .findAny();
 
-                if (mIsDisSupported.getValue() == null) {
-                    mIsDisSupported.postValue(disServiceDataOptional.isPresent());
-                }
+            if (mIsDisSupported.getValue() == null) {
+                mIsDisSupported.postValue(disServiceDataOptional.isPresent());
+            }
 
-                if (mBlsDataJson.getValue() == null && blsServiceDataOptional.isPresent()) {
-                    mBlsDataJson.postValue(mGson.toJson(blsServiceDataOptional.get()));
-                }
+            if (mBlsDataJson.getValue() == null && blsServiceDataOptional.isPresent()) {
+                mBlsDataJson.postValue(mGson.toJson(blsServiceDataOptional.get()));
+            }
 
-                if (mDisDataJson.getValue() == null && disServiceDataOptional.isPresent()) {
-                    mDisDataJson.postValue(mGson.toJson(disServiceDataOptional.get()));
-                }
+            if (mDisDataJson.getValue() == null && disServiceDataOptional.isPresent()) {
+                mDisDataJson.postValue(mGson.toJson(disServiceDataOptional.get()));
             }
             emitter.onComplete();
         }).subscribeOn(Schedulers.io())

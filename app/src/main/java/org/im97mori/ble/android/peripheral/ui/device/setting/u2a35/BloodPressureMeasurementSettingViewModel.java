@@ -158,281 +158,279 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     mCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
                     mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
                 }
-
-                BloodPressureMeasurement bloodPressureMeasurement;
-                if (mCharacteristicData.data == null) {
-                    bloodPressureMeasurement = null;
-                } else {
-                    bloodPressureMeasurement = new BloodPressureMeasurement(mCharacteristicData.data);
-                }
-
-                boolean isMmhg;
-                if (bloodPressureMeasurement == null) {
-                    isMmhg = true;
-                } else {
-                    isMmhg = BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags());
-                }
-                mIsMmhg.postValue(isMmhg);
-
-
-                if (mIsMmhg.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mIsMmhg.postValue(true);
-                    } else {
-                        mIsMmhg.postValue(BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags()));
-                    }
-                }
-
-                if (mSystolic.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mSystolic.postValue(null);
-                    } else {
-                        if (isMmhg) {
-                            mSystolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueSystolicMmhg().getSfloat()));
-                        } else {
-                            mSystolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueSystolicKpa().getSfloat()));
-                        }
-                    }
-                }
-
-                if (mDiastolic.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mDiastolic.postValue(null);
-                    } else {
-                        if (isMmhg) {
-                            mDiastolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
-                        } else {
-                            mDiastolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
-                        }
-                    }
-                }
-
-                if (mMeanArterialPressure.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mMeanArterialPressure.postValue(null);
-                    } else {
-                        if (isMmhg) {
-                            mMeanArterialPressure.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureMmhg().getSfloat()));
-                        } else {
-                            mMeanArterialPressure.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureKpa().getSfloat()));
-                        }
-                    }
-                }
-
-                if (mIsTimeStampSupported.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mIsTimeStampSupported.postValue(false);
-                    } else {
-                        mIsTimeStampSupported.postValue(BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags()));
-                    }
-                }
-
-                if (mTimeStampYear.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mTimeStampYear.postValue(null);
-                    } else {
-                        if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
-                            mTimeStampYear.postValue(String.valueOf(bloodPressureMeasurement.getYear()));
-                        } else {
-                            mTimeStampYear.postValue(null);
-                        }
-                    }
-                }
-
-                if (mTimeStampMonth.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
-                            List<Pair<Integer, String>> list = provideDateTimeMonthList();
-                            Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair
-                                    -> integerStringPair.first == bloodPressureMeasurement.getMonth()).findFirst();
-                            optional.ifPresent(integerStringPair -> mTimeStampMonth.postValue(list.indexOf(integerStringPair)));
-                        }
-                    }
-                }
-
-                if (mTimeStampDay.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
-                            List<Pair<Integer, String>> list = provideDateTimeDayList();
-                            Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair
-                                    -> integerStringPair.first == bloodPressureMeasurement.getDay()).findFirst();
-                            optional.ifPresent(integerStringPair -> mTimeStampDay.postValue(list.indexOf(integerStringPair)));
-                        }
-                    }
-                }
-
-                if (mTimeStampHours.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
-                            mTimeStampHours.postValue(provideDateTimeHoursList().indexOf(String.valueOf(bloodPressureMeasurement.getHours())));
-                        }
-                    }
-                }
-
-                if (mTimeStampMinutes.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
-                            mTimeStampMinutes.postValue(provideDateTimeMinutesList().indexOf(String.valueOf(bloodPressureMeasurement.getMinutes())));
-                        }
-                    }
-                }
-
-                if (mTimeStampSeconds.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
-                            mTimeStampSeconds.postValue(provideDateTimeSecondsList().indexOf(String.valueOf(bloodPressureMeasurement.getSeconds())));
-                        }
-                    }
-                }
-
-                if (mIsPulseRateSupported.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mIsPulseRateSupported.postValue(false);
-                    } else {
-                        mIsPulseRateSupported.postValue(BloodPressureMeasurementUtils.isFlagsPulseRatePresent(bloodPressureMeasurement.getFlags()));
-                    }
-                }
-
-                if (mPulseRate.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mPulseRate.postValue(null);
-                    } else {
-                        if (BloodPressureMeasurementUtils.isFlagsPulseRatePresent(bloodPressureMeasurement.getFlags())) {
-                            mPulseRate.postValue(String.valueOf(bloodPressureMeasurement.getPulseRate().getSfloat()));
-                        } else {
-                            mPulseRate.postValue(null);
-                        }
-                    }
-                }
-
-                if (mIsUserIdSupported.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mIsUserIdSupported.postValue(false);
-                    } else {
-                        mIsUserIdSupported.postValue(BloodPressureMeasurementUtils.isFlagsUserIdPresent(bloodPressureMeasurement.getFlags()));
-                    }
-                }
-
-                if (mUserId.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mUserId.postValue(null);
-                    } else {
-                        if (BloodPressureMeasurementUtils.isFlagsUserIdPresent(bloodPressureMeasurement.getFlags())) {
-                            mUserId.postValue(String.valueOf(bloodPressureMeasurement.getUserId()));
-                        } else {
-                            mUserId.postValue(null);
-                        }
-                    }
-                }
-
-                if (mIsMeasurementStatusSupported.getValue() == null) {
-                    if (bloodPressureMeasurement == null) {
-                        mIsMeasurementStatusSupported.postValue(false);
-                    } else {
-                        mIsMeasurementStatusSupported.postValue(BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags()));
-                    }
-                }
-
-                int measurementStatus;
-                if (bloodPressureMeasurement == null) {
-                    measurementStatus = 0;
-                } else {
-                    if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
-                        measurementStatus = BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0);
-                    } else {
-                        measurementStatus = 0;
-                    }
-                }
-
-                if (mBodyMovementDetection.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
-                            List<Pair<Integer, String>> list = provideBodyMovementDetectionList();
-                            int maskedBodyMovementDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_MASK & measurementStatus;
-                            Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedBodyMovementDetection).findFirst();
-                            optional.ifPresent(integerStringPair -> mBodyMovementDetection.postValue(list.indexOf(integerStringPair)));
-                        }
-                    }
-                }
-
-                if (mCuffFitDetection.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
-                            List<Pair<Integer, String>> list = provideCuffFitDetectionList();
-                            int maskedCuffFitDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_MASK & measurementStatus;
-                            Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedCuffFitDetection).findFirst();
-                            optional.ifPresent(integerStringPair -> mCuffFitDetection.postValue(list.indexOf(integerStringPair)));
-                        }
-                    }
-                }
-
-                if (mIrregularPulseDetection.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
-                            List<Pair<Integer, String>> list = provideIrregularPulseDetectionList();
-                            int maskedIrregularPulseDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_MASK & measurementStatus;
-                            Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedIrregularPulseDetection).findFirst();
-                            optional.ifPresent(integerStringPair -> mIrregularPulseDetection.postValue(list.indexOf(integerStringPair)));
-                        }
-                    }
-                }
-
-                if (mPulseRateRangeDetection.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
-                            List<Pair<Integer, String>> list = providePulseRateRangeDetectionList();
-                            int maskedPulseRateRangeDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_MASK & measurementStatus;
-                            Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedPulseRateRangeDetection).findFirst();
-                            optional.ifPresent(integerStringPair -> mPulseRateRangeDetection.postValue(list.indexOf(integerStringPair)));
-                        }
-                    }
-                }
-
-                if (mMeasurementPositionDetection.getValue() == null) {
-                    if (bloodPressureMeasurement != null) {
-                        if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
-                            List<Pair<Integer, String>> list = provideMeasurementPositionDetectionList();
-                            int maskedMeasurementPositionDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_MASK & measurementStatus;
-                            Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedMeasurementPositionDetection).findFirst();
-                            optional.ifPresent(integerStringPair -> mMeasurementPositionDetection.postValue(list.indexOf(integerStringPair)));
-                        }
-                    }
-                }
-
-                ClientCharacteristicConfiguration clientCharacteristicConfiguration;
-                Optional<DescriptorData> clientCharacteristicConfigurationOptional = mCharacteristicData.descriptorDataList
-                        .stream()
-                        .filter(descriptorData -> descriptorData.uuid.equals(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR))
-                        .findAny();
-                if (clientCharacteristicConfigurationOptional.isPresent()) {
-                    DescriptorData descriptorData = clientCharacteristicConfigurationOptional.get();
-                    mClientCharacteristicConfigurationJson.postValue(mGson.toJson(descriptorData));
-                    if (descriptorData.data == null) {
-                        clientCharacteristicConfiguration = null;
-                    } else {
-                        clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(descriptorData.data);
-                    }
-                } else {
-                    clientCharacteristicConfiguration = null;
-                }
-
-                if (mClientCharacteristicConfiguration.getValue() == null) {
-                    if (clientCharacteristicConfiguration == null) {
-                        mClientCharacteristicConfiguration.postValue("");
-                    } else {
-                        mClientCharacteristicConfiguration
-                                .postValue(mDeviceSettingRepository.getIndicationsString(clientCharacteristicConfiguration.isPropertiesIndicationsEnabled()));
-                    }
-                }
-
-                if (mIndicationCount.getValue() == null) {
-                    mIndicationCount.postValue(String.valueOf(mCharacteristicData.notificationCount));
-                }
-
-                emitter.onComplete();
-            } else {
-                emitter.onError(new RuntimeException("Initialized"));
             }
+
+            BloodPressureMeasurement bloodPressureMeasurement;
+            if (mCharacteristicData.data == null) {
+                bloodPressureMeasurement = null;
+            } else {
+                bloodPressureMeasurement = new BloodPressureMeasurement(mCharacteristicData.data);
+            }
+
+            boolean isMmhg;
+            if (bloodPressureMeasurement == null) {
+                isMmhg = true;
+            } else {
+                isMmhg = BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags());
+            }
+            mIsMmhg.postValue(isMmhg);
+
+
+            if (mIsMmhg.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mIsMmhg.postValue(true);
+                } else {
+                    mIsMmhg.postValue(BloodPressureMeasurementUtils.isFlagsBloodPressureUnitsMmhg(bloodPressureMeasurement.getFlags()));
+                }
+            }
+
+            if (mSystolic.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mSystolic.postValue(null);
+                } else {
+                    if (isMmhg) {
+                        mSystolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueSystolicMmhg().getSfloat()));
+                    } else {
+                        mSystolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueSystolicKpa().getSfloat()));
+                    }
+                }
+            }
+
+            if (mDiastolic.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mDiastolic.postValue(null);
+                } else {
+                    if (isMmhg) {
+                        mDiastolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicMmhg().getSfloat()));
+                    } else {
+                        mDiastolic.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueDiastolicKpa().getSfloat()));
+                    }
+                }
+            }
+
+            if (mMeanArterialPressure.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mMeanArterialPressure.postValue(null);
+                } else {
+                    if (isMmhg) {
+                        mMeanArterialPressure.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureMmhg().getSfloat()));
+                    } else {
+                        mMeanArterialPressure.postValue(String.valueOf(bloodPressureMeasurement.getBloodPressureMeasurementCompoundValueMeanArterialPressureKpa().getSfloat()));
+                    }
+                }
+            }
+
+            if (mIsTimeStampSupported.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mIsTimeStampSupported.postValue(false);
+                } else {
+                    mIsTimeStampSupported.postValue(BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags()));
+                }
+            }
+
+            if (mTimeStampYear.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mTimeStampYear.postValue(null);
+                } else {
+                    if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
+                        mTimeStampYear.postValue(String.valueOf(bloodPressureMeasurement.getYear()));
+                    } else {
+                        mTimeStampYear.postValue(null);
+                    }
+                }
+            }
+
+            if (mTimeStampMonth.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
+                        List<Pair<Integer, String>> list = provideDateTimeMonthList();
+                        Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair
+                                -> integerStringPair.first == bloodPressureMeasurement.getMonth()).findFirst();
+                        optional.ifPresent(integerStringPair -> mTimeStampMonth.postValue(list.indexOf(integerStringPair)));
+                    }
+                }
+            }
+
+            if (mTimeStampDay.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
+                        List<Pair<Integer, String>> list = provideDateTimeDayList();
+                        Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair
+                                -> integerStringPair.first == bloodPressureMeasurement.getDay()).findFirst();
+                        optional.ifPresent(integerStringPair -> mTimeStampDay.postValue(list.indexOf(integerStringPair)));
+                    }
+                }
+            }
+
+            if (mTimeStampHours.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
+                        mTimeStampHours.postValue(provideDateTimeHoursList().indexOf(String.valueOf(bloodPressureMeasurement.getHours())));
+                    }
+                }
+            }
+
+            if (mTimeStampMinutes.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
+                        mTimeStampMinutes.postValue(provideDateTimeMinutesList().indexOf(String.valueOf(bloodPressureMeasurement.getMinutes())));
+                    }
+                }
+            }
+
+            if (mTimeStampSeconds.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsTimeStampPresent(bloodPressureMeasurement.getFlags())) {
+                        mTimeStampSeconds.postValue(provideDateTimeSecondsList().indexOf(String.valueOf(bloodPressureMeasurement.getSeconds())));
+                    }
+                }
+            }
+
+            if (mIsPulseRateSupported.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mIsPulseRateSupported.postValue(false);
+                } else {
+                    mIsPulseRateSupported.postValue(BloodPressureMeasurementUtils.isFlagsPulseRatePresent(bloodPressureMeasurement.getFlags()));
+                }
+            }
+
+            if (mPulseRate.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mPulseRate.postValue(null);
+                } else {
+                    if (BloodPressureMeasurementUtils.isFlagsPulseRatePresent(bloodPressureMeasurement.getFlags())) {
+                        mPulseRate.postValue(String.valueOf(bloodPressureMeasurement.getPulseRate().getSfloat()));
+                    } else {
+                        mPulseRate.postValue(null);
+                    }
+                }
+            }
+
+            if (mIsUserIdSupported.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mIsUserIdSupported.postValue(false);
+                } else {
+                    mIsUserIdSupported.postValue(BloodPressureMeasurementUtils.isFlagsUserIdPresent(bloodPressureMeasurement.getFlags()));
+                }
+            }
+
+            if (mUserId.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mUserId.postValue(null);
+                } else {
+                    if (BloodPressureMeasurementUtils.isFlagsUserIdPresent(bloodPressureMeasurement.getFlags())) {
+                        mUserId.postValue(String.valueOf(bloodPressureMeasurement.getUserId()));
+                    } else {
+                        mUserId.postValue(null);
+                    }
+                }
+            }
+
+            if (mIsMeasurementStatusSupported.getValue() == null) {
+                if (bloodPressureMeasurement == null) {
+                    mIsMeasurementStatusSupported.postValue(false);
+                } else {
+                    mIsMeasurementStatusSupported.postValue(BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags()));
+                }
+            }
+
+            int measurementStatus;
+            if (bloodPressureMeasurement == null) {
+                measurementStatus = 0;
+            } else {
+                if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
+                    measurementStatus = BLEUtils.createUInt16(bloodPressureMeasurement.getMeasurementStatus(), 0);
+                } else {
+                    measurementStatus = 0;
+                }
+            }
+
+            if (mBodyMovementDetection.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
+                        List<Pair<Integer, String>> list = provideBodyMovementDetectionList();
+                        int maskedBodyMovementDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_MASK & measurementStatus;
+                        Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedBodyMovementDetection).findFirst();
+                        optional.ifPresent(integerStringPair -> mBodyMovementDetection.postValue(list.indexOf(integerStringPair)));
+                    }
+                }
+            }
+
+            if (mCuffFitDetection.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
+                        List<Pair<Integer, String>> list = provideCuffFitDetectionList();
+                        int maskedCuffFitDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_MASK & measurementStatus;
+                        Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedCuffFitDetection).findFirst();
+                        optional.ifPresent(integerStringPair -> mCuffFitDetection.postValue(list.indexOf(integerStringPair)));
+                    }
+                }
+            }
+
+            if (mIrregularPulseDetection.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
+                        List<Pair<Integer, String>> list = provideIrregularPulseDetectionList();
+                        int maskedIrregularPulseDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_MASK & measurementStatus;
+                        Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedIrregularPulseDetection).findFirst();
+                        optional.ifPresent(integerStringPair -> mIrregularPulseDetection.postValue(list.indexOf(integerStringPair)));
+                    }
+                }
+            }
+
+            if (mPulseRateRangeDetection.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
+                        List<Pair<Integer, String>> list = providePulseRateRangeDetectionList();
+                        int maskedPulseRateRangeDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_MASK & measurementStatus;
+                        Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedPulseRateRangeDetection).findFirst();
+                        optional.ifPresent(integerStringPair -> mPulseRateRangeDetection.postValue(list.indexOf(integerStringPair)));
+                    }
+                }
+            }
+
+            if (mMeasurementPositionDetection.getValue() == null) {
+                if (bloodPressureMeasurement != null) {
+                    if (BloodPressureMeasurementUtils.isFlagsMeasurementStatusPresent(bloodPressureMeasurement.getFlags())) {
+                        List<Pair<Integer, String>> list = provideMeasurementPositionDetectionList();
+                        int maskedMeasurementPositionDetection = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_MASK & measurementStatus;
+                        Optional<Pair<Integer, String>> optional = list.stream().filter(integerStringPair -> integerStringPair.first == maskedMeasurementPositionDetection).findFirst();
+                        optional.ifPresent(integerStringPair -> mMeasurementPositionDetection.postValue(list.indexOf(integerStringPair)));
+                    }
+                }
+            }
+
+            ClientCharacteristicConfiguration clientCharacteristicConfiguration;
+            Optional<DescriptorData> clientCharacteristicConfigurationOptional = mCharacteristicData.descriptorDataList
+                    .stream()
+                    .filter(descriptorData -> descriptorData.uuid.equals(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR))
+                    .findAny();
+            if (clientCharacteristicConfigurationOptional.isPresent()) {
+                DescriptorData descriptorData = clientCharacteristicConfigurationOptional.get();
+                mClientCharacteristicConfigurationJson.postValue(mGson.toJson(descriptorData));
+                if (descriptorData.data == null) {
+                    clientCharacteristicConfiguration = null;
+                } else {
+                    clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(descriptorData.data);
+                }
+            } else {
+                clientCharacteristicConfiguration = null;
+            }
+
+            if (mClientCharacteristicConfiguration.getValue() == null) {
+                if (clientCharacteristicConfiguration == null) {
+                    mClientCharacteristicConfiguration.postValue("");
+                } else {
+                    mClientCharacteristicConfiguration
+                            .postValue(mDeviceSettingRepository.getIndicationsString(clientCharacteristicConfiguration.isPropertiesIndicationsEnabled()));
+                }
+            }
+
+            if (mIndicationCount.getValue() == null) {
+                mIndicationCount.postValue(String.valueOf(mCharacteristicData.notificationCount));
+            }
+
+            emitter.onComplete();
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -800,8 +798,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     public void observeSave(@NonNull Consumer<Intent> onSuccess
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Single.<Intent>create(emitter -> {
-            CharacteristicData characteristicData = mCharacteristicData;
-            if (characteristicData == null) {
+            if (mCharacteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 boolean isMmhg = Boolean.TRUE.equals(mIsMmhg.getValue());
@@ -917,7 +914,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                         measurementStatus = new byte[0];
                     }
 
-                    characteristicData.data = new BloodPressureMeasurement(flags
+                    mCharacteristicData.data = new BloodPressureMeasurement(flags
                             , systolicMmhg
                             , diastolicMmhg
                             , meanArterialPressureMmhg
@@ -939,7 +936,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     mCharacteristicData.notificationCount = Integer.parseInt(indicationCount);
 
                     Intent intent = new Intent();
-                    intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+                    intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
                     mCharacteristicData = null;
                     emitter.onSuccess(intent);

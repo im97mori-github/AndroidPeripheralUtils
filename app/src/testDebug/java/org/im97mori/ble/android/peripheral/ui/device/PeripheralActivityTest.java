@@ -17,6 +17,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
 import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -84,6 +85,7 @@ import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+// TODO recreate test
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {
@@ -147,8 +149,7 @@ public class PeripheralActivityTest {
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
 
         mViewModel.test_title_00001_String = deviceSettingName;
-        mViewModel.mObserveSetupProcessor.onNext("test_title_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.topAppBar)).check(matches(hasDescendant(withText(deviceSettingName))));
     }
@@ -163,8 +164,7 @@ public class PeripheralActivityTest {
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_root_container_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
@@ -198,8 +198,7 @@ public class PeripheralActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_deviceTypeImage_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
             @Override
@@ -224,8 +223,7 @@ public class PeripheralActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_deviceType_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withText(R.string.menu_setting)).perform(click());
@@ -254,8 +252,7 @@ public class PeripheralActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_deviceTypeName_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.deviceTypeName)).check(matches(withText(R.string.blood_pressure_profile)));
     }
@@ -283,8 +280,7 @@ public class PeripheralActivityTest {
             });
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_observeIsReady_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         assertEquals(3, count.get());
     }
 
@@ -328,8 +324,7 @@ public class PeripheralActivityTest {
             });
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_observeIsStarted_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         try {
             //noinspection ResultOfMethodCallIgnored
@@ -351,8 +346,7 @@ public class PeripheralActivityTest {
         mScenario.onActivity(activity -> {
             mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
 
-            mViewModel.mObserveSetupProcessor.onNext("test_observeIsStarted_00001");
-            mViewModel.mObserveSetupProcessor.onComplete();
+            mViewModel.mObserveSetupSubject.onNext("test_observeIsStarted_00001");
 
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             Drawable drawable = activity.findViewById(R.id.deviceTypeImage).getBackground();
@@ -420,8 +414,7 @@ public class PeripheralActivityTest {
             });
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_observeIsBluetoothEnabled_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         assertEquals(3, count.get());
     }
@@ -450,8 +443,7 @@ public class PeripheralActivityTest {
             });
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_observeIsBluetoothEnabled_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         assertEquals(2, count.get());
         assertTrue(mViewModel.mIsQuitCalled);
@@ -474,8 +466,7 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.peripheralStart)).check(matches(isNotEnabled()));
         onView(withId(R.id.peripheralStop)).check(matches(isEnabled()));
@@ -506,8 +497,7 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.peripheralStart)).check(matches(isEnabled()));
         onView(withId(R.id.peripheralStop)).check(matches(isNotEnabled()));
@@ -538,8 +528,7 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.peripheralStart)).check(matches(isNotEnabled()));
         onView(withId(R.id.peripheralStop)).check(matches(isNotEnabled()));
@@ -570,8 +559,7 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_00004");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.peripheralStart)).check(matches(isNotEnabled()));
         onView(withId(R.id.peripheralStop)).check(matches(isNotEnabled()));
@@ -602,8 +590,7 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_peripheralStart_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.peripheralStart).performClick());
 
@@ -632,8 +619,7 @@ public class PeripheralActivityTest {
         });
 
         mViewModel.mIsQuitCallSuper = false;
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_peripheralStop_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.peripheralStop)).perform(click());
 
@@ -661,8 +647,7 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_setting_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.setting)).perform(click());
 
@@ -693,8 +678,7 @@ public class PeripheralActivityTest {
         });
 
         mViewModel.mIsQuitCallSuper = false;
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_delete_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mViewModel.mFakeDeviceSettingRepository.mDeleteDeviceSettingConsumer = deviceSetting -> {
         };
 
@@ -730,8 +714,7 @@ public class PeripheralActivityTest {
         });
 
         mViewModel.mIsQuitCallSuper = false;
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_bluetooth_enable_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mViewModel.mFakeDeviceSettingRepository.mDeleteDeviceSettingConsumer = deviceSetting -> {
         };
 
@@ -762,8 +745,7 @@ public class PeripheralActivityTest {
         });
 
         mViewModel.mIsQuitCallSuper = false;
-        mViewModel.mObserveSetupProcessor.onNext("test_bluetooth_disable_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mViewModel.mFakeDeviceSettingRepository.mDeleteDeviceSettingConsumer = deviceSetting -> {
         };
 
@@ -796,9 +778,8 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_activity_result_00001");
-        mViewModel.mObserveSetupProcessor.onNext("test_activity_result_00001_1");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mViewModel.mObserveSetupSubject.onNext("test_activity_result_00001_1");
 
         onView(withId(R.id.setting)).perform(click());
 
@@ -831,8 +812,7 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mObserveSetupProcessor.onNext("test_activity_result_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.setting)).perform(click());
 
@@ -858,6 +838,122 @@ public class PeripheralActivityTest {
         mViewModel.mIsPeripheralReady = null;
         mViewModel.mIsPeripheralStarted = null;
         mViewModel.mIsBluetoothEnabled = null;
+    }
+
+    @Test
+    public void test_recreate_root_container_visibility_00001() {
+        long id = 1;
+        Intent intent = new Intent(mContext, PeripheralActivity.class);
+        intent.putExtra(KEY_DEVICE_ID, id);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_deviceTypeImage_00001() {
+        long id = 1;
+        Intent intent = new Intent(mContext, PeripheralActivity.class);
+        intent.putExtra(KEY_DEVICE_ID, id);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+
+        onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                return ((AppCompatImageView) item).getDrawable() == null;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("device_type:" + null);
+            }
+        }));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                return ((AppCompatImageView) item).getDrawable() == null;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("device_type:" + null);
+            }
+        }));
+    }
+
+    @Test
+    public void test_recreate_deviceTypeImage_00002() {
+        long id = 1;
+        Intent intent = new Intent(mContext, PeripheralActivity.class);
+        intent.putExtra(KEY_DEVICE_ID, id);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                Bitmap targetBitmap = TestUtils.getBitmap(((AppCompatImageView) item).getDrawable());
+                Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid));
+                return targetBitmap.sameAs(bitmap);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("device_type:" + R.drawable.medical_ketsuatsukei_aneroid);
+            }
+        }));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                Bitmap targetBitmap = TestUtils.getBitmap(((AppCompatImageView) item).getDrawable());
+                Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid));
+                return targetBitmap.sameAs(bitmap);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("device_type:" + R.drawable.medical_ketsuatsukei_aneroid);
+            }
+        }));
+    }
+
+    @Test
+    public void test_recreate_deviceTypeName_00001() {
+        long id = 1;
+        Intent intent = new Intent(mContext, PeripheralActivity.class);
+        intent.putExtra(KEY_DEVICE_ID, id);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.deviceTypeName)).check(matches(withText(R.string.blood_pressure_profile)));
+
+        mScenario.recreate();
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
     }
 
 }

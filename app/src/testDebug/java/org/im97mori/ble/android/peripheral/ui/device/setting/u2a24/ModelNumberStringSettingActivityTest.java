@@ -13,6 +13,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
 import static org.im97mori.ble.constants.CharacteristicUUID.MODEL_NUMBER_STRING_CHARACTERISTIC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -135,8 +136,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        mViewModel.mObserveSetupProcessor.onNext("test_root_container_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -155,8 +155,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isErrorResponse_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isErrorResponse)).check(matches(isNotChecked()));
     }
 
@@ -166,8 +165,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isErrorResponse_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isErrorResponse)).check(matches(isChecked()));
     }
 
@@ -179,8 +177,7 @@ public class ModelNumberStringSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsErrorResponseConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateIsErrorResponse_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> activity.findViewById(R.id.isErrorResponse).performClick());
 
         assertTrue(result.get());
@@ -192,8 +189,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_responseCode_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -203,8 +199,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_responseCode_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -242,8 +237,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_responseCode_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCodeEdit)).check(matches(withText("1")));
     }
 
@@ -263,8 +257,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_responseCode_error_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
                 -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError()).toString()));
     }
@@ -278,8 +271,7 @@ public class ModelNumberStringSettingActivityTest {
         String original = "1";
         AtomicReference<String> result = new AtomicReference<>();
         mViewModel.mUpdateResponseCodeConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateResponseCode_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             TextView textView = activity.findViewById(R.id.responseCodeEdit);
             textView.setText(original);
@@ -312,8 +304,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_responseDelay_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseDelayEdit)).check(matches(withText("1")));
     }
 
@@ -333,8 +324,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_responseDelay_error_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
                 -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError()).toString()));
     }
@@ -348,8 +338,7 @@ public class ModelNumberStringSettingActivityTest {
         String original = "1";
         AtomicReference<String> result = new AtomicReference<>();
         mViewModel.mUpdateResponseDelayConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateResponseDelay_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             TextView textView = activity.findViewById(R.id.responseDelayEdit);
             textView.setText(original);
@@ -374,8 +363,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_save_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).check(matches(isEnabled()));
     }
@@ -386,8 +374,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_save_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).perform(click());
 
@@ -399,7 +386,7 @@ public class ModelNumberStringSettingActivityTest {
         String json = mGson.toJson(characteristicData);
         Intent original = new Intent();
         original.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), json);
-        mViewModel.mObserveSaveProcessor.onNext(original);
+        mViewModel.mObserveSaveSubject.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(Activity.RESULT_OK, activityResult.getResultCode());
@@ -420,13 +407,118 @@ public class ModelNumberStringSettingActivityTest {
     }
 
     @Test
+    public void test_recreate_root_container_visibility_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_isErrorResponse_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.isErrorResponse)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.isErrorResponse)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_responseCode_visibility_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_responseCode_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.responseCodeEdit)).check(matches(withText("1")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.responseCodeEdit)).check(matches(withText("1")));
+    }
+
+    @Test
+    public void test_recreate_responseCode_error_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError()).toString()));
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError()).toString()));
+    }
+
+    @Test
+    public void test_recreate_responseDelay_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.responseDelayEdit)).check(matches(withText("1")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.responseDelayEdit)).check(matches(withText("1")));
+    }
+
+    @Test
+    public void test_recreate_responseDelay_error_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError()).toString()));
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError()).toString()));
+    }
+
+    @Test
     public void test_modelNumberString_visibility_00001() {
         Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_modelNumberString_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.modelNumberString)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -436,8 +528,7 @@ public class ModelNumberStringSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_modelNumberString_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.modelNumberString)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
@@ -460,7 +551,17 @@ public class ModelNumberStringSettingActivityTest {
     }
 
     @Test
-    public void test_manufacturerNameString_error_00001() {
+    public void test_modelNumberString_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.modelNumberStringEdit)).check(matches(withText("1")));
+    }
+
+    @Test
+    public void test_modelNumberString_error_00001() {
         Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
@@ -470,13 +571,12 @@ public class ModelNumberStringSettingActivityTest {
     }
 
     @Test
-    public void test_manufacturerNameString_error_00002() {
+    public void test_modelNumberString_error_00002() {
         Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_manufacturerNameString_error_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
                 -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.modelNumberString)).getError()).toString()));
     }
@@ -490,14 +590,57 @@ public class ModelNumberStringSettingActivityTest {
         String original = "a";
         AtomicReference<String> result = new AtomicReference<>();
         mViewModel.mUpdateModelNumberStringConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_updateModelNumberString_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> {
             TextView textView = activity.findViewById(R.id.modelNumberStringEdit);
             textView.setText(original);
         });
 
         assertEquals(original, result.get());
+    }
+
+    @Test
+    public void test_recreate_modelNumberString_visibility_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.modelNumberString)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.modelNumberString)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_modelNumberString_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.modelNumberStringEdit)).check(matches(withText("1")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.modelNumberStringEdit)).check(matches(withText("1")));
+    }
+
+    @Test
+    public void test_recreate_modelNumberString_error_00001() {
+        Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.modelNumberString)).getError()).toString()));
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.modelNumberString)).getError()).toString()));
     }
 
 }

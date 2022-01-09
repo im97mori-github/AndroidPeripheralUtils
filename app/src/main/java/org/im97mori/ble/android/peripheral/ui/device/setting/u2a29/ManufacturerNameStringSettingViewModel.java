@@ -77,31 +77,29 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
                     mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
                     mCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
                 }
-
-                if (mIsErrorResponse.getValue() == null) {
-                    mIsErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
-                }
-
-                if (mManufacturerNameString.getValue() == null) {
-                    if (mCharacteristicData.data == null) {
-                        mManufacturerNameString.postValue(null);
-                    } else {
-                        mManufacturerNameString.postValue(new ManufacturerNameString(mCharacteristicData.data).getManufacturerName());
-                    }
-                }
-
-                if (mResponseCode.getValue() == null) {
-                    mResponseCode.postValue(String.valueOf(mCharacteristicData.responseCode));
-                }
-
-                if (mResponseDelay.getValue() == null) {
-                    mResponseDelay.postValue(String.valueOf(mCharacteristicData.delay));
-                }
-
-                emitter.onComplete();
-            } else {
-                emitter.onError(new RuntimeException("Initialized"));
             }
+
+            if (mIsErrorResponse.getValue() == null) {
+                mIsErrorResponse.postValue(mCharacteristicData.responseCode != BluetoothGatt.GATT_SUCCESS);
+            }
+
+            if (mManufacturerNameString.getValue() == null) {
+                if (mCharacteristicData.data == null) {
+                    mManufacturerNameString.postValue(null);
+                } else {
+                    mManufacturerNameString.postValue(new ManufacturerNameString(mCharacteristicData.data).getManufacturerName());
+                }
+            }
+
+            if (mResponseCode.getValue() == null) {
+                mResponseCode.postValue(String.valueOf(mCharacteristicData.responseCode));
+            }
+
+            if (mResponseDelay.getValue() == null) {
+                mResponseDelay.postValue(String.valueOf(mCharacteristicData.delay));
+            }
+
+            emitter.onComplete();
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -170,8 +168,7 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
     public void observeSave(@NonNull Consumer<Intent> onSuccess
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Single.<Intent>create(emitter -> {
-            CharacteristicData characteristicData = mCharacteristicData;
-            if (characteristicData == null) {
+            if (mCharacteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 boolean isErrorResponse = Boolean.TRUE.equals(mIsErrorResponse.getValue());
@@ -180,14 +177,14 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
                 String manufacturerNameString = mManufacturerNameString.getValue();
 
                 if (responseDelay != null && mDeviceSettingRepository.getResponseDelayErrorString(responseDelay) == null) {
-                    characteristicData.delay = Long.parseLong(responseDelay);
+                    mCharacteristicData.delay = Long.parseLong(responseDelay);
                     if (isErrorResponse) {
                         if (responseCode != null && mDeviceSettingRepository.getResponseCodeErrorString(responseCode) == null) {
-                            characteristicData.data = null;
-                            characteristicData.responseCode = Integer.parseInt(responseCode);
+                            mCharacteristicData.data = null;
+                            mCharacteristicData.responseCode = Integer.parseInt(responseCode);
 
                             Intent intent = new Intent();
-                            intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+                            intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
                             mCharacteristicData = null;
                             emitter.onSuccess(intent);
@@ -196,11 +193,11 @@ public class ManufacturerNameStringSettingViewModel extends BaseCharacteristicVi
                         }
                     } else {
                         if (manufacturerNameString != null && mDeviceSettingRepository.getManufacturerNameStringErrorString(manufacturerNameString) == null) {
-                            characteristicData.data = new ManufacturerNameString(manufacturerNameString).getBytes();
-                            characteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
+                            mCharacteristicData.data = new ManufacturerNameString(manufacturerNameString).getBytes();
+                            mCharacteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
 
                             Intent intent = new Intent();
-                            intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+                            intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
                             mCharacteristicData = null;
                             emitter.onSuccess(intent);

@@ -91,64 +91,62 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                     mDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
                     mDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
                 }
-
-                if (mIsErrorResponse.getValue() == null) {
-                    mIsErrorResponse.postValue(mDescriptorData.responseCode != BluetoothGatt.GATT_SUCCESS);
-                }
-
-                ClientCharacteristicConfiguration clientCharacteristicConfiguration;
-                if (mDescriptorData.data != null) {
-                    clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(mDescriptorData.data);
-                } else {
-                    clientCharacteristicConfiguration = null;
-                }
-
-                mPropertyType = intent.getIntExtra(KEY_PROPERTIES_TYPE, BluetoothGattCharacteristic.PROPERTY_NOTIFY);
-                if (clientCharacteristicConfiguration == null) {
-                    if (mProperties.getValue() == null) {
-                        mProperties.postValue(false);
-                        if (BluetoothGattCharacteristic.PROPERTY_NOTIFY == mPropertyType) {
-                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
-                                    .postValue(mDeviceSettingRepository.getNotificationsDisabledString());
-                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
-                                    .postValue(mDeviceSettingRepository.getNotificationsEnabledString());
-                        } else {
-                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
-                                    .postValue(mDeviceSettingRepository.getIndicationsDisabledString());
-                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
-                                    .postValue(mDeviceSettingRepository.getIndicationsEnabledString());
-                        }
-                    }
-                } else {
-                    if (mProperties.getValue() == null) {
-                        if (BluetoothGattCharacteristic.PROPERTY_NOTIFY == mPropertyType) {
-                            mProperties.postValue(clientCharacteristicConfiguration.isPropertiesNotificationsEnabled());
-                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
-                                    .postValue(mDeviceSettingRepository.getNotificationsDisabledString());
-                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
-                                    .postValue(mDeviceSettingRepository.getNotificationsEnabledString());
-                        } else {
-                            mProperties.postValue(clientCharacteristicConfiguration.isPropertiesIndicationsEnabled());
-                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
-                                    .postValue(mDeviceSettingRepository.getIndicationsDisabledString());
-                            mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
-                                    .postValue(mDeviceSettingRepository.getIndicationsEnabledString());
-                        }
-                    }
-                }
-
-                if (mResponseCode.getValue() == null) {
-                    mResponseCode.postValue(String.valueOf(mDescriptorData.responseCode));
-                }
-
-                if (mResponseDelay.getValue() == null) {
-                    mResponseDelay.postValue(String.valueOf(mDescriptorData.delay));
-                }
-
-                emitter.onComplete();
-            } else {
-                emitter.onError(new RuntimeException("Initialized"));
             }
+
+            if (mIsErrorResponse.getValue() == null) {
+                mIsErrorResponse.postValue(mDescriptorData.responseCode != BluetoothGatt.GATT_SUCCESS);
+            }
+
+            ClientCharacteristicConfiguration clientCharacteristicConfiguration;
+            if (mDescriptorData.data != null) {
+                clientCharacteristicConfiguration = new ClientCharacteristicConfiguration(mDescriptorData.data);
+            } else {
+                clientCharacteristicConfiguration = null;
+            }
+
+            mPropertyType = intent.getIntExtra(KEY_PROPERTIES_TYPE, BluetoothGattCharacteristic.PROPERTY_NOTIFY);
+            if (clientCharacteristicConfiguration == null) {
+                if (mProperties.getValue() == null) {
+                    mProperties.postValue(false);
+                    if (BluetoothGattCharacteristic.PROPERTY_NOTIFY == mPropertyType) {
+                        mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
+                                .postValue(mDeviceSettingRepository.getNotificationsDisabledString());
+                        mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
+                                .postValue(mDeviceSettingRepository.getNotificationsEnabledString());
+                    } else {
+                        mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
+                                .postValue(mDeviceSettingRepository.getIndicationsDisabledString());
+                        mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
+                                .postValue(mDeviceSettingRepository.getIndicationsEnabledString());
+                    }
+                }
+            } else {
+                if (mProperties.getValue() == null) {
+                    if (BluetoothGattCharacteristic.PROPERTY_NOTIFY == mPropertyType) {
+                        mProperties.postValue(clientCharacteristicConfiguration.isPropertiesNotificationsEnabled());
+                        mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
+                                .postValue(mDeviceSettingRepository.getNotificationsDisabledString());
+                        mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
+                                .postValue(mDeviceSettingRepository.getNotificationsEnabledString());
+                    } else {
+                        mProperties.postValue(clientCharacteristicConfiguration.isPropertiesIndicationsEnabled());
+                        mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_DISABLED)
+                                .postValue(mDeviceSettingRepository.getIndicationsDisabledString());
+                        mSavedStateHandle.<String>getLiveData(KEY_PROPERTIES_ENABLED)
+                                .postValue(mDeviceSettingRepository.getIndicationsEnabledString());
+                    }
+                }
+            }
+
+            if (mResponseCode.getValue() == null) {
+                mResponseCode.postValue(String.valueOf(mDescriptorData.responseCode));
+            }
+
+            if (mResponseDelay.getValue() == null) {
+                mResponseDelay.postValue(String.valueOf(mDescriptorData.delay));
+            }
+
+            emitter.onComplete();
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -221,8 +219,7 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
     @Override
     public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Single.<Intent>create(emitter -> {
-            DescriptorData descriptorData = mDescriptorData;
-            if (descriptorData == null) {
+            if (mDescriptorData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 boolean isErrorResponse = Boolean.TRUE.equals(mIsErrorResponse.getValue());
@@ -231,14 +228,14 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                 boolean properties = Boolean.TRUE.equals(mProperties.getValue());
 
                 if (responseDelay != null && mDeviceSettingRepository.getResponseDelayErrorString(responseDelay) == null) {
-                    descriptorData.delay = Long.parseLong(responseDelay);
+                    mDescriptorData.delay = Long.parseLong(responseDelay);
                     if (isErrorResponse) {
                         if (responseCode != null && mDeviceSettingRepository.getResponseCodeErrorString(responseCode) == null) {
-                            descriptorData.data = null;
-                            descriptorData.responseCode = Integer.parseInt(responseCode);
+                            mDescriptorData.data = null;
+                            mDescriptorData.responseCode = Integer.parseInt(responseCode);
 
                             Intent intent = new Intent();
-                            intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+                            intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(mDescriptorData));
 
                             mDescriptorData = null;
                             emitter.onSuccess(intent);
@@ -256,11 +253,11 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                         } else {
                             data = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
                         }
-                        descriptorData.data = new ClientCharacteristicConfiguration(data).getBytes();
-                        descriptorData.responseCode = BluetoothGatt.GATT_SUCCESS;
+                        mDescriptorData.data = new ClientCharacteristicConfiguration(data).getBytes();
+                        mDescriptorData.responseCode = BluetoothGatt.GATT_SUCCESS;
 
                         Intent intent = new Intent();
-                        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+                        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(mDescriptorData));
 
                         mDescriptorData = null;
                         emitter.onSuccess(intent);

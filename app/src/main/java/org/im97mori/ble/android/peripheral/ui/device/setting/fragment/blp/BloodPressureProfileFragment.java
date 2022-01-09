@@ -35,8 +35,9 @@ public class BloodPressureProfileFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mViewModel = new AutoDisposeViewModelProvider(requireActivity()).get(BloodPressureProfileViewModel.class);
-        mDeviceSettingViewModel = new AutoDisposeViewModelProvider(requireActivity()).get(DeviceSettingViewModel.class);
+        AutoDisposeViewModelProvider viewModelProvider = new AutoDisposeViewModelProvider(requireActivity());
+        mViewModel = viewModelProvider.get(BloodPressureProfileViewModel.class);
+        mDeviceSettingViewModel = viewModelProvider.get(DeviceSettingViewModel.class);
     }
 
     @Nullable
@@ -60,8 +61,8 @@ public class BloodPressureProfileFragment extends Fragment {
         binding.deviceInformationServiceSettingButton.setOnClickListener(v ->
                 mStartDeviceInformationServiceSettingActivity.launch(mViewModel.getDisDataJson()));
 
-        mDeviceSettingViewModel.observeMockData(mockData -> mViewModel.observeSetup(mockData
-                , () -> mDeviceSettingViewModel.fragmentReady()
+        mDeviceSettingViewModel.observeMockData(mockData
+                -> mViewModel.observeSetup(mockData, () -> mDeviceSettingViewModel.fragmentReady()
                 , throwable -> LogUtils.stackLog(throwable.getMessage())));
         return binding.getRoot();
     }

@@ -16,6 +16,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
@@ -162,8 +163,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        mViewModel.mObserveSetupProcessor.onNext("test_root_container_visibility_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -183,8 +183,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_save_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).check(matches(isEnabled()));
     }
@@ -195,8 +194,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_menu_save_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).perform(click());
 
@@ -301,7 +299,7 @@ public class BloodPressureServiceSettingActivityTest {
         String json = mGson.toJson(serviceData);
         Intent original = new Intent();
         original.putExtra(BLOOD_PRESSURE_SERVICE.toString(), json);
-        mViewModel.mObserveSaveProcessor.onNext(original);
+        mViewModel.mObserveSaveSubject.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(Activity.RESULT_OK, activityResult.getResultCode());
@@ -435,7 +433,24 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario.onActivity(activity -> activity.findViewById(R.id.bloodPressureFeatureSettingButton).performClick());
         Espresso.onIdle();
 
-        assertNull( mViewModel.getBloodPressureFeatureDataJson());
+        assertNull(mViewModel.getBloodPressureFeatureDataJson());
+    }
+
+    @Test
+    public void test_recreate_root_container_visibility_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
     @Test
@@ -444,9 +459,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_bloodPressureMeasurementCardView_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.bloodPressureMeasurementCardView)).check(matches(isNotChecked()));
     }
@@ -457,9 +470,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_bloodPressureMeasurementCardView_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.bloodPressureMeasurementCardView)).check(matches(isChecked()));
     }
@@ -1061,9 +1072,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_bloodPressureMeasurementSettingButton_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.bloodPressureMeasurementSettingButton).performClick());
 
@@ -1077,9 +1086,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_bloodPressureMeasurementSettingButton_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.bloodPressureMeasurementSettingButton).performClick());
 
@@ -1104,8 +1111,7 @@ public class BloodPressureServiceSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsIntermediateCuffPressureSupportedConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_isIntermediateCuffPressureSupported_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((CheckBox) activity.findViewById(R.id.isIntermediateCuffPressureSupported)).toggle());
 
         assertTrue(result.get());
@@ -1119,15 +1125,14 @@ public class BloodPressureServiceSettingActivityTest {
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsIntermediateCuffPressureSupportedConsumer = result::set;
-        mViewModel.mObserveSetupProcessor.onNext("test_isIntermediateCuffPressureSupported_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((CheckBox) activity.findViewById(R.id.isIntermediateCuffPressureSupported)).toggle());
 
         assertFalse(result.get());
     }
 
     @Test
-    public void test_isIntermediateCuffPressureSupported_visibility_00001() {
+    public void test_intermediateCuffPressureCardView_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
@@ -1136,25 +1141,23 @@ public class BloodPressureServiceSettingActivityTest {
     }
 
     @Test
-    public void test_isIntermediateCuffPressureSupported_visibility_00002() {
+    public void test_intermediateCuffPressureCardView_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isIntermediateCuffPressureSupported_visibility_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
     @Test
-    public void test_isIntermediateCuffPressureSupported_visibility_00003() {
+    public void test_intermediateCuffPressureCardView_visibility_00003() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        mViewModel.mObserveSetupProcessor.onNext("test_isIntermediateCuffPressureSupported_visibility_00003");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
@@ -1165,9 +1168,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_intermediateCuffPressureCardView_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(isNotChecked()));
     }
@@ -1178,9 +1179,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_intermediateCuffPressureCardView_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(isChecked()));
     }
@@ -1616,9 +1615,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_intermediateCuffPressureSettingButton_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.intermediateCuffPressureSettingButton).performClick());
 
@@ -1632,9 +1629,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_intermediateCuffPressureSettingButton_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.intermediateCuffPressureSettingButton).performClick());
 
@@ -1648,9 +1643,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_bloodPressureFeatureCardView_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.bloodPressureFeatureCardView)).check(matches(isNotChecked()));
     }
@@ -1661,9 +1654,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_bloodPressureFeatureCardView_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.bloodPressureFeatureCardView)).check(matches(isChecked()));
     }
@@ -1732,9 +1723,7 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_bloodPressureFeatureSettingButton_00001");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.bloodPressureFeatureSettingButton).performClick());
 
@@ -1748,14 +1737,1158 @@ public class BloodPressureServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        mViewModel.mObserveSetupProcessor.onNext("test_bloodPressureFeatureSettingButton_00002");
-        mViewModel.mObserveSetupProcessor.onComplete();
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.bloodPressureFeatureSettingButton).performClick());
 
         intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), BloodPressureFeatureSettingActivity.class)));
         intended(hasExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), "a"));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementCardView_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.bloodPressureMeasurementCardView)).check(matches(isNotChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementCardView)).check(matches(isNotChecked()));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementCardView_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.bloodPressureMeasurementCardView)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementCardView)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementFlags_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.bloodPressureMeasurementFlags)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementFlags)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementFlags_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
+        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
+        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        int bloodPressureMeasurementFlags = 0;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicKpa = new IEEE_11073_20601_SFLOAT(4);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicKpa = new IEEE_11073_20601_SFLOAT(5);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureKpa = new IEEE_11073_20601_SFLOAT(6);
+        int bloodPressureMeasurementYear = 7777;
+        int bloodPressureMeasurementMonth = 8;
+        int bloodPressureMeasurementDay = 9;
+        int bloodPressureMeasurementHours = 10;
+        int bloodPressureMeasurementMinutes = 11;
+        int bloodPressureMeasurementSeconds = 12;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementPulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int bloodPressureMeasurementUserId = 14;
+        int bloodPressureMeasurementMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] bloodPressureMeasurementMeasurementStatus = new byte[]{(byte) bloodPressureMeasurementMeasurementStatusFlags,
+                (byte) (bloodPressureMeasurementMeasurementStatusFlags >> 8)};
+        BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(bloodPressureMeasurementFlags
+                , bloodPressureMeasurementCompoundValueSystolicMmhg
+                , bloodPressureMeasurementCompoundValueDiastolicMmhg
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg
+                , bloodPressureMeasurementCompoundValueSystolicKpa
+                , bloodPressureMeasurementCompoundValueDiastolicKpa
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureKpa
+                , bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds
+                , bloodPressureMeasurementPulseRate
+                , bloodPressureMeasurementUserId
+                , bloodPressureMeasurementMeasurementStatus);
+        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+
+        onView(withId(R.id.bloodPressureMeasurementFlags)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(bloodPressureMeasurementFlags, 2))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementFlags)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(bloodPressureMeasurementFlags, 2))));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementSystolic_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.bloodPressureMeasurementSystolic)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementSystolic)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementSystolic_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
+        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
+        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        int bloodPressureMeasurementFlags = 0;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicKpa = new IEEE_11073_20601_SFLOAT(4);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicKpa = new IEEE_11073_20601_SFLOAT(5);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureKpa = new IEEE_11073_20601_SFLOAT(6);
+        int bloodPressureMeasurementYear = 7777;
+        int bloodPressureMeasurementMonth = 8;
+        int bloodPressureMeasurementDay = 9;
+        int bloodPressureMeasurementHours = 10;
+        int bloodPressureMeasurementMinutes = 11;
+        int bloodPressureMeasurementSeconds = 12;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementPulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int bloodPressureMeasurementUserId = 14;
+        int bloodPressureMeasurementMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] bloodPressureMeasurementMeasurementStatus = new byte[]{(byte) bloodPressureMeasurementMeasurementStatusFlags,
+                (byte) (bloodPressureMeasurementMeasurementStatusFlags >> 8)};
+        BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(bloodPressureMeasurementFlags
+                , bloodPressureMeasurementCompoundValueSystolicMmhg
+                , bloodPressureMeasurementCompoundValueDiastolicMmhg
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg
+                , bloodPressureMeasurementCompoundValueSystolicKpa
+                , bloodPressureMeasurementCompoundValueDiastolicKpa
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureKpa
+                , bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds
+                , bloodPressureMeasurementPulseRate
+                , bloodPressureMeasurementUserId
+                , bloodPressureMeasurementMeasurementStatus);
+        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+
+        onView(withId(R.id.bloodPressureMeasurementSystolic)).check(matches(withText(String.valueOf(bloodPressureMeasurementCompoundValueSystolicMmhg.getSfloat()))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementSystolic)).check(matches(withText(String.valueOf(bloodPressureMeasurementCompoundValueSystolicMmhg.getSfloat()))));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementDiastolic_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.bloodPressureMeasurementDiastolic)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementDiastolic)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementDiastolic_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
+        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
+        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        int bloodPressureMeasurementFlags = 0;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicKpa = new IEEE_11073_20601_SFLOAT(4);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicKpa = new IEEE_11073_20601_SFLOAT(5);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureKpa = new IEEE_11073_20601_SFLOAT(6);
+        int bloodPressureMeasurementYear = 7777;
+        int bloodPressureMeasurementMonth = 8;
+        int bloodPressureMeasurementDay = 9;
+        int bloodPressureMeasurementHours = 10;
+        int bloodPressureMeasurementMinutes = 11;
+        int bloodPressureMeasurementSeconds = 12;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementPulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int bloodPressureMeasurementUserId = 14;
+        int bloodPressureMeasurementMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] bloodPressureMeasurementMeasurementStatus = new byte[]{(byte) bloodPressureMeasurementMeasurementStatusFlags,
+                (byte) (bloodPressureMeasurementMeasurementStatusFlags >> 8)};
+        BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(bloodPressureMeasurementFlags
+                , bloodPressureMeasurementCompoundValueSystolicMmhg
+                , bloodPressureMeasurementCompoundValueDiastolicMmhg
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg
+                , bloodPressureMeasurementCompoundValueSystolicKpa
+                , bloodPressureMeasurementCompoundValueDiastolicKpa
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureKpa
+                , bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds
+                , bloodPressureMeasurementPulseRate
+                , bloodPressureMeasurementUserId
+                , bloodPressureMeasurementMeasurementStatus);
+        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+
+        onView(withId(R.id.bloodPressureMeasurementDiastolic)).check(matches(withText(String.valueOf(bloodPressureMeasurementCompoundValueDiastolicMmhg.getSfloat()))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementDiastolic)).check(matches(withText(String.valueOf(bloodPressureMeasurementCompoundValueDiastolicMmhg.getSfloat()))));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementMeanArterialPressure_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.bloodPressureMeasurementMeanArterialPressure)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementMeanArterialPressure)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementMeanArterialPressure_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
+        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
+        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        int bloodPressureMeasurementFlags = 0;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicKpa = new IEEE_11073_20601_SFLOAT(4);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicKpa = new IEEE_11073_20601_SFLOAT(5);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureKpa = new IEEE_11073_20601_SFLOAT(6);
+        int bloodPressureMeasurementYear = 7777;
+        int bloodPressureMeasurementMonth = 8;
+        int bloodPressureMeasurementDay = 9;
+        int bloodPressureMeasurementHours = 10;
+        int bloodPressureMeasurementMinutes = 11;
+        int bloodPressureMeasurementSeconds = 12;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementPulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int bloodPressureMeasurementUserId = 14;
+        int bloodPressureMeasurementMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] bloodPressureMeasurementMeasurementStatus = new byte[]{(byte) bloodPressureMeasurementMeasurementStatusFlags,
+                (byte) (bloodPressureMeasurementMeasurementStatusFlags >> 8)};
+        BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(bloodPressureMeasurementFlags
+                , bloodPressureMeasurementCompoundValueSystolicMmhg
+                , bloodPressureMeasurementCompoundValueDiastolicMmhg
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg
+                , bloodPressureMeasurementCompoundValueSystolicKpa
+                , bloodPressureMeasurementCompoundValueDiastolicKpa
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureKpa
+                , bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds
+                , bloodPressureMeasurementPulseRate
+                , bloodPressureMeasurementUserId
+                , bloodPressureMeasurementMeasurementStatus);
+        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+
+        onView(withId(R.id.bloodPressureMeasurementMeanArterialPressure)).check(matches(withText(String.valueOf(bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg.getSfloat()))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementMeanArterialPressure)).check(matches(withText(String.valueOf(bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg.getSfloat()))));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementTimeStamp_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.bloodPressureMeasurementTimeStamp)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementTimeStamp)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementTimeStamp_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
+        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
+        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        int bloodPressureMeasurementFlags = BloodPressureMeasurementUtils.FLAG_TIME_STAMP_PRESENT;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicKpa = new IEEE_11073_20601_SFLOAT(4);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicKpa = new IEEE_11073_20601_SFLOAT(5);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureKpa = new IEEE_11073_20601_SFLOAT(6);
+        int bloodPressureMeasurementYear = 7777;
+        int bloodPressureMeasurementMonth = 8;
+        int bloodPressureMeasurementDay = 9;
+        int bloodPressureMeasurementHours = 10;
+        int bloodPressureMeasurementMinutes = 11;
+        int bloodPressureMeasurementSeconds = 12;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementPulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int bloodPressureMeasurementUserId = 14;
+        int bloodPressureMeasurementMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] bloodPressureMeasurementMeasurementStatus = new byte[]{(byte) bloodPressureMeasurementMeasurementStatusFlags,
+                (byte) (bloodPressureMeasurementMeasurementStatusFlags >> 8)};
+        BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(bloodPressureMeasurementFlags
+                , bloodPressureMeasurementCompoundValueSystolicMmhg
+                , bloodPressureMeasurementCompoundValueDiastolicMmhg
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg
+                , bloodPressureMeasurementCompoundValueSystolicKpa
+                , bloodPressureMeasurementCompoundValueDiastolicKpa
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureKpa
+                , bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds
+                , bloodPressureMeasurementPulseRate
+                , bloodPressureMeasurementUserId
+                , bloodPressureMeasurementMeasurementStatus);
+        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+
+        onView(withId(R.id.bloodPressureMeasurementTimeStamp)).check(matches(withText(mFakeDeviceSettingRepository.getDateTimeString(bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementTimeStamp)).check(matches(withText(mFakeDeviceSettingRepository.getDateTimeString(bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds))));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementPulseRate_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.bloodPressureMeasurementPulseRate)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementTimeStamp)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementPulseRate_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
+        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
+        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        int bloodPressureMeasurementFlags = BloodPressureMeasurementUtils.FLAG_PULSE_RATE_PRESENT;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicKpa = new IEEE_11073_20601_SFLOAT(4);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicKpa = new IEEE_11073_20601_SFLOAT(5);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureKpa = new IEEE_11073_20601_SFLOAT(6);
+        int bloodPressureMeasurementYear = 7777;
+        int bloodPressureMeasurementMonth = 8;
+        int bloodPressureMeasurementDay = 9;
+        int bloodPressureMeasurementHours = 10;
+        int bloodPressureMeasurementMinutes = 11;
+        int bloodPressureMeasurementSeconds = 12;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementPulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int bloodPressureMeasurementUserId = 14;
+        int bloodPressureMeasurementMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] bloodPressureMeasurementMeasurementStatus = new byte[]{(byte) bloodPressureMeasurementMeasurementStatusFlags,
+                (byte) (bloodPressureMeasurementMeasurementStatusFlags >> 8)};
+        BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(bloodPressureMeasurementFlags
+                , bloodPressureMeasurementCompoundValueSystolicMmhg
+                , bloodPressureMeasurementCompoundValueDiastolicMmhg
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg
+                , bloodPressureMeasurementCompoundValueSystolicKpa
+                , bloodPressureMeasurementCompoundValueDiastolicKpa
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureKpa
+                , bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds
+                , bloodPressureMeasurementPulseRate
+                , bloodPressureMeasurementUserId
+                , bloodPressureMeasurementMeasurementStatus);
+        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+
+        onView(withId(R.id.bloodPressureMeasurementPulseRate)).check(matches(withText(String.valueOf(bloodPressureMeasurementPulseRate.getSfloat()))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementPulseRate)).check(matches(withText(String.valueOf(bloodPressureMeasurementPulseRate.getSfloat()))));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementUserId_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.bloodPressureMeasurementUserId)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementUserId)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementUserId_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
+        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
+        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        int bloodPressureMeasurementFlags = BloodPressureMeasurementUtils.FLAG_USER_ID_PRESENT;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicKpa = new IEEE_11073_20601_SFLOAT(4);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicKpa = new IEEE_11073_20601_SFLOAT(5);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureKpa = new IEEE_11073_20601_SFLOAT(6);
+        int bloodPressureMeasurementYear = 7777;
+        int bloodPressureMeasurementMonth = 8;
+        int bloodPressureMeasurementDay = 9;
+        int bloodPressureMeasurementHours = 10;
+        int bloodPressureMeasurementMinutes = 11;
+        int bloodPressureMeasurementSeconds = 12;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementPulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int bloodPressureMeasurementUserId = 14;
+        int bloodPressureMeasurementMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] bloodPressureMeasurementMeasurementStatus = new byte[]{(byte) bloodPressureMeasurementMeasurementStatusFlags,
+                (byte) (bloodPressureMeasurementMeasurementStatusFlags >> 8)};
+        BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(bloodPressureMeasurementFlags
+                , bloodPressureMeasurementCompoundValueSystolicMmhg
+                , bloodPressureMeasurementCompoundValueDiastolicMmhg
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg
+                , bloodPressureMeasurementCompoundValueSystolicKpa
+                , bloodPressureMeasurementCompoundValueDiastolicKpa
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureKpa
+                , bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds
+                , bloodPressureMeasurementPulseRate
+                , bloodPressureMeasurementUserId
+                , bloodPressureMeasurementMeasurementStatus);
+        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+
+        onView(withId(R.id.bloodPressureMeasurementUserId)).check(matches(withText(String.valueOf(bloodPressureMeasurementUserId))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementUserId)).check(matches(withText(String.valueOf(bloodPressureMeasurementUserId))));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementMeasurementStatus_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.bloodPressureMeasurementMeasurementStatus)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementMeasurementStatus)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureMeasurementMeasurementStatus_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
+        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
+        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        int bloodPressureMeasurementFlags = BloodPressureMeasurementUtils.FLAG_MEASUREMENT_STATUS_PRESENT;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicKpa = new IEEE_11073_20601_SFLOAT(4);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicKpa = new IEEE_11073_20601_SFLOAT(5);
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueMeanArterialPressureKpa = new IEEE_11073_20601_SFLOAT(6);
+        int bloodPressureMeasurementYear = 7777;
+        int bloodPressureMeasurementMonth = 8;
+        int bloodPressureMeasurementDay = 9;
+        int bloodPressureMeasurementHours = 10;
+        int bloodPressureMeasurementMinutes = 11;
+        int bloodPressureMeasurementSeconds = 12;
+        IEEE_11073_20601_SFLOAT bloodPressureMeasurementPulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int bloodPressureMeasurementUserId = 14;
+        int bloodPressureMeasurementMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] bloodPressureMeasurementMeasurementStatus = new byte[]{(byte) bloodPressureMeasurementMeasurementStatusFlags,
+                (byte) (bloodPressureMeasurementMeasurementStatusFlags >> 8)};
+        BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(bloodPressureMeasurementFlags
+                , bloodPressureMeasurementCompoundValueSystolicMmhg
+                , bloodPressureMeasurementCompoundValueDiastolicMmhg
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureMmhg
+                , bloodPressureMeasurementCompoundValueSystolicKpa
+                , bloodPressureMeasurementCompoundValueDiastolicKpa
+                , bloodPressureMeasurementCompoundValueMeanArterialPressureKpa
+                , bloodPressureMeasurementYear
+                , bloodPressureMeasurementMonth
+                , bloodPressureMeasurementDay
+                , bloodPressureMeasurementHours
+                , bloodPressureMeasurementMinutes
+                , bloodPressureMeasurementSeconds
+                , bloodPressureMeasurementPulseRate
+                , bloodPressureMeasurementUserId
+                , bloodPressureMeasurementMeasurementStatus);
+        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+
+        onView(withId(R.id.bloodPressureMeasurementMeasurementStatus)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(bloodPressureMeasurementMeasurementStatusFlags, 4))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureMeasurementMeasurementStatus)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(bloodPressureMeasurementMeasurementStatusFlags, 4))));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureCardView_visibility_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureCardView_visibility_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName() + 1);
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureCardView_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(isNotChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(isNotChecked()));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureCardView_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureFlags_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.intermediateCuffPressureFlags)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureFlags)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureFlags_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
+        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
+        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        int intermediateCuffPressureFlags = 0;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueDiastolicUnused = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueMeanArterialPressureUnused = new IEEE_11073_20601_SFLOAT(4);
+        int intermediateCuffPressureYear = 7777;
+        int intermediateCuffPressureMonth = 8;
+        int intermediateCuffPressureDay = 9;
+        int intermediateCuffPressureHours = 10;
+        int intermediateCuffPressureMinutes = 11;
+        int intermediateCuffPressureSeconds = 12;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressurePulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int intermediateCuffPressureUserId = 14;
+        int intermediateCuffPressureMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] intermediateCuffPressureMeasurementStatus = new byte[]{(byte) intermediateCuffPressureMeasurementStatusFlags,
+                (byte) (intermediateCuffPressureMeasurementStatusFlags >> 8)};
+        IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(intermediateCuffPressureFlags
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureKpa
+                , intermediateCuffPressureCompoundValueDiastolicUnused
+                , intermediateCuffPressureCompoundValueMeanArterialPressureUnused
+                , intermediateCuffPressureYear
+                , intermediateCuffPressureMonth
+                , intermediateCuffPressureDay
+                , intermediateCuffPressureHours
+                , intermediateCuffPressureMinutes
+                , intermediateCuffPressureSeconds
+                , intermediateCuffPressurePulseRate
+                , intermediateCuffPressureUserId
+                , intermediateCuffPressureMeasurementStatus);
+        intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
+        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+
+        onView(withId(R.id.intermediateCuffPressureFlags)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(intermediateCuffPressureFlags, 2))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureFlags)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(intermediateCuffPressureFlags, 2))));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureCurrentCuffPressure_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.intermediateCuffPressureCurrentCuffPressure)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureCurrentCuffPressure)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureCurrentCuffPressure_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
+        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
+        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        int intermediateCuffPressureFlags = 0;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueDiastolicUnused = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueMeanArterialPressureUnused = new IEEE_11073_20601_SFLOAT(4);
+        int intermediateCuffPressureYear = 7777;
+        int intermediateCuffPressureMonth = 8;
+        int intermediateCuffPressureDay = 9;
+        int intermediateCuffPressureHours = 10;
+        int intermediateCuffPressureMinutes = 11;
+        int intermediateCuffPressureSeconds = 12;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressurePulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int intermediateCuffPressureUserId = 14;
+        int intermediateCuffPressureMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] intermediateCuffPressureMeasurementStatus = new byte[]{(byte) intermediateCuffPressureMeasurementStatusFlags,
+                (byte) (intermediateCuffPressureMeasurementStatusFlags >> 8)};
+        IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(intermediateCuffPressureFlags
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureKpa
+                , intermediateCuffPressureCompoundValueDiastolicUnused
+                , intermediateCuffPressureCompoundValueMeanArterialPressureUnused
+                , intermediateCuffPressureYear
+                , intermediateCuffPressureMonth
+                , intermediateCuffPressureDay
+                , intermediateCuffPressureHours
+                , intermediateCuffPressureMinutes
+                , intermediateCuffPressureSeconds
+                , intermediateCuffPressurePulseRate
+                , intermediateCuffPressureUserId
+                , intermediateCuffPressureMeasurementStatus);
+        intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
+        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+
+        onView(withId(R.id.intermediateCuffPressureCurrentCuffPressure)).check(matches(withText(String.valueOf(intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg.getSfloat()))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureCurrentCuffPressure)).check(matches(withText(String.valueOf(intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg.getSfloat()))));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureTimeStamp_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.intermediateCuffPressureTimeStamp)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureTimeStamp)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureTimeStamp_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
+        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
+        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        int intermediateCuffPressureFlags = BloodPressureMeasurementUtils.FLAG_TIME_STAMP_PRESENT;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueDiastolicUnused = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueMeanArterialPressureUnused = new IEEE_11073_20601_SFLOAT(4);
+        int intermediateCuffPressureYear = 7777;
+        int intermediateCuffPressureMonth = 8;
+        int intermediateCuffPressureDay = 9;
+        int intermediateCuffPressureHours = 10;
+        int intermediateCuffPressureMinutes = 11;
+        int intermediateCuffPressureSeconds = 12;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressurePulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int intermediateCuffPressureUserId = 14;
+        int intermediateCuffPressureMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] intermediateCuffPressureMeasurementStatus = new byte[]{(byte) intermediateCuffPressureMeasurementStatusFlags,
+                (byte) (intermediateCuffPressureMeasurementStatusFlags >> 8)};
+        IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(intermediateCuffPressureFlags
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureKpa
+                , intermediateCuffPressureCompoundValueDiastolicUnused
+                , intermediateCuffPressureCompoundValueMeanArterialPressureUnused
+                , intermediateCuffPressureYear
+                , intermediateCuffPressureMonth
+                , intermediateCuffPressureDay
+                , intermediateCuffPressureHours
+                , intermediateCuffPressureMinutes
+                , intermediateCuffPressureSeconds
+                , intermediateCuffPressurePulseRate
+                , intermediateCuffPressureUserId
+                , intermediateCuffPressureMeasurementStatus);
+        intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
+        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+
+        onView(withId(R.id.intermediateCuffPressureTimeStamp)).check(matches(withText(mFakeDeviceSettingRepository.getDateTimeString(intermediateCuffPressureYear
+                , intermediateCuffPressureMonth
+                , intermediateCuffPressureDay
+                , intermediateCuffPressureHours
+                , intermediateCuffPressureMinutes
+                , intermediateCuffPressureSeconds))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureTimeStamp)).check(matches(withText(mFakeDeviceSettingRepository.getDateTimeString(intermediateCuffPressureYear
+                , intermediateCuffPressureMonth
+                , intermediateCuffPressureDay
+                , intermediateCuffPressureHours
+                , intermediateCuffPressureMinutes
+                , intermediateCuffPressureSeconds))));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressurePulseRate_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.intermediateCuffPressurePulseRate)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressurePulseRate)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressurePulseRate_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
+        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
+        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        int intermediateCuffPressureFlags = BloodPressureMeasurementUtils.FLAG_PULSE_RATE_PRESENT;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueDiastolicUnused = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueMeanArterialPressureUnused = new IEEE_11073_20601_SFLOAT(4);
+        int intermediateCuffPressureYear = 7777;
+        int intermediateCuffPressureMonth = 8;
+        int intermediateCuffPressureDay = 9;
+        int intermediateCuffPressureHours = 10;
+        int intermediateCuffPressureMinutes = 11;
+        int intermediateCuffPressureSeconds = 12;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressurePulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int intermediateCuffPressureUserId = 14;
+        int intermediateCuffPressureMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] intermediateCuffPressureMeasurementStatus = new byte[]{(byte) intermediateCuffPressureMeasurementStatusFlags,
+                (byte) (intermediateCuffPressureMeasurementStatusFlags >> 8)};
+        IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(intermediateCuffPressureFlags
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureKpa
+                , intermediateCuffPressureCompoundValueDiastolicUnused
+                , intermediateCuffPressureCompoundValueMeanArterialPressureUnused
+                , intermediateCuffPressureYear
+                , intermediateCuffPressureMonth
+                , intermediateCuffPressureDay
+                , intermediateCuffPressureHours
+                , intermediateCuffPressureMinutes
+                , intermediateCuffPressureSeconds
+                , intermediateCuffPressurePulseRate
+                , intermediateCuffPressureUserId
+                , intermediateCuffPressureMeasurementStatus);
+        intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
+        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+
+        onView(withId(R.id.intermediateCuffPressurePulseRate)).check(matches(withText(String.valueOf(intermediateCuffPressurePulseRate.getSfloat()))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressurePulseRate)).check(matches(withText(String.valueOf(intermediateCuffPressurePulseRate.getSfloat()))));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureUserId_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.intermediateCuffPressureUserId)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureUserId)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureUserId_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
+        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
+        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        int intermediateCuffPressureFlags = BloodPressureMeasurementUtils.FLAG_USER_ID_PRESENT;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueDiastolicUnused = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueMeanArterialPressureUnused = new IEEE_11073_20601_SFLOAT(4);
+        int intermediateCuffPressureYear = 7777;
+        int intermediateCuffPressureMonth = 8;
+        int intermediateCuffPressureDay = 9;
+        int intermediateCuffPressureHours = 10;
+        int intermediateCuffPressureMinutes = 11;
+        int intermediateCuffPressureSeconds = 12;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressurePulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int intermediateCuffPressureUserId = 14;
+        int intermediateCuffPressureMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] intermediateCuffPressureMeasurementStatus = new byte[]{(byte) intermediateCuffPressureMeasurementStatusFlags,
+                (byte) (intermediateCuffPressureMeasurementStatusFlags >> 8)};
+        IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(intermediateCuffPressureFlags
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureKpa
+                , intermediateCuffPressureCompoundValueDiastolicUnused
+                , intermediateCuffPressureCompoundValueMeanArterialPressureUnused
+                , intermediateCuffPressureYear
+                , intermediateCuffPressureMonth
+                , intermediateCuffPressureDay
+                , intermediateCuffPressureHours
+                , intermediateCuffPressureMinutes
+                , intermediateCuffPressureSeconds
+                , intermediateCuffPressurePulseRate
+                , intermediateCuffPressureUserId
+                , intermediateCuffPressureMeasurementStatus);
+        intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
+        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+
+        onView(withId(R.id.intermediateCuffPressureUserId)).check(matches(withText(String.valueOf(intermediateCuffPressureUserId))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureUserId)).check(matches(withText(String.valueOf(intermediateCuffPressureUserId))));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureMeasurementStatus_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.intermediateCuffPressureMeasurementStatus)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureMeasurementStatus)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_intermediateCuffPressureMeasurementStatus_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
+        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
+        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        int intermediateCuffPressureFlags = BloodPressureMeasurementUtils.FLAG_MEASUREMENT_STATUS_PRESENT;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueDiastolicUnused = new IEEE_11073_20601_SFLOAT(3);
+        IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueMeanArterialPressureUnused = new IEEE_11073_20601_SFLOAT(4);
+        int intermediateCuffPressureYear = 7777;
+        int intermediateCuffPressureMonth = 8;
+        int intermediateCuffPressureDay = 9;
+        int intermediateCuffPressureHours = 10;
+        int intermediateCuffPressureMinutes = 11;
+        int intermediateCuffPressureSeconds = 12;
+        IEEE_11073_20601_SFLOAT intermediateCuffPressurePulseRate = new IEEE_11073_20601_SFLOAT(13);
+        int intermediateCuffPressureUserId = 14;
+        int intermediateCuffPressureMeasurementStatusFlags = BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                | BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
+        byte[] intermediateCuffPressureMeasurementStatus = new byte[]{(byte) intermediateCuffPressureMeasurementStatusFlags,
+                (byte) (intermediateCuffPressureMeasurementStatusFlags >> 8)};
+        IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(intermediateCuffPressureFlags
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg
+                , intermediateCuffPressureCompoundValueCurrentCuffPressureKpa
+                , intermediateCuffPressureCompoundValueDiastolicUnused
+                , intermediateCuffPressureCompoundValueMeanArterialPressureUnused
+                , intermediateCuffPressureYear
+                , intermediateCuffPressureMonth
+                , intermediateCuffPressureDay
+                , intermediateCuffPressureHours
+                , intermediateCuffPressureMinutes
+                , intermediateCuffPressureSeconds
+                , intermediateCuffPressurePulseRate
+                , intermediateCuffPressureUserId
+                , intermediateCuffPressureMeasurementStatus);
+        intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
+        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+
+        onView(withId(R.id.intermediateCuffPressureMeasurementStatus)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(intermediateCuffPressureMeasurementStatusFlags, 4))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.intermediateCuffPressureMeasurementStatus)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(intermediateCuffPressureMeasurementStatusFlags, 4))));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureFeatureCardView_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.bloodPressureFeatureCardView)).check(matches(isNotChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureFeatureCardView)).check(matches(isNotChecked()));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureFeatureCardView_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.bloodPressureFeatureCardView)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureFeatureCardView)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureFeature_00001() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        onView(withId(R.id.bloodPressureFeature)).check(matches(withText("")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureFeature)).check(matches(withText("")));
+    }
+
+    @Test
+    public void test_recreate_bloodPressureFeature_00002() {
+        Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+
+        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData();
+        bloodPressureFeatureCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
+        bloodPressureFeatureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
+        bloodPressureFeatureCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        boolean isBodyMovementDetectionSupported = false;
+        boolean isCuffFitDetectionSupportSupported = false;
+        boolean hasIrregularPulseDetection = false;
+        boolean hasPulseRateRangeDetection = false;
+        boolean isMeasurementPositionDetectionSupported = false;
+        boolean isMultipleBondSupported = true;
+        BloodPressureFeature bloodPressureFeature = new BloodPressureFeature(isBodyMovementDetectionSupported
+                , isCuffFitDetectionSupportSupported
+                , hasIrregularPulseDetection
+                , hasPulseRateRangeDetection
+                , isMeasurementPositionDetectionSupported
+                , isMultipleBondSupported
+                , false
+                , false
+                , false);
+        bloodPressureFeatureCharacteristicData.data = bloodPressureFeature.getBytes();
+        mViewModel.setBloodPressureFeatureDataJson(mGson.toJson(bloodPressureFeatureCharacteristicData));
+
+        onView(withId(R.id.bloodPressureFeature)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(BLEUtils.createUInt16(bloodPressureFeature.getBytes(), 0), 4))));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.bloodPressureFeature)).check(matches(withText(mFakeDeviceSettingRepository.getHexString(BLEUtils.createUInt16(bloodPressureFeature.getBytes(), 0), 4))));
     }
 
 }

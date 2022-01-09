@@ -16,6 +16,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.TestCase.assertEquals;
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
@@ -37,6 +38,8 @@ import androidx.test.espresso.matcher.ViewMatchers;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
+
+import junit.framework.TestCase;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -133,8 +136,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
         onView(withId(R.id.topAppBar)).check(matches(hasDescendant(withText(R.string.setting))));
     }
 
@@ -149,8 +152,8 @@ public class DeviceSettingActivityTest {
         });
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
@@ -163,8 +166,8 @@ public class DeviceSettingActivityTest {
             mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
         onView(withId(R.id.fragmentContainer)).check(matches(hasDescendant(withId(R.id.bloodPressureServiceCardView))));
     }
 
@@ -178,8 +181,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
         mFakeDeviceSettingViewModel.updateDeviceSettingName("");
 
         onView(withId(R.id.deviceSettingCardView)).check(matches(isNotChecked()));
@@ -195,8 +198,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
         mFakeDeviceSettingViewModel.updateDeviceSettingName("1");
 
         onView(withId(R.id.deviceSettingCardView)).check(matches(isChecked()));
@@ -235,8 +238,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
         onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
             @Override
             protected boolean matchesSafely(View item) {
@@ -275,8 +278,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.deviceType)).check(matches(withText(R.string.blood_pressure_profile)));
     }
@@ -291,8 +294,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity
                 -> assertEquals(mContext.getString(R.string.device_setting_name), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.deviceSettingName)).getHint()).toString()));
@@ -322,8 +325,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity
                 -> assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.deviceSettingName)).getError()).toString()));
@@ -339,8 +342,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
 
         String original = "a";
         AtomicReference<String> deviceSettingName = new AtomicReference<>();
@@ -377,8 +380,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).check(matches(isEnabled()));
@@ -396,8 +399,8 @@ public class DeviceSettingActivityTest {
 
         String original = "a";
         AtomicReference<String> moduleDataString = new AtomicReference<>();
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
         mFakeDeviceSettingViewModel.mObserveSaveConsumer = moduleDataString::set;
 
         mFakeBloodPressureProfileViewModel.mGetModuleDataString = original;
@@ -432,8 +435,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeDeviceSettingViewModel.mObserveSetupProcessor.onComplete();
-        mFakeDeviceSettingViewModel.mFragmentReadyProcessor.onComplete();
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
 
         mFakeBloodPressureProfileViewModel.mGetModuleDataString = "a";
 
@@ -445,6 +448,211 @@ public class DeviceSettingActivityTest {
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(RESULT_OK, activityResult.getResultCode());
+    }
+
+    @Test
+    public void test_recreate_root_container_visibility_00001() {
+        Intent intent = new Intent(mContext, DeviceSettingActivity.class);
+        intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext("");
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext("");
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext("");
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext("");
+        onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @Test
+    public void test_recreate_deviceSettingCardView_00001() {
+        Intent intent = new Intent(mContext, DeviceSettingActivity.class);
+        intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.updateDeviceSettingName("");
+
+        onView(withId(R.id.deviceSettingCardView)).check(matches(isNotChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.deviceSettingCardView)).check(matches(isNotChecked()));
+    }
+
+    @Test
+    public void test_recreate_deviceSettingCardView_00002() {
+        Intent intent = new Intent(mContext, DeviceSettingActivity.class);
+        intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.updateDeviceSettingName("1");
+
+        onView(withId(R.id.deviceSettingCardView)).check(matches(isChecked()));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.deviceSettingCardView)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void test_recreate_deviceTypeImage_00001() {
+        Intent intent = new Intent(mContext, DeviceSettingActivity.class);
+        intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                return ((AppCompatImageView) item).getDrawable() == null;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("device_type:" + null);
+            }
+        }));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                return ((AppCompatImageView) item).getDrawable() == null;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("device_type:" + null);
+            }
+        }));
+    }
+
+    @Test
+    public void test_recreate_deviceTypeImage_00002() {
+        Intent intent = new Intent(mContext, DeviceSettingActivity.class);
+        intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
+        onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                Bitmap targetBitmap = TestUtils.getBitmap(((AppCompatImageView) item).getDrawable());
+                Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid));
+                return targetBitmap.sameAs(bitmap);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("device_type:" + R.drawable.medical_ketsuatsukei_aneroid);
+            }
+        }));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                Bitmap targetBitmap = TestUtils.getBitmap(((AppCompatImageView) item).getDrawable());
+                Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid));
+                return targetBitmap.sameAs(bitmap);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("device_type:" + R.drawable.medical_ketsuatsukei_aneroid);
+            }
+        }));
+    }
+
+    @Test
+    public void test_recreate_deviceType_00001() {
+        Intent intent = new Intent(mContext, DeviceSettingActivity.class);
+        intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.deviceType)).check(matches(withText(R.string.blood_pressure_profile)));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.deviceType)).check(matches(withText(R.string.blood_pressure_profile)));
+    }
+
+    @Test
+    public void test_recreate_deviceSettingName_00001() {
+        Intent intent = new Intent(mContext, DeviceSettingActivity.class);
+        intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        mFakeDeviceSettingViewModel.updateDeviceSettingName("1");
+        onView(withId(R.id.deviceSettingNameEdit)).check(matches(withText("1")));
+
+        mScenario.recreate();
+
+        onView(withId(R.id.deviceSettingNameEdit)).check(matches(withText("1")));
+    }
+
+    @Test
+    public void test_recreate_deviceSettingName_error_00001() {
+        Intent intent = new Intent(mContext, DeviceSettingActivity.class);
+        intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+        });
+
+        mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+        mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.deviceSettingName)).getError()).toString()));
+
+        mScenario.recreate();
+
+        mScenario.onActivity(activity
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.deviceSettingName)).getError()).toString()));
     }
 
 }

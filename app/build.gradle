@@ -65,8 +65,8 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     // androidx library
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.lifecycle:lifecycle-livedata:2.4.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.4.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
@@ -75,10 +75,10 @@ dependencies {
     testImplementation 'android.arch.core:core-testing:1.1.1'
 
     // room
-    implementation "androidx.room:room-runtime:2.4.0"
-    annotationProcessor "androidx.room:room-compiler:2.4.0"
-    implementation "androidx.room:room-rxjava3:2.4.0"
-    testImplementation "androidx.room:room-testing:2.4.0"
+    implementation "androidx.room:room-runtime:2.4.1"
+    annotationProcessor "androidx.room:room-compiler:2.4.1"
+    implementation "androidx.room:room-rxjava3:2.4.1"
+    testImplementation "androidx.room:room-testing:2.4.1"
 
     // hilt
     implementation 'com.google.dagger:hilt-android:2.40.5'
@@ -91,7 +91,7 @@ dependencies {
     testAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.40.5'
 
     // material3
-    implementation 'com.google.android.material:material:1.5.0-rc01'
+    implementation 'com.google.android.material:material:1.5.0'
 
     // blp peripheral
     implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.5'
@@ -107,6 +107,10 @@ dependencies {
     testImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
     testImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
+
+    // UI Automator
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+    testImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 
     // mockito
     testImplementation 'org.mockito:mockito-inline:4.2.0'

@@ -642,28 +642,6 @@ public class BloodPressureFeatureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSetup_4_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        AtomicReference<Throwable> observeSetupThrowable = new AtomicReference<>();
-
-        Intent intent = new Intent();
-        mViewModel.observeSetup(intent
-                , () -> {
-                }
-                , throwable -> {
-                });
-
-        mViewModel.observeSetup(intent
-                , () -> {
-                }
-                , observeSetupThrowable::set);
-
-        assertEquals("Initialized", observeSetupThrowable.get().getMessage());
-    }
-
-    @Test
     public void test_observeIsErrorResponse_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());

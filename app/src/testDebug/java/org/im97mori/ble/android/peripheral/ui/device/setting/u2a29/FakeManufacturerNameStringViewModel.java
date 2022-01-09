@@ -16,18 +16,18 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.processors.PublishProcessor;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
 public class FakeManufacturerNameStringViewModel extends ManufacturerNameStringSettingViewModel {
 
-    public final PublishProcessor<String> mObserveSetupProcessor = PublishProcessor.create();
+    public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
 
     public final FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
     private final SavedStateHandle mSavedStateHandle;
 
-    public final PublishProcessor<Intent> mObserveSaveProcessor = PublishProcessor.create();
+    public final PublishSubject<Intent> mObserveSaveSubject = PublishSubject.create();
 
     public java.util.function.Consumer<Boolean> mUpdateIsErrorResponseConsumer;
     public java.util.function.Consumer<String> mUpdateManufacturerNameStringConsumer;
@@ -45,7 +45,7 @@ public class FakeManufacturerNameStringViewModel extends ManufacturerNameStringS
 
     @Override
     public void observeSetup(@NonNull Intent intent, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSetupProcessor
+        mDisposable.add(mObserveSetupSubject
                 .subscribe(s -> mDisposable.add(Single.<String>create(emitter -> emitter.onSuccess(s))
                         .flatMapCompletable(t -> {
                             switch (t) {
@@ -79,14 +79,44 @@ public class FakeManufacturerNameStringViewModel extends ManufacturerNameStringS
                                 case "test_updateResponseCode_00001":
                                     test_updateResponseCode_00001();
                                     break;
+                                case "test_recreate_isErrorResponse_00001":
+                                    test_recreate_isErrorResponse_00001();
+                                    break;
+                                case "test_recreate_responseCode_visibility_00001":
+                                    test_recreate_responseCode_visibility_00001();
+                                    break;
+                                case "test_recreate_responseCode_00001":
+                                    test_recreate_responseCode_00001();
+                                    break;
+                                case "test_recreate_responseCode_error_00001":
+                                    test_recreate_responseCode_error_00001();
+                                    break;
+                                case "test_recreate_responseDelay_00001":
+                                    test_recreate_responseDelay_00001();
+                                    break;
+                                case "test_recreate_responseDelay_error_00001":
+                                    test_recreate_responseDelay_error_00001();
+                                    break;
                                 case "test_manufacturerNameString_visibility_00001":
                                     test_manufacturerNameString_visibility_00001();
                                     break;
                                 case "test_manufacturerNameString_visibility_00002":
                                     test_manufacturerNameString_visibility_00002();
                                     break;
+                                case "test_manufacturerNameString_00001":
+                                    test_manufacturerNameString_00001();
+                                    break;
                                 case "test_manufacturerNameString_error_00002":
                                     test_manufacturerNameString_error_00002();
+                                    break;
+                                case "test_recreate_manufacturerNameString_visibility_00001":
+                                    test_recreate_manufacturerNameString_visibility_00001();
+                                    break;
+                                case "test_recreate_manufacturerNameString_00001":
+                                    test_recreate_manufacturerNameString_00001();
+                                    break;
+                                case "test_recreate_manufacturerNameString_error_00001":
+                                    test_recreate_manufacturerNameString_error_00001();
                                     break;
                                 default:
                             }
@@ -128,7 +158,7 @@ public class FakeManufacturerNameStringViewModel extends ManufacturerNameStringS
 
     @Override
     public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSaveProcessor.subscribe(onSuccess, onError));
+        mDisposable.add(mObserveSaveSubject.subscribe(onSuccess, onError));
     }
 
     private void test_isErrorResponse_00002() {
@@ -171,6 +201,30 @@ public class FakeManufacturerNameStringViewModel extends ManufacturerNameStringS
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 
+    private void test_recreate_isErrorResponse_00001() {
+        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
+    }
+
+    private void test_recreate_responseCode_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
+    }
+
+    private void test_recreate_responseCode_00001() {
+        mSavedStateHandle.set("KEY_RESPONSE_CODE", "1");
+    }
+
+    private void test_recreate_responseCode_error_00001() {
+        mSavedStateHandle.set("KEY_RESPONSE_CODE", "");
+    }
+
+    private void test_recreate_responseDelay_00001() {
+        mSavedStateHandle.set("KEY_RESPONSE_DELAY", "1");
+    }
+
+    private void test_recreate_responseDelay_error_00001() {
+        mSavedStateHandle.set("KEY_RESPONSE_DELAY", "");
+    }
+
     private void test_manufacturerNameString_visibility_00001() {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", false);
     }
@@ -179,7 +233,23 @@ public class FakeManufacturerNameStringViewModel extends ManufacturerNameStringS
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 
+    private void test_manufacturerNameString_00001() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING", "1");
+    }
+
     private void test_manufacturerNameString_error_00002() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING", "");
+    }
+
+    private void test_recreate_manufacturerNameString_visibility_00001() {
+        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
+    }
+
+    private void test_recreate_manufacturerNameString_00001() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING", "1");
+    }
+
+    private void test_recreate_manufacturerNameString_error_00001() {
         mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING", "");
     }
 

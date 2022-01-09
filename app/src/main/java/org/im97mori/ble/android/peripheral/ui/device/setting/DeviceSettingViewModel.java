@@ -39,8 +39,8 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.processors.PublishProcessor;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
 public class DeviceSettingViewModel extends BaseSettingViewModel {
@@ -53,10 +53,11 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
     private final SavedStateHandle mSavedStateHandle;
 
     private final MutableLiveData<String> mDeviceNameSetting;
-
-    private final PublishProcessor<MockData> mMockDataPublishProcessor = PublishProcessor.create();
+    private final MutableLiveData<Boolean> mFragmentReady;
 
     private DeviceSetting mDeviceSetting;
+
+    private final PublishSubject<MockData> mSubject = PublishSubject.create();
 
     @Inject
     public DeviceSettingViewModel(@NonNull SavedStateHandle savedStateHandle
@@ -65,6 +66,7 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
         super(deviceSettingRepository, gson);
         mSavedStateHandle = savedStateHandle;
         mDeviceNameSetting = savedStateHandle.getLiveData(KEY_DEVICE_SETTING_NAME);
+        mFragmentReady = savedStateHandle.getLiveData(KEY_FRAGMENT_READY);
     }
 
     @MainThread
@@ -79,44 +81,36 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .flatMapCompletable(device -> {
-                    if (device.getDeviceType() == DEVICE_TYPE_UNDEFINED) {
-                        return Completable.error(new RuntimeException("No Data"));
-                    } else {
-                        // for 1st onStart
-                        if (mDeviceSetting == null) {
-                            mDeviceSetting = device;
+                    // for 1st onStart
+                    mDeviceSetting = device;
 
-                            // for Activity create
-                            MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_DEVICE_TYPE_NAME);
-                            if (liveData.getValue() == null) {
-                                liveData.postValue(mDeviceSettingRepository.getDeviceTypeName(mDeviceSetting.getDeviceType()));
-                                mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES_ID)
-                                        .postValue(mDeviceSettingRepository.getDeviceTypeImageResId(mDeviceSetting.getDeviceType()));
-                                mDeviceNameSetting.postValue(mDeviceSetting.getDeviceSettingName());
-                            }
+                    MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_DEVICE_TYPE_NAME);
+                    if (liveData.getValue() == null) {
+                        liveData.postValue(mDeviceSettingRepository.getDeviceTypeName(mDeviceSetting.getDeviceType()));
+                        mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES_ID)
+                                .postValue(mDeviceSettingRepository.getDeviceTypeImageResId(mDeviceSetting.getDeviceType()));
+                        mDeviceNameSetting.postValue(mDeviceSetting.getDeviceSettingName());
+                    }
 
-                            MockData mockData = null;
-                            try {
-                                mockData = mGson.fromJson(mDeviceSetting.getDeviceSettingData(), MockData.class);
-                            } catch (JsonSyntaxException e) {
-                                stackLog(e);
-                            } finally {
-                                if (mockData == null) {
-                                    mockData = new MockData();
-                                }
-                            }
-                            mMockDataPublishProcessor.onNext(mockData);
-                            mMockDataPublishProcessor.onComplete();
-                            return Completable.complete();
-                        } else {
-                            return Completable.error(new RuntimeException("Initialized"));
+                    MockData mockData = null;
+                    try {
+                        mockData = mGson.fromJson(mDeviceSetting.getDeviceSettingData(), MockData.class);
+                    } catch (JsonSyntaxException e) {
+                        stackLog(e);
+                    } finally {
+                        if (mockData == null) {
+                            mockData = new MockData();
                         }
                     }
+
+                    mSubject.onNext(mockData);
+
+                    return Completable.complete();
+
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onComplete, onError));
     }
-
 
     @MainThread
     public void observeDeviceTypeImageResId(@NonNull LifecycleOwner owner, @NonNull Observer<Integer> observer) {
@@ -141,13 +135,12 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
 
     @MainThread
     public void observeFragmentReady(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mSavedStateHandle.<Boolean>getLiveData(KEY_FRAGMENT_READY)).observe(owner, observer);
+        Transformations.distinctUntilChanged(mFragmentReady).observe(owner, observer);
     }
 
     @MainThread
     public void observeMockData(@NonNull Consumer<MockData> onSuccess) {
-        mDisposable.add(mMockDataPublishProcessor
-                .singleOrError()
+        mDisposable.add(mSubject
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onSuccess));
@@ -159,7 +152,7 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
     }
 
     public void fragmentReady() {
-        mSavedStateHandle.<Boolean>getLiveData(KEY_FRAGMENT_READY).postValue(true);
+        mFragmentReady.postValue(true);
     }
 
     @NonNull
@@ -211,4 +204,9 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
                 .subscribe(onComplete, onError));
     }
 
+    @Override
+    public void dispose() {
+        mFragmentReady.setValue(false);
+        super.dispose();
+    }
 }

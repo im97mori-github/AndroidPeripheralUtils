@@ -102,101 +102,99 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                     mServiceData.uuid = DEVICE_INFORMATION_SERVICE;
                     mServiceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
                 }
-
-                Optional<CharacteristicData> systemIdOptional = mServiceData.characteristicDataList
-                        .stream()
-                        .filter(characteristicData -> characteristicData.uuid.equals(SYSTEM_ID_CHARACTERISTIC))
-                        .findAny();
-
-                Optional<CharacteristicData> modelNumberStringOptional = mServiceData.characteristicDataList
-                        .stream()
-                        .filter(characteristicData -> characteristicData.uuid.equals(MODEL_NUMBER_STRING_CHARACTERISTIC))
-                        .findAny();
-
-                Optional<CharacteristicData> manufacturerNameStringOptional = mServiceData.characteristicDataList
-                        .stream()
-                        .filter(characteristicData -> characteristicData.uuid.equals(MANUFACTURER_NAME_STRING_CHARACTERISTIC))
-                        .findAny();
-
-                SystemId systemId;
-                if (systemIdOptional.isPresent()) {
-                    CharacteristicData characteristicData = systemIdOptional.get();
-                    mSystemIdDataJson.postValue(mGson.toJson(characteristicData));
-                    if (characteristicData.data == null) {
-                        systemId = null;
-                    } else {
-                        systemId = new SystemId(characteristicData.data);
-                    }
-                } else {
-                    systemId = null;
-                }
-
-                if (mIsSystemIdSupported.getValue() == null) {
-                    mIsSystemIdSupported.postValue(systemIdOptional.isPresent());
-                }
-
-                if (mManufacturerIdentifier.getValue() == null) {
-                    if (systemId == null) {
-                        mManufacturerIdentifier.postValue("");
-                    } else {
-                        mManufacturerIdentifier.postValue(String.valueOf(systemId.getManufacturerIdentifier()));
-                    }
-                }
-
-                if (mOrganizationallyUniqueIdentifier.getValue() == null) {
-                    if (systemId == null) {
-                        mOrganizationallyUniqueIdentifier.postValue("");
-                    } else {
-                        mOrganizationallyUniqueIdentifier.postValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
-                    }
-                }
-
-                ModelNumberString modelNumberString;
-                if (modelNumberStringOptional.isPresent()) {
-                    CharacteristicData characteristicData = modelNumberStringOptional.get();
-                    mModelNumberStringDataJson.postValue(mGson.toJson(characteristicData));
-                    if (characteristicData.data == null) {
-                        modelNumberString = null;
-                    } else {
-                        modelNumberString = new ModelNumberString(characteristicData.data);
-                    }
-                } else {
-                    modelNumberString = null;
-                }
-
-                if (mModelNumberString.getValue() == null) {
-                    if (modelNumberString == null) {
-                        mModelNumberString.postValue("");
-                    } else {
-                        mModelNumberString.postValue(modelNumberString.getModelNumber());
-                    }
-                }
-
-                ManufacturerNameString manufacturerNameString;
-                if (manufacturerNameStringOptional.isPresent()) {
-                    CharacteristicData characteristicData = manufacturerNameStringOptional.get();
-                    mManufacturerNameStringDataJson.postValue(mGson.toJson(characteristicData));
-                    if (characteristicData.data == null) {
-                        manufacturerNameString = null;
-                    } else {
-                        manufacturerNameString = new ManufacturerNameString(characteristicData.data);
-                    }
-                } else {
-                    manufacturerNameString = null;
-                }
-
-                if (mManufacturerNameString.getValue() == null) {
-                    if (manufacturerNameString == null) {
-                        mManufacturerNameString.postValue("");
-                    } else {
-                        mManufacturerNameString.postValue(manufacturerNameString.getManufacturerName());
-                    }
-                }
-
-                emitter.onComplete();
-            } else {
-                emitter.onError(new RuntimeException("Initialized"));
             }
+
+            Optional<CharacteristicData> systemIdOptional = mServiceData.characteristicDataList
+                    .stream()
+                    .filter(characteristicData -> characteristicData.uuid.equals(SYSTEM_ID_CHARACTERISTIC))
+                    .findAny();
+
+            Optional<CharacteristicData> modelNumberStringOptional = mServiceData.characteristicDataList
+                    .stream()
+                    .filter(characteristicData -> characteristicData.uuid.equals(MODEL_NUMBER_STRING_CHARACTERISTIC))
+                    .findAny();
+
+            Optional<CharacteristicData> manufacturerNameStringOptional = mServiceData.characteristicDataList
+                    .stream()
+                    .filter(characteristicData -> characteristicData.uuid.equals(MANUFACTURER_NAME_STRING_CHARACTERISTIC))
+                    .findAny();
+
+            SystemId systemId;
+            if (systemIdOptional.isPresent()) {
+                CharacteristicData characteristicData = systemIdOptional.get();
+                mSystemIdDataJson.postValue(mGson.toJson(characteristicData));
+                if (characteristicData.data == null) {
+                    systemId = null;
+                } else {
+                    systemId = new SystemId(characteristicData.data);
+                }
+            } else {
+                systemId = null;
+            }
+
+            if (mIsSystemIdSupported.getValue() == null) {
+                mIsSystemIdSupported.postValue(systemIdOptional.isPresent());
+            }
+
+            if (mManufacturerIdentifier.getValue() == null) {
+                if (systemId == null) {
+                    mManufacturerIdentifier.postValue("");
+                } else {
+                    mManufacturerIdentifier.postValue(String.valueOf(systemId.getManufacturerIdentifier()));
+                }
+            }
+
+            if (mOrganizationallyUniqueIdentifier.getValue() == null) {
+                if (systemId == null) {
+                    mOrganizationallyUniqueIdentifier.postValue("");
+                } else {
+                    mOrganizationallyUniqueIdentifier.postValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
+                }
+            }
+
+            ModelNumberString modelNumberString;
+            if (modelNumberStringOptional.isPresent()) {
+                CharacteristicData characteristicData = modelNumberStringOptional.get();
+                mModelNumberStringDataJson.postValue(mGson.toJson(characteristicData));
+                if (characteristicData.data == null) {
+                    modelNumberString = null;
+                } else {
+                    modelNumberString = new ModelNumberString(characteristicData.data);
+                }
+            } else {
+                modelNumberString = null;
+            }
+
+            if (mModelNumberString.getValue() == null) {
+                if (modelNumberString == null) {
+                    mModelNumberString.postValue("");
+                } else {
+                    mModelNumberString.postValue(modelNumberString.getModelNumber());
+                }
+            }
+
+            ManufacturerNameString manufacturerNameString;
+            if (manufacturerNameStringOptional.isPresent()) {
+                CharacteristicData characteristicData = manufacturerNameStringOptional.get();
+                mManufacturerNameStringDataJson.postValue(mGson.toJson(characteristicData));
+                if (characteristicData.data == null) {
+                    manufacturerNameString = null;
+                } else {
+                    manufacturerNameString = new ManufacturerNameString(characteristicData.data);
+                }
+            } else {
+                manufacturerNameString = null;
+            }
+
+            if (mManufacturerNameString.getValue() == null) {
+                if (manufacturerNameString == null) {
+                    mManufacturerNameString.postValue("");
+                } else {
+                    mManufacturerNameString.postValue(manufacturerNameString.getManufacturerName());
+                }
+            }
+
+            emitter.onComplete();
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -334,17 +332,16 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     @Override
     public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Single.<Intent>create(emitter -> {
-                    ServiceData serviceData = mServiceData;
-                    if (serviceData == null) {
+                    if (mServiceData == null) {
                         emitter.onError(new RuntimeException("Already saved"));
                     } else {
-                        serviceData.characteristicDataList.clear();
+                        mServiceData.characteristicDataList.clear();
 
                         if (Boolean.TRUE.equals(mIsSystemIdSupported.getValue())) {
                             String systemIdJson = mSystemIdDataJson.getValue();
                             if (systemIdJson != null) {
                                 try {
-                                    serviceData.characteristicDataList.add(mGson.fromJson(systemIdJson, CharacteristicData.class));
+                                    mServiceData.characteristicDataList.add(mGson.fromJson(systemIdJson, CharacteristicData.class));
                                 } catch (JsonSyntaxException e) {
                                     stackLog(e);
                                 }
@@ -354,7 +351,7 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                         String modelNumberStringJson = mModelNumberStringDataJson.getValue();
                         if (modelNumberStringJson != null) {
                             try {
-                                serviceData.characteristicDataList.add(mGson.fromJson(modelNumberStringJson, CharacteristicData.class));
+                                mServiceData.characteristicDataList.add(mGson.fromJson(modelNumberStringJson, CharacteristicData.class));
                             } catch (JsonSyntaxException e) {
                                 stackLog(e);
                             }
@@ -363,17 +360,17 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                         String manufacturerNameStringJson = mManufacturerNameStringDataJson.getValue();
                         if (manufacturerNameStringJson != null) {
                             try {
-                                serviceData.characteristicDataList.add(mGson.fromJson(manufacturerNameStringJson, CharacteristicData.class));
+                                mServiceData.characteristicDataList.add(mGson.fromJson(manufacturerNameStringJson, CharacteristicData.class));
                             } catch (JsonSyntaxException e) {
                                 stackLog(e);
                             }
                         }
 
-                        if (serviceData.characteristicDataList
+                        if (mServiceData.characteristicDataList
                                 .stream()
                                 .filter(characteristicData -> !characteristicData.uuid.equals(SYSTEM_ID_CHARACTERISTIC)).count() == 2) {
                             Intent intent = new Intent();
-                            intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+                            intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(mServiceData));
                             mServiceData = null;
                             emitter.onSuccess(intent);
                         } else {

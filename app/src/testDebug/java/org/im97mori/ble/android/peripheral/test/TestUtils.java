@@ -30,4 +30,22 @@ public final class TestUtils {
         return ActivityScenario.launch(intent);
     }
 
+    public static String getCurrentMethodName() {
+        // default stacktrace index is next of this method
+        int index = 1;
+
+        // find this method index
+        StackTraceElement[] stackTraceElementArray = Thread.currentThread().getStackTrace();
+        for (int i = 0; i < stackTraceElementArray.length; i++) {
+            StackTraceElement stackTraceElement = stackTraceElementArray[i];
+            if (TestUtils.class.getName().equals(stackTraceElement.getClassName())
+                    && "getCurrentMethodName".equals(stackTraceElement.getMethodName())) {
+                index += i;
+                break;
+            }
+        }
+
+        StackTraceElement stackTraceElement = stackTraceElementArray[index];
+        return stackTraceElement.getMethodName();
+    }
 }

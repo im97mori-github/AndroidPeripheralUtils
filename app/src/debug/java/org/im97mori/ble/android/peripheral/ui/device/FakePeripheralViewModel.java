@@ -20,13 +20,13 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.processors.PublishProcessor;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @SuppressWarnings("ConstantConditions")
 @HiltViewModel
 public class FakePeripheralViewModel extends PeripheralViewModel {
 
-    public final PublishProcessor<String> mObserveSetupProcessor = PublishProcessor.create();
+    public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
 
     public final FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
@@ -64,70 +64,34 @@ public class FakePeripheralViewModel extends PeripheralViewModel {
 
     @Override
     public void observeSetup(@NonNull Intent intent, @NonNull Action onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSetupProcessor
+        mDisposable.add(mObserveSetupSubject
                 .subscribe(s -> mDisposable.add(Single.<String>create(emitter -> emitter.onSuccess(s))
                         .flatMapCompletable(t -> {
                             switch (t) {
-                                case "test_title_00001":
-                                    test_title_00001();
-                                    break;
-                                case "test_deviceTypeImage_00002":
-                                    test_deviceTypeImage_00002();
-                                    break;
-                                case "test_deviceType_00001":
-                                    test_deviceType_00001();
-                                    break;
-                                case "test_deviceTypeName_00001":
-                                    test_deviceTypeName_00001();
-                                    break;
-                                case "test_observeIsReady_00001":
-                                    test_observeIsReady_00001();
-                                    break;
-                                case "test_observeIsStarted_00001":
-                                    test_observeIsStarted_00001();
-                                    break;
-                                case "test_observeIsStarted_00002":
-                                    test_observeIsStarted_00002();
-                                    break;
-                                case "test_observeIsBluetoothEnabled_00001":
-                                    test_observeIsBluetoothEnabled_00001();
-                                    break;
-                                case "test_menu_00001":
-                                    test_menu_00001();
-                                    break;
-                                case "test_menu_00002":
-                                    test_menu_00002();
-                                    break;
-                                case "test_menu_00003":
-                                    test_menu_00003();
-                                    break;
-                                case "test_menu_00004":
-                                    test_menu_00004();
-                                    break;
-                                case "test_menu_peripheralStart_00001":
-                                    test_menu_peripheralStart_00001();
-                                    break;
-                                case "test_menu_peripheralStop_00001":
-                                    test_menu_peripheralStop_00001();
-                                    break;
-                                case "test_menu_setting_00001":
-                                    test_menu_setting_00001();
-                                    break;
-                                case "test_menu_bluetooth_enable_00001":
-                                    test_menu_bluetooth_enable_00001();
-                                    break;
-                                case "test_bluetooth_disable_00001":
-                                    test_bluetooth_disable_00001();
-                                    break;
-                                case "test_activity_result_00001":
-                                    test_activity_result_00001();
-                                    break;
-                                case "test_activity_result_00001_1":
-                                    test_activity_result_00001_1();
-                                    break;
-                                case "test_activity_result_00002":
-                                    test_activity_result_00002();
-                                    break;
+                                // @formatter:off
+                                case "test_title_00001": test_title_00001(); break;
+                                case "test_deviceTypeImage_00002": test_deviceTypeImage_00002(); break;
+                                case "test_deviceType_00001": test_deviceType_00001(); break;
+                                case "test_deviceTypeName_00001": test_deviceTypeName_00001(); break;
+                                case "test_observeIsReady_00001": test_observeIsReady_00001(); break;
+                                case "test_observeIsStarted_00001": test_observeIsStarted_00001(); break;
+                                case "test_observeIsStarted_00002": test_observeIsStarted_00002(); break;
+                                case "test_observeIsBluetoothEnabled_00001": test_observeIsBluetoothEnabled_00001(); break;
+                                case "test_menu_00001": test_menu_00001(); break;
+                                case "test_menu_00002": test_menu_00002(); break;
+                                case "test_menu_00003": test_menu_00003(); break;
+                                case "test_menu_00004": test_menu_00004(); break;
+                                case "test_menu_peripheralStart_00001": test_menu_peripheralStart_00001(); break;
+                                case "test_menu_peripheralStop_00001": test_menu_peripheralStop_00001(); break;
+                                case "test_menu_setting_00001": test_menu_setting_00001(); break;
+                                case "test_menu_bluetooth_enable_00001": test_menu_bluetooth_enable_00001(); break;
+                                case "test_bluetooth_disable_00001": test_bluetooth_disable_00001(); break;
+                                case "test_activity_result_00001": test_activity_result_00001(); break;
+                                case "test_activity_result_00001_1": test_activity_result_00001_1(); break;
+                                case "test_activity_result_00002": test_activity_result_00002(); break;
+                                case "test_recreate_deviceTypeImage_00002": test_recreate_deviceTypeImage_00002(); break;
+                                case "test_recreate_deviceTypeName_00001": test_recreate_deviceTypeName_00001(); break;
+                                // @formatter:on
                                 default:
                             }
                             return Completable.complete();
@@ -332,6 +296,14 @@ public class FakePeripheralViewModel extends PeripheralViewModel {
         mSavedStateHandle.set("KEY_IS_BLUETOOTH_ENABLED", mIsPeripheralReady);
         mSavedStateHandle.set("KEY_IS_READY", mIsPeripheralStarted);
         mSavedStateHandle.set("KEY_IS_STARTED", mIsBluetoothEnabled);
+        mSavedStateHandle.set("KEY_DEVICE_TYPE", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
+    }
+
+    private void test_recreate_deviceTypeImage_00002() {
+        mSavedStateHandle.set("KEY_DEVICE_TYPE_IMAGE_RES_ID", R.drawable.medical_ketsuatsukei_aneroid);
+    }
+
+    private void test_recreate_deviceTypeName_00001() {
         mSavedStateHandle.set("KEY_DEVICE_TYPE", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
     }
 
