@@ -401,11 +401,11 @@ public class DeviceSettingActivityTest {
         AtomicReference<String> moduleDataString = new AtomicReference<>();
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
-        mFakeDeviceSettingViewModel.mObserveSaveConsumer = moduleDataString::set;
-
-        mFakeBloodPressureProfileViewModel.mGetModuleDataString = original;
+        mFakeDeviceSettingViewModel.mUpdateMockDataStringConsumer = moduleDataString::set;
 
         onView(withId(R.id.save)).perform(click());
+
+        mFakeBloodPressureProfileViewModel.mObserveSaveSubject.onNext(original);
 
         assertEquals(original, moduleDataString.get());
     }
@@ -438,13 +438,15 @@ public class DeviceSettingActivityTest {
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
 
-        mFakeBloodPressureProfileViewModel.mGetModuleDataString = "a";
+        mFakeBloodPressureProfileViewModel.mObserveSaveSubject.onNext("a");
 
         mFakeDeviceSettingViewModel.updateDeviceSettingName("b");
         mFakeDeviceSettingViewModel.mFakeDeviceSettingRepository.mInsertDeviceSettingConsumer = deviceSetting -> {
         };
 
         onView(withId(R.id.save)).perform(click());
+
+        mFakeBloodPressureProfileViewModel.mObserveSaveSubject.onNext("c");
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(RESULT_OK, activityResult.getResultCode());

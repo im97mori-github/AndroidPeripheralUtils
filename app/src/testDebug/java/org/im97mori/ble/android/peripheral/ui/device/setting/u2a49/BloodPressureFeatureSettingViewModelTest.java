@@ -2,10 +2,12 @@ package org.im97mori.ble.android.peripheral.ui.device.setting.u2a49;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.content.Intent;
@@ -117,7 +119,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), isIrregularPulseDetectionSupported::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), isPulseRateRangeDetectionSupported::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), isMeasurementPositionDetectionSupportedReference::set);
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
         mViewModel.observeResponseCode(new TestLifeCycleOwner(), responseCodeReference::set);
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
         mViewModel.observeResponseDelay(new TestLifeCycleOwner(), responseDelayReference::set);
@@ -169,7 +171,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), isIrregularPulseDetectionSupported::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), isPulseRateRangeDetectionSupported::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), isMeasurementPositionDetectionSupportedReference::set);
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
         mViewModel.observeResponseCode(new TestLifeCycleOwner(), responseCodeReference::set);
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
         mViewModel.observeResponseDelay(new TestLifeCycleOwner(), responseDelayReference::set);
@@ -228,7 +230,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), isIrregularPulseDetectionSupported::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), isPulseRateRangeDetectionSupported::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), isMeasurementPositionDetectionSupportedReference::set);
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
         mViewModel.observeResponseCode(new TestLifeCycleOwner(), responseCodeReference::set);
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
         mViewModel.observeResponseDelay(new TestLifeCycleOwner(), responseDelayReference::set);
@@ -301,7 +303,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), isIrregularPulseDetectionSupported::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), isPulseRateRangeDetectionSupported::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), isMeasurementPositionDetectionSupportedReference::set);
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
         mViewModel.observeResponseCode(new TestLifeCycleOwner(), responseCodeReference::set);
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
         mViewModel.observeResponseDelay(new TestLifeCycleOwner(), responseDelayReference::set);
@@ -374,7 +376,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), isIrregularPulseDetectionSupported::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), isPulseRateRangeDetectionSupported::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), isMeasurementPositionDetectionSupportedReference::set);
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
         mViewModel.observeResponseCode(new TestLifeCycleOwner(), responseCodeReference::set);
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
         mViewModel.observeResponseDelay(new TestLifeCycleOwner(), responseDelayReference::set);
@@ -447,7 +449,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), isIrregularPulseDetectionSupported::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), isPulseRateRangeDetectionSupported::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), isMeasurementPositionDetectionSupportedReference::set);
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
         mViewModel.observeResponseCode(new TestLifeCycleOwner(), responseCodeReference::set);
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
         mViewModel.observeResponseDelay(new TestLifeCycleOwner(), responseDelayReference::set);
@@ -520,7 +522,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), isIrregularPulseDetectionSupported::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), isPulseRateRangeDetectionSupported::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), isMeasurementPositionDetectionSupportedReference::set);
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
         mViewModel.observeResponseCode(new TestLifeCycleOwner(), responseCodeReference::set);
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
         mViewModel.observeResponseDelay(new TestLifeCycleOwner(), responseDelayReference::set);
@@ -593,7 +595,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), isIrregularPulseDetectionSupported::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), isPulseRateRangeDetectionSupported::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), isMeasurementPositionDetectionSupportedReference::set);
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), isMultipleBondSupportedReference::set);
         mViewModel.observeResponseCode(new TestLifeCycleOwner(), responseCodeReference::set);
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
         mViewModel.observeResponseDelay(new TestLifeCycleOwner(), responseDelayReference::set);
@@ -1007,6 +1009,294 @@ public class BloodPressureFeatureSettingViewModelTest {
     }
 
     @Test
+    public void test_observeSaveData_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+
+        assertNull(saveDataReference.get());
+    }
+
+    @Test
+    public void test_observeSaveData_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        Intent original = new Intent();
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+        mSavedStateHandle.set("KEY_SAVED_DATA", original);
+
+        assertEquals(original, saveDataReference.get());
+    }
+
+    @Test
+    public void test_save_1_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Throwable> throwableReference = new AtomicReference<>();
+        mViewModel.save(throwableReference::set);
+
+        assertNotNull(throwableReference.get());
+        assertEquals("Already saved", throwableReference.get().getMessage());
+    }
+
+    @Test
+    public void test_save_1_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateResponseDelay("");
+
+        AtomicReference<Throwable> throwableReference = new AtomicReference<>();
+        mViewModel.save(throwableReference::set);
+
+        assertNotNull(throwableReference.get());
+
+        assertEquals("Validation failed", throwableReference.get().getMessage());
+    }
+
+    @Test
+    public void test_save_1_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateIsErrorResponse(true);
+        mViewModel.updateResponseCode("");
+
+        AtomicReference<Throwable> throwableReference = new AtomicReference<>();
+        mViewModel.save(throwableReference::set);
+
+        assertNotNull(throwableReference.get());
+
+        assertEquals("Validation failed", throwableReference.get().getMessage());
+    }
+
+    @Test
+    public void test_save_2_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        int responseCode = 1;
+        long delay = 2;
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateResponseDelay(String.valueOf(delay));
+        mViewModel.updateIsErrorResponse(true);
+        mViewModel.updateResponseCode(String.valueOf(responseCode));
+
+        AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
+
+        CharacteristicData characteristicData = characteristicDataAtomicReference.get();
+        assertNotNull(characteristicData);
+        assertEquals(delay, characteristicData.delay);
+        assertEquals(responseCode, characteristicData.responseCode);
+    }
+
+    @Test
+    public void test_save_3_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        boolean bodyMovementDetection = true;
+        long delay = 2;
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateResponseDelay(String.valueOf(delay));
+        mViewModel.updateIsErrorResponse(false);
+        mViewModel.updateBodyMovementDetection(bodyMovementDetection);
+
+        AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
+
+        CharacteristicData characteristicData = characteristicDataAtomicReference.get();
+        assertNotNull(characteristicData);
+        assertEquals(delay, characteristicData.delay);
+        assertEquals(BluetoothGatt.GATT_SUCCESS, characteristicData.responseCode);
+        assertEquals(bodyMovementDetection, new BloodPressureFeature(characteristicData.data).isBodyMovementDetectionSupported());
+    }
+
+    @Test
+    public void test_save_3_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        boolean cuffFitDetection = true;
+        long delay = 2;
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateResponseDelay(String.valueOf(delay));
+        mViewModel.updateIsErrorResponse(false);
+        mViewModel.updateCuffFitDetection(cuffFitDetection);
+
+        AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
+
+        CharacteristicData characteristicData = characteristicDataAtomicReference.get();
+        assertNotNull(characteristicData);
+        assertEquals(delay, characteristicData.delay);
+        assertEquals(BluetoothGatt.GATT_SUCCESS, characteristicData.responseCode);
+        assertEquals(cuffFitDetection, new BloodPressureFeature(characteristicData.data).isCuffFitDetectionSupported());
+    }
+
+    @Test
+    public void test_save_3_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        boolean irregularPulseDetection = true;
+        long delay = 2;
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateResponseDelay(String.valueOf(delay));
+        mViewModel.updateIsErrorResponse(false);
+        mViewModel.updateIrregularPulseDetection(irregularPulseDetection);
+
+        AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
+
+        CharacteristicData characteristicData = characteristicDataAtomicReference.get();
+        assertNotNull(characteristicData);
+        assertEquals(delay, characteristicData.delay);
+        assertEquals(BluetoothGatt.GATT_SUCCESS, characteristicData.responseCode);
+        assertEquals(irregularPulseDetection, new BloodPressureFeature(characteristicData.data).isIrregularPulseDetectionSupported());
+    }
+
+    @Test
+    public void test_save_3_00004() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        boolean pulseRateRangeDetection = true;
+        long delay = 2;
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateResponseDelay(String.valueOf(delay));
+        mViewModel.updateIsErrorResponse(false);
+        mViewModel.updatePulseRateRangeDetection(pulseRateRangeDetection);
+
+        AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
+
+        CharacteristicData characteristicData = characteristicDataAtomicReference.get();
+        assertNotNull(characteristicData);
+        assertEquals(delay, characteristicData.delay);
+        assertEquals(BluetoothGatt.GATT_SUCCESS, characteristicData.responseCode);
+        assertEquals(pulseRateRangeDetection, new BloodPressureFeature(characteristicData.data).isPulseRateRangeDetectionSupported());
+    }
+
+    @Test
+    public void test_save_3_00005() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        boolean measurementPositionDetection = true;
+        long delay = 2;
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateResponseDelay(String.valueOf(delay));
+        mViewModel.updateIsErrorResponse(false);
+        mViewModel.updateMeasurementPositionDetection(measurementPositionDetection);
+
+        AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
+
+        CharacteristicData characteristicData = characteristicDataAtomicReference.get();
+        assertNotNull(characteristicData);
+        assertEquals(delay, characteristicData.delay);
+        assertEquals(BluetoothGatt.GATT_SUCCESS, characteristicData.responseCode);
+        assertEquals(measurementPositionDetection, new BloodPressureFeature(characteristicData.data).isMeasurementPositionDetectionSupported());
+    }
+
+    @Test
+    public void test_save_3_00006() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        boolean multipleBondDetection = true;
+        long delay = 2;
+        Intent intent = new Intent();
+        mViewModel.observeSetup(intent
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateResponseDelay(String.valueOf(delay));
+        mViewModel.updateIsErrorResponse(false);
+        mViewModel.updateMultipleBond(multipleBondDetection);
+
+        AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
+
+        CharacteristicData characteristicData = characteristicDataAtomicReference.get();
+        assertNotNull(characteristicData);
+        assertEquals(delay, characteristicData.delay);
+        assertEquals(BluetoothGatt.GATT_SUCCESS, characteristicData.responseCode);
+        assertEquals(multipleBondDetection, new BloodPressureFeature(characteristicData.data).isMultipleBondSupported());
+    }
+
+    @Test
     public void test_observeBodyMovementDetection_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
@@ -1313,7 +1603,7 @@ public class BloodPressureFeatureSettingViewModelTest {
 
         AtomicReference<Boolean> multipleBondDetection = new AtomicReference<>();
 
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), multipleBondDetection::set);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), multipleBondDetection::set);
 
         assertNull(multipleBondDetection.get());
     }
@@ -1326,8 +1616,8 @@ public class BloodPressureFeatureSettingViewModelTest {
         boolean original = true;
         AtomicReference<Boolean> multipleBondDetection = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_MULTIPLE_BOND_DETECTION", original);
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), multipleBondDetection::set);
+        mSavedStateHandle.set("KEY_MULTIPLE_BOND", original);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), multipleBondDetection::set);
 
         assertEquals(original, multipleBondDetection.get().booleanValue());
     }
@@ -1340,8 +1630,8 @@ public class BloodPressureFeatureSettingViewModelTest {
         boolean original = true;
         AtomicReference<Boolean> multipleBondDetection = new AtomicReference<>();
 
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), multipleBondDetection::set);
-        mSavedStateHandle.set("KEY_MULTIPLE_BOND_DETECTION", original);
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), multipleBondDetection::set);
+        mSavedStateHandle.set("KEY_MULTIPLE_BOND", original);
 
         assertEquals(original, multipleBondDetection.get().booleanValue());
     }
@@ -1355,12 +1645,12 @@ public class BloodPressureFeatureSettingViewModelTest {
         AtomicInteger count = new AtomicInteger(0);
         AtomicReference<Boolean> multipleBondDetection = new AtomicReference<>();
 
-        mViewModel.observeMultipleBondDetection(new TestLifeCycleOwner(), aBoolean -> {
+        mViewModel.observeMultipleBond(new TestLifeCycleOwner(), aBoolean -> {
             count.incrementAndGet();
             multipleBondDetection.set(aBoolean);
         });
-        mSavedStateHandle.set("KEY_MULTIPLE_BOND_DETECTION", original);
-        mSavedStateHandle.set("KEY_MULTIPLE_BOND_DETECTION", original);
+        mSavedStateHandle.set("KEY_MULTIPLE_BOND", original);
+        mSavedStateHandle.set("KEY_MULTIPLE_BOND", original);
 
         assertEquals(original, multipleBondDetection.get().booleanValue());
         assertEquals(1, count.get());
@@ -1518,10 +1808,10 @@ public class BloodPressureFeatureSettingViewModelTest {
 
         boolean after = true;
 
-        assertNull(mSavedStateHandle.get("KEY_MULTIPLE_BOND_DETECTION"));
-        mViewModel.updateMultipleBondDetection(after);
+        assertNull(mSavedStateHandle.get("KEY_MULTIPLE_BOND"));
+        mViewModel.updateMultipleBond(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND").booleanValue());
     }
 
     @Test
@@ -1532,12 +1822,12 @@ public class BloodPressureFeatureSettingViewModelTest {
         boolean before = false;
         boolean after = true;
 
-        mViewModel.updateMultipleBondDetection(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND_DETECTION").booleanValue());
+        mViewModel.updateMultipleBond(before);
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND").booleanValue());
 
-        mViewModel.updateMultipleBondDetection(after);
+        mViewModel.updateMultipleBond(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND").booleanValue());
     }
 
 }

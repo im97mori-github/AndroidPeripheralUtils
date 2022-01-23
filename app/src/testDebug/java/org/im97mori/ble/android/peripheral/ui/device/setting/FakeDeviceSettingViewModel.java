@@ -10,8 +10,6 @@ import com.google.gson.Gson;
 
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 
-import java.util.function.Supplier;
-
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
@@ -26,7 +24,7 @@ public class FakeDeviceSettingViewModel extends DeviceSettingViewModel {
     public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
     public final PublishSubject<String> mFragmentReadySubject = PublishSubject.create();
     public java.util.function.Consumer<String> mUpdateDeviceSettingNameConsumer;
-    public java.util.function.Consumer<String> mObserveSaveConsumer;
+    public java.util.function.Consumer<String> mUpdateMockDataStringConsumer;
 
     public final FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
@@ -55,18 +53,17 @@ public class FakeDeviceSettingViewModel extends DeviceSettingViewModel {
     }
 
     @Override
-    public void fragmentReady() {
-        mDisposable.add(mFragmentReadySubject.subscribe(o
-                -> mDisposable.add(Single.create(emitter -> emitter.onSuccess(o)).subscribe(o1 -> super.fragmentReady()))));
+    public void updateMockDataString(@Nullable String text) {
+        if (mUpdateMockDataStringConsumer != null) {
+            mUpdateMockDataStringConsumer.accept(text);
+        }
+        super.updateMockDataString(text);
     }
 
     @Override
-    public void observeSave(@NonNull Supplier<String> supplier, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
-        if (mObserveSaveConsumer != null) {
-            mObserveSaveConsumer.accept(supplier.get());
-        } else {
-            super.observeSave(supplier, onComplete, onError);
-        }
+    public void fragmentReady() {
+        mDisposable.add(mFragmentReadySubject.subscribe(o
+                -> mDisposable.add(Single.create(emitter -> emitter.onSuccess(o)).subscribe(o1 -> super.fragmentReady()))));
     }
 
 }

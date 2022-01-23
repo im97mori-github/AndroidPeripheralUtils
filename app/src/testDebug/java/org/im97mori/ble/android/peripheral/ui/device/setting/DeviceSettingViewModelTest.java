@@ -40,7 +40,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -103,7 +102,7 @@ public class DeviceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSetup_3_00001() {
+    public void test_observeSetup_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -111,13 +110,13 @@ public class DeviceSettingViewModelTest {
         AtomicReference<String> deviceTypeNameReference = new AtomicReference<>();
         AtomicReference<String> deviceSettingNameReference = new AtomicReference<>();
         AtomicReference<String> deviceSettingNameErrorStringReference = new AtomicReference<>();
-        AtomicReference<MockData> mockDataReference = new AtomicReference<>();
+        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
 
         mViewModel.observeDeviceTypeImageResId(new TestLifeCycleOwner(), deviceTypeImageResIdReference::set);
         mViewModel.observeDeviceTypeName(new TestLifeCycleOwner(), deviceTypeNameReference::set);
         mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), deviceSettingNameReference::set);
         mViewModel.observeDeviceSettingNameErrorString(new TestLifeCycleOwner(), deviceSettingNameErrorStringReference::set);
-        mViewModel.observeMockData(mockDataReference::set);
+        mViewModel.observeMockDataString(new TestLifeCycleOwner(), mockDataStringReference::set);
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
@@ -129,11 +128,11 @@ public class DeviceSettingViewModelTest {
         assertEquals(mContext.getString(R.string.blood_pressure_profile), deviceTypeNameReference.get());
         assertEquals("", deviceSettingNameReference.get());
         assertEquals(mContext.getString(R.string.no_value), deviceSettingNameErrorStringReference.get());
-        assertNotNull(mockDataReference.get());
+        assertNull(mockDataStringReference.get());
     }
 
     @Test
-    public void test_observeSetup_5_00001() {
+    public void test_observeSetup_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -143,7 +142,7 @@ public class DeviceSettingViewModelTest {
         AtomicReference<String> deviceTypeNameReference = new AtomicReference<>();
         AtomicReference<String> deviceSettingNameReference = new AtomicReference<>();
         AtomicReference<String> deviceSettingNameErrorStringReference = new AtomicReference<>();
-        AtomicReference<MockData> mockDataReference = new AtomicReference<>();
+        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
 
         AtomicReference<Throwable> observeSetupThrowable = new AtomicReference<>();
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor = PublishProcessor.create();
@@ -151,7 +150,7 @@ public class DeviceSettingViewModelTest {
         mViewModel.observeDeviceTypeName(new TestLifeCycleOwner(), deviceTypeNameReference::set);
         mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), deviceSettingNameReference::set);
         mViewModel.observeDeviceSettingNameErrorString(new TestLifeCycleOwner(), deviceSettingNameErrorStringReference::set);
-        mViewModel.observeMockData(mockDataReference::set);
+        mViewModel.observeMockDataString(new TestLifeCycleOwner(), mockDataStringReference::set);
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_ID, original.getId());
@@ -167,11 +166,11 @@ public class DeviceSettingViewModelTest {
         assertEquals(mContext.getString(R.string.blood_pressure_profile), deviceTypeNameReference.get());
         assertEquals(original.getDeviceSettingName(), deviceSettingNameReference.get());
         assertNull(deviceSettingNameErrorStringReference.get());
-        assertNotNull(mockDataReference.get());
+        assertNull(mockDataStringReference.get());
     }
 
     @Test
-    public void test_observeSetup_5_00002() {
+    public void test_observeSetup_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -184,7 +183,7 @@ public class DeviceSettingViewModelTest {
         AtomicReference<String> deviceTypeNameReference = new AtomicReference<>();
         AtomicReference<String> deviceSettingNameReference = new AtomicReference<>();
         AtomicReference<String> deviceSettingNameErrorStringReference = new AtomicReference<>();
-        AtomicReference<MockData> mockDataReference = new AtomicReference<>();
+        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
 
         AtomicReference<Throwable> observeSetupThrowable = new AtomicReference<>();
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor = PublishProcessor.create();
@@ -192,7 +191,7 @@ public class DeviceSettingViewModelTest {
         mViewModel.observeDeviceTypeName(new TestLifeCycleOwner(), deviceTypeNameReference::set);
         mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), deviceSettingNameReference::set);
         mViewModel.observeDeviceSettingNameErrorString(new TestLifeCycleOwner(), deviceSettingNameErrorStringReference::set);
-        mViewModel.observeMockData(mockDataReference::set);
+        mViewModel.observeMockDataString(new TestLifeCycleOwner(), mockDataStringReference::set);
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_ID, original.getId());
@@ -208,14 +207,15 @@ public class DeviceSettingViewModelTest {
         assertEquals(mContext.getString(R.string.blood_pressure_profile), deviceTypeNameReference.get());
         assertEquals(original.getDeviceSettingName(), deviceSettingNameReference.get());
         assertNull(deviceSettingNameErrorStringReference.get());
-        MockData mockData = mockDataReference.get();
-        assertNotNull(mockData);
+        String mockDataString = mockDataStringReference.get();
+        assertNotNull(mockDataString);
+        MockData mockData = mGson.fromJson(mockDataString, MockData.class);
         assertEquals(1, mockData.serviceDataList.size());
         assertEquals(originalServiceData, mockData.serviceDataList.get(0));
     }
 
     @Test
-    public void test_observeSetup_6_00001() {
+    public void test_observeSetup_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -232,7 +232,7 @@ public class DeviceSettingViewModelTest {
         AtomicInteger deviceTypeNameCount = new AtomicInteger(0);
         AtomicInteger deviceSettingNameCount = new AtomicInteger(0);
         AtomicInteger deviceSettingNameErrorStringCount = new AtomicInteger(0);
-        AtomicReference<MockData> mockDataReference = new AtomicReference<>();
+        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
 
         AtomicReference<Throwable> observeSetupThrowable = new AtomicReference<>();
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor = PublishProcessor.create();
@@ -240,7 +240,7 @@ public class DeviceSettingViewModelTest {
         mViewModel.observeDeviceTypeName(new TestLifeCycleOwner(), s -> deviceTypeNameCount.incrementAndGet());
         mViewModel.observeDeviceSettingName(new TestLifeCycleOwner(), s -> deviceSettingNameCount.incrementAndGet());
         mViewModel.observeDeviceSettingNameErrorString(new TestLifeCycleOwner(), s -> deviceSettingNameErrorStringCount.incrementAndGet());
-        mViewModel.observeMockData(mockDataReference::set);
+        mViewModel.observeMockDataString(new TestLifeCycleOwner(), mockDataStringReference::set);
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_ID, original.getId());
@@ -257,8 +257,9 @@ public class DeviceSettingViewModelTest {
         assertEquals(1, deviceSettingNameCount.get());
         assertEquals(1, deviceSettingNameErrorStringCount.get());
 
-        MockData mockData = mockDataReference.get();
-        assertNotNull(mockData);
+        String mockDataString = mockDataStringReference.get();
+        assertNotNull(mockDataString);
+        MockData mockData = mGson.fromJson(mockDataString, MockData.class);
         assertEquals(1, mockData.serviceDataList.size());
         assertEquals(originalServiceData, mockData.serviceDataList.get(0));
     }
@@ -553,15 +554,15 @@ public class DeviceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeMockData_00001() {
+    public void test_observeMockDataString_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<MockData> mockDataReference = new AtomicReference<>();
+        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
 
-        mViewModel.observeMockData(mockDataReference::set);
+        mViewModel.observeMockDataString(new TestLifeCycleOwner(), mockDataStringReference::set);
 
-        assertNull(mockDataReference.get());
+        assertNull(mockDataStringReference.get());
     }
 
     @Test
@@ -574,10 +575,10 @@ public class DeviceSettingViewModelTest {
         originalMockData.serviceDataList.add(originalServiceData);
         DeviceSetting original = new DeviceSetting(2, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mGson.toJson(originalMockData));
 
-        AtomicReference<MockData> mockDataReference = new AtomicReference<>();
+        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor = PublishProcessor.create();
 
-        mViewModel.observeMockData(mockDataReference::set);
+        mViewModel.observeMockDataString(new TestLifeCycleOwner(), mockDataStringReference::set);
 
         Intent intent = new Intent();
         intent.putExtra(KEY_DEVICE_ID, original.getId());
@@ -587,8 +588,9 @@ public class DeviceSettingViewModelTest {
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
-        MockData mockData = mockDataReference.get();
-        assertNotNull(mockData);
+        String mockDataString = mockDataStringReference.get();
+        assertNotNull(mockDataString);
+        MockData mockData = mGson.fromJson(mockDataString, MockData.class);
         assertEquals(1, mockData.serviceDataList.size());
         assertEquals(originalServiceData, mockData.serviceDataList.get(0));
     }
@@ -620,6 +622,35 @@ public class DeviceSettingViewModelTest {
         mViewModel.updateDeviceSettingName(after);
 
         assertEquals(after, mSavedStateHandle.get("KEY_DEVICE_SETTING_NAME"));
+    }
+
+    @Test
+    public void test_updateMockDataString_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String after = "b";
+
+        assertNull(mSavedStateHandle.get("KEY_MOCK_DATA_STRING"));
+        mViewModel.updateMockDataString(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_MOCK_DATA_STRING"));
+    }
+
+    @Test
+    public void test_updateMockDataString00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String before = "a";
+        String after = "b";
+
+        mViewModel.updateMockDataString(before);
+        assertEquals(before, mSavedStateHandle.get("KEY_MOCK_DATA_STRING"));
+
+        mViewModel.updateMockDataString(after);
+
+        assertEquals(after, mSavedStateHandle.get("KEY_MOCK_DATA_STRING"));
     }
 
     @Test
@@ -728,20 +759,42 @@ public class DeviceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_00001() {
+    public void test_observeSaveData_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Boolean> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+
+        assertNull(saveDataReference.get());
+    }
+
+    @Test
+    public void test_observeSaveData_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Boolean> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+        mSavedStateHandle.set("KEY_SAVED_DATA", true);
+
+        assertNotNull(saveDataReference.get());
+    }
+
+    @Test
+    public void test_save_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(() -> null, () -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
         assertEquals("Already saved", throwableReference.get().getMessage());
     }
 
     @Test
-    public void test_observeSave_00002() {
+    public void test_save_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -759,15 +812,14 @@ public class DeviceSettingViewModelTest {
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(() -> null, () -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
         assertEquals("Validation failed", throwableReference.get().getMessage());
     }
 
     @Test
-    public void test_observeSave_00004() {
+    public void test_save_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -785,19 +837,17 @@ public class DeviceSettingViewModelTest {
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(() -> "", () -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
         assertEquals("Validation failed", throwableReference.get().getMessage());
     }
 
     @Test
-    public void test_observeSave_00005() {
+    public void test_save_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicBoolean result = new AtomicBoolean(false);
         AtomicReference<DeviceSetting> deviceSettingAtomicReference = new AtomicReference<>();
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor = PublishProcessor.create();
         mFakeDeviceSettingRepository.mInsertDeviceSettingConsumer = deviceSettingAtomicReference::set;
@@ -815,12 +865,9 @@ public class DeviceSettingViewModelTest {
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
-        mViewModel.observeSave(() -> mockDataString
-                , () -> result.set(true)
-                , throwable -> {
+        mViewModel.updateMockDataString(mockDataString);
+        mViewModel.save(throwable -> {
                 });
-
-        assertTrue(result.get());
 
         DeviceSetting deviceSetting = deviceSettingAtomicReference.get();
         assertNotNull(deviceSetting);

@@ -337,8 +337,8 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
     }
 
     @Override
-    public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSaveSubject.subscribe(onSuccess, onError));
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(mObserveSaveSubject.subscribe(intent -> mSavedStateHandle.set("KEY_SAVED_DATA", intent), onError));
     }
 
     private void test_systolic_error_00002() {

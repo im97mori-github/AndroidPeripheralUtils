@@ -596,20 +596,43 @@ public class ModelNumberStringSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00001() {
+    public void test_observeSaveData_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+
+        assertNull(saveDataReference.get());
+    }
+
+    @Test
+    public void test_observeSaveData_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        Intent original = new Intent();
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+        mSavedStateHandle.set("KEY_SAVED_DATA", original);
+
+        assertEquals(original, saveDataReference.get());
+    }
+
+    @Test
+    public void test_save_1_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
         assertEquals("Already saved", throwableReference.get().getMessage());
     }
 
     @Test
-    public void test_observeSave_1_00002() {
+    public void test_save_1_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -622,8 +645,7 @@ public class ModelNumberStringSettingViewModelTest {
         mViewModel.updateResponseDelay("");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -631,7 +653,7 @@ public class ModelNumberStringSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00003() {
+    public void test_save_1_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -645,8 +667,7 @@ public class ModelNumberStringSettingViewModelTest {
         mViewModel.updateResponseCode("");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -654,7 +675,7 @@ public class ModelNumberStringSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00004() {
+    public void test_save_1_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -668,8 +689,7 @@ public class ModelNumberStringSettingViewModelTest {
         mViewModel.updateModelNumberString("");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -677,7 +697,7 @@ public class ModelNumberStringSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00001() {
+    public void test_save_2_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -694,10 +714,10 @@ public class ModelNumberStringSettingViewModelTest {
         mViewModel.updateResponseCode(String.valueOf(responseCode));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         assertNotNull(characteristicData);
@@ -706,7 +726,7 @@ public class ModelNumberStringSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_3_00001() {
+    public void test_save_3_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -723,10 +743,10 @@ public class ModelNumberStringSettingViewModelTest {
         mViewModel.updateModelNumberString(modelNumberString);
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         assertNotNull(characteristicData);

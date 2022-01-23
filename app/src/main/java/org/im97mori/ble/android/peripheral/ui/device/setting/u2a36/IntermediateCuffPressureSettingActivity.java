@@ -157,6 +157,11 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
         mBinding.notificationCountEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateNotificationCount(editable)));
 
+        mViewModel.observeSavedData(this, intent -> {
+            setResult(RESULT_OK, intent);
+            finish();
+        });
+
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
 
             @Override
@@ -168,10 +173,7 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result = false;
                 if (menuItem.getItemId() == R.id.save) {
-                    mViewModel.observeSave(intent -> {
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }, throwable
+                    mViewModel.save(throwable
                             -> Toast.makeText(IntermediateCuffPressureSettingActivity.this
                             , throwable.getMessage()
                             , Toast.LENGTH_SHORT).show());

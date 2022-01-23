@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -50,6 +49,8 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
     private final MutableLiveData<String> mResponseCode;
     private final MutableLiveData<String> mResponseDelay;
 
+    private final MutableLiveData<Intent> mSavedData;
+
     @Inject
     public SystemIdSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
@@ -59,6 +60,8 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
         mOrganizationallyUniqueIdentifier = savedStateHandle.getLiveData(KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER);
         mResponseCode = savedStateHandle.getLiveData(KEY_RESPONSE_CODE);
         mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
+
+        mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
 
     @Override
@@ -173,6 +176,11 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
     }
 
+    @Override
+    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<Intent> observer) {
+        mSavedData.observe(owner, observer);
+    }
+
     @MainThread
     public void updateIsErrorResponse(boolean checked) {
         mIsErrorResponse.setValue(checked);
@@ -199,9 +207,8 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
     }
 
     @Override
-    public void observeSave(@NonNull Consumer<Intent> onSuccess
-            , @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(Single.<Intent>create(emitter -> {
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
@@ -221,8 +228,9 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
                             Intent intent = new Intent();
                             intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
+                            mSavedData.postValue(intent);
                             mCharacteristicData = null;
-                            emitter.onSuccess(intent);
+                            emitter.onComplete();
                         } else {
                             emitter.onError(new RuntimeException("Validation failed"));
                         }
@@ -235,8 +243,9 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
                             Intent intent = new Intent();
                             intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
+                            mSavedData.postValue(intent);
                             mCharacteristicData = null;
-                            emitter.onSuccess(intent);
+                            emitter.onComplete();
                         } else {
                             emitter.onError(new RuntimeException("Validation failed"));
                         }
@@ -248,6 +257,8 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onSuccess, onError));
+                .subscribe(() -> {
+                }, onError));
     }
+
 }

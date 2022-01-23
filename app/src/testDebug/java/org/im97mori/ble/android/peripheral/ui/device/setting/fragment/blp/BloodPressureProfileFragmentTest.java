@@ -35,6 +35,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 
+import com.google.gson.Gson;
+
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.test.HiltTestActivity;
@@ -84,6 +86,9 @@ public class BloodPressureProfileFragmentTest {
     @Inject
     @ApplicationContext
     Context mContext;
+
+    @Inject
+    Gson mGson;
 
     private ActivityScenario<HiltTestActivity> mScenario;
 
@@ -194,7 +199,7 @@ public class BloodPressureProfileFragmentTest {
             mFakeBloodPressureProfileViewModel.observeIsDisSupported(activity, result::set);
         });
 
-        mFakeBloodPressureProfileViewModel.observeSetup(new MockData(), () -> {
+        mFakeBloodPressureProfileViewModel.observeSetup(mGson.toJson(new MockData()), () -> {
         }, throwable -> {
         });
 

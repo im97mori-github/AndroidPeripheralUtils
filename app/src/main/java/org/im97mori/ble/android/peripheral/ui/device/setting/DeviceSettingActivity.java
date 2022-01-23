@@ -29,6 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class DeviceSettingActivity extends AppCompatActivity {
 
     private DeviceSettingViewModel mViewModel;
+    private BaseSettingFragmentViewModel mBaseSettingFragmentViewModel;
 
     private DeviceSettingActivityBinding mBinding;
 
@@ -36,6 +37,7 @@ public class DeviceSettingActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModel = new AutoDisposeViewModelProvider(this).get(DeviceSettingViewModel.class);
+        mBaseSettingFragmentViewModel = new AutoDisposeViewModelProvider(DeviceSettingActivity.this).get(mViewModel.getFragmentViewModelClass(getIntent()));
 
         mBinding = DeviceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
@@ -49,6 +51,16 @@ public class DeviceSettingActivity extends AppCompatActivity {
         mBinding.deviceSettingNameEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable -> mViewModel.updateDeviceSettingName(editable)));
         mViewModel.observeDeviceSettingName(this, s -> setTextDistinct(mBinding.deviceSettingNameEdit, s));
 
+        mBaseSettingFragmentViewModel.observeSavedData(this, s -> {
+            mViewModel.updateMockDataString(s);
+            mViewModel.save(throwable
+                    -> Toast.makeText(DeviceSettingActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show());
+        });
+        mViewModel.observeSavedData(this
+                , ping -> {
+                    setResult(RESULT_OK);
+                    finish();
+                });
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
 
             @Override
@@ -60,11 +72,8 @@ public class DeviceSettingActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result = false;
                 if (menuItem.getItemId() == R.id.save) {
-                    BaseSettingFragmentViewModel fragmentViewModel = new AutoDisposeViewModelProvider(DeviceSettingActivity.this).get(mViewModel.getFragmentViewModelClass(getIntent()));
-                    mViewModel.observeSave(fragmentViewModel::getModuleDataString, () -> {
-                        setResult(RESULT_OK);
-                        finish();
-                    }, throwable -> Toast.makeText(DeviceSettingActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show());
+                    mBaseSettingFragmentViewModel.save(throwable
+                            -> Toast.makeText(DeviceSettingActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show());
                     result = true;
                 }
                 return result;

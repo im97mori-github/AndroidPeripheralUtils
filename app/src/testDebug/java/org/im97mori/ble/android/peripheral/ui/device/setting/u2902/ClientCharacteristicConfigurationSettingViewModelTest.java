@@ -640,20 +640,43 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00001() {
+    public void test_observeSaveData_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+
+        assertNull(saveDataReference.get());
+    }
+
+    @Test
+    public void test_observeSaveData_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        Intent original = new Intent();
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+        mSavedStateHandle.set("KEY_SAVED_DATA", original);
+
+        assertEquals(original, saveDataReference.get());
+    }
+
+    @Test
+    public void test_save_1_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
         assertEquals("Already saved", throwableReference.get().getMessage());
     }
 
     @Test
-    public void test_observeSave_1_00002() {
+    public void test_save_1_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -666,8 +689,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.updateResponseDelay("");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -675,7 +697,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00003() {
+    public void test_save_1_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -689,8 +711,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.updateResponseCode("");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -698,7 +719,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00001() {
+    public void test_save_2_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -715,10 +736,10 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.updateResponseCode(String.valueOf(responseCode));
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         DescriptorData descriptorData = descriptorDataAtomicReference.get();
         assertNotNull(descriptorData);
@@ -727,7 +748,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_3_00001() {
+    public void test_save_3_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -745,10 +766,10 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.updateProperties(check);
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         DescriptorData descriptorData = descriptorDataAtomicReference.get();
         assertNotNull(descriptorData);
@@ -758,7 +779,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_3_00002() {
+    public void test_save_3_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -776,10 +797,10 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.updateProperties(check);
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         DescriptorData descriptorData = descriptorDataAtomicReference.get();
         assertNotNull(descriptorData);
@@ -789,7 +810,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_3_00003() {
+    public void test_save_3_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -807,10 +828,10 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.updateProperties(check);
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         DescriptorData descriptorData = descriptorDataAtomicReference.get();
         assertNotNull(descriptorData);
@@ -820,7 +841,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_3_00004() {
+    public void test_save_3_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -838,10 +859,10 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.updateProperties(check);
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         DescriptorData descriptorData = descriptorDataAtomicReference.get();
         assertNotNull(descriptorData);

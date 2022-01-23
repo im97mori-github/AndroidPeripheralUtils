@@ -721,20 +721,43 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00001() {
+    public void test_observeSaveData_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+
+        TestCase.assertNull(saveDataReference.get());
+    }
+
+    @Test
+    public void test_observeSaveData_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        Intent original = new Intent();
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+        mSavedStateHandle.set("KEY_SAVED_DATA", original);
+
+        TestCase.assertEquals(original, saveDataReference.get());
+    }
+
+    @Test
+    public void test_save_1_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
         TestCase.assertEquals("Already saved", throwableReference.get().getMessage());
     }
 
     @Test
-    public void test_observeSave_1_00002() {
+    public void test_save_1_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -754,8 +777,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -763,7 +785,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00003() {
+    public void test_save_1_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -783,8 +805,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -792,7 +813,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00004() {
+    public void test_save_1_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -812,8 +833,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -821,7 +841,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00005() {
+    public void test_save_1_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -849,8 +869,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateTimeStampSeconds(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -858,7 +877,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00006() {
+    public void test_save_1_00006() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -886,8 +905,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateTimeStampSeconds(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -895,7 +913,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00007() {
+    public void test_save_1_00007() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -923,8 +941,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateTimeStampSeconds(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -932,7 +949,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00008() {
+    public void test_save_1_00008() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -960,8 +977,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateTimeStampSeconds(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -969,7 +985,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00009() {
+    public void test_save_1_00009() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -997,8 +1013,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateTimeStampSeconds(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1006,7 +1021,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00010() {
+    public void test_save_1_00010() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1034,8 +1049,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateTimeStampMinutes(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1043,7 +1057,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00011() {
+    public void test_save_1_00011() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1066,8 +1080,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateIsPulseRateSupported(true);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1075,7 +1088,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00012() {
+    public void test_save_1_00012() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1098,8 +1111,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateIsUserIdSupported(true);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1107,7 +1119,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00013() {
+    public void test_save_1_00013() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1134,8 +1146,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1143,7 +1154,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00014() {
+    public void test_save_1_00014() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1170,8 +1181,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1179,7 +1189,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00015() {
+    public void test_save_1_00015() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1206,8 +1216,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1215,7 +1224,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00016() {
+    public void test_save_1_00016() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1242,8 +1251,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1251,7 +1259,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00017() {
+    public void test_save_1_00017() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1278,8 +1286,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updatePulseRateRangeDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1287,7 +1294,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00018() {
+    public void test_save_1_00018() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1310,8 +1317,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateIndicationCount("");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1319,7 +1325,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00019() {
+    public void test_save_1_00019() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1334,8 +1340,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateMeanArterialPressure("3");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1343,7 +1348,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00001() {
+    public void test_save_2_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1368,10 +1373,10 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
@@ -1386,7 +1391,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00002() {
+    public void test_save_2_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1412,10 +1417,10 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
@@ -1430,7 +1435,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00003() {
+    public void test_save_2_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1469,10 +1474,10 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
@@ -1493,7 +1498,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00004() {
+    public void test_save_2_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1522,10 +1527,10 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
@@ -1541,7 +1546,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00005() {
+    public void test_save_2_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1570,10 +1575,10 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
@@ -1589,7 +1594,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00006() {
+    public void test_save_2_00006() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1632,10 +1637,10 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);
@@ -1657,7 +1662,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00007() {
+    public void test_save_2_00007() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1687,10 +1692,10 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         BloodPressureMeasurement bloodPressureMeasurement = new BloodPressureMeasurement(characteristicData.data);

@@ -5,7 +5,6 @@ import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_T
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVICE_ID_UNSAVED;
-import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 
 import android.content.Intent;
 
@@ -20,16 +19,12 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 
-import org.im97mori.ble.MockData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseSettingFragmentViewModel;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileFragment;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel;
-
-import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
@@ -40,33 +35,41 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
-public class DeviceSettingViewModel extends BaseSettingViewModel {
+public class DeviceSettingViewModel extends BaseSettingViewModel<Intent, Boolean> {
 
     private static final String KEY_DEVICE_TYPE_IMAGE_RES_ID = "KEY_DEVICE_TYPE_IMAGE_RES_ID";
     private static final String KEY_DEVICE_TYPE_NAME = "KEY_DEVICE_TYPE_NAME";
     private static final String KEY_DEVICE_SETTING_NAME = "KEY_DEVICE_SETTING_NAME";
     private static final String KEY_FRAGMENT_READY = "KEY_FRAGMENT_READY";
+    private static final String KEY_MOCK_DATA_STRING = "KEY_MOCK_DATA_STRING";
 
     private final SavedStateHandle mSavedStateHandle;
 
     private final MutableLiveData<String> mDeviceNameSetting;
     private final MutableLiveData<Boolean> mFragmentReady;
 
-    private DeviceSetting mDeviceSetting;
+    private final MutableLiveData<String> mMockDataString;
 
-    private final PublishSubject<MockData> mSubject = PublishSubject.create();
+    private final MutableLiveData<Boolean> mSavedData;
+
+    private DeviceSetting mDeviceSetting;
 
     @Inject
     public DeviceSettingViewModel(@NonNull SavedStateHandle savedStateHandle
             , @NonNull DeviceSettingRepository deviceSettingRepository
             , @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
+
         mSavedStateHandle = savedStateHandle;
+
         mDeviceNameSetting = savedStateHandle.getLiveData(KEY_DEVICE_SETTING_NAME);
         mFragmentReady = savedStateHandle.getLiveData(KEY_FRAGMENT_READY);
+
+        mMockDataString = savedStateHandle.getLiveData(KEY_MOCK_DATA_STRING);
+
+        mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
 
     @MainThread
@@ -92,18 +95,7 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
                         mDeviceNameSetting.postValue(mDeviceSetting.getDeviceSettingName());
                     }
 
-                    MockData mockData = null;
-                    try {
-                        mockData = mGson.fromJson(mDeviceSetting.getDeviceSettingData(), MockData.class);
-                    } catch (JsonSyntaxException e) {
-                        stackLog(e);
-                    } finally {
-                        if (mockData == null) {
-                            mockData = new MockData();
-                        }
-                    }
-
-                    mSubject.onNext(mockData);
+                    mMockDataString.postValue(mDeviceSetting.getDeviceSettingData());
 
                     return Completable.complete();
 
@@ -138,17 +130,23 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
         Transformations.distinctUntilChanged(mFragmentReady).observe(owner, observer);
     }
 
-    @MainThread
-    public void observeMockData(@NonNull Consumer<MockData> onSuccess) {
-        mDisposable.add(mSubject
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onSuccess));
+    public void observeMockDataString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        mMockDataString.observe(owner, observer);
+    }
+
+    @Override
+    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        mSavedData.observe(owner, observer);
     }
 
     @MainThread
     public void updateDeviceSettingName(@Nullable String text) {
         mDeviceNameSetting.setValue(text);
+    }
+
+    @MainThread
+    public void updateMockDataString(@Nullable String text) {
+        mMockDataString.setValue(text);
     }
 
     public void fragmentReady() {
@@ -177,21 +175,20 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
         }
     }
 
-    @MainThread
-    public void observeSave(@NonNull Supplier<String> supplier
-            , @NonNull Action onComplete
-            , @NonNull Consumer<? super Throwable> onError) {
+    @Override
+    public void save(@NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Single.<DeviceSetting>create(emitter -> {
             DeviceSetting deviceSetting = mDeviceSetting;
             if (deviceSetting == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 String deviceNameSetting = mDeviceNameSetting.getValue();
-                String moduleDataJson = supplier.get();
+                String mockDataString = mMockDataString.getValue();
+
                 if (deviceNameSetting != null && mDeviceSettingRepository.getDeviceSettingNameErrorString(deviceNameSetting) == null
-                        && moduleDataJson != null) {
+                        && mockDataString != null) {
                     deviceSetting.setDeviceSettingName(deviceNameSetting);
-                    deviceSetting.setDeviceSettingData(moduleDataJson);
+                    deviceSetting.setDeviceSettingData(mockDataString);
                     mDeviceSetting = null;
                     emitter.onSuccess(deviceSetting);
                 } else {
@@ -201,7 +198,8 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
         }).subscribeOn(Schedulers.io())
                 .flatMapCompletable(mDeviceSettingRepository::insertDeviceSetting)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onComplete, onError));
+                .subscribe(() -> mSavedData.setValue(true)
+                        , onError));
     }
 
     @Override
@@ -209,4 +207,5 @@ public class DeviceSettingViewModel extends BaseSettingViewModel {
         mFragmentReady.setValue(false);
         super.dispose();
     }
+
 }

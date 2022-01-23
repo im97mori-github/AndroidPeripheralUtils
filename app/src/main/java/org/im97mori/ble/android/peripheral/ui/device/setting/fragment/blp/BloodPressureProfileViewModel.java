@@ -7,7 +7,6 @@ import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -28,6 +27,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
@@ -48,6 +48,8 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
     private final MutableLiveData<String> mBlsDataJson;
     private final MutableLiveData<String> mDisDataJson;
 
+    private final MutableLiveData<String> mSavedData;
+
     @Inject
     public BloodPressureProfileViewModel(@NonNull SavedStateHandle savedStateHandle
             , @NonNull DeviceSettingRepository deviceSettingRepository
@@ -56,32 +58,46 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
         mIsDisSupported = savedStateHandle.getLiveData(KEY_IS_DIS_SUPPORTED);
         mBlsDataJson = savedStateHandle.getLiveData(KEY_BLS_DATA_JSON);
         mDisDataJson = savedStateHandle.getLiveData(KEY_DIS_DATA_JSON);
+
+        mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
 
-    public void observeSetup(@NonNull MockData mockData, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
+    public void observeSetup(@NonNull String mockDataString
+            , @NonNull Action onComplete
+            , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
-            mMockData = mockData;
+            if (mMockData == null) {
+                try {
+                    mMockData = mGson.fromJson(mockDataString, MockData.class);
+                } catch (JsonSyntaxException e) {
+                    stackLog(e);
+                }
 
-            Optional<ServiceData> blsServiceDataOptional = mMockData.serviceDataList
-                    .stream()
-                    .filter(serviceData -> serviceData.uuid.equals(BLOOD_PRESSURE_SERVICE))
-                    .findAny();
+                if (mMockData == null) {
+                    mMockData = new MockData();
+                }
 
-            Optional<ServiceData> disServiceDataOptional = mMockData.serviceDataList
-                    .stream()
-                    .filter(serviceData -> serviceData.uuid.equals(DEVICE_INFORMATION_SERVICE))
-                    .findAny();
+                Optional<ServiceData> blsServiceDataOptional = mMockData.serviceDataList
+                        .stream()
+                        .filter(serviceData -> serviceData.uuid.equals(BLOOD_PRESSURE_SERVICE))
+                        .findAny();
 
-            if (mIsDisSupported.getValue() == null) {
-                mIsDisSupported.postValue(disServiceDataOptional.isPresent());
-            }
+                Optional<ServiceData> disServiceDataOptional = mMockData.serviceDataList
+                        .stream()
+                        .filter(serviceData -> serviceData.uuid.equals(DEVICE_INFORMATION_SERVICE))
+                        .findAny();
 
-            if (mBlsDataJson.getValue() == null && blsServiceDataOptional.isPresent()) {
-                mBlsDataJson.postValue(mGson.toJson(blsServiceDataOptional.get()));
-            }
+                if (mIsDisSupported.getValue() == null) {
+                    mIsDisSupported.postValue(disServiceDataOptional.isPresent());
+                }
 
-            if (mDisDataJson.getValue() == null && disServiceDataOptional.isPresent()) {
-                mDisDataJson.postValue(mGson.toJson(disServiceDataOptional.get()));
+                if (mBlsDataJson.getValue() == null && blsServiceDataOptional.isPresent()) {
+                    mBlsDataJson.postValue(mGson.toJson(blsServiceDataOptional.get()));
+                }
+
+                if (mDisDataJson.getValue() == null && disServiceDataOptional.isPresent()) {
+                    mDisDataJson.postValue(mGson.toJson(disServiceDataOptional.get()));
+                }
             }
             emitter.onComplete();
         }).subscribeOn(Schedulers.io())
@@ -98,6 +114,11 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
 
     public void observeIsDisSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
         Transformations.distinctUntilChanged(mIsDisSupported).observe(owner, observer);
+    }
+
+    @Override
+    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+        mSavedData.observe(owner, observer);
     }
 
     @MainThread
@@ -127,30 +148,39 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
         mDisDataJson.setValue(disDataJson);
     }
 
-    @Nullable
-    @WorkerThread
     @Override
-    public String getModuleDataString() {
-        if (mMockData == null) {
-            return null;
-        } else {
-            mMockData.serviceDataList.clear();
-            if (mBlsDataJson.getValue() != null) {
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
+            String blsDataJson = mBlsDataJson.getValue();
+            boolean isDisSupported = Boolean.TRUE.equals(mIsDisSupported.getValue());
+            String disDataJson = mDisDataJson.getValue();
+
+            if (blsDataJson != null && (!isDisSupported || disDataJson != null)) {
+                mMockData.serviceDataList.clear();
                 try {
                     mMockData.serviceDataList.add(mGson.fromJson(mBlsDataJson.getValue(), ServiceData.class));
                 } catch (JsonSyntaxException e) {
                     stackLog(e);
                 }
-            }
-            if (mDisDataJson.getValue() != null) {
-                try {
-                    mMockData.serviceDataList.add(mGson.fromJson(mDisDataJson.getValue(), ServiceData.class));
-                } catch (JsonSyntaxException e) {
-                    stackLog(e);
+                if (disDataJson != null) {
+                    try {
+                        mMockData.serviceDataList.add(mGson.fromJson(mDisDataJson.getValue(), ServiceData.class));
+                    } catch (JsonSyntaxException e) {
+                        stackLog(e);
+                    }
                 }
+
+                mSavedData.postValue(mGson.toJson(mMockData));
+                mMockData = null;
+                emitter.onComplete();
+            } else {
+                emitter.onError(new RuntimeException("Validation failed"));
             }
-            return mGson.toJson(mMockData);
-        }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                }, onError));
     }
 
 }

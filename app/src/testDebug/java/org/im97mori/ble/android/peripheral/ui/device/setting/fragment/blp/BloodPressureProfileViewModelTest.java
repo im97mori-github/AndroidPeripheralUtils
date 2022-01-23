@@ -31,6 +31,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -103,7 +104,8 @@ public class BloodPressureProfileViewModelTest {
         mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
         mViewModel.observeIsDisSupported(new TestLifeCycleOwner(), isDisSupported::set);
 
-        MockData original = new MockData();
+        MockData mockData = new MockData();
+        String original = mGson.toJson(mockData);
         AtomicBoolean result = new AtomicBoolean(false);
 
         mViewModel.observeSetup(original, () -> result.set(true), throwable -> {
@@ -129,8 +131,9 @@ public class BloodPressureProfileViewModelTest {
         mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
         mViewModel.observeIsDisSupported(new TestLifeCycleOwner(), isDisSupported::set);
 
-        MockData original = new MockData();
-        original.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
+        MockData mockData = new MockData();
+        mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
+        String original = mGson.toJson(mockData);
         AtomicBoolean result = new AtomicBoolean(false);
 
         mViewModel.observeSetup(original, () -> result.set(true), throwable -> {
@@ -156,9 +159,10 @@ public class BloodPressureProfileViewModelTest {
         mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
         mViewModel.observeIsDisSupported(new TestLifeCycleOwner(), isDisSupported::set);
 
-        MockData original = new MockData();
-        original.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        original.serviceDataList.add(new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
+        MockData mockData = new MockData();
+        mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
+        mockData.serviceDataList.add(new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
+        String original = mGson.toJson(mockData);
         AtomicBoolean result = new AtomicBoolean(false);
 
         mViewModel.observeSetup(original, () -> result.set(true), throwable -> {
@@ -192,7 +196,8 @@ public class BloodPressureProfileViewModelTest {
         mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
         mViewModel.observeIsDisSupported(new TestLifeCycleOwner(), isDisSupported::set);
 
-        MockData original = new MockData();
+        MockData mockData = new MockData();
+        String original = mGson.toJson(mockData);
         AtomicBoolean result = new AtomicBoolean(false);
 
         mViewModel.observeSetup(original, () -> result.set(true), throwable -> {
@@ -203,6 +208,163 @@ public class BloodPressureProfileViewModelTest {
         assertTrue(hasBlsDataJson.get());
         assertTrue(hasDisDataJson.get());
         assertTrue(isDisSupported.get());
+    }
+
+    @Test
+    public void test_observeSaveData_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<String> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+
+        assertNull(saveDataReference.get());
+    }
+
+    @Test
+    public void test_observeSaveData_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        MockData mockData = new MockData();
+        String original = mGson.toJson(mockData);
+        AtomicReference<String> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+        mSavedStateHandle.set("KEY_SAVED_DATA", original);
+
+        assertEquals(original, saveDataReference.get());
+    }
+
+    @Test
+    public void test_save_1_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Throwable> throwableReference = new AtomicReference<>();
+        mViewModel.save(throwableReference::set);
+
+        assertNotNull(throwableReference.get());
+        assertEquals("Validation failed", throwableReference.get().getMessage());
+    }
+
+    @Test
+    public void test_save_1_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        MockData mockData = new MockData();
+        String original = mGson.toJson(mockData);
+        mViewModel.observeSetup(original
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.setDisDataJson("");
+
+        AtomicReference<Throwable> throwableReference = new AtomicReference<>();
+        mViewModel.save(throwableReference::set);
+
+        assertNotNull(throwableReference.get());
+
+        assertEquals("Validation failed", throwableReference.get().getMessage());
+    }
+
+    @Test
+    public void test_save_1_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        MockData mockData = new MockData();
+        String original = mGson.toJson(mockData);
+        mViewModel.observeSetup(original
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.setBlsDataJson("");
+        mViewModel.updateIsDisSupported(true);
+
+        AtomicReference<Throwable> throwableReference = new AtomicReference<>();
+        mViewModel.save(throwableReference::set);
+
+        assertNotNull(throwableReference.get());
+
+        assertEquals("Validation failed", throwableReference.get().getMessage());
+    }
+
+    @Test
+    public void test_save_2_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        MockData mockData = new MockData();
+        ServiceData blsData = new ServiceData();
+        blsData.uuid = BLOOD_PRESSURE_SERVICE;
+        mockData.serviceDataList.add(blsData);
+        String original = mGson.toJson(mockData);
+        mViewModel.observeSetup(original
+                , () -> {
+                }
+                , throwable -> {
+                });
+
+        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), mockDataStringReference::set);
+        mViewModel.save(throwable -> {
+        });
+
+        MockData savedMockData = mGson.fromJson(mockDataStringReference.get(), MockData.class);
+        assertNotNull(savedMockData);
+
+        Optional<ServiceData> blsServiceDataOptional = savedMockData.serviceDataList
+                .stream()
+                .filter(serviceData -> serviceData.uuid.equals(BLOOD_PRESSURE_SERVICE))
+                .findAny();
+        assertTrue(blsServiceDataOptional.isPresent());
+        assertEquals(blsData, blsServiceDataOptional.get());
+    }
+
+    @Test
+    public void test_save_2_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        MockData mockData = new MockData();
+        ServiceData blsData = new ServiceData();
+        blsData.uuid = BLOOD_PRESSURE_SERVICE;
+        ServiceData disData = new ServiceData();
+        disData.uuid = DEVICE_INFORMATION_SERVICE;
+        mockData.serviceDataList.add(blsData);
+        mockData.serviceDataList.add(disData);
+        String original = mGson.toJson(mockData);
+        mViewModel.observeSetup(original
+                , () -> {
+                }
+                , throwable -> {
+                });
+        mViewModel.updateIsDisSupported(true);
+
+        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), mockDataStringReference::set);
+        mViewModel.save(throwable -> {
+        });
+
+        MockData savedMockData = mGson.fromJson(mockDataStringReference.get(), MockData.class);
+        assertNotNull(savedMockData);
+
+        Optional<ServiceData> blsServiceDataOptional = savedMockData.serviceDataList
+                .stream()
+                .filter(serviceData -> serviceData.uuid.equals(BLOOD_PRESSURE_SERVICE))
+                .findAny();
+        assertTrue(blsServiceDataOptional.isPresent());
+        assertEquals(blsData, blsServiceDataOptional.get());
+
+        Optional<ServiceData> disServiceDataOptional = savedMockData.serviceDataList
+                .stream()
+                .filter(serviceData -> serviceData.uuid.equals(DEVICE_INFORMATION_SERVICE))
+                .findAny();
+        assertTrue(disServiceDataOptional.isPresent());
+        assertEquals(disData, disServiceDataOptional.get());
     }
 
     @Test
@@ -351,80 +513,6 @@ public class BloodPressureProfileViewModelTest {
         mViewModel.setDisDataJson(original);
 
         assertEquals(original, mSavedStateHandle.get("KEY_DIS_DATA_JSON"));
-    }
-
-    @Test
-    public void test_getModuleDataString_00001() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        mViewModel.getModuleDataString();
-
-        String moduleDataString = mViewModel.getModuleDataString();
-        assertNull(moduleDataString);
-    }
-
-    @Test
-    public void test_getModuleDataString_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        MockData original = new MockData();
-
-        mViewModel.observeSetup(original, () -> {
-        }, throwable -> {
-        });
-
-        mViewModel.getModuleDataString();
-
-        String moduleDataString = mViewModel.getModuleDataString();
-        assertNotNull(moduleDataString);
-
-        assertEquals(mGson.toJson(original), moduleDataString);
-    }
-
-    @Test
-    public void test_getModuleDataString_00003() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        MockData original = new MockData();
-        ServiceData blsServiceData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList());
-
-        mViewModel.observeSetup(original, () -> {
-        }, throwable -> {
-        });
-
-        mViewModel.setBlsDataJson(mGson.toJson(blsServiceData));
-
-        mViewModel.getModuleDataString();
-
-        String moduleDataString = mViewModel.getModuleDataString();
-        assertNotNull(moduleDataString);
-
-        assertEquals(mGson.toJson(new MockData(Collections.singletonList(blsServiceData))), moduleDataString);
-    }
-
-    @Test
-    public void test_getModuleDataString_00004() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        MockData original = new MockData();
-        ServiceData disServiceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList());
-
-        mViewModel.observeSetup(original, () -> {
-        }, throwable -> {
-        });
-
-        mViewModel.setDisDataJson(mGson.toJson(disServiceData));
-
-        mViewModel.getModuleDataString();
-
-        String moduleDataString = mViewModel.getModuleDataString();
-        assertNotNull(moduleDataString);
-
-        assertEquals(mGson.toJson(new MockData(Collections.singletonList(disServiceData))), moduleDataString);
     }
 
 }

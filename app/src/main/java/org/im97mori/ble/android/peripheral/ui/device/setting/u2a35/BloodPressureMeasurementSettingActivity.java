@@ -172,6 +172,11 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
         mBinding.indicationCountEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateIndicationCount(editable)));
 
+        mViewModel.observeSavedData(this, intent -> {
+            setResult(RESULT_OK, intent);
+            finish();
+        });
+
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
 
             @Override
@@ -183,10 +188,7 @@ public class BloodPressureMeasurementSettingActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result = false;
                 if (menuItem.getItemId() == R.id.save) {
-                    mViewModel.observeSave(intent -> {
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }, throwable
+                    mViewModel.save(throwable
                             -> Toast.makeText(BloodPressureMeasurementSettingActivity.this
                             , throwable.getMessage()
                             , Toast.LENGTH_SHORT).show());

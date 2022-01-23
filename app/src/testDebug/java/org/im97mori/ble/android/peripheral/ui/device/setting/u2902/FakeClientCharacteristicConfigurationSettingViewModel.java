@@ -49,64 +49,29 @@ public class FakeClientCharacteristicConfigurationSettingViewModel extends Clien
                 .subscribe(s -> mDisposable.add(Single.<String>create(emitter -> emitter.onSuccess(s))
                         .flatMapCompletable(t -> {
                             switch (t) {
-                                case "test_isErrorResponse_00002":
-                                    test_isErrorResponse_00002();
-                                    break;
-                                case "test_isErrorResponse_00003":
-                                    test_isErrorResponse_00003();
-                                    break;
-                                case "test_responseCode_visibility_00001":
-                                    test_responseCode_visibility_00001();
-                                    break;
-                                case "test_responseCode_visibility_00002":
-                                    test_responseCode_visibility_00002();
-                                    break;
-                                case "test_responseCode_00001":
-                                    test_responseCode_00001();
-                                    break;
-                                case "test_responseCode_error_00002":
-                                    test_responseCode_error_00002();
-                                    break;
-                                case "test_responseDelay_00001":
-                                    test_responseDelay_00001();
-                                    break;
-                                case "test_responseDelay_error_00002":
-                                    test_responseDelay_error_00002();
-                                    break;
-                                case "test_menu_save_00002":
-                                    test_menu_save_00002();
-                                    break;
-                                case "test_updateResponseCode_00001":
-                                    test_updateResponseCode_00001();
-                                    break;
-                                case "test_recreate_isErrorResponse_00001":
-                                    test_recreate_isErrorResponse_00001();
-                                    break;
-                                case "test_recreate_responseCode_00001":
-                                    test_recreate_responseCode_00001();
-                                    break;
-                                case "test_recreate_responseCode_error_00001":
-                                    test_recreate_responseCode_error_00001();
-                                    break;
-                                case "test_recreate_responseDelay_00001":
-                                    test_recreate_responseDelay_00001();
-                                    break;
-                                case "test_recreate_responseDelay_error_00001":
-                                    test_recreate_responseDelay_error_00001();
-                                    break;
-                                case "test_propertiesRadioGroup_visibility_00001":
-                                    test_propertiesRadioGroup_visibility_00001();
-                                    break;
-                                case "test_propertiesRadioGroup_visibility_00002":
-                                    test_propertiesRadioGroup_visibility_00002();
-                                    break;
-                                case "test_recreate_propertiesRadioGroup_visibility_00001":
-                                    test_recreate_propertiesRadioGroup_visibility_00001();
-                                    break;
-                                case "test_recreate_propertiesRadioGroup_00001":
-                                    test_recreate_propertiesRadioGroup_00001();
-                                    break;
+                                // @formatter:off
+                                case "test_isErrorResponse_00002": test_isErrorResponse_00002(); break;
+                                case "test_isErrorResponse_00003": test_isErrorResponse_00003(); break;
+                                case "test_responseCode_visibility_00001": test_responseCode_visibility_00001(); break;
+                                case "test_responseCode_visibility_00002": test_responseCode_visibility_00002(); break;
+                                case "test_responseCode_00001": test_responseCode_00001(); break;
+                                case "test_responseCode_error_00002": test_responseCode_error_00002(); break;
+                                case "test_responseDelay_00001": test_responseDelay_00001(); break;
+                                case "test_responseDelay_error_00002": test_responseDelay_error_00002(); break;
+                                case "test_menu_save_00002": test_menu_save_00002(); break;
+                                case "test_menu_save_00003": test_menu_save_00003(); break;
+                                case "test_updateResponseCode_00001": test_updateResponseCode_00001(); break;
+                                case "test_recreate_isErrorResponse_00001": test_recreate_isErrorResponse_00001(); break;
+                                case "test_recreate_responseCode_00001": test_recreate_responseCode_00001(); break;
+                                case "test_recreate_responseCode_error_00001": test_recreate_responseCode_error_00001(); break;
+                                case "test_recreate_responseDelay_00001": test_recreate_responseDelay_00001(); break;
+                                case "test_recreate_responseDelay_error_00001": test_recreate_responseDelay_error_00001(); break;
+                                case "test_propertiesRadioGroup_visibility_00001": test_propertiesRadioGroup_visibility_00001(); break;
+                                case "test_propertiesRadioGroup_visibility_00002": test_propertiesRadioGroup_visibility_00002(); break;
+                                case "test_recreate_propertiesRadioGroup_visibility_00001": test_recreate_propertiesRadioGroup_visibility_00001(); break;
+                                case "test_recreate_propertiesRadioGroup_00001": test_recreate_propertiesRadioGroup_00001(); break;
                                 default:
+                                // @formatter:on
                             }
                             return Completable.complete();
                         }).subscribe(onComplete, onError))));
@@ -145,8 +110,8 @@ public class FakeClientCharacteristicConfigurationSettingViewModel extends Clien
     }
 
     @Override
-    public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSaveSubject.subscribe(onSuccess, onError));
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(mObserveSaveSubject.subscribe(intent -> mSavedStateHandle.set("KEY_SAVED_DATA", intent), onError));
     }
 
     private void test_isErrorResponse_00002() {
@@ -182,6 +147,10 @@ public class FakeClientCharacteristicConfigurationSettingViewModel extends Clien
     }
 
     private void test_menu_save_00002() {
+        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
+    }
+
+    private void test_menu_save_00003() {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 

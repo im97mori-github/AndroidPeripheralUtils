@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -43,7 +42,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     private static final String KEY_IRREGULAR_PULSE_DETECTION = "KEY_IRREGULAR_PULSE_DETECTION";
     private static final String KEY_PULSE_RATE_RANGE_DETECTION = "KEY_PULSE_RATE_RANGE_DETECTION";
     private static final String KEY_MEASUREMENT_POSITION_DETECTION = "KEY_MEASUREMENT_POSITION_DETECTION";
-    private static final String KEY_MULTIPLE_BOND_DETECTION = "KEY_MULTIPLE_BOND_DETECTION";
+    private static final String KEY_MULTIPLE_BOND = "KEY_MULTIPLE_BOND";
+
     private static final String KEY_RESPONSE_CODE = "KEY_RESPONSE_CODE";
     private static final String KEY_RESPONSE_DELAY = "KEY_RESPONSE_DELAY";
 
@@ -54,10 +54,12 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     private final MutableLiveData<Boolean> mIrregularPulseDetection;
     private final MutableLiveData<Boolean> mPulseRateRangeDetection;
     private final MutableLiveData<Boolean> mMeasurementPositionDetection;
-    private final MutableLiveData<Boolean> mMultipleBondDetection;
+    private final MutableLiveData<Boolean> mMultipleBond;
 
     private final MutableLiveData<String> mResponseCode;
     private final MutableLiveData<String> mResponseDelay;
+
+    private final MutableLiveData<Intent> mSavedData;
 
     @Inject
     public BloodPressureFeatureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
@@ -70,10 +72,12 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
         mIrregularPulseDetection = savedStateHandle.getLiveData(KEY_IRREGULAR_PULSE_DETECTION);
         mPulseRateRangeDetection = savedStateHandle.getLiveData(KEY_PULSE_RATE_RANGE_DETECTION);
         mMeasurementPositionDetection = savedStateHandle.getLiveData(KEY_MEASUREMENT_POSITION_DETECTION);
-        mMultipleBondDetection = savedStateHandle.getLiveData(KEY_MULTIPLE_BOND_DETECTION);
+        mMultipleBond = savedStateHandle.getLiveData(KEY_MULTIPLE_BOND);
 
         mResponseCode = savedStateHandle.getLiveData(KEY_RESPONSE_CODE);
         mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
+
+        mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
 
     @Override
@@ -148,11 +152,11 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                 }
             }
 
-            if (mMultipleBondDetection.getValue() == null) {
+            if (mMultipleBond.getValue() == null) {
                 if (bloodPressureFeature == null) {
-                    mMultipleBondDetection.postValue(false);
+                    mMultipleBond.postValue(false);
                 } else {
-                    mMultipleBondDetection.postValue(bloodPressureFeature.isMultipleBondSupported());
+                    mMultipleBond.postValue(bloodPressureFeature.isMultipleBondSupported());
                 }
             }
 
@@ -202,8 +206,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     }
 
     @MainThread
-    public void observeMultipleBondDetection(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mMultipleBondDetection).observe(owner, observer);
+    public void observeMultipleBond(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mMultipleBond).observe(owner, observer);
     }
 
     @MainThread
@@ -226,6 +230,11 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     public void observeResponseDelayErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mResponseDelay).observe(owner
                 , s -> observer.onChanged(mDeviceSettingRepository.getResponseDelayErrorString(s)));
+    }
+
+    @MainThread
+    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<Intent> observer) {
+        mSavedData.observe(owner, observer);
     }
 
     @MainThread
@@ -259,8 +268,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     }
 
     @MainThread
-    public void updateMultipleBondDetection(boolean checked) {
-        mMultipleBondDetection.setValue(checked);
+    public void updateMultipleBond(boolean checked) {
+        mMultipleBond.setValue(checked);
     }
 
     @MainThread
@@ -274,9 +283,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     }
 
     @Override
-    public void observeSave(@NonNull Consumer<Intent> onSuccess
-            , @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(Single.<Intent>create(emitter -> {
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
@@ -286,9 +294,9 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                 boolean bodyMovementDetection = Boolean.TRUE.equals(mBodyMovementDetection.getValue());
                 boolean cuffFitDetection = Boolean.TRUE.equals(mCuffFitDetection.getValue());
                 boolean irregularPulseDetection = Boolean.TRUE.equals(mIrregularPulseDetection.getValue());
-                boolean measurementPositionDetection = Boolean.TRUE.equals(mMeasurementPositionDetection.getValue());
                 boolean pulseRateRangeDetection = Boolean.TRUE.equals(mPulseRateRangeDetection.getValue());
-                boolean multipleBondDetection = Boolean.TRUE.equals(mMultipleBondDetection.getValue());
+                boolean measurementPositionDetection = Boolean.TRUE.equals(mMeasurementPositionDetection.getValue());
+                boolean multipleBond = Boolean.TRUE.equals(mMultipleBond.getValue());
 
                 if (responseDelay != null && mDeviceSettingRepository.getResponseDelayErrorString(responseDelay) == null) {
                     mCharacteristicData.delay = Long.parseLong(responseDelay);
@@ -300,8 +308,9 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                             Intent intent = new Intent();
                             intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
+                            mSavedData.postValue(intent);
                             mCharacteristicData = null;
-                            emitter.onSuccess(intent);
+                            emitter.onComplete();
                         } else {
                             emitter.onError(new RuntimeException("Validation failed"));
                         }
@@ -309,9 +318,9 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                         mCharacteristicData.data = new BloodPressureFeature(bodyMovementDetection
                                 , cuffFitDetection
                                 , irregularPulseDetection
-                                , measurementPositionDetection
                                 , pulseRateRangeDetection
-                                , multipleBondDetection
+                                , measurementPositionDetection
+                                , multipleBond
                                 , false
                                 , false
                                 , false).getBytes();
@@ -320,8 +329,9 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                         Intent intent = new Intent();
                         intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
+                        mSavedData.postValue(intent);
                         mCharacteristicData = null;
-                        emitter.onSuccess(intent);
+                        emitter.onComplete();
                     }
                 } else {
                     emitter.onError(new RuntimeException("Validation failed"));
@@ -330,7 +340,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onSuccess, onError));
+                .subscribe(() -> {
+                }, onError));
     }
 
 }

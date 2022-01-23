@@ -30,7 +30,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -55,6 +54,8 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
     private final MutableLiveData<String> mResponseCode;
     private final MutableLiveData<String> mResponseDelay;
 
+    private final MutableLiveData<Intent> mSavedData;
+
     private int mPropertyType;
 
     @Inject
@@ -71,6 +72,8 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
 
         mResponseCode = savedStateHandle.getLiveData(KEY_RESPONSE_CODE);
         mResponseDelay = savedStateHandle.getLiveData(KEY_RESPONSE_DELAY);
+
+        mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
 
     @Override
@@ -197,6 +200,11 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
     }
 
     @MainThread
+    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<Intent> observer) {
+        mSavedData.observe(owner, observer);
+    }
+
+    @MainThread
     public void updateIsErrorResponse(boolean checked) {
         mIsErrorResponse.setValue(checked);
     }
@@ -217,8 +225,8 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
     }
 
     @Override
-    public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(Single.<Intent>create(emitter -> {
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mDescriptorData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
@@ -237,8 +245,9 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                             Intent intent = new Intent();
                             intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(mDescriptorData));
 
+                            mSavedData.postValue(intent);
                             mDescriptorData = null;
-                            emitter.onSuccess(intent);
+                            emitter.onComplete();
                         } else {
                             emitter.onError(new RuntimeException("Validation failed"));
                         }
@@ -259,8 +268,9 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                         Intent intent = new Intent();
                         intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(mDescriptorData));
 
+                        mSavedData.postValue(intent);
                         mDescriptorData = null;
-                        emitter.onSuccess(intent);
+                        emitter.onComplete();
                     }
                 } else {
                     emitter.onError(new RuntimeException("Validation failed"));
@@ -269,6 +279,7 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onSuccess, onError));
+                .subscribe(() -> {
+                }, onError));
     }
 }

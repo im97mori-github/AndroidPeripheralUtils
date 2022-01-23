@@ -59,6 +59,11 @@ public class ModelNumberStringSettingActivity extends AppCompatActivity {
         mBinding.responseDelayEdit.addTextChangedListener(new AfterTextChangedTextWatcher(editable
                 -> mViewModel.updateResponseDelay(editable)));
 
+        mViewModel.observeSavedData(this, intent -> {
+            setResult(RESULT_OK, intent);
+            finish();
+        });
+
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
 
             @Override
@@ -70,10 +75,7 @@ public class ModelNumberStringSettingActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result = false;
                 if (menuItem.getItemId() == R.id.save) {
-                    mViewModel.observeSave(intent -> {
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }, throwable
+                    mViewModel.save(throwable
                             -> Toast.makeText(ModelNumberStringSettingActivity.this
                             , throwable.getMessage()
                             , Toast.LENGTH_SHORT).show());

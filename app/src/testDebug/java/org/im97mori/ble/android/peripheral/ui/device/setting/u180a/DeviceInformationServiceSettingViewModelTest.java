@@ -334,20 +334,43 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00001() {
+    public void test_observeSaveData_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+
+        assertNull(saveDataReference.get());
+    }
+
+    @Test
+    public void test_observeSaveData_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        Intent original = new Intent();
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+        mSavedStateHandle.set("KEY_SAVED_DATA", original);
+
+        assertEquals(original, saveDataReference.get());
+    }
+
+    @Test
+    public void test_save_1_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
         assertEquals("Already saved", throwableReference.get().getMessage());
     }
 
     @Test
-    public void test_observeSave_1_00002() {
+    public void test_save_1_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -367,8 +390,7 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.setModelNumberStringDataJson(mGson.toJson(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -376,7 +398,7 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00003() {
+    public void test_save_1_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -396,8 +418,7 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.setManufacturerNameStringDataJson(mGson.toJson(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -405,7 +426,7 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00004() {
+    public void test_save_1_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -426,8 +447,7 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.setSystemIdDataJson(mGson.toJson(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -435,7 +455,7 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00005() {
+    public void test_save_1_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -463,8 +483,7 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.setSystemIdDataJson(mGson.toJson(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -472,7 +491,7 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00006() {
+    public void test_save_1_00006() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -500,8 +519,7 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.setSystemIdDataJson(mGson.toJson(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -509,7 +527,7 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00001() {
+    public void test_save_2_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -538,10 +556,10 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.setManufacturerNameStringDataJson(mGson.toJson(manufacturerNameStringCharacteristicData));
 
         AtomicReference<ServiceData> serviceDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         ServiceData resultServiceData = serviceDataAtomicReference.get();
         assertNotNull(resultServiceData);
@@ -565,7 +583,7 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00002() {
+    public void test_save_2_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -604,10 +622,10 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.setManufacturerNameStringDataJson(mGson.toJson(manufacturerNameStringCharacteristicData));
 
         AtomicReference<ServiceData> serviceDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         ServiceData resultServiceData = serviceDataAtomicReference.get();
         assertNotNull(resultServiceData);
@@ -638,7 +656,7 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00003() {
+    public void test_save_2_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -678,10 +696,10 @@ public class DeviceInformationServiceSettingViewModelTest {
 
         mViewModel.updateIsSystemIdSupported(true);
         AtomicReference<ServiceData> serviceDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         ServiceData resultServiceData = serviceDataAtomicReference.get();
         assertNotNull(resultServiceData);

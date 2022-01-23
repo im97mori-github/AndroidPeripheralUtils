@@ -118,6 +118,11 @@ public class BloodPressureServiceSettingActivity extends AppCompatActivity {
         mBinding.intermediateCuffPressureSettingButton.setOnClickListener(v -> mStartIntermediateCuffPressureSettingActivity.launch(mViewModel.getIntermediateCuffPressureDataJson()));
         mBinding.bloodPressureFeatureSettingButton.setOnClickListener(v -> mBloodPressureFeatureSettingActivity.launch(mViewModel.getBloodPressureFeatureDataJson()));
 
+        mViewModel.observeSavedData(this, intent -> {
+            setResult(RESULT_OK, intent);
+            finish();
+        });
+
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
 
             @Override
@@ -129,10 +134,7 @@ public class BloodPressureServiceSettingActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result = false;
                 if (menuItem.getItemId() == R.id.save) {
-                    mViewModel.observeSave(intent -> {
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }, throwable
+                    mViewModel.save(throwable
                             -> Toast.makeText(BloodPressureServiceSettingActivity.this
                             , throwable.getMessage()
                             , Toast.LENGTH_SHORT).show());

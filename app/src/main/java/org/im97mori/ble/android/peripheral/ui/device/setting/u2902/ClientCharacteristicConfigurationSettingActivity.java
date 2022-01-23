@@ -60,6 +60,11 @@ public class ClientCharacteristicConfigurationSettingActivity extends AppCompatA
         mViewModel.observePropertiesDisabled(this, charSequence -> mBinding.propertiesDisabledRadioButton.setText(charSequence));
         mViewModel.observePropertiesEnabled(this, charSequence -> mBinding.propertiesEnabledRadioButton.setText(charSequence));
 
+        mViewModel.observeSavedData(this, intent -> {
+            setResult(RESULT_OK, intent);
+            finish();
+        });
+
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
 
             @Override
@@ -71,10 +76,7 @@ public class ClientCharacteristicConfigurationSettingActivity extends AppCompatA
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result = false;
                 if (menuItem.getItemId() == R.id.save) {
-                    mViewModel.observeSave(intent -> {
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }, throwable
+                    mViewModel.save(throwable
                             -> Toast.makeText(ClientCharacteristicConfigurationSettingActivity.this
                             , throwable.getMessage()
                             , Toast.LENGTH_SHORT).show());

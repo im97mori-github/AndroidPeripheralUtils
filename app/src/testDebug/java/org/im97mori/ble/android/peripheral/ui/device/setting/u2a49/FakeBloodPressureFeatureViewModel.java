@@ -265,11 +265,11 @@ public class FakeBloodPressureFeatureViewModel extends BloodPressureFeatureSetti
     }
 
     @Override
-    public void updateMultipleBondDetection(boolean checked) {
+    public void updateMultipleBond(boolean checked) {
         if (mUpdateMultipleBondDetectionConsumer != null) {
             mUpdateMultipleBondDetectionConsumer.accept(checked);
         }
-        super.updateMultipleBondDetection(checked);
+        super.updateMultipleBond(checked);
     }
 
 
@@ -290,8 +290,8 @@ public class FakeBloodPressureFeatureViewModel extends BloodPressureFeatureSetti
     }
 
     @Override
-    public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(mObserveSaveSubject.subscribe(onSuccess, onError));
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(mObserveSaveSubject.subscribe(intent -> mSavedStateHandle.set("KEY_SAVED_DATA", intent), onError));
     }
 
     private void test_isErrorResponse_00002() {
@@ -447,11 +447,11 @@ public class FakeBloodPressureFeatureViewModel extends BloodPressureFeatureSetti
     }
 
     private void test_isMultipleBondSupported_00001() {
-        mSavedStateHandle.set("KEY_MULTIPLE_BOND_DETECTION", false);
+        mSavedStateHandle.set("KEY_MULTIPLE_BOND", false);
     }
 
     private void test_isMultipleBondSupported_00002() {
-        mSavedStateHandle.set("KEY_MULTIPLE_BOND_DETECTION", true);
+        mSavedStateHandle.set("KEY_MULTIPLE_BOND", true);
     }
 
     private void test_recreate_isBodyMovementDetectionSupported_visibility_00001() {
@@ -499,7 +499,7 @@ public class FakeBloodPressureFeatureViewModel extends BloodPressureFeatureSetti
     }
 
     private void test_recreate_isMultipleBondSupported_00001() {
-        mSavedStateHandle.set("KEY_MULTIPLE_BOND_DETECTION", true);
+        mSavedStateHandle.set("KEY_MULTIPLE_BOND", true);
     }
 
 }

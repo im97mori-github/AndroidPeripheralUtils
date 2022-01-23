@@ -61,9 +61,10 @@ public class BloodPressureProfileFragment extends Fragment {
         binding.deviceInformationServiceSettingButton.setOnClickListener(v ->
                 mStartDeviceInformationServiceSettingActivity.launch(mViewModel.getDisDataJson()));
 
-        mDeviceSettingViewModel.observeMockData(mockData
-                -> mViewModel.observeSetup(mockData, () -> mDeviceSettingViewModel.fragmentReady()
-                , throwable -> LogUtils.stackLog(throwable.getMessage())));
+        mDeviceSettingViewModel.observeMockDataString(this
+                , mockDataString -> mViewModel.observeSetup(mockDataString
+                        , () -> mDeviceSettingViewModel.fragmentReady()
+                        , throwable -> LogUtils.stackLog(throwable.getMessage())));
         return binding.getRoot();
     }
 

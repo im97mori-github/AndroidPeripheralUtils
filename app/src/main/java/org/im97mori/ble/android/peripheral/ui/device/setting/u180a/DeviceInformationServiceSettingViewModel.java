@@ -37,7 +37,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -69,6 +68,8 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     private final MutableLiveData<String> mModelNumberString;
     private final MutableLiveData<String> mManufacturerNameString;
 
+    private final MutableLiveData<Intent> mSavedData;
+
     @Inject
     public DeviceInformationServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
@@ -84,6 +85,8 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
         mOrganizationallyUniqueIdentifier = savedStateHandle.getLiveData(KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER);
         mModelNumberString = savedStateHandle.getLiveData(KEY_MODEL_NUMBER_STRING);
         mManufacturerNameString = savedStateHandle.getLiveData(KEY_MANUFACTURER_NAME_STRING);
+
+        mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
 
     @Override
@@ -242,6 +245,11 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     }
 
     @MainThread
+    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<Intent> observer) {
+        mSavedData.observe(owner, observer);
+    }
+
+    @MainThread
     public void updateIsSystemIdSupported(boolean checked) {
         mIsSystemIdSupported.setValue(checked);
     }
@@ -330,8 +338,8 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
     }
 
     @Override
-    public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(Single.<Intent>create(emitter -> {
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
                     if (mServiceData == null) {
                         emitter.onError(new RuntimeException("Already saved"));
                     } else {
@@ -371,8 +379,10 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
                                 .filter(characteristicData -> !characteristicData.uuid.equals(SYSTEM_ID_CHARACTERISTIC)).count() == 2) {
                             Intent intent = new Intent();
                             intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(mServiceData));
+
+                            mSavedData.postValue(intent);
                             mServiceData = null;
-                            emitter.onSuccess(intent);
+                            emitter.onComplete();
                         } else {
                             emitter.onError(new RuntimeException("No data"));
                         }
@@ -381,7 +391,8 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
         )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onSuccess, onError));
+                .subscribe(() -> {
+                }, onError));
     }
 
 }

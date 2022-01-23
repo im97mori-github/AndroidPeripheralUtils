@@ -20,6 +20,7 @@ import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils
 import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT;
 import static org.im97mori.ble.constants.CharacteristicUUID.INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
+import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -41,6 +42,7 @@ import junit.framework.TestCase;
 import org.im97mori.ble.BLEUtils;
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.DescriptorData;
+import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
@@ -667,20 +669,43 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00001() {
+    public void test_observeSaveData_00001() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+
+        TestCase.assertNull(saveDataReference.get());
+    }
+
+    @Test
+    public void test_observeSaveData_00002() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        Intent original = new Intent();
+        AtomicReference<Intent> saveDataReference = new AtomicReference<>();
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
+        mSavedStateHandle.set("KEY_SAVED_DATA", original);
+
+        TestCase.assertEquals(original, saveDataReference.get());
+    }
+
+    @Test
+    public void test_save_1_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
         TestCase.assertEquals("Already saved", throwableReference.get().getMessage());
     }
 
     @Test
-    public void test_observeSave_1_00002() {
+    public void test_save_1_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -698,8 +723,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -707,7 +731,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00003() {
+    public void test_save_1_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -720,8 +744,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateCurrentCuffPressure("1");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -729,7 +752,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00004() {
+    public void test_save_1_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -755,8 +778,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateTimeStampSeconds(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -764,7 +786,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00005() {
+    public void test_save_1_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -790,8 +812,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateTimeStampSeconds(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -799,7 +820,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00006() {
+    public void test_save_1_00006() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -825,8 +846,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateTimeStampSeconds(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -834,7 +854,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00007() {
+    public void test_save_1_00007() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -860,8 +880,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateTimeStampMinutes(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -869,7 +888,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00008() {
+    public void test_save_1_00008() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -890,8 +909,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateIsPulseRateSupported(true);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -899,7 +917,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00009() {
+    public void test_save_1_00009() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -920,8 +938,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateIsUserIdSupported(true);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -929,7 +946,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00010() {
+    public void test_save_1_00010() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -954,8 +971,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -963,7 +979,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00011() {
+    public void test_save_1_00011() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -988,8 +1004,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -997,7 +1012,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00012() {
+    public void test_save_1_00012() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1022,8 +1037,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1031,7 +1045,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00013() {
+    public void test_save_1_00013() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1056,8 +1070,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateMeasurementPositionDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1065,7 +1078,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00014() {
+    public void test_save_1_00014() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1090,8 +1103,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updatePulseRateRangeDetection(0);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1099,7 +1111,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00015() {
+    public void test_save_1_00015() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1120,8 +1132,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateNotificationCount("");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1129,7 +1140,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_1_00016() {
+    public void test_save_1_00016() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1142,8 +1153,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.updateCurrentCuffPressure("1");
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent -> {
-        }, throwableReference::set);
+        mViewModel.save(throwableReference::set);
 
         assertNotNull(throwableReference.get());
 
@@ -1151,7 +1161,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00001() {
+    public void test_save_2_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1172,10 +1182,10 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
@@ -1188,7 +1198,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00002() {
+    public void test_save_2_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1210,10 +1220,10 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
@@ -1226,7 +1236,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00003() {
+    public void test_save_2_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1261,10 +1271,10 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
@@ -1283,7 +1293,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00004() {
+    public void test_save_2_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1308,10 +1318,10 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
@@ -1325,7 +1335,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00005() {
+    public void test_save_2_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1350,10 +1360,10 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
@@ -1367,7 +1377,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00006() {
+    public void test_save_2_00006() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1406,10 +1416,10 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);
@@ -1429,7 +1439,7 @@ public class IntermediateCuffPressureSettingViewModelTest {
     }
 
     @Test
-    public void test_observeSave_2_00007() {
+    public void test_save_2_00007() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1455,10 +1465,10 @@ public class IntermediateCuffPressureSettingViewModelTest {
         mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
-        mViewModel.observeSave(resultIntent
-                        -> characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class))
-                , throwable -> {
-                });
+        mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
+                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+        mViewModel.save(throwable -> {
+        });
 
         CharacteristicData characteristicData = characteristicDataAtomicReference.get();
         IntermediateCuffPressure intermediateCuffPressure = new IntermediateCuffPressure(characteristicData.data);

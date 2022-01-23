@@ -40,7 +40,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -96,6 +95,8 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
 
     private final MutableLiveData<String> mBloodPressureFeature;
 
+    private final MutableLiveData<Intent> mSavedData;
+
     @Inject
     public BloodPressureServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
@@ -123,6 +124,8 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
         mIntermediateCuffPressureMeasurementStatus = savedStateHandle.getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_MEASUREMENT_STATUS);
 
         mBloodPressureFeature = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_FEATURE);
+
+        mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
 
     @Override
@@ -522,6 +525,11 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     }
 
     @MainThread
+    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<Intent> observer) {
+        mSavedData.observe(owner, observer);
+    }
+
+    @MainThread
     public void updateIsIntermediateCuffPressureSupported(boolean checked) {
         mIsIntermediateCuffPressureSupported.setValue(checked);
     }
@@ -704,8 +712,8 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     }
 
     @Override
-    public void observeSave(@NonNull Consumer<Intent> onSuccess, @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(Single.<Intent>create(emitter -> {
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mServiceData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
@@ -745,8 +753,10 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                         .filter(characteristicData -> !characteristicData.uuid.equals(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC)).count() == 2) {
                     Intent intent = new Intent();
                     intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(mServiceData));
+
+                    mSavedData.postValue(intent);
                     mServiceData = null;
-                    emitter.onSuccess(intent);
+                    emitter.onComplete();
                 } else {
                     emitter.onError(new RuntimeException("No data"));
                 }
@@ -755,6 +765,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onSuccess, onError));
+                .subscribe(() -> {
+                }, onError));
     }
 }

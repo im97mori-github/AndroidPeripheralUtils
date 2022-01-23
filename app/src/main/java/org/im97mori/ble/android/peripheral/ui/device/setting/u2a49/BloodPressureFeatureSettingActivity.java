@@ -77,8 +77,13 @@ public class BloodPressureFeatureSettingActivity extends AppCompatActivity {
         mViewModel.observeMeasurementPositionDetection(this, check -> mBinding.isMeasurementPositionDetectionSupported.setChecked(check));
         mBinding.isMeasurementPositionDetectionSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateMeasurementPositionDetection(isChecked));
 
-        mViewModel.observeMultipleBondDetection(this, check -> mBinding.isMultipleBondSupported.setChecked(check));
-        mBinding.isMultipleBondSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateMultipleBondDetection(isChecked));
+        mViewModel.observeMultipleBond(this, check -> mBinding.isMultipleBondSupported.setChecked(check));
+        mBinding.isMultipleBondSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateMultipleBond(isChecked));
+
+        mViewModel.observeSavedData(this, intent -> {
+            setResult(RESULT_OK, intent);
+            finish();
+        });
 
         mBinding.topAppBar.addMenuProvider(new MenuProvider() {
 
@@ -91,10 +96,7 @@ public class BloodPressureFeatureSettingActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 boolean result = false;
                 if (menuItem.getItemId() == R.id.save) {
-                    mViewModel.observeSave(intent -> {
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }, throwable
+                    mViewModel.save(throwable
                             -> Toast.makeText(BloodPressureFeatureSettingActivity.this
                             , throwable.getMessage()
                             , Toast.LENGTH_SHORT).show());

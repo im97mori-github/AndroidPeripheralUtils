@@ -43,7 +43,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -108,6 +107,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     private final MutableLiveData<String> mClientCharacteristicConfigurationJson;
     private final MutableLiveData<String> mClientCharacteristicConfiguration;
 
+    private final MutableLiveData<Intent> mSavedData;
+
     @Inject
     public BloodPressureMeasurementSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
         super(deviceSettingRepository, gson);
@@ -138,6 +139,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
 
         mClientCharacteristicConfigurationJson = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON);
         mClientCharacteristicConfiguration = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION);
+
+        mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
 
     @Override
@@ -611,6 +614,11 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
+    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<Intent> observer) {
+        mSavedData.observe(owner, observer);
+    }
+
+    @MainThread
     public void updateIsMmhg(boolean isMmhg) {
         mIsMmhg.setValue(isMmhg);
     }
@@ -795,9 +803,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @Override
-    public void observeSave(@NonNull Consumer<Intent> onSuccess
-            , @NonNull Consumer<? super Throwable> onError) {
-        mDisposable.add(Single.<Intent>create(emitter -> {
+    public void save(@NonNull Consumer<? super Throwable> onError) {
+        mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
@@ -938,8 +945,9 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     Intent intent = new Intent();
                     intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
 
+                    mSavedData.postValue(intent);
                     mCharacteristicData = null;
-                    emitter.onSuccess(intent);
+                    emitter.onComplete();
                 } else {
                     emitter.onError(new RuntimeException("Validation failed"));
                 }
@@ -947,7 +955,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onSuccess, onError));
+                .subscribe(() -> {
+                }, onError));
     }
 
 }
