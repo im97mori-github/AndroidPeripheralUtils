@@ -54,15 +54,18 @@
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/drawable/peripheral_advertising_background.xml" value="0.18675213675213675" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/drawable/peripheral_advertising_background_animation.xml" value="0.18675213675213675" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_feature_setting_activity.xml" value="0.18547008547008548" />
-        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_measurement_setting_activity.xml" value="0.1735042735042735" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_measurement_setting_activity.xml" value="0.25" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_profile_setting_fragment.xml" value="0.3066123188405797" />
-        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_service_setting_activity.xml" value="0.16296296296296298" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/blood_pressure_service_setting_activity.xml" value="0.33" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/client_characteristic_configuration_setting_activity.xml" value="0.18547008547008548" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/cycling_speed_and_cadence_profile_setting_fragment.xml" value="0.30811965811965814" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/device_information_service_setting_activity.xml" value="0.25" />
-        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/device_setting_activity.xml" value="0.44701348747591524" />
-        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/device_type_list_activity.xml" value="0.17735042735042736" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/device_setting_activity.xml" value="0.22" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/device_type_list_activity.xml" value="0.33" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/intermediate_cuff_pressure_setting_activity.xml" value="0.3424657534246575" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/list_item.xml" value="0.30811965811965814" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/main_activity.xml" value="0.223731884057971" />
+        <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/main_grid.xml" value="0.30811965811965814" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/manufacturer_name_string_setting_activity.xml" value="0.36752136752136755" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/model_number_string_setting_activity.xml" value="0.36752136752136755" />
         <entry key="..\:/moved/git/AndroidPeripheralUtils/app/src/main/res/layout/peripheral_activity.xml" value="0.33" />

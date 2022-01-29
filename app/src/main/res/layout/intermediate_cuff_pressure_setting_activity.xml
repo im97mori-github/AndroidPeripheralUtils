@@ -391,51 +391,40 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <androidx.appcompat.widget.LinearLayoutCompat
-                        android:layout_width="match_parent"
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/clientCharacteristicConfigurationCardViewTitle"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="@dimen/dp16">
+                        android:layout_marginStart="@dimen/dp16"
+                        android:layout_marginTop="@dimen/dp24"
+                        android:layout_marginEnd="@dimen/dp16"
+                        android:text="@string/client_characteristic_configuration"
+                        android:textAppearance="?attr/textAppearanceBodyLarge" />
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            android:id="@+id/clientCharacteristicConfigurationCardViewTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/dp8"
-                            android:text="@string/client_characteristic_configuration"
-                            android:textAppearance="?attr/textAppearanceBodyLarge" />
-
-                        <androidx.appcompat.widget.AppCompatTextView
-                            android:id="@+id/clientCharacteristicConfiguration"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/dp8"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
-                            android:textColor="?android:attr/textColorSecondary" />
-                    </androidx.appcompat.widget.LinearLayoutCompat>
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/clientCharacteristicConfiguration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dp16"
+                        android:layout_marginTop="@dimen/dp8"
+                        android:layout_marginEnd="@dimen/dp16"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?android:attr/textColorSecondary" />
 
                     <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dp16"
                         app:dividerInsetEnd="@dimen/dp16"
                         app:dividerInsetStart="@dimen/dp16" />
 
-                    <!-- Buttons -->
-                    <FrameLayout
+                    <Button
+                        android:id="@+id/clientCharacteristicConfigurationSettingButton"
+                        style="?attr/borderlessButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/dp8">
-
-                        <Button
-                            android:id="@+id/clientCharacteristicConfigurationSettingButton"
-                            style="?attr/borderlessButtonStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/dp8"
-                            android:text="@string/setting" />
-
-                    </FrameLayout>
-
+                        android:layout_margin="@dimen/dp8"
+                        android:text="@string/setting" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
             </com.google.android.material.card.MaterialCardView>

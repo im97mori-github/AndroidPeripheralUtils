@@ -27,6 +27,8 @@
         </item>
 
         <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
+
+        <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
     <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
