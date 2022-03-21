@@ -1,6 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u1810;
 
-import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
@@ -18,9 +17,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
 import org.im97mori.ble.BLEUtils;
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.ServiceData;
@@ -28,11 +24,13 @@ import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingReposito
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseServiceSettingViewModel;
 import org.im97mori.ble.android.peripheral.utils.ExistObserver;
 import org.im97mori.ble.android.peripheral.utils.IsNotEmptyObserver;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.u2a35.BloodPressureMeasurement;
 import org.im97mori.ble.characteristic.u2a36.IntermediateCuffPressure;
 import org.im97mori.ble.characteristic.u2a49.BloodPressureFeature;
 
+import java.util.LinkedList;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -49,9 +47,9 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
 
     private static final String KEY_IS_INTERMEDIATE_CUFF_PRESSURE_SUPPORTED = "KEY_IS_INTERMEDIATE_CUFF_PRESSURE_SUPPORTED";
 
-    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON = "KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON";
-    private static final String KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON = "KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON";
-    private static final String KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON = "KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON";
+    private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_DATA = "KEY_BLOOD_PRESSURE_MEASUREMENT_DATA";
+    private static final String KEY_INTERMEDIATE_CUFF_PRESSURE_DATA = "KEY_INTERMEDIATE_CUFF_PRESSURE_DATA";
+    private static final String KEY_BLOOD_PRESSURE_FEATURE_DATA = "KEY_BLOOD_PRESSURE_FEATURE_DATA";
 
     private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS = "KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS";
     private static final String KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC = "KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC";
@@ -73,9 +71,9 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
 
     private final MutableLiveData<Boolean> mIsIntermediateCuffPressureSupported;
 
-    private final MutableLiveData<String> mBloodPressureMeasurementDataJson;
-    private final MutableLiveData<String> mIntermediateCuffPressureDataJson;
-    private final MutableLiveData<String> mBloodPressureFeatureDataJson;
+    private final MutableLiveData<byte[]> mBloodPressureMeasurementData;
+    private final MutableLiveData<byte[]> mIntermediateCuffPressureData;
+    private final MutableLiveData<byte[]> mBloodPressureFeatureData;
 
     private final MutableLiveData<String> mBloodPressureMeasurementFlags;
     private final MutableLiveData<String> mBloodPressureMeasurementSystolic;
@@ -98,14 +96,14 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     private final MutableLiveData<Intent> mSavedData;
 
     @Inject
-    public BloodPressureServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+    public BloodPressureServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
 
         mIsIntermediateCuffPressureSupported = savedStateHandle.getLiveData(KEY_IS_INTERMEDIATE_CUFF_PRESSURE_SUPPORTED);
 
-        mBloodPressureMeasurementDataJson = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON);
-        mIntermediateCuffPressureDataJson = savedStateHandle.getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON);
-        mBloodPressureFeatureDataJson = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON);
+        mBloodPressureMeasurementData = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_DATA);
+        mIntermediateCuffPressureData = savedStateHandle.getLiveData(KEY_INTERMEDIATE_CUFF_PRESSURE_DATA);
+        mBloodPressureFeatureData = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_FEATURE_DATA);
 
         mBloodPressureMeasurementFlags = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_FLAGS);
         mBloodPressureMeasurementSystolic = savedStateHandle.getLiveData(KEY_BLOOD_PRESSURE_MEASUREMENT_SYSTOLIC);
@@ -132,17 +130,12 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     public void observeSetup(@NonNull Intent intent, @NonNull Action onComplete, @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
             if (mServiceData == null) {
-                String dataJson = intent.getStringExtra(BLOOD_PRESSURE_SERVICE.toString());
-                try {
-                    mServiceData = mGson.fromJson(dataJson, ServiceData.class);
-                } catch (JsonSyntaxException e) {
-                    stackLog(e);
-                }
+                mServiceData = Utils.byteToParcelable(intent.getByteArrayExtra(BLOOD_PRESSURE_SERVICE.toString()), ServiceData.CREATOR);
 
                 if (mServiceData == null) {
-                    mServiceData = new ServiceData();
-                    mServiceData.uuid = BLOOD_PRESSURE_SERVICE;
-                    mServiceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+                    mServiceData = new ServiceData(BLOOD_PRESSURE_SERVICE
+                            , BluetoothGattService.SERVICE_TYPE_PRIMARY
+                            , new LinkedList<>());
                 }
             }
 
@@ -164,7 +157,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
             BloodPressureMeasurement bloodPressureMeasurement;
             if (bloodPressureMeasurementOptional.isPresent()) {
                 CharacteristicData characteristicData = bloodPressureMeasurementOptional.get();
-                mBloodPressureMeasurementDataJson.postValue(mGson.toJson(characteristicData));
+                mBloodPressureMeasurementData.postValue(Utils.parcelableToByteArray(characteristicData));
                 if (characteristicData.data == null) {
                     bloodPressureMeasurement = null;
                 } else {
@@ -274,7 +267,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
             IntermediateCuffPressure intermediateCuffPressure;
             if (intermediateCuffPressureOptional.isPresent()) {
                 CharacteristicData characteristicData = intermediateCuffPressureOptional.get();
-                mIntermediateCuffPressureDataJson.postValue(mGson.toJson(characteristicData));
+                mIntermediateCuffPressureData.postValue(Utils.parcelableToByteArray(characteristicData));
                 if (characteristicData.data == null) {
                     intermediateCuffPressure = null;
                 } else {
@@ -364,7 +357,7 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
             BloodPressureFeature bloodPressureFeature;
             if (bloodPressureFeatureOptional.isPresent()) {
                 CharacteristicData characteristicData = bloodPressureFeatureOptional.get();
-                mBloodPressureFeatureDataJson.postValue(mGson.toJson(characteristicData));
+                mBloodPressureFeatureData.postValue(Utils.parcelableToByteArray(characteristicData));
                 if (characteristicData.data == null) {
                     bloodPressureFeature = null;
                 } else {
@@ -390,8 +383,8 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     }
 
     @MainThread
-    public void observeHasBloodPressureMeasurementDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureMeasurementDataJson).observe(owner, new ExistObserver(observer));
+    public void observeHasBloodPressureMeasurementData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mBloodPressureMeasurementData).observe(owner, new ExistObserver(observer));
     }
 
     @MainThread
@@ -400,13 +393,13 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
     }
 
     @MainThread
-    public void observeHasIntermediateCuffPressureDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mIntermediateCuffPressureDataJson).observe(owner, new ExistObserver(observer));
+    public void observeHasIntermediateCuffPressureData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mIntermediateCuffPressureData).observe(owner, new ExistObserver(observer));
     }
 
     @MainThread
-    public void observeHasBloodPressureFeatureDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mBloodPressureFeatureDataJson).observe(owner, new ExistObserver(observer));
+    public void observeHasBloodPressureFeatureData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mBloodPressureFeatureData).observe(owner, new ExistObserver(observer));
     }
 
     @MainThread
@@ -536,14 +529,14 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
 
     @Nullable
     @MainThread
-    public String getBloodPressureMeasurementDataJson() {
-        return mBloodPressureMeasurementDataJson.getValue();
+    public byte[] getBloodPressureMeasurementData() {
+        return mBloodPressureMeasurementData.getValue();
     }
 
     @MainThread
-    public void setBloodPressureMeasurementDataJson(@Nullable String bloodPressureMeasurementDataJson) {
-        mBloodPressureMeasurementDataJson.setValue(bloodPressureMeasurementDataJson);
-        if (bloodPressureMeasurementDataJson == null) {
+    public void setBloodPressureMeasurementData(@Nullable byte[] bloodPressureMeasurementData) {
+        mBloodPressureMeasurementData.setValue(bloodPressureMeasurementData);
+        if (bloodPressureMeasurementData == null) {
             mBloodPressureMeasurementFlags.setValue("");
             mBloodPressureMeasurementSystolic.setValue("");
             mBloodPressureMeasurementDiastolic.setValue("");
@@ -553,8 +546,8 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
             mBloodPressureMeasurementUserId.setValue("");
             mBloodPressureMeasurementMeasurementStatus.setValue("");
         } else {
-            try {
-                CharacteristicData characteristicData = mGson.fromJson(bloodPressureMeasurementDataJson, CharacteristicData.class);
+            CharacteristicData characteristicData = Utils.byteToParcelable(bloodPressureMeasurementData, CharacteristicData.CREATOR);
+            if (characteristicData != null) {
                 if (characteristicData.data == null) {
                     mBloodPressureMeasurementFlags.setValue("");
                     mBloodPressureMeasurementSystolic.setValue("");
@@ -609,22 +602,20 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                         mBloodPressureMeasurementMeasurementStatus.setValue("");
                     }
                 }
-            } catch (JsonSyntaxException e) {
-                stackLog(e);
             }
         }
     }
 
     @Nullable
     @MainThread
-    public String getIntermediateCuffPressureDataJson() {
-        return mIntermediateCuffPressureDataJson.getValue();
+    public byte[] getIntermediateCuffPressureData() {
+        return mIntermediateCuffPressureData.getValue();
     }
 
     @MainThread
-    public void setIntermediateCuffPressureDataJson(@Nullable String intermediateCuffPressureDataJson) {
-        mIntermediateCuffPressureDataJson.setValue(intermediateCuffPressureDataJson);
-        if (intermediateCuffPressureDataJson == null) {
+    public void setIntermediateCuffPressureData(@Nullable byte[] intermediateCuffPressureData) {
+        mIntermediateCuffPressureData.setValue(intermediateCuffPressureData);
+        if (intermediateCuffPressureData == null) {
             mIntermediateCuffPressureFlags.setValue("");
             mIntermediateCuffPressureCurrentCuffPressure.setValue("");
             mIntermediateCuffPressureTimeStamp.setValue("");
@@ -632,8 +623,8 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
             mIntermediateCuffPressureUserId.setValue("");
             mIntermediateCuffPressureMeasurementStatus.setValue("");
         } else {
-            try {
-                CharacteristicData characteristicData = mGson.fromJson(intermediateCuffPressureDataJson, CharacteristicData.class);
+            CharacteristicData characteristicData = Utils.byteToParcelable(intermediateCuffPressureData, CharacteristicData.CREATOR);
+            if (characteristicData != null) {
                 if (characteristicData.data == null) {
                     mIntermediateCuffPressureFlags.setValue("");
                     mIntermediateCuffPressureCurrentCuffPressure.setValue("");
@@ -678,26 +669,24 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                         mIntermediateCuffPressureMeasurementStatus.setValue("");
                     }
                 }
-            } catch (JsonSyntaxException e) {
-                stackLog(e);
             }
         }
     }
 
     @Nullable
     @MainThread
-    public String getBloodPressureFeatureDataJson() {
-        return mBloodPressureFeatureDataJson.getValue();
+    public byte[] getBloodPressureFeatureData() {
+        return mBloodPressureFeatureData.getValue();
     }
 
     @MainThread
-    public void setBloodPressureFeatureDataJson(@Nullable String bloodPressureFeatureDataJson) {
-        mBloodPressureFeatureDataJson.setValue(bloodPressureFeatureDataJson);
-        if (bloodPressureFeatureDataJson == null) {
+    public void setBloodPressureFeatureData(@Nullable byte[] bloodPressureFeatureData) {
+        mBloodPressureFeatureData.setValue(bloodPressureFeatureData);
+        if (bloodPressureFeatureData == null) {
             mBloodPressureFeature.setValue("");
         } else {
-            try {
-                CharacteristicData characteristicData = mGson.fromJson(bloodPressureFeatureDataJson, CharacteristicData.class);
+            CharacteristicData characteristicData = Utils.byteToParcelable(bloodPressureFeatureData, CharacteristicData.CREATOR);
+            if (characteristicData != null) {
                 if (characteristicData.data == null) {
                     mBloodPressureFeature.setValue("");
                 } else {
@@ -705,8 +694,6 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
                     mBloodPressureFeature
                             .setValue(mDeviceSettingRepository.getHexString(BLEUtils.createUInt16(bloodPressureFeature.getBloodPressureFeature(), 0), 4));
                 }
-            } catch (JsonSyntaxException e) {
-                stackLog(e);
             }
         }
     }
@@ -719,40 +706,28 @@ public class BloodPressureServiceSettingViewModel extends BaseServiceSettingView
             } else {
                 mServiceData.characteristicDataList.clear();
 
-                String bloodPressureMeasurementJson = mBloodPressureMeasurementDataJson.getValue();
-                if (bloodPressureMeasurementJson != null) {
-                    try {
-                        mServiceData.characteristicDataList.add(mGson.fromJson(bloodPressureMeasurementJson, CharacteristicData.class));
-                    } catch (JsonSyntaxException e) {
-                        stackLog(e);
-                    }
+                byte[] bloodPressureMeasurementData = mBloodPressureMeasurementData.getValue();
+                if (bloodPressureMeasurementData != null) {
+                    mServiceData.characteristicDataList.add(Utils.byteToParcelable(bloodPressureMeasurementData, CharacteristicData.CREATOR));
                 }
 
                 if (Boolean.TRUE.equals(mIsIntermediateCuffPressureSupported.getValue())) {
-                    String intermediateCuffPressureJson = mIntermediateCuffPressureDataJson.getValue();
-                    if (intermediateCuffPressureJson != null) {
-                        try {
-                            mServiceData.characteristicDataList.add(mGson.fromJson(intermediateCuffPressureJson, CharacteristicData.class));
-                        } catch (JsonSyntaxException e) {
-                            stackLog(e);
-                        }
+                    byte[] intermediateCuffPressureData = mIntermediateCuffPressureData.getValue();
+                    if (intermediateCuffPressureData != null) {
+                        mServiceData.characteristicDataList.add(Utils.byteToParcelable(intermediateCuffPressureData, CharacteristicData.CREATOR));
                     }
                 }
 
-                String bloodPressureFeatureJson = mBloodPressureFeatureDataJson.getValue();
-                if (bloodPressureFeatureJson != null) {
-                    try {
-                        mServiceData.characteristicDataList.add(mGson.fromJson(bloodPressureFeatureJson, CharacteristicData.class));
-                    } catch (JsonSyntaxException e) {
-                        stackLog(e);
-                    }
+                byte[] bloodPressureFeature = mBloodPressureFeatureData.getValue();
+                if (bloodPressureFeature != null) {
+                    mServiceData.characteristicDataList.add(Utils.byteToParcelable(bloodPressureFeature, CharacteristicData.CREATOR));
                 }
 
                 if (mServiceData.characteristicDataList
                         .stream()
                         .filter(characteristicData -> !characteristicData.uuid.equals(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC)).count() == 2) {
                     Intent intent = new Intent();
-                    intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(mServiceData));
+                    intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), Utils.parcelableToByteArray(mServiceData));
 
                     mSavedData.postValue(intent);
                     mServiceData = null;

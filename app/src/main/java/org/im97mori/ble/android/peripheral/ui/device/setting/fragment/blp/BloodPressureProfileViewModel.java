@@ -1,6 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp;
 
-import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 
@@ -13,15 +12,14 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseSettingFragmentViewModel;
 import org.im97mori.ble.android.peripheral.utils.ExistObserver;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 
+import java.util.LinkedList;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -38,43 +36,38 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
 
     private static final String KEY_IS_DIS_SUPPORTED = "KEY_IS_DIS_SUPPORTED";
 
-    private static final String KEY_BLS_DATA_JSON = "KEY_BLS_DATA_JSON";
-    private static final String KEY_DIS_DATA_JSON = "KEY_DIS_DATA_JSON";
+    private static final String KEY_BLS_DATA = "KEY_BLS_DATA";
+    private static final String KEY_DIS_DATA = "KEY_DIS_DATA";
 
     private MockData mMockData;
 
     private final MutableLiveData<Boolean> mIsDisSupported;
 
-    private final MutableLiveData<String> mBlsDataJson;
-    private final MutableLiveData<String> mDisDataJson;
+    private final MutableLiveData<byte[]> mBlsData;
+    private final MutableLiveData<byte[]> mDisData;
 
-    private final MutableLiveData<String> mSavedData;
+    private final MutableLiveData<byte[]> mSavedData;
 
     @Inject
     public BloodPressureProfileViewModel(@NonNull SavedStateHandle savedStateHandle
-            , @NonNull DeviceSettingRepository deviceSettingRepository
-            , @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+            , @NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
         mIsDisSupported = savedStateHandle.getLiveData(KEY_IS_DIS_SUPPORTED);
-        mBlsDataJson = savedStateHandle.getLiveData(KEY_BLS_DATA_JSON);
-        mDisDataJson = savedStateHandle.getLiveData(KEY_DIS_DATA_JSON);
+        mBlsData = savedStateHandle.getLiveData(KEY_BLS_DATA);
+        mDisData = savedStateHandle.getLiveData(KEY_DIS_DATA);
 
         mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
 
-    public void observeSetup(@NonNull String mockDataString
+    public void observeSetup(@Nullable byte[] data
             , @NonNull Action onComplete
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
             if (mMockData == null) {
-                try {
-                    mMockData = mGson.fromJson(mockDataString, MockData.class);
-                } catch (JsonSyntaxException e) {
-                    stackLog(e);
-                }
+                mMockData = Utils.byteToParcelable(data, MockData.CREATOR);
 
                 if (mMockData == null) {
-                    mMockData = new MockData();
+                    mMockData = new MockData(new LinkedList<>());
                 }
 
                 Optional<ServiceData> blsServiceDataOptional = mMockData.serviceDataList
@@ -91,12 +84,12 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
                     mIsDisSupported.postValue(disServiceDataOptional.isPresent());
                 }
 
-                if (mBlsDataJson.getValue() == null && blsServiceDataOptional.isPresent()) {
-                    mBlsDataJson.postValue(mGson.toJson(blsServiceDataOptional.get()));
+                if (mBlsData.getValue() == null && blsServiceDataOptional.isPresent()) {
+                    mBlsData.postValue(Utils.parcelableToByteArray(blsServiceDataOptional.get()));
                 }
 
-                if (mDisDataJson.getValue() == null && disServiceDataOptional.isPresent()) {
-                    mDisDataJson.postValue(mGson.toJson(disServiceDataOptional.get()));
+                if (mDisData.getValue() == null && disServiceDataOptional.isPresent()) {
+                    mDisData.postValue(Utils.parcelableToByteArray(disServiceDataOptional.get()));
                 }
             }
             emitter.onComplete();
@@ -104,12 +97,12 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
                 .subscribe(onComplete, onError));
     }
 
-    public void observeHasBlsDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mBlsDataJson).observe(owner, new ExistObserver(observer));
+    public void observeHasBlsData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mBlsData).observe(owner, new ExistObserver(observer));
     }
 
-    public void observeHasDisDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mDisDataJson).observe(owner, new ExistObserver(observer));
+    public void observeHasDisData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mDisData).observe(owner, new ExistObserver(observer));
     }
 
     public void observeIsDisSupported(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
@@ -117,7 +110,7 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
     }
 
     @Override
-    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
+    public void observeSavedData(@NonNull LifecycleOwner owner, @NonNull Observer<byte[]> observer) {
         mSavedData.observe(owner, observer);
     }
 
@@ -128,49 +121,41 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
 
     @Nullable
     @MainThread
-    public String getBlsDataJson() {
-        return mBlsDataJson.getValue();
+    public byte[] getBlsData() {
+        return mBlsData.getValue();
     }
 
     @MainThread
-    public void setBlsDataJson(@Nullable String blsDataJson) {
-        mBlsDataJson.setValue(blsDataJson);
+    public void setBlsData(@Nullable byte[] blsData) {
+        mBlsData.setValue(blsData);
     }
 
     @Nullable
     @MainThread
-    public String getDisDataJson() {
-        return mDisDataJson.getValue();
+    public byte[] getDisData() {
+        return mDisData.getValue();
     }
 
     @MainThread
-    public void setDisDataJson(@Nullable String disDataJson) {
-        mDisDataJson.setValue(disDataJson);
+    public void setDisData(@Nullable byte[] disData) {
+        mDisData.setValue(disData);
     }
 
     @Override
     public void save(@NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
-            String blsDataJson = mBlsDataJson.getValue();
+            byte[] blsData = mBlsData.getValue();
             boolean isDisSupported = Boolean.TRUE.equals(mIsDisSupported.getValue());
-            String disDataJson = mDisDataJson.getValue();
+            byte[] disData = mDisData.getValue();
 
-            if (blsDataJson != null && (!isDisSupported || disDataJson != null)) {
+            if (blsData != null && (!isDisSupported || disData != null)) {
                 mMockData.serviceDataList.clear();
-                try {
-                    mMockData.serviceDataList.add(mGson.fromJson(mBlsDataJson.getValue(), ServiceData.class));
-                } catch (JsonSyntaxException e) {
-                    stackLog(e);
-                }
-                if (disDataJson != null) {
-                    try {
-                        mMockData.serviceDataList.add(mGson.fromJson(mDisDataJson.getValue(), ServiceData.class));
-                    } catch (JsonSyntaxException e) {
-                        stackLog(e);
-                    }
+                mMockData.serviceDataList.add(Utils.byteToParcelable(blsData, ServiceData.CREATOR));
+                if (disData != null) {
+                    mMockData.serviceDataList.add(Utils.byteToParcelable(disData, ServiceData.CREATOR));
                 }
 
-                mSavedData.postValue(mGson.toJson(mMockData));
+                mSavedData.postValue(Utils.parcelableToByteArray(mMockData));
                 mMockData = null;
                 emitter.onComplete();
             } else {

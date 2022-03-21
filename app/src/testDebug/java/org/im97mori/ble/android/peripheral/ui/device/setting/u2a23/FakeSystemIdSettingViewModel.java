@@ -5,8 +5,6 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 
 import javax.inject.Inject;
@@ -37,9 +35,8 @@ public class FakeSystemIdSettingViewModel extends SystemIdSettingViewModel {
 
     @Inject
     FakeSystemIdSettingViewModel(@NonNull SavedStateHandle savedStateHandle
-            , @NonNull FakeDeviceSettingRepository deviceSettingRepository
-            , @NonNull Gson gson) {
-        super(savedStateHandle, deviceSettingRepository, gson);
+            , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
+        super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;
         mFakeDeviceSettingRepository = deviceSettingRepository;
     }

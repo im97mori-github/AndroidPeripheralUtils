@@ -4,8 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.BaseViewModel;
 
@@ -18,11 +16,8 @@ public abstract class BaseSettingViewModel<T1, T2> extends BaseViewModel {
 
     protected final DeviceSettingRepository mDeviceSettingRepository;
 
-    protected final Gson mGson;
-
-    public BaseSettingViewModel(@NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
+    public BaseSettingViewModel(@NonNull DeviceSettingRepository deviceSettingRepository) {
         mDeviceSettingRepository = deviceSettingRepository;
-        mGson = gson;
     }
 
     public abstract void observeSetup(@NonNull T1 t1

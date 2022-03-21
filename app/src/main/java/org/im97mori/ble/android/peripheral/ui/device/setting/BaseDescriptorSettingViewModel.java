@@ -4,8 +4,6 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.DescriptorData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 
@@ -13,8 +11,8 @@ public abstract class BaseDescriptorSettingViewModel extends BaseSettingViewMode
 
     protected DescriptorData mDescriptorData;
 
-    public BaseDescriptorSettingViewModel(@NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+    public BaseDescriptorSettingViewModel(@NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
     }
 
 }

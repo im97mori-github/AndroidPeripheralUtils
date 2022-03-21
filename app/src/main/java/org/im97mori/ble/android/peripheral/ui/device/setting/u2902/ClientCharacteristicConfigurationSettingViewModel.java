@@ -1,7 +1,6 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2902;
 
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_PROPERTIES_TYPE;
-import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 
 import android.bluetooth.BluetoothGatt;
@@ -17,12 +16,10 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
 import org.im97mori.ble.DescriptorData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseDescriptorSettingViewModel;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.descriptor.u2902.ClientCharacteristicConfiguration;
 
 import javax.inject.Inject;
@@ -60,9 +57,8 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
 
     @Inject
     public ClientCharacteristicConfigurationSettingViewModel(@NonNull SavedStateHandle savedStateHandle
-            , @NonNull DeviceSettingRepository deviceSettingRepository
-            , @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+            , @NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
 
         mSavedStateHandle = savedStateHandle;
 
@@ -82,17 +78,14 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
             if (mDescriptorData == null) {
-                try {
-                    mDescriptorData = mGson.fromJson(intent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString())
-                            , DescriptorData.class);
-                } catch (JsonSyntaxException e) {
-                    stackLog(e);
-                }
+                mDescriptorData = Utils.byteToParcelable(intent.getByteArrayExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.CREATOR);
 
                 if (mDescriptorData == null) {
-                    mDescriptorData = new DescriptorData();
-                    mDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-                    mDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
+                    mDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                            , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                            , BluetoothGatt.GATT_SUCCESS
+                            , 0
+                            , null);
                 }
             }
 
@@ -243,7 +236,7 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                             mDescriptorData.responseCode = Integer.parseInt(responseCode);
 
                             Intent intent = new Intent();
-                            intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(mDescriptorData));
+                            intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), Utils.parcelableToByteArray(mDescriptorData));
 
                             mSavedData.postValue(intent);
                             mDescriptorData = null;
@@ -266,7 +259,7 @@ public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescr
                         mDescriptorData.responseCode = BluetoothGatt.GATT_SUCCESS;
 
                         Intent intent = new Intent();
-                        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(mDescriptorData));
+                        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), Utils.parcelableToByteArray(mDescriptorData));
 
                         mSavedData.postValue(intent);
                         mDescriptorData = null;

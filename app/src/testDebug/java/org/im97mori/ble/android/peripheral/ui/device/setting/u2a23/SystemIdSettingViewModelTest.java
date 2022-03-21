@@ -16,13 +16,12 @@ import android.os.Build;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.u2a23.SystemId;
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -75,15 +75,12 @@ public class SystemIdSettingViewModelTest {
     @ApplicationContext
     Context mContext;
 
-    @Inject
-    Gson mGson;
-
     @Before
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
         mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
-        mViewModel = new SystemIdSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository, mGson);
+        mViewModel = new SystemIdSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository);
     }
 
     @After
@@ -168,13 +165,15 @@ public class SystemIdSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
-        characteristicData.responseCode = 2;
-        characteristicData.delay = 1;
-        intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , 2
+                , 1
+                , null
+                , -1);
+        intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -221,15 +220,17 @@ public class SystemIdSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerIdentifier = "1";
         String originalOrganizationallyUniqueIdentifier = "2";
-        characteristicData.data = new SystemId(Long.parseLong(originalManufacturerIdentifier), Integer.parseInt(originalOrganizationallyUniqueIdentifier)).getBytes();
-        characteristicData.delay = 1;
-        intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(Long.parseLong(originalManufacturerIdentifier), Integer.parseInt(originalOrganizationallyUniqueIdentifier)).getBytes()
+                , -1);
+        intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -757,7 +758,7 @@ public class SystemIdSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(SYSTEM_ID_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(SYSTEM_ID_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -788,7 +789,7 @@ public class SystemIdSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(SYSTEM_ID_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(SYSTEM_ID_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 

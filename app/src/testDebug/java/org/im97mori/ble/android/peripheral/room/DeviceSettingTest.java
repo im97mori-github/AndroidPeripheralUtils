@@ -3,6 +3,8 @@ package org.im97mori.ble.android.peripheral.room;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import android.os.Build;
 
 import org.junit.Test;
@@ -50,13 +52,13 @@ public class DeviceSettingTest {
         long id = 1;
         String deviceSettingName = "a";
         int deviceType = 2;
-        String deviceSettingData = "b";
+        byte[] deviceSettingData = new byte[]{1};
         DeviceSetting deviceSetting = new DeviceSetting(id, deviceSettingName, deviceType, deviceSettingData);
 
         assertEquals(id, deviceSetting.getId());
         assertEquals(deviceSettingName, deviceSetting.getDeviceSettingName());
         assertEquals(deviceType, deviceSetting.getDeviceType());
-        assertEquals(deviceSettingData, deviceSetting.getDeviceSettingData());
+        assertArrayEquals(deviceSettingData, deviceSetting.getDeviceSettingData());
     }
 
     @Test

@@ -21,6 +21,7 @@ import static org.im97mori.ble.constants.CharacteristicUUID.MANUFACTURER_NAME_ST
 import static org.im97mori.ble.constants.CharacteristicUUID.MODEL_NUMBER_STRING_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.SYSTEM_ID_CHARACTERISTIC;
 import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.mockStatic;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.ComponentName;
@@ -46,7 +48,6 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.gson.Gson;
 
 import junit.framework.TestCase;
 
@@ -57,6 +58,7 @@ import org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSetti
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingActivity;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.u2a23.SystemId;
 import org.im97mori.ble.characteristic.u2a24.ModelNumberString;
 import org.im97mori.ble.characteristic.u2a29.ManufacturerNameString;
@@ -71,6 +73,7 @@ import org.mockito.MockedStatic;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
@@ -107,9 +110,6 @@ public class DeviceInformationServiceSettingActivityTest {
     @Inject
     @ApplicationContext
     Context mContext;
-
-    @Inject
-    Gson mGson;
 
     @BeforeClass
     public static void setUpClass() {
@@ -189,48 +189,58 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).perform(click());
 
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
+        long originalManufacturerIdentifier = 1;
+        int originalOrganizationallyUniqueIdentifier = 2;
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
         systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
         systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
         systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
-        long originalManufacturerIdentifier = 1;
-        int originalOrganizationallyUniqueIdentifier = 2;
+
         systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
         systemIdCharacteristicData.delay = 1;
         serviceData.characteristicDataList.add(systemIdCharacteristicData);
 
-        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData();
-        modelNumberStringCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        modelNumberStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        modelNumberStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalModelNumberString = "a";
-        modelNumberStringCharacteristicData.data = new ModelNumberString(originalModelNumberString).getBytes();
-        modelNumberStringCharacteristicData.delay = 1;
+        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(originalModelNumberString).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(modelNumberStringCharacteristicData);
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "a";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(manufacturerNameStringCharacteristicData);
 
-        String json = mGson.toJson(serviceData);
+        byte[] data = Utils.parcelableToByteArray(serviceData);
         Intent original = new Intent();
-        original.putExtra(DEVICE_INFORMATION_SERVICE.toString(), json);
+        original.putExtra(DEVICE_INFORMATION_SERVICE.toString(), data);
         mViewModel.mObserveSaveSubject.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(Activity.RESULT_OK, activityResult.getResultCode());
         Intent resultData = activityResult.getResultData();
         assertNotNull(resultData);
-        assertEquals(json, resultData.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()));
+        assertArrayEquals(data, resultData.getByteArrayExtra(DEVICE_INFORMATION_SERVICE.toString()));
     }
 
     @Test
@@ -247,7 +257,14 @@ public class DeviceInformationServiceSettingActivityTest {
     @Test
     public void test_activity_result_1_00001() {
         Intent resultData = new Intent();
-        String after = "b";
+        byte[] after = Utils.parcelableToByteArray(new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , new SystemId(1, 2).getBytes()
+                , -1));
         resultData.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), after);
         Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), SystemIdSettingActivity.class))).respondWith(result);
@@ -256,12 +273,12 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        mViewModel.setSystemIdDataJson(null);
+        mViewModel.setSystemIdData(null);
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.systemIdSettingButton).performClick());
         Espresso.onIdle();
 
-        assertEquals(after, mViewModel.getSystemIdDataJson());
+        assertArrayEquals(after, mViewModel.getSystemIdData());
     }
 
     @Test
@@ -274,19 +291,33 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        String before = "a";
-        mViewModel.setSystemIdDataJson(before);
+        byte[] before = Utils.parcelableToByteArray(new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , new SystemId(1, 2).getBytes()
+                , -1));
+        mViewModel.setSystemIdData(before);
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.systemIdSettingButton).performClick());
         Espresso.onIdle();
 
-        assertNull(mViewModel.getSystemIdDataJson());
+        assertNull(mViewModel.getSystemIdData());
     }
 
     @Test
     public void test_activity_result_2_00001() {
         Intent resultData = new Intent();
-        String after = "b";
+        byte[] after = Utils.parcelableToByteArray(new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , new ModelNumberString("").getBytes()
+                , -1));
         resultData.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), after);
         Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ModelNumberStringSettingActivity.class))).respondWith(result);
@@ -295,12 +326,12 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        mViewModel.setModelNumberStringDataJson(null);
+        mViewModel.setModelNumberStringData(null);
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.modelNumberStringSettingButton).performClick());
         Espresso.onIdle();
 
-        assertEquals(after, mViewModel.getModelNumberStringDataJson());
+        assertArrayEquals(after, mViewModel.getModelNumberStringData());
     }
 
     @Test
@@ -313,18 +344,25 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        mViewModel.setModelNumberStringDataJson(null);
+        mViewModel.setModelNumberStringData(null);
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.modelNumberStringSettingButton).performClick());
         Espresso.onIdle();
 
-        assertNull(mViewModel.getModelNumberStringDataJson());
+        assertNull(mViewModel.getModelNumberStringData());
     }
 
     @Test
     public void test_activity_result_3_00001() {
         Intent resultData = new Intent();
-        String after = "b";
+        byte[] after = Utils.parcelableToByteArray(new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , new ModelNumberString("").getBytes()
+                , -1));
         resultData.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), after);
         Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ManufacturerNameStringSettingActivity.class))).respondWith(result);
@@ -333,12 +371,12 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        mViewModel.setManufacturerNameStringDataJson(null);
+        mViewModel.setManufacturerNameStringData(null);
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.manufacturerNameStringSettingButton).performClick());
         Espresso.onIdle();
 
-        assertEquals(after, mViewModel.getManufacturerNameStringDataJson());
+        assertEquals(after, mViewModel.getManufacturerNameStringData());
     }
 
     @Test
@@ -351,13 +389,20 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        String before = "a";
-        mViewModel.setManufacturerNameStringDataJson(before);
+        byte[] before = Utils.parcelableToByteArray(new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , new ModelNumberString("").getBytes()
+                , -1));
+        mViewModel.setManufacturerNameStringData(before);
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.manufacturerNameStringSettingButton).performClick());
         Espresso.onIdle();
 
-        assertNull(mViewModel.getManufacturerNameStringDataJson());
+        assertNull(mViewModel.getManufacturerNameStringData());
     }
 
     @Test
@@ -500,15 +545,17 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
-        systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
-        systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        systemIdCharacteristicData.delay = 1;
-        mViewModel.setSystemIdDataJson(mGson.toJson(systemIdCharacteristicData));
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
+        mViewModel.setSystemIdData(Utils.parcelableToByteArray(systemIdCharacteristicData));
 
         onView(withId(R.id.manufacturerIdentifier)).check(matches(withText(String.valueOf(originalManufacturerIdentifier))));
     }
@@ -537,15 +584,17 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
-        systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
-        systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        systemIdCharacteristicData.delay = 1;
-        mViewModel.setSystemIdDataJson(mGson.toJson(systemIdCharacteristicData));
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
+        mViewModel.setSystemIdData(Utils.parcelableToByteArray(systemIdCharacteristicData));
 
         onView(withId(R.id.organizationallyUniqueIdentifier)).check(matches(withText(String.valueOf(originalOrganizationallyUniqueIdentifier))));
     }
@@ -584,7 +633,7 @@ public class DeviceInformationServiceSettingActivityTest {
         onView(withId(R.id.systemIdSettingButton)).perform(click());
 
         intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), SystemIdSettingActivity.class)));
-        intended(hasExtra(SYSTEM_ID_CHARACTERISTIC.toString(), "a"));
+        intended(hasExtra(SYSTEM_ID_CHARACTERISTIC.toString(), new byte[]{1}));
     }
 
     @Test
@@ -633,14 +682,16 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData();
-        modelNumberStringCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        modelNumberStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        modelNumberStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalModelNumberString = "a";
-        modelNumberStringCharacteristicData.data = new ModelNumberString(originalModelNumberString).getBytes();
-        modelNumberStringCharacteristicData.delay = 1;
-        mViewModel.setModelNumberStringDataJson(mGson.toJson(modelNumberStringCharacteristicData));
+        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(originalModelNumberString).getBytes()
+                , -1);
+        mViewModel.setModelNumberStringData(Utils.parcelableToByteArray(modelNumberStringCharacteristicData));
 
         onView(withId(R.id.modelNumberString)).check(matches(withText(originalModelNumberString)));
     }
@@ -679,7 +730,7 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario.onActivity(activity -> activity.findViewById(R.id.modelNumberStringSettingButton).performClick());
 
         intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ModelNumberStringSettingActivity.class)));
-        intended(hasExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), "a"));
+        intended(hasExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), new byte[]{1}));
     }
 
     @Test
@@ -728,14 +779,16 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "b";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
-        mViewModel.setManufacturerNameStringDataJson(mGson.toJson(manufacturerNameStringCharacteristicData));
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1);
+        mViewModel.setManufacturerNameStringData(Utils.parcelableToByteArray(manufacturerNameStringCharacteristicData));
 
         onView(withId(R.id.manufacturerNameString)).check(matches(withText(originalManufacturerNameString)));
     }
@@ -774,7 +827,7 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario.onActivity(activity -> activity.findViewById(R.id.manufacturerNameStringSettingButton).performClick());
 
         intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ManufacturerNameStringSettingActivity.class)));
-        intended(hasExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), "a"));
+        intended(hasExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), new byte[]{1}));
     }
 
     @Test
@@ -860,15 +913,17 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
-        systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
-        systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        systemIdCharacteristicData.delay = 1;
-        mViewModel.setSystemIdDataJson(mGson.toJson(systemIdCharacteristicData));
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
+        mViewModel.setSystemIdData(Utils.parcelableToByteArray(systemIdCharacteristicData));
 
         onView(withId(R.id.manufacturerIdentifier)).check(matches(withText(String.valueOf(originalManufacturerIdentifier))));
 
@@ -896,15 +951,17 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
-        systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
-        systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        systemIdCharacteristicData.delay = 1;
-        mViewModel.setSystemIdDataJson(mGson.toJson(systemIdCharacteristicData));
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
+        mViewModel.setSystemIdData(Utils.parcelableToByteArray(systemIdCharacteristicData));
 
         onView(withId(R.id.organizationallyUniqueIdentifier)).check(matches(withText(String.valueOf(originalOrganizationallyUniqueIdentifier))));
 
@@ -992,14 +1049,16 @@ public class DeviceInformationServiceSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "b";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
-        mViewModel.setManufacturerNameStringDataJson(mGson.toJson(manufacturerNameStringCharacteristicData));
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1);
+        mViewModel.setManufacturerNameStringData(Utils.parcelableToByteArray(manufacturerNameStringCharacteristicData));
 
         onView(withId(R.id.manufacturerNameString)).check(matches(withText(originalManufacturerNameString)));
 

@@ -7,6 +7,7 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
+import static org.junit.Assert.assertArrayEquals;
 
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
@@ -15,13 +16,12 @@ import android.os.Build;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,6 +31,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -72,16 +73,12 @@ public class BloodPressureProfileViewModelTest {
     @ApplicationContext
     Context mContext;
 
-    @Inject
-    Gson mGson;
-
     @Before
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
         mViewModel = new BloodPressureProfileViewModel(mSavedStateHandle
-                , new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext)
-                , mGson);
+                , new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext));
     }
 
     @After
@@ -96,16 +93,16 @@ public class BloodPressureProfileViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBlsDataJson = new AtomicReference<>();
-        AtomicReference<Boolean> hasDisDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBlsData = new AtomicReference<>();
+        AtomicReference<Boolean> hasDisData = new AtomicReference<>();
         AtomicReference<Boolean> isDisSupported = new AtomicReference<>();
 
-        mViewModel.observeHasBlsDataJson(new TestLifeCycleOwner(), hasBlsDataJson::set);
-        mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
+        mViewModel.observeHasBlsData(new TestLifeCycleOwner(), hasBlsData::set);
+        mViewModel.observeHasDisData(new TestLifeCycleOwner(), hasDisData::set);
         mViewModel.observeIsDisSupported(new TestLifeCycleOwner(), isDisSupported::set);
 
-        MockData mockData = new MockData();
-        String original = mGson.toJson(mockData);
+        MockData mockData = new MockData(new LinkedList<>());
+        byte[] original = Utils.parcelableToByteArray(mockData);
         AtomicBoolean result = new AtomicBoolean(false);
 
         mViewModel.observeSetup(original, () -> result.set(true), throwable -> {
@@ -113,8 +110,8 @@ public class BloodPressureProfileViewModelTest {
 
         assertTrue(result.get());
 
-        assertNull(hasBlsDataJson.get());
-        assertNull(hasDisDataJson.get());
+        assertNull(hasBlsData.get());
+        assertNull(hasDisData.get());
         assertFalse(isDisSupported.get());
     }
 
@@ -123,17 +120,17 @@ public class BloodPressureProfileViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBlsDataJson = new AtomicReference<>();
-        AtomicReference<Boolean> hasDisDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBlsData = new AtomicReference<>();
+        AtomicReference<Boolean> hasDisData = new AtomicReference<>();
         AtomicReference<Boolean> isDisSupported = new AtomicReference<>();
 
-        mViewModel.observeHasBlsDataJson(new TestLifeCycleOwner(), hasBlsDataJson::set);
-        mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
+        mViewModel.observeHasBlsData(new TestLifeCycleOwner(), hasBlsData::set);
+        mViewModel.observeHasDisData(new TestLifeCycleOwner(), hasDisData::set);
         mViewModel.observeIsDisSupported(new TestLifeCycleOwner(), isDisSupported::set);
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new LinkedList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        String original = mGson.toJson(mockData);
+        byte[] original = Utils.parcelableToByteArray(mockData);
         AtomicBoolean result = new AtomicBoolean(false);
 
         mViewModel.observeSetup(original, () -> result.set(true), throwable -> {
@@ -141,8 +138,8 @@ public class BloodPressureProfileViewModelTest {
 
         assertTrue(result.get());
 
-        assertNotNull(hasBlsDataJson.get());
-        assertNull(hasDisDataJson.get());
+        assertNotNull(hasBlsData.get());
+        assertNull(hasDisData.get());
         assertFalse(isDisSupported.get());
     }
 
@@ -151,18 +148,18 @@ public class BloodPressureProfileViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBlsDataJson = new AtomicReference<>();
-        AtomicReference<Boolean> hasDisDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBlsData = new AtomicReference<>();
+        AtomicReference<Boolean> hasDisData = new AtomicReference<>();
         AtomicReference<Boolean> isDisSupported = new AtomicReference<>();
 
-        mViewModel.observeHasBlsDataJson(new TestLifeCycleOwner(), hasBlsDataJson::set);
-        mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
+        mViewModel.observeHasBlsData(new TestLifeCycleOwner(), hasBlsData::set);
+        mViewModel.observeHasDisData(new TestLifeCycleOwner(), hasDisData::set);
         mViewModel.observeIsDisSupported(new TestLifeCycleOwner(), isDisSupported::set);
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new LinkedList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
         mockData.serviceDataList.add(new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        String original = mGson.toJson(mockData);
+        byte[] original = Utils.parcelableToByteArray(mockData);
         AtomicBoolean result = new AtomicBoolean(false);
 
         mViewModel.observeSetup(original, () -> result.set(true), throwable -> {
@@ -170,8 +167,8 @@ public class BloodPressureProfileViewModelTest {
 
         assertTrue(result.get());
 
-        assertNotNull(hasBlsDataJson.get());
-        assertNotNull(hasDisDataJson.get());
+        assertNotNull(hasBlsData.get());
+        assertNotNull(hasDisData.get());
         assertTrue(isDisSupported.get());
     }
 
@@ -181,23 +178,23 @@ public class BloodPressureProfileViewModelTest {
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         boolean originalIsDisSupport = true;
-        String originalBlsDataJson = "a";
-        String originalDisDataJson = "b";
+        String originalBlsData = "a";
+        String originalDisData = "b";
 
         mSavedStateHandle.set("KEY_IS_DIS_SUPPORTED", originalIsDisSupport);
-        mSavedStateHandle.set("KEY_BLS_DATA_JSON", originalBlsDataJson);
-        mSavedStateHandle.set("KEY_DIS_DATA_JSON", originalDisDataJson);
+        mSavedStateHandle.set("KEY_BLS_DATA", originalBlsData);
+        mSavedStateHandle.set("KEY_DIS_DATA", originalDisData);
 
-        AtomicReference<Boolean> hasBlsDataJson = new AtomicReference<>();
-        AtomicReference<Boolean> hasDisDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBlsData = new AtomicReference<>();
+        AtomicReference<Boolean> hasDisData = new AtomicReference<>();
         AtomicReference<Boolean> isDisSupported = new AtomicReference<>();
 
-        mViewModel.observeHasBlsDataJson(new TestLifeCycleOwner(), hasBlsDataJson::set);
-        mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
+        mViewModel.observeHasBlsData(new TestLifeCycleOwner(), hasBlsData::set);
+        mViewModel.observeHasDisData(new TestLifeCycleOwner(), hasDisData::set);
         mViewModel.observeIsDisSupported(new TestLifeCycleOwner(), isDisSupported::set);
 
-        MockData mockData = new MockData();
-        String original = mGson.toJson(mockData);
+        MockData mockData = new MockData(new LinkedList<>());
+        byte[] original = Utils.parcelableToByteArray(mockData);
         AtomicBoolean result = new AtomicBoolean(false);
 
         mViewModel.observeSetup(original, () -> result.set(true), throwable -> {
@@ -205,8 +202,8 @@ public class BloodPressureProfileViewModelTest {
 
         assertTrue(result.get());
 
-        assertTrue(hasBlsDataJson.get());
-        assertTrue(hasDisDataJson.get());
+        assertTrue(hasBlsData.get());
+        assertTrue(hasDisData.get());
         assertTrue(isDisSupported.get());
     }
 
@@ -215,7 +212,7 @@ public class BloodPressureProfileViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<String> saveDataReference = new AtomicReference<>();
+        AtomicReference<byte[]> saveDataReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
 
         assertNull(saveDataReference.get());
@@ -226,13 +223,13 @@ public class BloodPressureProfileViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        MockData mockData = new MockData();
-        String original = mGson.toJson(mockData);
-        AtomicReference<String> saveDataReference = new AtomicReference<>();
+        MockData mockData = new MockData(new LinkedList<>());
+        byte[] original = Utils.parcelableToByteArray(mockData);
+        AtomicReference<byte[]> saveDataReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), saveDataReference::set);
         mSavedStateHandle.set("KEY_SAVED_DATA", original);
 
-        assertEquals(original, saveDataReference.get());
+        assertArrayEquals(original, saveDataReference.get());
     }
 
     @Test
@@ -252,14 +249,14 @@ public class BloodPressureProfileViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        MockData mockData = new MockData();
-        String original = mGson.toJson(mockData);
+        MockData mockData = new MockData(new LinkedList<>());
+        byte[] original = Utils.parcelableToByteArray(mockData);
         mViewModel.observeSetup(original
                 , () -> {
                 }
                 , throwable -> {
                 });
-        mViewModel.setDisDataJson("");
+        mViewModel.setDisData(new byte[0]);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -274,14 +271,14 @@ public class BloodPressureProfileViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        MockData mockData = new MockData();
-        String original = mGson.toJson(mockData);
+        MockData mockData = new MockData(new LinkedList<>());
+        byte[] original = Utils.parcelableToByteArray(mockData);
         mViewModel.observeSetup(original
                 , () -> {
                 }
                 , throwable -> {
                 });
-        mViewModel.setBlsDataJson("");
+        mViewModel.setBlsData(new byte[0]);
         mViewModel.updateIsDisSupported(true);
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
@@ -297,23 +294,22 @@ public class BloodPressureProfileViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        MockData mockData = new MockData();
-        ServiceData blsData = new ServiceData();
-        blsData.uuid = BLOOD_PRESSURE_SERVICE;
+        MockData mockData = new MockData(new LinkedList<>());
+        ServiceData blsData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
         mockData.serviceDataList.add(blsData);
-        String original = mGson.toJson(mockData);
+        byte[] original = Utils.parcelableToByteArray(mockData);
         mViewModel.observeSetup(original
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
+        AtomicReference<byte[]> mockDataStringReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), mockDataStringReference::set);
         mViewModel.save(throwable -> {
         });
 
-        MockData savedMockData = mGson.fromJson(mockDataStringReference.get(), MockData.class);
+        MockData savedMockData = Utils.byteToParcelable(mockDataStringReference.get(), MockData.CREATOR);
         assertNotNull(savedMockData);
 
         Optional<ServiceData> blsServiceDataOptional = savedMockData.serviceDataList
@@ -329,14 +325,12 @@ public class BloodPressureProfileViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        MockData mockData = new MockData();
-        ServiceData blsData = new ServiceData();
-        blsData.uuid = BLOOD_PRESSURE_SERVICE;
-        ServiceData disData = new ServiceData();
-        disData.uuid = DEVICE_INFORMATION_SERVICE;
+        MockData mockData = new MockData(new LinkedList<>());
+        ServiceData blsData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
+        ServiceData disData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
         mockData.serviceDataList.add(blsData);
         mockData.serviceDataList.add(disData);
-        String original = mGson.toJson(mockData);
+        byte[] original = Utils.parcelableToByteArray(mockData);
         mViewModel.observeSetup(original
                 , () -> {
                 }
@@ -344,12 +338,12 @@ public class BloodPressureProfileViewModelTest {
                 });
         mViewModel.updateIsDisSupported(true);
 
-        AtomicReference<String> mockDataStringReference = new AtomicReference<>();
+        AtomicReference<byte[]> mockDataStringReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), mockDataStringReference::set);
         mViewModel.save(throwable -> {
         });
 
-        MockData savedMockData = mGson.fromJson(mockDataStringReference.get(), MockData.class);
+        MockData savedMockData = Utils.byteToParcelable(mockDataStringReference.get(), MockData.CREATOR);
         assertNotNull(savedMockData);
 
         Optional<ServiceData> blsServiceDataOptional = savedMockData.serviceDataList
@@ -368,59 +362,59 @@ public class BloodPressureProfileViewModelTest {
     }
 
     @Test
-    public void test_observeHasBlsDataJson_00001() {
+    public void test_observeHasBlsData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBlsDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBlsData = new AtomicReference<>();
 
-        mViewModel.observeHasBlsDataJson(new TestLifeCycleOwner(), hasBlsDataJson::set);
+        mViewModel.observeHasBlsData(new TestLifeCycleOwner(), hasBlsData::set);
 
-        mViewModel.setBlsDataJson("");
+        mViewModel.setBlsData(new byte[0]);
 
-        assertTrue(hasBlsDataJson.get());
+        assertTrue(hasBlsData.get());
     }
 
     @Test
-    public void test_observeHasBlsDataJson_00002() {
+    public void test_observeHasBlsData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBlsDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBlsData = new AtomicReference<>();
 
-        mViewModel.observeHasBlsDataJson(new TestLifeCycleOwner(), hasBlsDataJson::set);
+        mViewModel.observeHasBlsData(new TestLifeCycleOwner(), hasBlsData::set);
 
-        mViewModel.setBlsDataJson(null);
+        mViewModel.setBlsData(null);
 
-        assertFalse(hasBlsDataJson.get());
+        assertFalse(hasBlsData.get());
     }
 
     @Test
-    public void test_observeHasDisDataJson_00001() {
+    public void test_observeHasDisData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasDisDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasDisData = new AtomicReference<>();
 
-        mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
+        mViewModel.observeHasDisData(new TestLifeCycleOwner(), hasDisData::set);
 
-        mViewModel.setDisDataJson("");
+        mViewModel.setDisData(new byte[0]);
 
-        assertTrue(hasDisDataJson.get());
+        assertTrue(hasDisData.get());
     }
 
     @Test
-    public void test_observeHasDisDataJson_00002() {
+    public void test_observeHasDisData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasDisDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasDisData = new AtomicReference<>();
 
-        mViewModel.observeHasDisDataJson(new TestLifeCycleOwner(), hasDisDataJson::set);
+        mViewModel.observeHasDisData(new TestLifeCycleOwner(), hasDisData::set);
 
-        mViewModel.setDisDataJson(null);
+        mViewModel.setDisData(null);
 
-        assertFalse(hasDisDataJson.get());
+        assertFalse(hasDisData.get());
     }
 
     @Test
@@ -472,47 +466,47 @@ public class BloodPressureProfileViewModelTest {
     }
 
     @Test
-    public void test_getBlsDataJson_00001() {
+    public void test_getBlsData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        mSavedStateHandle.set("KEY_BLS_DATA_JSON", original);
+        byte[] original = new byte[]{1};
+        mSavedStateHandle.set("KEY_BLS_DATA", original);
 
-        assertEquals(original, mViewModel.getBlsDataJson());
+        assertArrayEquals(original, mViewModel.getBlsData());
     }
 
     @Test
-    public void test_setBlsDataJson_00001() {
+    public void test_setBlsData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        mViewModel.setBlsDataJson(original);
+        byte[] original = new byte[]{1};
+        mViewModel.setBlsData(original);
 
-        assertEquals(original, mSavedStateHandle.get("KEY_BLS_DATA_JSON"));
+        assertEquals(original, mSavedStateHandle.get("KEY_BLS_DATA"));
     }
 
     @Test
-    public void test_getDisDataJson_00001() {
+    public void test_getDisData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        mSavedStateHandle.set("KEY_DIS_DATA_JSON", original);
+        byte[] original = new byte[]{1};
+        mSavedStateHandle.set("KEY_DIS_DATA", original);
 
-        assertEquals(original, mViewModel.getDisDataJson());
+        assertEquals(original, mViewModel.getDisData());
     }
 
     @Test
-    public void test_setDisDataJson_00001() {
+    public void test_setDisData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        mViewModel.setDisDataJson(original);
+        byte[] original = new byte[]{1};
+        mViewModel.setDisData(original);
 
-        assertEquals(original, mSavedStateHandle.get("KEY_DIS_DATA_JSON"));
+        assertEquals(original, mSavedStateHandle.get("KEY_DIS_DATA"));
     }
 
 }

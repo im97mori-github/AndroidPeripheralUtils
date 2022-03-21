@@ -15,6 +15,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.mockStatic;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.content.Context;
 import android.content.Intent;
@@ -38,13 +40,13 @@ import androidx.test.espresso.matcher.ViewMatchers;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.gson.Gson;
 
 import junit.framework.TestCase;
 
 import org.im97mori.ble.DescriptorData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.descriptor.u2902.ClientCharacteristicConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -94,9 +96,6 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     @Inject
     @ApplicationContext
     Context mContext;
-
-    @Inject
-    Gson mGson;
 
     @BeforeClass
     public static void setUpClass() {
@@ -380,20 +379,21 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).perform(click());
 
-        DescriptorData descriptorData = new DescriptorData();
-        descriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        descriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        descriptorData.data = new ClientCharacteristicConfiguration(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE).getProperties();
-        String json = mGson.toJson(descriptorData);
+        DescriptorData descriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , new ClientCharacteristicConfiguration(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE).getProperties());
+        byte[] data = Utils.parcelableToByteArray(descriptorData);
         Intent original = new Intent();
-        original.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), json);
+        original.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), data);
         mViewModel.mObserveSaveSubject.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(Activity.RESULT_OK, activityResult.getResultCode());
         Intent resultData = activityResult.getResultData();
         assertNotNull(resultData);
-        assertEquals(json, resultData.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()));
+        assertArrayEquals(data, resultData.getByteArrayExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()));
     }
 
     @Test

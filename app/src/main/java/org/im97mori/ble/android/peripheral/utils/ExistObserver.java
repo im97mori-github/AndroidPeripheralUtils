@@ -5,7 +5,7 @@ import androidx.lifecycle.Observer;
 
 import java.util.Objects;
 
-public class ExistObserver extends MapObserver<String, Boolean> {
+public class ExistObserver extends MapObserver<Object, Boolean> {
 
     public ExistObserver(@NonNull Observer<Boolean> observer) {
         super(t -> !Objects.isNull(t), observer);

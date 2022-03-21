@@ -10,24 +10,24 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class ModelNumberStringLauncherContract extends ActivityResultContract<String, String> {
+public class ModelNumberStringLauncherContract extends ActivityResultContract<byte[], byte[]> {
 
     @NonNull
     @Override
-    public Intent createIntent(@NonNull Context context, @Nullable String input) {
+    public Intent createIntent(@NonNull Context context, @Nullable byte[] input) {
         Intent intent = new Intent(context.getApplicationContext(), ModelNumberStringSettingActivity.class);
         intent.putExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString(), input);
         return intent;
     }
 
     @Override
-    public String parseResult(int resultCode, @Nullable Intent intent) {
-        String dataString;
+    public byte[] parseResult(int resultCode, @Nullable Intent intent) {
+        byte[] data;
         if (Activity.RESULT_OK == resultCode && intent != null) {
-            dataString = intent.getStringExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString());
+            data = intent.getByteArrayExtra(MODEL_NUMBER_STRING_CHARACTERISTIC.toString());
         } else {
-            dataString = null;
+            data = null;
         }
-        return dataString;
+        return data;
     }
 }

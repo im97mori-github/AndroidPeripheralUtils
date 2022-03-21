@@ -26,11 +26,11 @@ public class BloodPressureProfileFragment extends Fragment {
     private BloodPressureProfileViewModel mViewModel;
     private DeviceSettingViewModel mDeviceSettingViewModel;
 
-    private final ActivityResultLauncher<String> mStartBloodPressureServiceSettingActivity
-            = registerForActivityResult(new BloodPressureServiceLauncherContract(), result -> mViewModel.setBlsDataJson(result));
+    private final ActivityResultLauncher<byte[]> mStartBloodPressureServiceSettingActivity
+            = registerForActivityResult(new BloodPressureServiceLauncherContract(), result -> mViewModel.setBlsData(result));
 
-    private final ActivityResultLauncher<String> mStartDeviceInformationServiceSettingActivity
-            = registerForActivityResult(new DeviceInformationServiceLauncherContract(), result -> mViewModel.setDisDataJson(result));
+    private final ActivityResultLauncher<byte[]> mStartDeviceInformationServiceSettingActivity
+            = registerForActivityResult(new DeviceInformationServiceLauncherContract(), result -> mViewModel.setDisData(result));
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -45,7 +45,7 @@ public class BloodPressureProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         BloodPressureProfileSettingFragmentBinding binding = BloodPressureProfileSettingFragmentBinding.inflate(inflater, container, false);
 
-        mViewModel.observeHasBlsDataJson(this, binding.bloodPressureServiceCardView::setChecked);
+        mViewModel.observeHasBlsData(this, binding.bloodPressureServiceCardView::setChecked);
 
         mViewModel.observeIsDisSupported(this, isDisSupported -> {
             binding.isDeviceInformationServiceSupported.setChecked(isDisSupported);
@@ -53,16 +53,16 @@ public class BloodPressureProfileFragment extends Fragment {
         });
         binding.isDeviceInformationServiceSupported.setOnCheckedChangeListener((buttonView, isChecked)
                 -> mViewModel.updateIsDisSupported(isChecked));
-        mViewModel.observeHasDisDataJson(this, binding.deviceInformationServiceCardView::setChecked);
+        mViewModel.observeHasDisData(this, binding.deviceInformationServiceCardView::setChecked);
 
         binding.bloodPressureServiceSettingButton.setOnClickListener(v ->
-                mStartBloodPressureServiceSettingActivity.launch(mViewModel.getBlsDataJson()));
+                mStartBloodPressureServiceSettingActivity.launch(mViewModel.getBlsData()));
 
         binding.deviceInformationServiceSettingButton.setOnClickListener(v ->
-                mStartDeviceInformationServiceSettingActivity.launch(mViewModel.getDisDataJson()));
+                mStartDeviceInformationServiceSettingActivity.launch(mViewModel.getDisData()));
 
-        mDeviceSettingViewModel.observeMockDataString(this
-                , mockDataString -> mViewModel.observeSetup(mockDataString
+        mDeviceSettingViewModel.observeMockData(this
+                , data -> mViewModel.observeSetup(data
                         , () -> mDeviceSettingViewModel.fragmentReady()
                         , throwable -> LogUtils.stackLog(throwable.getMessage())));
         return binding.getRoot();

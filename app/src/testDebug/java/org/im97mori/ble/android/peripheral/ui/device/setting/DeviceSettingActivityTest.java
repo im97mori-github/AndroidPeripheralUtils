@@ -17,6 +17,7 @@ import static junit.framework.TestCase.assertEquals;
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
 import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
@@ -397,8 +398,8 @@ public class DeviceSettingActivityTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        String original = "a";
-        AtomicReference<String> moduleDataString = new AtomicReference<>();
+        byte[] original = new byte[]{1};
+        AtomicReference<byte[]> moduleDataString = new AtomicReference<>();
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
         mFakeDeviceSettingViewModel.mUpdateMockDataStringConsumer = moduleDataString::set;
@@ -407,7 +408,7 @@ public class DeviceSettingActivityTest {
 
         mFakeBloodPressureProfileViewModel.mObserveSaveSubject.onNext(original);
 
-        assertEquals(original, moduleDataString.get());
+        assertArrayEquals(original, moduleDataString.get());
     }
 
     @Test
@@ -438,7 +439,7 @@ public class DeviceSettingActivityTest {
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
 
-        mFakeBloodPressureProfileViewModel.mObserveSaveSubject.onNext("a");
+        mFakeBloodPressureProfileViewModel.mObserveSaveSubject.onNext(new byte[]{1});
 
         mFakeDeviceSettingViewModel.updateDeviceSettingName("b");
         mFakeDeviceSettingViewModel.mFakeDeviceSettingRepository.mInsertDeviceSettingConsumer = deviceSetting -> {
@@ -446,7 +447,7 @@ public class DeviceSettingActivityTest {
 
         onView(withId(R.id.save)).perform(click());
 
-        mFakeBloodPressureProfileViewModel.mObserveSaveSubject.onNext("c");
+        mFakeBloodPressureProfileViewModel.mObserveSaveSubject.onNext(new byte[]{2});
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(RESULT_OK, activityResult.getResultCode());

@@ -18,6 +18,8 @@ import org.im97mori.ble.BLEServerCallback;
 import org.im97mori.ble.BLEUtilsAndroid;
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
+import org.im97mori.ble.android.peripheral.room.DeviceSetting;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.profile.blp.peripheral.BloodPressureProfileMockCallback;
 import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
 import org.im97mori.ble.service.bls.peripheral.BloodPressureServiceMockCallback;
@@ -75,22 +77,25 @@ public class BluetoothSettingRepository {
     }
 
     @NonNull
-    public AbstractProfileMockCallback createProfileMockCallback(int deviceType
-            , @NonNull MockData mockData
+    public AbstractProfileMockCallback createProfileMockCallback(@NonNull DeviceSetting deviceSetting
             , @NonNull BLEServerCallback... callbacks) {
-        if (DEVICE_TYPE_BLOOD_PRESSURE_PROFILE == deviceType) {
-            MockData blsMockData = null;
-            MockData disMockData = null;
-            for (ServiceData serviceData : mockData.serviceDataList) {
-                if (BLOOD_PRESSURE_SERVICE.equals(serviceData.uuid)) {
-                    blsMockData = new MockData(Collections.singletonList(serviceData));
-                } else if (DEVICE_INFORMATION_SERVICE.equals(serviceData.uuid)) {
-                    disMockData = new MockData(Collections.singletonList(serviceData));
+        if (DEVICE_TYPE_BLOOD_PRESSURE_PROFILE == deviceSetting.getDeviceType()) {
+            ServiceData blsServiceData = null;
+            ServiceData disServiceData = null;
+            MockData mockData = Utils.byteToParcelable(deviceSetting.getDeviceSettingData(), MockData.CREATOR);
+
+            if (mockData != null) {
+                for (ServiceData serviceData : mockData.serviceDataList) {
+                    if (BLOOD_PRESSURE_SERVICE.equals(serviceData.uuid)) {
+                        blsServiceData = serviceData;
+                    } else if (DEVICE_INFORMATION_SERVICE.equals(serviceData.uuid)) {
+                        disServiceData = serviceData;
+                    }
                 }
             }
             return new BloodPressureProfileMockCallback(mApplicationContext
-                    , new BloodPressureServiceMockCallback(Objects.requireNonNull(blsMockData), false)
-                    , disMockData == null ? null : new DeviceInformationServiceMockCallback(disMockData, false)
+                    , new BloodPressureServiceMockCallback(Objects.requireNonNull(blsServiceData), false)
+                    , disServiceData == null ? null : new DeviceInformationServiceMockCallback(disServiceData, false)
                     , callbacks);
         } else {
             throw new RuntimeException("Not Found");

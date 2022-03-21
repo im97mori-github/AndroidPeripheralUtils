@@ -5,8 +5,6 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 
 import javax.inject.Inject;
@@ -54,9 +52,8 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
 
     @Inject
     FakeBloodPressureMeasurementSettingViewModel(@NonNull SavedStateHandle savedStateHandle
-            , @NonNull FakeDeviceSettingRepository deviceSettingRepository
-            , @NonNull Gson gson) {
-        super(savedStateHandle, deviceSettingRepository, gson);
+            , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
+        super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;
         mFakeDeviceSettingRepository = deviceSettingRepository;
     }
@@ -502,11 +499,11 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
     }
 
     private void test_clientCharacteristicConfigurationCardView_00002() {
-        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON", "");
+        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA", new byte[]{1});
     }
 
     private void test_clientCharacteristicConfigurationSettingButton_00002() {
-        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA", new byte[]{1});
     }
 
     private void test_indicationCount_error_00002() {
@@ -674,7 +671,7 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
     }
 
     private void test_recreate_clientCharacteristicConfigurationCardView_00002() {
-        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON", "");
+        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA", "");
     }
 
     private void test_recreate_indicationCount_error_00001() {

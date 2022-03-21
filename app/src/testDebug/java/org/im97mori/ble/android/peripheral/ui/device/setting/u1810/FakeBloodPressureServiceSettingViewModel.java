@@ -5,8 +5,6 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 
 import javax.inject.Inject;
@@ -33,9 +31,8 @@ public class FakeBloodPressureServiceSettingViewModel extends BloodPressureServi
 
     @Inject
     FakeBloodPressureServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle
-            , @NonNull FakeDeviceSettingRepository deviceSettingRepository
-            , @NonNull Gson gson) {
-        super(savedStateHandle, deviceSettingRepository, gson);
+            , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
+        super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;
         mFakeDeviceSettingRepository = deviceSettingRepository;
     }
@@ -83,11 +80,11 @@ public class FakeBloodPressureServiceSettingViewModel extends BloodPressureServi
     }
 
     private void test_bloodPressureMeasurementCardView_00002() {
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA", new byte[]{1});
     }
 
     private void test_bloodPressureMeasurementSettingButton_00002() {
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA", new byte[]{1});
     }
 
     private void test_isIntermediateCuffPressureSupported_00001() {
@@ -107,23 +104,23 @@ public class FakeBloodPressureServiceSettingViewModel extends BloodPressureServi
     }
 
     private void test_intermediateCuffPressureCardView_00002() {
-        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA", new byte[]{1});
     }
 
     private void test_intermediateCuffPressureSettingButton_00002() {
-        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA", new byte[]{1});
     }
 
     private void test_bloodPressureFeatureCardView_00002() {
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA", new byte[]{1});
     }
 
     private void test_bloodPressureFeatureSettingButton_00002() {
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA", new byte[]{1});
     }
 
     private void test_recreate_bloodPressureMeasurementCardView_00002() {
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA", new byte[]{1});
     }
 
     private void test_recreate_intermediateCuffPressureCardView_visibility_00001() {
@@ -135,11 +132,11 @@ public class FakeBloodPressureServiceSettingViewModel extends BloodPressureServi
     }
 
     private void test_recreate_intermediateCuffPressureCardView_00002() {
-        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA", new byte[]{1});
     }
 
     private void test_recreate_bloodPressureFeatureCardView_00002() {
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA", new byte[]{1});
     }
 
 }

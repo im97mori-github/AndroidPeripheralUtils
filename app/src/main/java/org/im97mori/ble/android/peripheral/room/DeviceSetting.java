@@ -22,7 +22,7 @@ public class DeviceSetting {
     private final int mDeviceType;
 
     @ColumnInfo(name = "device_setting_data")
-    private String mDeviceSettingData;
+    private byte[] mDeviceSettingData;
 
     @Ignore
     public DeviceSetting(long id) {
@@ -39,7 +39,7 @@ public class DeviceSetting {
         this(0, deviceSettingName, deviceType, null);
     }
 
-    public DeviceSetting(long id, @NonNull String deviceSettingName, int deviceType, @Nullable String deviceSettingData) {
+    public DeviceSetting(long id, @NonNull String deviceSettingName, int deviceType, @Nullable byte[] deviceSettingData) {
         mId = id;
         mDeviceSettingName = deviceSettingName;
         mDeviceType = deviceType;
@@ -65,11 +65,11 @@ public class DeviceSetting {
     }
 
     @Nullable
-    public String getDeviceSettingData() {
+    public byte[] getDeviceSettingData() {
         return mDeviceSettingData;
     }
 
-    public void setDeviceSettingData(@Nullable String deviceSettingData) {
+    public void setDeviceSettingData(@Nullable byte[] deviceSettingData) {
         this.mDeviceSettingData = deviceSettingData;
     }
 

@@ -10,24 +10,24 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class IntermediateCuffPressureLauncherContract extends ActivityResultContract<String, String> {
+public class IntermediateCuffPressureLauncherContract extends ActivityResultContract<byte[], byte[]> {
 
     @NonNull
     @Override
-    public Intent createIntent(@NonNull Context context, @Nullable String input) {
+    public Intent createIntent(@NonNull Context context, @Nullable byte[] input) {
         Intent intent = new Intent(context.getApplicationContext(), IntermediateCuffPressureSettingActivity.class);
         intent.putExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString(), input);
         return intent;
     }
 
     @Override
-    public String parseResult(int resultCode, @Nullable Intent intent) {
-        String dataString;
+    public byte[] parseResult(int resultCode, @Nullable Intent intent) {
+        byte[] data;
         if (Activity.RESULT_OK == resultCode && intent != null) {
-            dataString = intent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString());
+            data = intent.getByteArrayExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString());
         } else {
-            dataString = null;
+            data = null;
         }
-        return dataString;
+        return data;
     }
 }

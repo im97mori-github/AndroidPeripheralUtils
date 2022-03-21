@@ -9,7 +9,9 @@ import static org.im97mori.ble.constants.CharacteristicUUID.MANUFACTURER_NAME_ST
 import static org.im97mori.ble.constants.CharacteristicUUID.MODEL_NUMBER_STRING_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.SYSTEM_ID_CHARACTERISTIC;
 import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
+import static org.junit.Assert.assertArrayEquals;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
@@ -19,13 +21,12 @@ import android.os.Build;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.u2a23.SystemId;
 import org.im97mori.ble.characteristic.u2a24.ModelNumberString;
 import org.im97mori.ble.characteristic.u2a29.ManufacturerNameString;
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -81,15 +83,12 @@ public class DeviceInformationServiceSettingViewModelTest {
     @ApplicationContext
     Context mContext;
 
-    @Inject
-    Gson mGson;
-
     @Before
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
         mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
-        mViewModel = new DeviceInformationServiceSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository, mGson);
+        mViewModel = new DeviceInformationServiceSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository);
     }
 
     @After
@@ -108,18 +107,18 @@ public class DeviceInformationServiceSettingViewModelTest {
         AtomicBoolean result = new AtomicBoolean(false);
 
         AtomicReference<Boolean> isSystemIdSupportedReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasSystemIdDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasModelNumberStringDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasManufacturerNameStringDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasSystemIdDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasModelNumberStringDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasManufacturerNameStringDataReference = new AtomicReference<>();
         AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
         AtomicReference<String> organizationallyUniqueIdentifierReference = new AtomicReference<>();
         AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
         AtomicReference<String> manufacturerNameStringReference = new AtomicReference<>();
 
         mViewModel.observeIsSystemIdSupported(new TestLifeCycleOwner(), isSystemIdSupportedReference::set);
-        mViewModel.observeHasSystemIdDataJson(new TestLifeCycleOwner(), hasSystemIdDataJsonReference::set);
-        mViewModel.observeHasModelNumberStringDataJson(new TestLifeCycleOwner(), hasModelNumberStringDataJsonReference::set);
-        mViewModel.observeHasManufacturerNameStringDataJson(new TestLifeCycleOwner(), hasManufacturerNameStringDataJsonReference::set);
+        mViewModel.observeHasSystemIdData(new TestLifeCycleOwner(), hasSystemIdDataReference::set);
+        mViewModel.observeHasModelNumberStringData(new TestLifeCycleOwner(), hasModelNumberStringDataReference::set);
+        mViewModel.observeHasManufacturerNameStringData(new TestLifeCycleOwner(), hasManufacturerNameStringDataReference::set);
         mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
         mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifierReference::set);
         mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
@@ -134,9 +133,9 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertTrue(result.get());
 
         assertFalse(isSystemIdSupportedReference.get());
-        assertNull(hasSystemIdDataJsonReference.get());
-        assertNull(hasModelNumberStringDataJsonReference.get());
-        assertNull(hasManufacturerNameStringDataJsonReference.get());
+        assertNull(hasSystemIdDataReference.get());
+        assertNull(hasModelNumberStringDataReference.get());
+        assertNull(hasManufacturerNameStringDataReference.get());
         assertEquals("", manufacturerIdentifierReference.get());
         assertEquals("", organizationallyUniqueIdentifierReference.get());
         assertEquals("", modelNumberStringReference.get());
@@ -151,28 +150,26 @@ public class DeviceInformationServiceSettingViewModelTest {
         AtomicBoolean result = new AtomicBoolean(false);
 
         AtomicReference<Boolean> isSystemIdSupportedReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasSystemIdDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasModelNumberStringDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasManufacturerNameStringDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasSystemIdDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasModelNumberStringDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasManufacturerNameStringDataReference = new AtomicReference<>();
         AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
         AtomicReference<String> organizationallyUniqueIdentifierReference = new AtomicReference<>();
         AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
         AtomicReference<String> manufacturerNameStringReference = new AtomicReference<>();
 
         mViewModel.observeIsSystemIdSupported(new TestLifeCycleOwner(), isSystemIdSupportedReference::set);
-        mViewModel.observeHasSystemIdDataJson(new TestLifeCycleOwner(), hasSystemIdDataJsonReference::set);
-        mViewModel.observeHasModelNumberStringDataJson(new TestLifeCycleOwner(), hasModelNumberStringDataJsonReference::set);
-        mViewModel.observeHasManufacturerNameStringDataJson(new TestLifeCycleOwner(), hasManufacturerNameStringDataJsonReference::set);
+        mViewModel.observeHasSystemIdData(new TestLifeCycleOwner(), hasSystemIdDataReference::set);
+        mViewModel.observeHasModelNumberStringData(new TestLifeCycleOwner(), hasModelNumberStringDataReference::set);
+        mViewModel.observeHasManufacturerNameStringData(new TestLifeCycleOwner(), hasManufacturerNameStringDataReference::set);
         mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
         mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifierReference::set);
         mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
         mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), manufacturerNameStringReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
-        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
+        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -181,9 +178,9 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertTrue(result.get());
 
         assertFalse(isSystemIdSupportedReference.get());
-        assertNull(hasSystemIdDataJsonReference.get());
-        assertNull(hasModelNumberStringDataJsonReference.get());
-        assertNull(hasManufacturerNameStringDataJsonReference.get());
+        assertNull(hasSystemIdDataReference.get());
+        assertNull(hasModelNumberStringDataReference.get());
+        assertNull(hasManufacturerNameStringDataReference.get());
         assertEquals("", manufacturerIdentifierReference.get());
         assertEquals("", organizationallyUniqueIdentifierReference.get());
         assertEquals("", modelNumberStringReference.get());
@@ -198,47 +195,51 @@ public class DeviceInformationServiceSettingViewModelTest {
         AtomicBoolean result = new AtomicBoolean(false);
 
         AtomicReference<Boolean> isSystemIdSupportedReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasSystemIdDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasModelNumberStringDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasManufacturerNameStringDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasSystemIdDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasModelNumberStringDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasManufacturerNameStringDataReference = new AtomicReference<>();
         AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
         AtomicReference<String> organizationallyUniqueIdentifierReference = new AtomicReference<>();
         AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
         AtomicReference<String> manufacturerNameStringReference = new AtomicReference<>();
 
         mViewModel.observeIsSystemIdSupported(new TestLifeCycleOwner(), isSystemIdSupportedReference::set);
-        mViewModel.observeHasSystemIdDataJson(new TestLifeCycleOwner(), hasSystemIdDataJsonReference::set);
-        mViewModel.observeHasModelNumberStringDataJson(new TestLifeCycleOwner(), hasModelNumberStringDataJsonReference::set);
-        mViewModel.observeHasManufacturerNameStringDataJson(new TestLifeCycleOwner(), hasManufacturerNameStringDataJsonReference::set);
+        mViewModel.observeHasSystemIdData(new TestLifeCycleOwner(), hasSystemIdDataReference::set);
+        mViewModel.observeHasModelNumberStringData(new TestLifeCycleOwner(), hasModelNumberStringDataReference::set);
+        mViewModel.observeHasManufacturerNameStringData(new TestLifeCycleOwner(), hasManufacturerNameStringDataReference::set);
         mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
         mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifierReference::set);
         mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
         mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), manufacturerNameStringReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData();
-        modelNumberStringCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        modelNumberStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        modelNumberStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalModelNumberString = "a";
-        modelNumberStringCharacteristicData.data = new ModelNumberString(originalModelNumberString).getBytes();
-        modelNumberStringCharacteristicData.delay = 1;
+        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(originalModelNumberString).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(modelNumberStringCharacteristicData);
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "B";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(
+                MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1
+        );
         serviceData.characteristicDataList.add(manufacturerNameStringCharacteristicData);
 
-        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -247,9 +248,9 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertTrue(result.get());
 
         assertFalse(isSystemIdSupportedReference.get());
-        assertNull(hasSystemIdDataJsonReference.get());
-        assertTrue(hasModelNumberStringDataJsonReference.get());
-        assertTrue(hasManufacturerNameStringDataJsonReference.get());
+        assertNull(hasSystemIdDataReference.get());
+        assertTrue(hasModelNumberStringDataReference.get());
+        assertTrue(hasManufacturerNameStringDataReference.get());
         assertEquals("", manufacturerIdentifierReference.get());
         assertEquals("", organizationallyUniqueIdentifierReference.get());
         assertEquals(originalModelNumberString, modelNumberStringReference.get());
@@ -264,58 +265,65 @@ public class DeviceInformationServiceSettingViewModelTest {
         AtomicBoolean result = new AtomicBoolean(false);
 
         AtomicReference<Boolean> isSystemIdSupportedReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasSystemIdDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasModelNumberStringDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasManufacturerNameStringDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasSystemIdDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasModelNumberStringDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasManufacturerNameStringDataReference = new AtomicReference<>();
         AtomicReference<String> manufacturerIdentifierReference = new AtomicReference<>();
         AtomicReference<String> organizationallyUniqueIdentifierReference = new AtomicReference<>();
         AtomicReference<String> modelNumberStringReference = new AtomicReference<>();
         AtomicReference<String> manufacturerNameStringReference = new AtomicReference<>();
 
         mViewModel.observeIsSystemIdSupported(new TestLifeCycleOwner(), isSystemIdSupportedReference::set);
-        mViewModel.observeHasSystemIdDataJson(new TestLifeCycleOwner(), hasSystemIdDataJsonReference::set);
-        mViewModel.observeHasModelNumberStringDataJson(new TestLifeCycleOwner(), hasModelNumberStringDataJsonReference::set);
-        mViewModel.observeHasManufacturerNameStringDataJson(new TestLifeCycleOwner(), hasManufacturerNameStringDataJsonReference::set);
+        mViewModel.observeHasSystemIdData(new TestLifeCycleOwner(), hasSystemIdDataReference::set);
+        mViewModel.observeHasModelNumberStringData(new TestLifeCycleOwner(), hasModelNumberStringDataReference::set);
+        mViewModel.observeHasManufacturerNameStringData(new TestLifeCycleOwner(), hasManufacturerNameStringDataReference::set);
         mViewModel.observeManufacturerIdentifier(new TestLifeCycleOwner(), manufacturerIdentifierReference::set);
         mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifierReference::set);
         mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
         mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), manufacturerNameStringReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
-        systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
-        systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        systemIdCharacteristicData.delay = 1;
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(
+                SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1
+        );
         serviceData.characteristicDataList.add(systemIdCharacteristicData);
 
-
-        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData();
-        modelNumberStringCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        modelNumberStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        modelNumberStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalModelNumberString = "a";
-        modelNumberStringCharacteristicData.data = new ModelNumberString(originalModelNumberString).getBytes();
-        modelNumberStringCharacteristicData.delay = 1;
+        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(originalModelNumberString).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(modelNumberStringCharacteristicData);
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "B";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(
+                MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1
+        );
         serviceData.characteristicDataList.add(manufacturerNameStringCharacteristicData);
 
-        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -324,9 +332,9 @@ public class DeviceInformationServiceSettingViewModelTest {
         assertTrue(result.get());
 
         assertTrue(isSystemIdSupportedReference.get());
-        assertTrue(hasSystemIdDataJsonReference.get());
-        assertTrue(hasModelNumberStringDataJsonReference.get());
-        assertTrue(hasManufacturerNameStringDataJsonReference.get());
+        assertTrue(hasSystemIdDataReference.get());
+        assertTrue(hasModelNumberStringDataReference.get());
+        assertTrue(hasManufacturerNameStringDataReference.get());
         assertEquals(originalManufacturerIdentifier, Long.parseLong(manufacturerIdentifierReference.get()));
         assertEquals(originalOrganizationallyUniqueIdentifier, Integer.parseInt(organizationallyUniqueIdentifierReference.get()));
         assertEquals(originalModelNumberString, modelNumberStringReference.get());
@@ -380,14 +388,16 @@ public class DeviceInformationServiceSettingViewModelTest {
                 }
                 , throwable -> {
                 });
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ModelNumberString(original).getBytes();
-        characteristicData.delay = 1;
-        mViewModel.setModelNumberStringDataJson(mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(original).getBytes()
+                , -1);
+        mViewModel.setModelNumberStringData(Utils.parcelableToByteArray(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -408,14 +418,16 @@ public class DeviceInformationServiceSettingViewModelTest {
                 }
                 , throwable -> {
                 });
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ManufacturerNameString(original).getBytes();
-        characteristicData.delay = 1;
-        mViewModel.setManufacturerNameStringDataJson(mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(original).getBytes()
+                , -1);
+        mViewModel.setManufacturerNameStringData(Utils.parcelableToByteArray(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -436,15 +448,18 @@ public class DeviceInformationServiceSettingViewModelTest {
                 }
                 , throwable -> {
                 });
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
-        characteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        characteristicData.delay = 1;
-        mViewModel.setSystemIdDataJson(mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(
+                SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
+        mViewModel.setSystemIdData(Utils.parcelableToByteArray(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -465,14 +480,16 @@ public class DeviceInformationServiceSettingViewModelTest {
                 }
                 , throwable -> {
                 });
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ModelNumberString(original).getBytes();
-        characteristicData.delay = 1;
-        mViewModel.setModelNumberStringDataJson(mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(original).getBytes()
+                , -1);
+        mViewModel.setModelNumberStringData(Utils.parcelableToByteArray(characteristicData));
         characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
         characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
         characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
@@ -480,7 +497,7 @@ public class DeviceInformationServiceSettingViewModelTest {
         int originalOrganizationallyUniqueIdentifier = 2;
         characteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
         characteristicData.delay = 1;
-        mViewModel.setSystemIdDataJson(mGson.toJson(characteristicData));
+        mViewModel.setSystemIdData(Utils.parcelableToByteArray(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -501,14 +518,16 @@ public class DeviceInformationServiceSettingViewModelTest {
                 }
                 , throwable -> {
                 });
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ManufacturerNameString(original).getBytes();
-        characteristicData.delay = 1;
-        mViewModel.setManufacturerNameStringDataJson(mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(original).getBytes()
+                , -1);
+        mViewModel.setManufacturerNameStringData(Utils.parcelableToByteArray(characteristicData));
         characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
         characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
         characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
@@ -516,7 +535,7 @@ public class DeviceInformationServiceSettingViewModelTest {
         int originalOrganizationallyUniqueIdentifier = 2;
         characteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
         characteristicData.delay = 1;
-        mViewModel.setSystemIdDataJson(mGson.toJson(characteristicData));
+        mViewModel.setSystemIdData(Utils.parcelableToByteArray(characteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -537,27 +556,31 @@ public class DeviceInformationServiceSettingViewModelTest {
                 }
                 , throwable -> {
                 });
-        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData();
-        modelNumberStringCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        modelNumberStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        modelNumberStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalModelNumberString = "a";
-        modelNumberStringCharacteristicData.data = new ModelNumberString(originalModelNumberString).getBytes();
-        modelNumberStringCharacteristicData.delay = 1;
-        mViewModel.setModelNumberStringDataJson(mGson.toJson(modelNumberStringCharacteristicData));
+        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(originalModelNumberString).getBytes()
+                , -1);
+        mViewModel.setModelNumberStringData(Utils.parcelableToByteArray(modelNumberStringCharacteristicData));
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "b";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
-        mViewModel.setManufacturerNameStringDataJson(mGson.toJson(manufacturerNameStringCharacteristicData));
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1);
+        mViewModel.setManufacturerNameStringData(Utils.parcelableToByteArray(manufacturerNameStringCharacteristicData));
 
         AtomicReference<ServiceData> serviceDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.class)));
+                serviceDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -593,37 +616,44 @@ public class DeviceInformationServiceSettingViewModelTest {
                 }
                 , throwable -> {
                 });
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
-        systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
-        systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        systemIdCharacteristicData.delay = 1;
-        mViewModel.setSystemIdDataJson(mGson.toJson(systemIdCharacteristicData));
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
+        mViewModel.setSystemIdData(Utils.parcelableToByteArray(systemIdCharacteristicData));
 
-        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData();
-        modelNumberStringCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        modelNumberStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        modelNumberStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalModelNumberString = "a";
-        modelNumberStringCharacteristicData.data = new ModelNumberString(originalModelNumberString).getBytes();
-        modelNumberStringCharacteristicData.delay = 1;
-        mViewModel.setModelNumberStringDataJson(mGson.toJson(modelNumberStringCharacteristicData));
+        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(
+                MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(originalModelNumberString).getBytes()
+                , -1);
+        mViewModel.setModelNumberStringData(Utils.parcelableToByteArray(modelNumberStringCharacteristicData));
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "b";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
-        mViewModel.setManufacturerNameStringDataJson(mGson.toJson(manufacturerNameStringCharacteristicData));
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1);
+        mViewModel.setManufacturerNameStringData(Utils.parcelableToByteArray(manufacturerNameStringCharacteristicData));
 
         AtomicReference<ServiceData> serviceDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.class)));
+                serviceDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -666,38 +696,46 @@ public class DeviceInformationServiceSettingViewModelTest {
                 }
                 , throwable -> {
                 });
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
-        systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
-        systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        systemIdCharacteristicData.delay = 1;
-        mViewModel.setSystemIdDataJson(mGson.toJson(systemIdCharacteristicData));
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
+        mViewModel.setSystemIdData(Utils.parcelableToByteArray(systemIdCharacteristicData));
 
-        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData();
-        modelNumberStringCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        modelNumberStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        modelNumberStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalModelNumberString = "a";
-        modelNumberStringCharacteristicData.data = new ModelNumberString(originalModelNumberString).getBytes();
-        modelNumberStringCharacteristicData.delay = 1;
-        mViewModel.setModelNumberStringDataJson(mGson.toJson(modelNumberStringCharacteristicData));
+        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(originalModelNumberString).getBytes()
+                , -1);
+        mViewModel.setModelNumberStringData(Utils.parcelableToByteArray(modelNumberStringCharacteristicData));
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "b";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
-        mViewModel.setManufacturerNameStringDataJson(mGson.toJson(manufacturerNameStringCharacteristicData));
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(
+                MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1);
+        mViewModel.setManufacturerNameStringData(Utils.parcelableToByteArray(manufacturerNameStringCharacteristicData));
 
         mViewModel.updateIsSystemIdSupported(true);
         AtomicReference<ServiceData> serviceDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.class)));
+                serviceDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(DEVICE_INFORMATION_SERVICE.toString()), ServiceData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -792,225 +830,225 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeHasSystemIdDataJson_00001() {
+    public void test_observeHasSystemIdData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasSystemIdDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasSystemIdData = new AtomicReference<>();
 
-        mViewModel.observeHasSystemIdDataJson(new TestLifeCycleOwner(), hasSystemIdDataJson::set);
+        mViewModel.observeHasSystemIdData(new TestLifeCycleOwner(), hasSystemIdData::set);
 
-        assertNull(hasSystemIdDataJson.get());
+        assertNull(hasSystemIdData.get());
     }
 
     @Test
-    public void test_observeHasSystemIdDataJson_00002() {
+    public void test_observeHasSystemIdData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasSystemIdDataJson = new AtomicReference<>();
+        byte[] original = new byte[1];
+        AtomicReference<Boolean> hasSystemIdData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA_JSON", original);
-        mViewModel.observeHasSystemIdDataJson(new TestLifeCycleOwner(), hasSystemIdDataJson::set);
+        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA", original);
+        mViewModel.observeHasSystemIdData(new TestLifeCycleOwner(), hasSystemIdData::set);
 
-        assertTrue(hasSystemIdDataJson.get());
+        assertTrue(hasSystemIdData.get());
     }
 
     @Test
-    public void test_observeHasSystemIdDataJson_00003() {
+    public void test_observeHasSystemIdData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasSystemIdDataJson = new AtomicReference<>();
+        byte[] original = new byte[1];
+        AtomicReference<Boolean> hasSystemIdData = new AtomicReference<>();
 
-        mViewModel.observeHasSystemIdDataJson(new TestLifeCycleOwner(), hasSystemIdDataJson::set);
-        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA_JSON", original);
+        mViewModel.observeHasSystemIdData(new TestLifeCycleOwner(), hasSystemIdData::set);
+        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA", original);
 
-        assertTrue(hasSystemIdDataJson.get());
+        assertTrue(hasSystemIdData.get());
     }
 
     @Test
-    public void test_observeHasSystemIdDataJson_00004() {
+    public void test_observeHasSystemIdData_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[1];
         AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<Boolean> hasSystemIdDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasSystemIdData = new AtomicReference<>();
 
-        mViewModel.observeHasSystemIdDataJson(new TestLifeCycleOwner(), aBoolean -> {
+        mViewModel.observeHasSystemIdData(new TestLifeCycleOwner(), aBoolean -> {
             count.incrementAndGet();
-            hasSystemIdDataJson.set(aBoolean);
+            hasSystemIdData.set(aBoolean);
         });
-        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA_JSON", original);
-        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA_JSON", original);
+        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA", original);
+        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA", original);
 
-        assertTrue(hasSystemIdDataJson.get());
+        assertTrue(hasSystemIdData.get());
         assertEquals(1, count.get());
     }
 
     @Test
-    public void test_observeHasSystemIdDataJson_00005() {
+    public void test_observeHasSystemIdData_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         String original = null;
-        AtomicReference<Boolean> hasSystemIdDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasSystemIdData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA_JSON", original);
-        mViewModel.observeHasSystemIdDataJson(new TestLifeCycleOwner(), hasSystemIdDataJson::set);
+        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA", original);
+        mViewModel.observeHasSystemIdData(new TestLifeCycleOwner(), hasSystemIdData::set);
 
-        assertFalse(hasSystemIdDataJson.get());
+        assertFalse(hasSystemIdData.get());
     }
 
     @Test
-    public void test_observeHasModelNumberStringDataJson_00001() {
+    public void test_observeHasModelNumberStringData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasModelNumberStringDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasModelNumberStringData = new AtomicReference<>();
 
-        mViewModel.observeHasModelNumberStringDataJson(new TestLifeCycleOwner(), hasModelNumberStringDataJson::set);
+        mViewModel.observeHasModelNumberStringData(new TestLifeCycleOwner(), hasModelNumberStringData::set);
 
-        assertNull(hasModelNumberStringDataJson.get());
+        assertNull(hasModelNumberStringData.get());
     }
 
     @Test
-    public void test_observeHasModelNumberStringDataJson_00002() {
+    public void test_observeHasModelNumberStringData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasModelNumberStringDataJson = new AtomicReference<>();
+        byte[] original = new byte[1];
+        AtomicReference<Boolean> hasModelNumberStringData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA_JSON", original);
-        mViewModel.observeHasModelNumberStringDataJson(new TestLifeCycleOwner(), hasModelNumberStringDataJson::set);
+        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA", original);
+        mViewModel.observeHasModelNumberStringData(new TestLifeCycleOwner(), hasModelNumberStringData::set);
 
-        assertTrue(hasModelNumberStringDataJson.get());
+        assertTrue(hasModelNumberStringData.get());
     }
 
     @Test
-    public void test_observeHasModelNumberStringDataJson_00003() {
+    public void test_observeHasModelNumberStringData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasModelNumberStringDataJson = new AtomicReference<>();
+        byte[] original = new byte[1];
+        AtomicReference<Boolean> hasModelNumberStringData = new AtomicReference<>();
 
-        mViewModel.observeHasModelNumberStringDataJson(new TestLifeCycleOwner(), hasModelNumberStringDataJson::set);
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA_JSON", original);
+        mViewModel.observeHasModelNumberStringData(new TestLifeCycleOwner(), hasModelNumberStringData::set);
+        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA", original);
 
-        assertTrue(hasModelNumberStringDataJson.get());
+        assertTrue(hasModelNumberStringData.get());
     }
 
     @Test
-    public void test_observeHasModelNumberStringDataJson_00004() {
+    public void test_observeHasModelNumberStringData_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[1];
         AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<Boolean> hasModelNumberStringDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasModelNumberStringData = new AtomicReference<>();
 
-        mViewModel.observeHasModelNumberStringDataJson(new TestLifeCycleOwner(), aBoolean -> {
+        mViewModel.observeHasModelNumberStringData(new TestLifeCycleOwner(), aBoolean -> {
             count.incrementAndGet();
-            hasModelNumberStringDataJson.set(aBoolean);
+            hasModelNumberStringData.set(aBoolean);
         });
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA_JSON", original);
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA_JSON", original);
+        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA", original);
+        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA", original);
 
-        assertTrue(hasModelNumberStringDataJson.get());
+        assertTrue(hasModelNumberStringData.get());
         assertEquals(1, count.get());
     }
 
     @Test
-    public void test_observeHasModelNumberStringDataJson_00005() {
+    public void test_observeHasModelNumberStringData_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         String original = null;
-        AtomicReference<Boolean> hasModelNumberStringDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasModelNumberStringData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA_JSON", original);
-        mViewModel.observeHasModelNumberStringDataJson(new TestLifeCycleOwner(), hasModelNumberStringDataJson::set);
+        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA", original);
+        mViewModel.observeHasModelNumberStringData(new TestLifeCycleOwner(), hasModelNumberStringData::set);
 
-        assertFalse(hasModelNumberStringDataJson.get());
+        assertFalse(hasModelNumberStringData.get());
     }
 
     @Test
-    public void test_observeHasManufacturerNameStringDataJson_00001() {
+    public void test_observeHasManufacturerNameStringData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasManufacturerNameStringDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasManufacturerNameStringData = new AtomicReference<>();
 
-        mViewModel.observeHasManufacturerNameStringDataJson(new TestLifeCycleOwner(), hasManufacturerNameStringDataJson::set);
+        mViewModel.observeHasManufacturerNameStringData(new TestLifeCycleOwner(), hasManufacturerNameStringData::set);
 
-        assertNull(hasManufacturerNameStringDataJson.get());
+        assertNull(hasManufacturerNameStringData.get());
     }
 
     @Test
-    public void test_observeHasManufacturerNameStringDataJson_00002() {
+    public void test_observeHasManufacturerNameStringData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasManufacturerNameStringDataJson = new AtomicReference<>();
+        byte[] original = new byte[1];
+        AtomicReference<Boolean> hasManufacturerNameStringData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", original);
-        mViewModel.observeHasManufacturerNameStringDataJson(new TestLifeCycleOwner(), hasManufacturerNameStringDataJson::set);
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA", original);
+        mViewModel.observeHasManufacturerNameStringData(new TestLifeCycleOwner(), hasManufacturerNameStringData::set);
 
-        assertTrue(hasManufacturerNameStringDataJson.get());
+        assertTrue(hasManufacturerNameStringData.get());
     }
 
     @Test
-    public void test_observeHasManufacturerNameStringDataJson_00003() {
+    public void test_observeHasManufacturerNameStringData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasManufacturerNameStringDataJson = new AtomicReference<>();
+        byte[] original = new byte[1];
+        AtomicReference<Boolean> hasManufacturerNameStringData = new AtomicReference<>();
 
-        mViewModel.observeHasManufacturerNameStringDataJson(new TestLifeCycleOwner(), hasManufacturerNameStringDataJson::set);
-        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", original);
+        mViewModel.observeHasManufacturerNameStringData(new TestLifeCycleOwner(), hasManufacturerNameStringData::set);
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA", original);
 
-        assertTrue(hasManufacturerNameStringDataJson.get());
+        assertTrue(hasManufacturerNameStringData.get());
     }
 
     @Test
-    public void test_observeHasManufacturerNameStringDataJson_00004() {
+    public void test_observeHasManufacturerNameStringData_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[1];
         AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<Boolean> hasManufacturerNameStringDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasManufacturerNameStringData = new AtomicReference<>();
 
-        mViewModel.observeHasManufacturerNameStringDataJson(new TestLifeCycleOwner(), aBoolean -> {
+        mViewModel.observeHasManufacturerNameStringData(new TestLifeCycleOwner(), aBoolean -> {
             count.incrementAndGet();
-            hasManufacturerNameStringDataJson.set(aBoolean);
+            hasManufacturerNameStringData.set(aBoolean);
         });
-        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", original);
-        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", original);
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA", original);
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA", original);
 
-        assertTrue(hasManufacturerNameStringDataJson.get());
+        assertTrue(hasManufacturerNameStringData.get());
         assertEquals(1, count.get());
     }
 
     @Test
-    public void test_observeHasManufacturerNameStringDataJson_00005() {
+    public void test_observeHasManufacturerNameStringData_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         String original = null;
-        AtomicReference<Boolean> hasManufacturerNameStringDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasManufacturerNameStringData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", original);
-        mViewModel.observeHasManufacturerNameStringDataJson(new TestLifeCycleOwner(), hasManufacturerNameStringDataJson::set);
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA", original);
+        mViewModel.observeHasManufacturerNameStringData(new TestLifeCycleOwner(), hasManufacturerNameStringData::set);
 
-        assertFalse(hasManufacturerNameStringDataJson.get());
+        assertFalse(hasManufacturerNameStringData.get());
     }
 
     @Test
@@ -1254,26 +1292,26 @@ public class DeviceInformationServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_getSystemIdDataJson_00001() {
+    public void test_getSystemIdData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        assertNull(mViewModel.getSystemIdDataJson());
+        assertNull(mViewModel.getSystemIdData());
     }
 
     @Test
-    public void test_getSystemIdDataJson_00002() {
+    public void test_getSystemIdData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[1];
 
-        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA_JSON", original);
-        assertEquals(original, mViewModel.getSystemIdDataJson());
+        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA", original);
+        assertArrayEquals(original, mViewModel.getSystemIdData());
     }
 
     @Test
-    public void test_setSystemIdDataJson_00001() {
+    public void test_setSystemIdData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1290,24 +1328,26 @@ public class DeviceInformationServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
-        systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
-        systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        systemIdCharacteristicData.delay = 1;
-        String originalJson = mGson.toJson(systemIdCharacteristicData);
-        mViewModel.setSystemIdDataJson(originalJson);
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
+        byte[] originalData = Utils.parcelableToByteArray(systemIdCharacteristicData);
+        mViewModel.setSystemIdData(originalData);
 
-        assertEquals(originalJson, mViewModel.getSystemIdDataJson());
+        assertArrayEquals(originalData, mViewModel.getSystemIdData());
         assertEquals(originalManufacturerIdentifier, Long.parseLong(manufacturerIdentifierReference.get()));
         assertEquals(originalOrganizationallyUniqueIdentifier, Integer.parseInt(organizationallyUniqueIdentifierReference.get()));
     }
 
     @Test
-    public void test_setSystemIdDataJson_00002() {
+    public void test_setSystemIdData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1318,44 +1358,47 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifierReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long oldManufacturerIdentifier = 1;
         int oldOrganizationallyUniqueIdentifier = 2;
-        characteristicData.data = new SystemId(oldManufacturerIdentifier, oldOrganizationallyUniqueIdentifier).getBytes();
-        characteristicData.delay = 1;
+        CharacteristicData characteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(oldManufacturerIdentifier, oldOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(characteristicData);
-        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        CharacteristicData systemIdCharacteristicData = new CharacteristicData();
-        systemIdCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        systemIdCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        systemIdCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long originalManufacturerIdentifier = 11;
         int originalOrganizationallyUniqueIdentifier = 22;
-        systemIdCharacteristicData.data = new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes();
-        systemIdCharacteristicData.delay = 1;
-        String originalJson = mGson.toJson(systemIdCharacteristicData);
-        mViewModel.setSystemIdDataJson(originalJson);
+        CharacteristicData systemIdCharacteristicData = new CharacteristicData(
+                SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(originalManufacturerIdentifier, originalOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
+        byte[] originalData = Utils.parcelableToByteArray(systemIdCharacteristicData);
+        mViewModel.setSystemIdData(originalData);
 
-        assertEquals(originalJson, mViewModel.getSystemIdDataJson());
+        assertEquals(originalData, mViewModel.getSystemIdData());
         assertEquals(originalManufacturerIdentifier, Long.parseLong(manufacturerIdentifierReference.get()));
         assertEquals(originalOrganizationallyUniqueIdentifier, Integer.parseInt(organizationallyUniqueIdentifierReference.get()));
     }
 
     @Test
-    public void test_setSystemIdDataJson_00003() {
+    public void test_setSystemIdData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1366,54 +1409,54 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.observeOrganizationallyUniqueIdentifier(new TestLifeCycleOwner(), organizationallyUniqueIdentifierReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         long oldManufacturerIdentifier = 1;
         int oldOrganizationallyUniqueIdentifier = 2;
-        characteristicData.data = new SystemId(oldManufacturerIdentifier, oldOrganizationallyUniqueIdentifier).getBytes();
-        characteristicData.delay = 1;
+        CharacteristicData characteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(oldManufacturerIdentifier, oldOrganizationallyUniqueIdentifier).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(characteristicData);
-        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        mViewModel.setSystemIdDataJson(null);
+        mViewModel.setSystemIdData(null);
 
-        assertNull(mViewModel.getSystemIdDataJson());
+        assertNull(mViewModel.getSystemIdData());
         assertNull(manufacturerIdentifierReference.get());
         assertNull(organizationallyUniqueIdentifierReference.get());
     }
 
     @Test
-    public void test_getModelNumberStringDataJson_00001() {
+    public void test_getModelNumberStringData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        assertNull(mViewModel.getModelNumberStringDataJson());
+        assertNull(mViewModel.getModelNumberStringData());
     }
 
     @Test
-    public void test_getModelNumberStringDataJson_00002() {
+    public void test_getModelNumberStringData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[]{1};
 
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA_JSON", original);
-        assertEquals(original, mViewModel.getModelNumberStringDataJson());
+        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA", original);
+        assertEquals(original, mViewModel.getModelNumberStringData());
     }
 
     @Test
-    public void test_setModelNumberStringDataJson_00001() {
+    public void test_setModelNumberStringData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1426,22 +1469,24 @@ public class DeviceInformationServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData();
-        modelNumberStringCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        modelNumberStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        modelNumberStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalModelNumberString = "a";
-        modelNumberStringCharacteristicData.data = new ModelNumberString(originalModelNumberString).getBytes();
-        modelNumberStringCharacteristicData.delay = 1;
-        String originalJson = mGson.toJson(modelNumberStringCharacteristicData);
-        mViewModel.setModelNumberStringDataJson(originalJson);
+        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(originalModelNumberString).getBytes()
+                , -1);
+        byte[] originalData = Utils.parcelableToByteArray(modelNumberStringCharacteristicData);
+        mViewModel.setModelNumberStringData(originalData);
 
-        assertEquals(originalJson, mViewModel.getModelNumberStringDataJson());
+        assertArrayEquals(originalData, mViewModel.getModelNumberStringData());
         assertEquals(originalModelNumberString, modelNumberStringReference.get());
     }
 
     @Test
-    public void test_setModelNumberStringDataJson_00002() {
+    public void test_setModelNumberStringData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1449,41 +1494,43 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ModelNumberString(original).getBytes();
-        characteristicData.delay = 1;
+        CharacteristicData characteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(original).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(characteristicData);
-        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData();
-        modelNumberStringCharacteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        modelNumberStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        modelNumberStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalModelNumberString = "b";
-        modelNumberStringCharacteristicData.data = new ModelNumberString(originalModelNumberString).getBytes();
-        modelNumberStringCharacteristicData.delay = 1;
-        String originalJson = mGson.toJson(modelNumberStringCharacteristicData);
-        mViewModel.setModelNumberStringDataJson(originalJson);
+        CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(originalModelNumberString).getBytes()
+                , -1);
+        byte[] originalData = Utils.parcelableToByteArray(modelNumberStringCharacteristicData);
+        mViewModel.setModelNumberStringData(originalData);
 
-        assertEquals(originalJson, mViewModel.getModelNumberStringDataJson());
+        assertEquals(originalData, mViewModel.getModelNumberStringData());
         assertEquals(originalModelNumberString, modelNumberStringReference.get());
     }
 
     @Test
-    public void test_setModelNumberStringDataJson_00003() {
+    public void test_setModelNumberStringData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1491,53 +1538,53 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.observeModelNumberString(new TestLifeCycleOwner(), modelNumberStringReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MODEL_NUMBER_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ModelNumberString(original).getBytes();
-        characteristicData.delay = 1;
+        CharacteristicData characteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(original).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(characteristicData);
-        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        mViewModel.setModelNumberStringDataJson(null);
+        mViewModel.setModelNumberStringData(null);
 
-        assertNull(mViewModel.getModelNumberStringDataJson());
+        assertNull(mViewModel.getModelNumberStringData());
         assertNull(modelNumberStringReference.get());
     }
 
     @Test
-    public void test_getManufacturerNameStringDataJson_00001() {
+    public void test_getManufacturerNameStringData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        assertNull(mViewModel.getManufacturerNameStringDataJson());
+        assertNull(mViewModel.getManufacturerNameStringData());
     }
 
     @Test
-    public void test_getManufacturerNameStringDataJson_00002() {
+    public void test_getManufacturerNameStringData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[]{1};
 
-        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", original);
-        assertEquals(original, mViewModel.getManufacturerNameStringDataJson());
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA", original);
+        assertArrayEquals(original, mViewModel.getManufacturerNameStringData());
     }
 
 
     @Test
-    public void test_setManufacturerNameStringDataJson_00001() {
+    public void test_setManufacturerNameStringData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1550,22 +1597,24 @@ public class DeviceInformationServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "b";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
-        String originalJson = mGson.toJson(manufacturerNameStringCharacteristicData);
-        mViewModel.setManufacturerNameStringDataJson(originalJson);
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1);
+        byte[] originalData = Utils.parcelableToByteArray(manufacturerNameStringCharacteristicData);
+        mViewModel.setManufacturerNameStringData(originalData);
 
-        assertEquals(originalJson, mViewModel.getManufacturerNameStringDataJson());
+        assertArrayEquals(originalData, mViewModel.getManufacturerNameStringData());
         assertEquals(originalManufacturerNameString, manufacturerNameStringReference.get());
     }
 
     @Test
-    public void test_setManufacturerNameStringDataJson_00002() {
+    public void test_setManufacturerNameStringData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1573,41 +1622,43 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), manufacturerNameStringReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ManufacturerNameString(original).getBytes();
-        characteristicData.delay = 1;
+        CharacteristicData characteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(original).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(characteristicData);
-        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData();
-        manufacturerNameStringCharacteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        manufacturerNameStringCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        manufacturerNameStringCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String originalManufacturerNameString = "b";
-        manufacturerNameStringCharacteristicData.data = new ManufacturerNameString(originalManufacturerNameString).getBytes();
-        manufacturerNameStringCharacteristicData.delay = 1;
-        String originalJson = mGson.toJson(manufacturerNameStringCharacteristicData);
-        mViewModel.setManufacturerNameStringDataJson(originalJson);
+        CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(originalManufacturerNameString).getBytes()
+                , -1);
+        byte[] originalData = Utils.parcelableToByteArray(manufacturerNameStringCharacteristicData);
+        mViewModel.setManufacturerNameStringData(originalData);
 
-        assertEquals(originalJson, mViewModel.getManufacturerNameStringDataJson());
+        assertArrayEquals(originalData, mViewModel.getManufacturerNameStringData());
         assertEquals(originalManufacturerNameString, manufacturerNameStringReference.get());
     }
 
     @Test
-    public void test_setManufacturerNameStringDataJson_00003() {
+    public void test_setManufacturerNameStringData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -1615,28 +1666,28 @@ public class DeviceInformationServiceSettingViewModelTest {
         mViewModel.observeManufacturerNameString(new TestLifeCycleOwner(), manufacturerNameStringReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = DEVICE_INFORMATION_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(DEVICE_INFORMATION_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ManufacturerNameString(original).getBytes();
-        characteristicData.delay = 1;
+        CharacteristicData characteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ManufacturerNameString(original).getBytes()
+                , -1);
         serviceData.characteristicDataList.add(characteristicData);
-        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(DEVICE_INFORMATION_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        mViewModel.setManufacturerNameStringDataJson(null);
+        mViewModel.setManufacturerNameStringData(null);
 
-        assertNull(mViewModel.getManufacturerNameStringDataJson());
+        assertNull(mViewModel.getManufacturerNameStringData());
         assertNull(manufacturerNameStringReference.get());
     }
 

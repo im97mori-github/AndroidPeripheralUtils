@@ -7,10 +7,11 @@ import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
 import static org.im97mori.ble.constants.CharacteristicUUID.INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
@@ -20,17 +21,15 @@ import android.os.Build;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import junit.framework.TestCase;
 
 import org.im97mori.ble.BLEUtils;
 import org.im97mori.ble.CharacteristicData;
-import org.im97mori.ble.DescriptorData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.IEEE_11073_20601_SFLOAT;
 import org.im97mori.ble.characteristic.u2a35.BloodPressureMeasurement;
@@ -44,6 +43,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -88,15 +88,12 @@ public class BloodPressureServiceSettingViewModelTest {
     @ApplicationContext
     Context mContext;
 
-    @Inject
-    Gson mGson;
-
     @Before
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
         mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
-        mViewModel = new BloodPressureServiceSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository, mGson);
+        mViewModel = new BloodPressureServiceSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository);
     }
 
     @After
@@ -114,10 +111,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         AtomicBoolean result = new AtomicBoolean(false);
 
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementDataReference = new AtomicReference<>();
         AtomicReference<Boolean> isIntermediateCuffPressureSupportedReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasBloodPressureFeatureDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureFeatureDataReference = new AtomicReference<>();
 
         AtomicReference<String> bloodPressureMeasurementFlagsReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementSystolicReference = new AtomicReference<>();
@@ -145,10 +142,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         AtomicReference<String> bloodPressureFeatureReference = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJsonReference::set);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataReference::set);
         mViewModel.observeIsIntermediateCuffPressureSupported(new TestLifeCycleOwner(), isIntermediateCuffPressureSupportedReference::set);
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJsonReference::set);
-        mViewModel.observeHasBloodPressureFeatureDataJson(new TestLifeCycleOwner(), hasBloodPressureFeatureDataJsonReference::set);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataReference::set);
+        mViewModel.observeHasBloodPressureFeatureData(new TestLifeCycleOwner(), hasBloodPressureFeatureDataReference::set);
 
         mViewModel.observeBloodPressureMeasurementFlags(new TestLifeCycleOwner(), bloodPressureMeasurementFlagsReference::set);
         mViewModel.observeBloodPressureMeasurementSystolic(new TestLifeCycleOwner(), bloodPressureMeasurementSystolicReference::set);
@@ -184,10 +181,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         assertTrue(result.get());
 
-        TestCase.assertNull(hasBloodPressureMeasurementDataJsonReference.get());
+        TestCase.assertNull(hasBloodPressureMeasurementDataReference.get());
         assertFalse(isIntermediateCuffPressureSupportedReference.get());
-        TestCase.assertNull(hasIntermediateCuffPressureDataJsonReference.get());
-        TestCase.assertNull(hasBloodPressureFeatureDataJsonReference.get());
+        TestCase.assertNull(hasIntermediateCuffPressureDataReference.get());
+        TestCase.assertNull(hasBloodPressureFeatureDataReference.get());
 
         assertEquals("", bloodPressureMeasurementFlagsReference.get());
         assertEquals("", bloodPressureMeasurementSystolicReference.get());
@@ -223,10 +220,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         AtomicBoolean result = new AtomicBoolean(false);
 
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementDataReference = new AtomicReference<>();
         AtomicReference<Boolean> isIntermediateCuffPressureSupportedReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasBloodPressureFeatureDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureFeatureDataReference = new AtomicReference<>();
 
         AtomicReference<String> bloodPressureMeasurementFlagsReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementSystolicReference = new AtomicReference<>();
@@ -254,10 +251,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         AtomicReference<String> bloodPressureFeatureReference = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJsonReference::set);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataReference::set);
         mViewModel.observeIsIntermediateCuffPressureSupported(new TestLifeCycleOwner(), isIntermediateCuffPressureSupportedReference::set);
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJsonReference::set);
-        mViewModel.observeHasBloodPressureFeatureDataJson(new TestLifeCycleOwner(), hasBloodPressureFeatureDataJsonReference::set);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataReference::set);
+        mViewModel.observeHasBloodPressureFeatureData(new TestLifeCycleOwner(), hasBloodPressureFeatureDataReference::set);
         mViewModel.observeBloodPressureMeasurementFlags(new TestLifeCycleOwner(), bloodPressureMeasurementFlagsReference::set);
         mViewModel.observeBloodPressureMeasurementSystolic(new TestLifeCycleOwner(), bloodPressureMeasurementSystolicReference::set);
         mViewModel.observeBloodPressureMeasurementDiastolic(new TestLifeCycleOwner(), bloodPressureMeasurementDiastolicReference::set);
@@ -285,10 +282,8 @@ public class BloodPressureServiceSettingViewModelTest {
         mViewModel.observeBloodPressureFeature(new TestLifeCycleOwner(), bloodPressureFeatureReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = BLOOD_PRESSURE_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
-        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(serviceData));
+        ServiceData serviceData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
+        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -296,10 +291,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         assertTrue(result.get());
 
-        TestCase.assertNull(hasBloodPressureMeasurementDataJsonReference.get());
+        TestCase.assertNull(hasBloodPressureMeasurementDataReference.get());
         assertFalse(isIntermediateCuffPressureSupportedReference.get());
-        TestCase.assertNull(hasIntermediateCuffPressureDataJsonReference.get());
-        TestCase.assertNull(hasBloodPressureFeatureDataJsonReference.get());
+        TestCase.assertNull(hasIntermediateCuffPressureDataReference.get());
+        TestCase.assertNull(hasBloodPressureFeatureDataReference.get());
 
         assertEquals("", bloodPressureMeasurementFlagsReference.get());
         assertEquals("", bloodPressureMeasurementSystolicReference.get());
@@ -335,10 +330,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         AtomicBoolean result = new AtomicBoolean(false);
 
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementDataReference = new AtomicReference<>();
         AtomicReference<Boolean> isIntermediateCuffPressureSupportedReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasBloodPressureFeatureDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureFeatureDataReference = new AtomicReference<>();
 
         AtomicReference<String> bloodPressureMeasurementFlagsReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementSystolicReference = new AtomicReference<>();
@@ -366,10 +361,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         AtomicReference<String> bloodPressureFeatureReference = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJsonReference::set);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataReference::set);
         mViewModel.observeIsIntermediateCuffPressureSupported(new TestLifeCycleOwner(), isIntermediateCuffPressureSupportedReference::set);
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJsonReference::set);
-        mViewModel.observeHasBloodPressureFeatureDataJson(new TestLifeCycleOwner(), hasBloodPressureFeatureDataJsonReference::set);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataReference::set);
+        mViewModel.observeHasBloodPressureFeatureData(new TestLifeCycleOwner(), hasBloodPressureFeatureDataReference::set);
         mViewModel.observeBloodPressureMeasurementFlags(new TestLifeCycleOwner(), bloodPressureMeasurementFlagsReference::set);
         mViewModel.observeBloodPressureMeasurementSystolic(new TestLifeCycleOwner(), bloodPressureMeasurementSystolicReference::set);
         mViewModel.observeBloodPressureMeasurementDiastolic(new TestLifeCycleOwner(), bloodPressureMeasurementDiastolicReference::set);
@@ -397,13 +392,16 @@ public class BloodPressureServiceSettingViewModelTest {
         mViewModel.observeBloodPressureFeature(new TestLifeCycleOwner(), bloodPressureFeatureReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = BLOOD_PRESSURE_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -439,9 +437,14 @@ public class BloodPressureServiceSettingViewModelTest {
         bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
         serviceData.characteristicDataList.add(bloodPressureMeasurementCharacteristicData);
 
-        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
-        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int intermediateCuffPressureFlags = 0;
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -473,10 +476,14 @@ public class BloodPressureServiceSettingViewModelTest {
         intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
         serviceData.characteristicDataList.add(intermediateCuffPressureCharacteristicData);
 
-        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData();
-        bloodPressureFeatureCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        bloodPressureFeatureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        bloodPressureFeatureCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = false;
         boolean isCuffFitDetectionSupportSupported = false;
         boolean hasIrregularPulseDetection = false;
@@ -495,7 +502,7 @@ public class BloodPressureServiceSettingViewModelTest {
         bloodPressureFeatureCharacteristicData.data = bloodPressureFeature.getBytes();
         serviceData.characteristicDataList.add(bloodPressureFeatureCharacteristicData);
 
-        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -503,10 +510,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         assertTrue(result.get());
 
-        assertTrue(hasBloodPressureMeasurementDataJsonReference.get());
+        assertTrue(hasBloodPressureMeasurementDataReference.get());
         assertTrue(isIntermediateCuffPressureSupportedReference.get());
-        assertTrue(hasIntermediateCuffPressureDataJsonReference.get());
-        assertTrue(hasBloodPressureFeatureDataJsonReference.get());
+        assertTrue(hasIntermediateCuffPressureDataReference.get());
+        assertTrue(hasBloodPressureFeatureDataReference.get());
 
         assertEquals(mFakeDeviceSettingRepository.getHexString(bloodPressureMeasurementFlags, 2), bloodPressureMeasurementFlagsReference.get());
         assertEquals(bloodPressureMeasurementCompoundValueSystolicMmhg.getSfloat(), Double.parseDouble(bloodPressureMeasurementSystolicReference.get()));
@@ -542,10 +549,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         AtomicBoolean result = new AtomicBoolean(false);
 
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementDataReference = new AtomicReference<>();
         AtomicReference<Boolean> isIntermediateCuffPressureSupportedReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJsonReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasBloodPressureFeatureDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureDataReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureFeatureDataReference = new AtomicReference<>();
 
         AtomicReference<String> bloodPressureMeasurementFlagsReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementSystolicReference = new AtomicReference<>();
@@ -573,10 +580,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         AtomicReference<String> bloodPressureFeatureReference = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJsonReference::set);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataReference::set);
         mViewModel.observeIsIntermediateCuffPressureSupported(new TestLifeCycleOwner(), isIntermediateCuffPressureSupportedReference::set);
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJsonReference::set);
-        mViewModel.observeHasBloodPressureFeatureDataJson(new TestLifeCycleOwner(), hasBloodPressureFeatureDataJsonReference::set);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataReference::set);
+        mViewModel.observeHasBloodPressureFeatureData(new TestLifeCycleOwner(), hasBloodPressureFeatureDataReference::set);
         mViewModel.observeBloodPressureMeasurementFlags(new TestLifeCycleOwner(), bloodPressureMeasurementFlagsReference::set);
         mViewModel.observeBloodPressureMeasurementSystolic(new TestLifeCycleOwner(), bloodPressureMeasurementSystolicReference::set);
         mViewModel.observeBloodPressureMeasurementDiastolic(new TestLifeCycleOwner(), bloodPressureMeasurementDiastolicReference::set);
@@ -604,13 +611,16 @@ public class BloodPressureServiceSettingViewModelTest {
         mViewModel.observeBloodPressureFeature(new TestLifeCycleOwner(), bloodPressureFeatureReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = BLOOD_PRESSURE_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int bloodPressureMeasurementFlags = BloodPressureMeasurementUtils.FLAG_BLOOD_PRESSURE_UNITS_KPA
                 | BloodPressureMeasurementUtils.FLAG_TIME_STAMP_PRESENT
                 | BloodPressureMeasurementUtils.FLAG_PULSE_RATE_PRESENT
@@ -656,9 +666,14 @@ public class BloodPressureServiceSettingViewModelTest {
         bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
         serviceData.characteristicDataList.add(bloodPressureMeasurementCharacteristicData);
 
-        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
-        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int intermediateCuffPressureFlags = BloodPressureMeasurementUtils.FLAG_BLOOD_PRESSURE_UNITS_KPA
                 | BloodPressureMeasurementUtils.FLAG_TIME_STAMP_PRESENT
                 | BloodPressureMeasurementUtils.FLAG_PULSE_RATE_PRESENT
@@ -700,10 +715,14 @@ public class BloodPressureServiceSettingViewModelTest {
         intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
         serviceData.characteristicDataList.add(intermediateCuffPressureCharacteristicData);
 
-        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData();
-        bloodPressureFeatureCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        bloodPressureFeatureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        bloodPressureFeatureCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = true;
         boolean isCuffFitDetectionSupportSupported = true;
         boolean hasIrregularPulseDetection = true;
@@ -722,7 +741,7 @@ public class BloodPressureServiceSettingViewModelTest {
         bloodPressureFeatureCharacteristicData.data = bloodPressureFeature.getBytes();
         serviceData.characteristicDataList.add(bloodPressureFeatureCharacteristicData);
 
-        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -730,10 +749,10 @@ public class BloodPressureServiceSettingViewModelTest {
 
         assertTrue(result.get());
 
-        assertTrue(hasBloodPressureMeasurementDataJsonReference.get());
+        assertTrue(hasBloodPressureMeasurementDataReference.get());
         assertTrue(isIntermediateCuffPressureSupportedReference.get());
-        assertTrue(hasIntermediateCuffPressureDataJsonReference.get());
-        assertTrue(hasBloodPressureFeatureDataJsonReference.get());
+        assertTrue(hasIntermediateCuffPressureDataReference.get());
+        assertTrue(hasBloodPressureFeatureDataReference.get());
 
         assertEquals(mFakeDeviceSettingRepository.getHexString(bloodPressureMeasurementFlags, 2), bloodPressureMeasurementFlagsReference.get());
         assertEquals(bloodPressureMeasurementCompoundValueSystolicKpa.getSfloat(), Double.parseDouble(bloodPressureMeasurementSystolicReference.get()));
@@ -822,9 +841,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -858,7 +882,7 @@ public class BloodPressureServiceSettingViewModelTest {
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
         bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
-        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        mViewModel.setBloodPressureMeasurementData(Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -880,10 +904,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData();
-        bloodPressureFeatureCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        bloodPressureFeatureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        bloodPressureFeatureCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = true;
         boolean isCuffFitDetectionSupportSupported = true;
         boolean hasIrregularPulseDetection = true;
@@ -900,7 +928,7 @@ public class BloodPressureServiceSettingViewModelTest {
                 , false
                 , false);
         bloodPressureFeatureCharacteristicData.data = bloodPressureFeature.getBytes();
-        mViewModel.setBloodPressureFeatureDataJson(mGson.toJson(bloodPressureFeatureCharacteristicData));
+        mViewModel.setBloodPressureFeatureData(Utils.parcelableToByteArray(bloodPressureFeatureCharacteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -922,9 +950,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
-        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int intermediateCuffPressureFlags = 0;
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -954,7 +987,7 @@ public class BloodPressureServiceSettingViewModelTest {
                 , intermediateCuffPressureUserId
                 , intermediateCuffPressureMeasurementStatus);
         intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
-        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+        mViewModel.setIntermediateCuffPressureData(Utils.parcelableToByteArray(intermediateCuffPressureCharacteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -976,9 +1009,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -1012,11 +1050,16 @@ public class BloodPressureServiceSettingViewModelTest {
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
         bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
-        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        mViewModel.setBloodPressureMeasurementData(Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
-        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
-        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int intermediateCuffPressureFlags = 0;
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -1046,7 +1089,7 @@ public class BloodPressureServiceSettingViewModelTest {
                 , intermediateCuffPressureUserId
                 , intermediateCuffPressureMeasurementStatus);
         intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
-        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+        mViewModel.setIntermediateCuffPressureData(Utils.parcelableToByteArray(intermediateCuffPressureCharacteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -1068,10 +1111,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData();
-        bloodPressureFeatureCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        bloodPressureFeatureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        bloodPressureFeatureCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = true;
         boolean isCuffFitDetectionSupportSupported = true;
         boolean hasIrregularPulseDetection = true;
@@ -1088,11 +1135,16 @@ public class BloodPressureServiceSettingViewModelTest {
                 , false
                 , false);
         bloodPressureFeatureCharacteristicData.data = bloodPressureFeature.getBytes();
-        mViewModel.setBloodPressureFeatureDataJson(mGson.toJson(bloodPressureFeatureCharacteristicData));
+        mViewModel.setBloodPressureFeatureData(Utils.parcelableToByteArray(bloodPressureFeatureCharacteristicData));
 
-        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
-        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int intermediateCuffPressureFlags = 0;
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -1122,7 +1174,7 @@ public class BloodPressureServiceSettingViewModelTest {
                 , intermediateCuffPressureUserId
                 , intermediateCuffPressureMeasurementStatus);
         intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
-        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+        mViewModel.setIntermediateCuffPressureData(Utils.parcelableToByteArray(intermediateCuffPressureCharacteristicData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -1144,9 +1196,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -1180,12 +1237,16 @@ public class BloodPressureServiceSettingViewModelTest {
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
         bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
-        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        mViewModel.setBloodPressureMeasurementData(Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
-        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData();
-        bloodPressureFeatureCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        bloodPressureFeatureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        bloodPressureFeatureCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = true;
         boolean isCuffFitDetectionSupportSupported = true;
         boolean hasIrregularPulseDetection = true;
@@ -1202,11 +1263,11 @@ public class BloodPressureServiceSettingViewModelTest {
                 , false
                 , false);
         bloodPressureFeatureCharacteristicData.data = bloodPressureFeature.getBytes();
-        mViewModel.setBloodPressureFeatureDataJson(mGson.toJson(bloodPressureFeatureCharacteristicData));
+        mViewModel.setBloodPressureFeatureData(Utils.parcelableToByteArray(bloodPressureFeatureCharacteristicData));
 
         AtomicReference<ServiceData> serviceDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_SERVICE.toString()), ServiceData.class)));
+                serviceDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_SERVICE.toString()), ServiceData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1243,9 +1304,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -1279,11 +1345,16 @@ public class BloodPressureServiceSettingViewModelTest {
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
         bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
-        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        mViewModel.setBloodPressureMeasurementData(Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
-        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
-        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int intermediateCuffPressureFlags = 0;
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -1313,12 +1384,16 @@ public class BloodPressureServiceSettingViewModelTest {
                 , intermediateCuffPressureUserId
                 , intermediateCuffPressureMeasurementStatus);
         intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
-        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+        mViewModel.setIntermediateCuffPressureData(Utils.parcelableToByteArray(intermediateCuffPressureCharacteristicData));
 
-        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData();
-        bloodPressureFeatureCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        bloodPressureFeatureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        bloodPressureFeatureCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = true;
         boolean isCuffFitDetectionSupportSupported = true;
         boolean hasIrregularPulseDetection = true;
@@ -1335,11 +1410,11 @@ public class BloodPressureServiceSettingViewModelTest {
                 , false
                 , false);
         bloodPressureFeatureCharacteristicData.data = bloodPressureFeature.getBytes();
-        mViewModel.setBloodPressureFeatureDataJson(mGson.toJson(bloodPressureFeatureCharacteristicData));
+        mViewModel.setBloodPressureFeatureData(Utils.parcelableToByteArray(bloodPressureFeatureCharacteristicData));
 
         AtomicReference<ServiceData> serviceDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_SERVICE.toString()), ServiceData.class)));
+                serviceDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_SERVICE.toString()), ServiceData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1383,9 +1458,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -1419,11 +1499,16 @@ public class BloodPressureServiceSettingViewModelTest {
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
         bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
-        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        mViewModel.setBloodPressureMeasurementData(Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
-        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
-        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int intermediateCuffPressureFlags = 0;
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -1453,12 +1538,16 @@ public class BloodPressureServiceSettingViewModelTest {
                 , intermediateCuffPressureUserId
                 , intermediateCuffPressureMeasurementStatus);
         intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
-        mViewModel.setIntermediateCuffPressureDataJson(mGson.toJson(intermediateCuffPressureCharacteristicData));
+        mViewModel.setIntermediateCuffPressureData(Utils.parcelableToByteArray(intermediateCuffPressureCharacteristicData));
 
-        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData();
-        bloodPressureFeatureCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        bloodPressureFeatureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        bloodPressureFeatureCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = true;
         boolean isCuffFitDetectionSupportSupported = true;
         boolean hasIrregularPulseDetection = true;
@@ -1475,12 +1564,12 @@ public class BloodPressureServiceSettingViewModelTest {
                 , false
                 , false);
         bloodPressureFeatureCharacteristicData.data = bloodPressureFeature.getBytes();
-        mViewModel.setBloodPressureFeatureDataJson(mGson.toJson(bloodPressureFeatureCharacteristicData));
+        mViewModel.setBloodPressureFeatureData(Utils.parcelableToByteArray(bloodPressureFeatureCharacteristicData));
 
         mViewModel.updateIsIntermediateCuffPressureSupported(true);
         AtomicReference<ServiceData> serviceDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                serviceDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_SERVICE.toString()), ServiceData.class)));
+                serviceDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_SERVICE.toString()), ServiceData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1515,77 +1604,77 @@ public class BloodPressureServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeHasBloodPressureMeasurementDataJson_00001() {
+    public void test_observeHasBloodPressureMeasurementData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementData = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJson::set);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementData::set);
 
-        TestCase.assertNull(hasBloodPressureMeasurementDataJson.get());
+        TestCase.assertNull(hasBloodPressureMeasurementData.get());
     }
 
     @Test
-    public void test_observeHasBloodPressureMeasurementDataJson_00002() {
+    public void test_observeHasBloodPressureMeasurementData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJson = new AtomicReference<>();
+        byte[] original = new byte[]{1};
+        AtomicReference<Boolean> hasBloodPressureMeasurementData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON", original);
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJson::set);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA", original);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementData::set);
 
-        assertTrue(hasBloodPressureMeasurementDataJson.get());
+        assertTrue(hasBloodPressureMeasurementData.get());
     }
 
     @Test
-    public void test_observeHasBloodPressureMeasurementDataJson_00003() {
+    public void test_observeHasBloodPressureMeasurementData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJson = new AtomicReference<>();
+        byte[] original = new byte[]{1};
+        AtomicReference<Boolean> hasBloodPressureMeasurementData = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJson::set);
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON", original);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementData::set);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA", original);
 
-        assertTrue(hasBloodPressureMeasurementDataJson.get());
+        assertTrue(hasBloodPressureMeasurementData.get());
     }
 
     @Test
-    public void test_observeHasBloodPressureMeasurementDataJson_00004() {
+    public void test_observeHasBloodPressureMeasurementData_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[]{1};
         AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementData = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), aBoolean -> {
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), aBoolean -> {
             count.incrementAndGet();
-            hasBloodPressureMeasurementDataJson.set(aBoolean);
+            hasBloodPressureMeasurementData.set(aBoolean);
         });
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON", original);
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON", original);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA", original);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA", original);
 
-        assertTrue(hasBloodPressureMeasurementDataJson.get());
+        assertTrue(hasBloodPressureMeasurementData.get());
         assertEquals(1, count.get());
     }
 
     @Test
-    public void test_observeHasBloodPressureMeasurementDataJson_00005() {
+    public void test_observeHasBloodPressureMeasurementData_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         String original = null;
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON", original);
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJson::set);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA", original);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementData::set);
 
-        assertFalse(hasBloodPressureMeasurementDataJson.get());
+        assertFalse(hasBloodPressureMeasurementData.get());
     }
 
     @Test
@@ -1649,151 +1738,151 @@ public class BloodPressureServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_observeHasIntermediateCuffPressureDataJson_00001() {
+    public void test_observeHasIntermediateCuffPressureData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureData = new AtomicReference<>();
 
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJson::set);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureData::set);
 
-        TestCase.assertNull(hasIntermediateCuffPressureDataJson.get());
+        TestCase.assertNull(hasIntermediateCuffPressureData.get());
     }
 
     @Test
-    public void test_observeHasIntermediateCuffPressureDataJson_00002() {
+    public void test_observeHasIntermediateCuffPressureData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJson = new AtomicReference<>();
+        byte[] original = new byte[]{1};
+        AtomicReference<Boolean> hasIntermediateCuffPressureData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON", original);
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJson::set);
+        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA", original);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureData::set);
 
-        assertTrue(hasIntermediateCuffPressureDataJson.get());
+        assertTrue(hasIntermediateCuffPressureData.get());
     }
 
     @Test
-    public void test_observeHasIntermediateCuffPressureDataJson_00003() {
+    public void test_observeHasIntermediateCuffPressureData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJson = new AtomicReference<>();
+        byte[] original = new byte[]{1};
+        AtomicReference<Boolean> hasIntermediateCuffPressureData = new AtomicReference<>();
 
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJson::set);
-        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON", original);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureData::set);
+        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA", original);
 
-        assertTrue(hasIntermediateCuffPressureDataJson.get());
+        assertTrue(hasIntermediateCuffPressureData.get());
     }
 
     @Test
-    public void test_observeHasIntermediateCuffPressureDataJson_00004() {
+    public void test_observeHasIntermediateCuffPressureData_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[]{1};
         AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureData = new AtomicReference<>();
 
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), aBoolean -> {
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), aBoolean -> {
             count.incrementAndGet();
-            hasIntermediateCuffPressureDataJson.set(aBoolean);
+            hasIntermediateCuffPressureData.set(aBoolean);
         });
-        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON", original);
-        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON", original);
+        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA", original);
+        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA", original);
 
-        assertTrue(hasIntermediateCuffPressureDataJson.get());
+        assertTrue(hasIntermediateCuffPressureData.get());
         assertEquals(1, count.get());
     }
 
     @Test
-    public void test_observeHasIntermediateCuffPressureDataJson_00005() {
+    public void test_observeHasIntermediateCuffPressureData_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         String original = null;
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON", original);
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJson::set);
+        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA", original);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureData::set);
 
-        assertFalse(hasIntermediateCuffPressureDataJson.get());
+        assertFalse(hasIntermediateCuffPressureData.get());
     }
 
     @Test
-    public void test_observeHasBloodPressureFeatureDataJson_00001() {
+    public void test_observeHasBloodPressureFeatureData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBloodPressureFeatureDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureFeatureData = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureFeatureDataJson(new TestLifeCycleOwner(), hasBloodPressureFeatureDataJson::set);
+        mViewModel.observeHasBloodPressureFeatureData(new TestLifeCycleOwner(), hasBloodPressureFeatureData::set);
 
-        TestCase.assertNull(hasBloodPressureFeatureDataJson.get());
+        TestCase.assertNull(hasBloodPressureFeatureData.get());
     }
 
     @Test
-    public void test_observeHasBloodPressureFeatureDataJson_00002() {
+    public void test_observeHasBloodPressureFeatureData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasBloodPressureFeatureDataJson = new AtomicReference<>();
+        byte[] original = new byte[]{1};
+        AtomicReference<Boolean> hasBloodPressureFeatureData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON", original);
-        mViewModel.observeHasBloodPressureFeatureDataJson(new TestLifeCycleOwner(), hasBloodPressureFeatureDataJson::set);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA", original);
+        mViewModel.observeHasBloodPressureFeatureData(new TestLifeCycleOwner(), hasBloodPressureFeatureData::set);
 
-        assertTrue(hasBloodPressureFeatureDataJson.get());
+        assertTrue(hasBloodPressureFeatureData.get());
     }
 
     @Test
-    public void test_observeHasBloodPressureFeatureDataJson_00003() {
+    public void test_observeHasBloodPressureFeatureData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
-        AtomicReference<Boolean> hasBloodPressureFeatureDataJson = new AtomicReference<>();
+        byte[] original = new byte[]{1};
+        AtomicReference<Boolean> hasBloodPressureFeatureData = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureFeatureDataJson(new TestLifeCycleOwner(), hasBloodPressureFeatureDataJson::set);
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON", original);
+        mViewModel.observeHasBloodPressureFeatureData(new TestLifeCycleOwner(), hasBloodPressureFeatureData::set);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA", original);
 
-        assertTrue(hasBloodPressureFeatureDataJson.get());
+        assertTrue(hasBloodPressureFeatureData.get());
     }
 
     @Test
-    public void test_observeHasBloodPressureFeatureDataJson_00004() {
+    public void test_observeHasBloodPressureFeatureData_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[]{1};
         AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<Boolean> hasBloodPressureFeatureDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureFeatureData = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureFeatureDataJson(new TestLifeCycleOwner(), aBoolean -> {
+        mViewModel.observeHasBloodPressureFeatureData(new TestLifeCycleOwner(), aBoolean -> {
             count.incrementAndGet();
-            hasBloodPressureFeatureDataJson.set(aBoolean);
+            hasBloodPressureFeatureData.set(aBoolean);
         });
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON", original);
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON", original);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA", original);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA", original);
 
-        assertTrue(hasBloodPressureFeatureDataJson.get());
+        assertTrue(hasBloodPressureFeatureData.get());
         assertEquals(1, count.get());
     }
 
     @Test
-    public void test_observeHasBloodPressureFeatureDataJson_00005() {
+    public void test_observeHasBloodPressureFeatureData_00005() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         String original = null;
-        AtomicReference<Boolean> hasBloodPressureFeatureDataJson = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureFeatureData = new AtomicReference<>();
 
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA_JSON", original);
-        mViewModel.observeHasBloodPressureFeatureDataJson(new TestLifeCycleOwner(), hasBloodPressureFeatureDataJson::set);
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_FEATURE_DATA", original);
+        mViewModel.observeHasBloodPressureFeatureData(new TestLifeCycleOwner(), hasBloodPressureFeatureData::set);
 
-        assertFalse(hasBloodPressureFeatureDataJson.get());
+        assertFalse(hasBloodPressureFeatureData.get());
     }
 
     @Test
@@ -3206,30 +3295,30 @@ public class BloodPressureServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_getBloodPressureMeasurementDataJson_00001() {
+    public void test_getBloodPressureMeasurementData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        TestCase.assertNull(mViewModel.getBloodPressureMeasurementDataJson());
+        TestCase.assertNull(mViewModel.getBloodPressureMeasurementData());
     }
 
     @Test
-    public void test_getBloodPressureMeasurementDataJson_00002() {
+    public void test_getBloodPressureMeasurementData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[]{1};
 
-        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA_JSON", original);
-        assertEquals(original, mViewModel.getBloodPressureMeasurementDataJson());
+        mSavedStateHandle.set("KEY_BLOOD_PRESSURE_MEASUREMENT_DATA", original);
+        assertEquals(original, mViewModel.getBloodPressureMeasurementData());
     }
 
     @Test
-    public void test_setBloodPressureMeasurementDataJson_00001() {
+    public void test_setBloodPressureMeasurementData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementDataReference = new AtomicReference<>();
 
         AtomicReference<String> bloodPressureMeasurementFlagsReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementSystolicReference = new AtomicReference<>();
@@ -3244,7 +3333,7 @@ public class BloodPressureServiceSettingViewModelTest {
         AtomicReference<Boolean> isBloodPressureMeasurementMeasurementStatusSupportedReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementMeasurementStatusReference = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJsonReference::set);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataReference::set);
 
         mViewModel.observeBloodPressureMeasurementFlags(new TestLifeCycleOwner(), bloodPressureMeasurementFlagsReference::set);
         mViewModel.observeBloodPressureMeasurementSystolic(new TestLifeCycleOwner(), bloodPressureMeasurementSystolicReference::set);
@@ -3266,9 +3355,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -3302,11 +3396,11 @@ public class BloodPressureServiceSettingViewModelTest {
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
         bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
-        String originalJson = mGson.toJson(bloodPressureMeasurementCharacteristicData);
-        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        byte[] originalData = Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData);
+        mViewModel.setBloodPressureMeasurementData(Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
-        assertEquals(originalJson, mViewModel.getBloodPressureMeasurementDataJson());
-        assertTrue(hasBloodPressureMeasurementDataJsonReference.get());
+        assertArrayEquals(originalData, mViewModel.getBloodPressureMeasurementData());
+        assertTrue(hasBloodPressureMeasurementDataReference.get());
 
         assertEquals(mFakeDeviceSettingRepository.getHexString(bloodPressureMeasurementFlags, 2), bloodPressureMeasurementFlagsReference.get());
         assertEquals(bloodPressureMeasurementCompoundValueSystolicMmhg.getSfloat(), Double.parseDouble(bloodPressureMeasurementSystolicReference.get()));
@@ -3323,11 +3417,11 @@ public class BloodPressureServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_setBloodPressureMeasurementDataJson_00002() {
+    public void test_setBloodPressureMeasurementData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementDataReference = new AtomicReference<>();
 
         AtomicReference<String> bloodPressureMeasurementFlagsReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementSystolicReference = new AtomicReference<>();
@@ -3342,7 +3436,7 @@ public class BloodPressureServiceSettingViewModelTest {
         AtomicReference<Boolean> isBloodPressureMeasurementMeasurementStatusSupportedReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementMeasurementStatusReference = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJsonReference::set);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataReference::set);
 
         mViewModel.observeBloodPressureMeasurementFlags(new TestLifeCycleOwner(), bloodPressureMeasurementFlagsReference::set);
         mViewModel.observeBloodPressureMeasurementSystolic(new TestLifeCycleOwner(), bloodPressureMeasurementSystolicReference::set);
@@ -3358,13 +3452,16 @@ public class BloodPressureServiceSettingViewModelTest {
         mViewModel.observeBloodPressureMeasurementMeasurementStatus(new TestLifeCycleOwner(), bloodPressureMeasurementMeasurementStatusReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = BLOOD_PRESSURE_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData characteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int flags = 0;
         IEEE_11073_20601_SFLOAT systolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT diastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -3399,16 +3496,13 @@ public class BloodPressureServiceSettingViewModelTest {
                 , measurementStatus);
         characteristicData.data = bloodPressureMeasurement.getBytes();
         serviceData.characteristicDataList.add(characteristicData);
-        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
         int bloodPressureMeasurementFlags = BloodPressureMeasurementUtils.FLAG_BLOOD_PRESSURE_UNITS_KPA;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -3441,12 +3535,19 @@ public class BloodPressureServiceSettingViewModelTest {
                 , bloodPressureMeasurementPulseRate
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
-        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
-        String originalJson = mGson.toJson(bloodPressureMeasurementCharacteristicData);
-        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , bloodPressureMeasurement.getBytes()
+                , -1);
+        byte[] originalData = Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData);
+        mViewModel.setBloodPressureMeasurementData(Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
-        assertEquals(originalJson, mViewModel.getBloodPressureMeasurementDataJson());
-        assertTrue(hasBloodPressureMeasurementDataJsonReference.get());
+        assertArrayEquals(originalData, mViewModel.getBloodPressureMeasurementData());
+        assertTrue(hasBloodPressureMeasurementDataReference.get());
 
         assertEquals(mFakeDeviceSettingRepository.getHexString(bloodPressureMeasurementFlags, 2), bloodPressureMeasurementFlagsReference.get());
         assertEquals(bloodPressureMeasurementCompoundValueSystolicKpa.getSfloat(), Double.parseDouble(bloodPressureMeasurementSystolicReference.get()));
@@ -3463,11 +3564,11 @@ public class BloodPressureServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_setBloodPressureMeasurementDataJson_00003() {
+    public void test_setBloodPressureMeasurementData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasBloodPressureMeasurementDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasBloodPressureMeasurementDataReference = new AtomicReference<>();
 
         AtomicReference<String> bloodPressureMeasurementFlagsReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementSystolicReference = new AtomicReference<>();
@@ -3482,7 +3583,7 @@ public class BloodPressureServiceSettingViewModelTest {
         AtomicReference<Boolean> isBloodPressureMeasurementMeasurementStatusSupportedReference = new AtomicReference<>();
         AtomicReference<String> bloodPressureMeasurementMeasurementStatusReference = new AtomicReference<>();
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataJsonReference::set);
+        mViewModel.observeHasBloodPressureMeasurementData(new TestLifeCycleOwner(), hasBloodPressureMeasurementDataReference::set);
 
         mViewModel.observeBloodPressureMeasurementFlags(new TestLifeCycleOwner(), bloodPressureMeasurementFlagsReference::set);
         mViewModel.observeBloodPressureMeasurementSystolic(new TestLifeCycleOwner(), bloodPressureMeasurementSystolicReference::set);
@@ -3498,13 +3599,16 @@ public class BloodPressureServiceSettingViewModelTest {
         mViewModel.observeBloodPressureMeasurementMeasurementStatus(new TestLifeCycleOwner(), bloodPressureMeasurementMeasurementStatusReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = BLOOD_PRESSURE_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+        CharacteristicData characteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int flags = 0;
         IEEE_11073_20601_SFLOAT systolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT diastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -3538,18 +3642,18 @@ public class BloodPressureServiceSettingViewModelTest {
                 , userId
                 , measurementStatus);
         characteristicData.data = bloodPressureMeasurement.getBytes();
-        mViewModel.setBloodPressureMeasurementDataJson(mGson.toJson(characteristicData));
-        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(serviceData));
+        mViewModel.setBloodPressureMeasurementData(Utils.parcelableToByteArray(characteristicData));
+        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        mViewModel.setBloodPressureMeasurementDataJson(null);
+        mViewModel.setBloodPressureMeasurementData(null);
 
-        assertNull(mViewModel.getBloodPressureMeasurementDataJson());
-        assertFalse(hasBloodPressureMeasurementDataJsonReference.get());
+        assertNull(mViewModel.getBloodPressureMeasurementData());
+        assertFalse(hasBloodPressureMeasurementDataReference.get());
 
         assertEquals("", bloodPressureMeasurementFlagsReference.get());
         assertEquals("", bloodPressureMeasurementSystolicReference.get());
@@ -3566,30 +3670,30 @@ public class BloodPressureServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_getIntermediateCuffPressureDataJson_00001() {
+    public void test_getIntermediateCuffPressureData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        TestCase.assertNull(mViewModel.getIntermediateCuffPressureDataJson());
+        TestCase.assertNull(mViewModel.getIntermediateCuffPressureData());
     }
 
     @Test
-    public void test_getIntermediateCuffPressureDataJson_00002() {
+    public void test_getIntermediateCuffPressureData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[]{1};
 
-        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA_JSON", original);
-        assertEquals(original, mViewModel.getIntermediateCuffPressureDataJson());
+        mSavedStateHandle.set("KEY_INTERMEDIATE_CUFF_PRESSURE_DATA", original);
+        assertArrayEquals(original, mViewModel.getIntermediateCuffPressureData());
     }
 
     @Test
-    public void test_setIntermediateCuffPressureDataJson_00001() {
+    public void test_setIntermediateCuffPressureData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureDataReference = new AtomicReference<>();
 
         AtomicReference<String> intermediateCuffPressureFlagsReference = new AtomicReference<>();
         AtomicReference<String> intermediateCuffPressureCurrentCuffPressureReference = new AtomicReference<>();
@@ -3602,7 +3706,7 @@ public class BloodPressureServiceSettingViewModelTest {
         AtomicReference<Boolean> isIntermediateCuffPressureMeasurementStatusSupportedReference = new AtomicReference<>();
         AtomicReference<String> intermediateCuffPressureMeasurementStatusReference = new AtomicReference<>();
 
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJsonReference::set);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataReference::set);
 
         mViewModel.observeIntermediateCuffPressureFlags(new TestLifeCycleOwner(), intermediateCuffPressureFlagsReference::set);
         mViewModel.observeIntermediateCuffPressureCurrentCuffPressure(new TestLifeCycleOwner(), intermediateCuffPressureCurrentCuffPressureReference::set);
@@ -3622,9 +3726,14 @@ public class BloodPressureServiceSettingViewModelTest {
                 , throwable -> {
                 });
 
-        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
-        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int intermediateCuffPressureFlags = 0;
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -3654,10 +3763,10 @@ public class BloodPressureServiceSettingViewModelTest {
                 , intermediateCuffPressureUserId
                 , intermediateCuffPressureMeasurementStatus);
         intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
-        String originalJson = mGson.toJson(intermediateCuffPressureCharacteristicData);
-        mViewModel.setIntermediateCuffPressureDataJson(originalJson);
+        byte[] originalData = Utils.parcelableToByteArray(intermediateCuffPressureCharacteristicData);
+        mViewModel.setIntermediateCuffPressureData(originalData);
 
-        assertTrue(hasIntermediateCuffPressureDataJsonReference.get());
+        assertTrue(hasIntermediateCuffPressureDataReference.get());
 
         assertEquals(mFakeDeviceSettingRepository.getHexString(intermediateCuffPressureFlags, 2), intermediateCuffPressureFlagsReference.get());
         assertEquals(intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg.getSfloat(), Double.parseDouble(intermediateCuffPressureCurrentCuffPressureReference.get()));
@@ -3672,11 +3781,11 @@ public class BloodPressureServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_setIntermediateCuffPressureDataJson_00002() {
+    public void test_setIntermediateCuffPressureData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureDataReference = new AtomicReference<>();
 
         AtomicReference<String> intermediateCuffPressureFlagsReference = new AtomicReference<>();
         AtomicReference<String> intermediateCuffPressureCurrentCuffPressureReference = new AtomicReference<>();
@@ -3689,7 +3798,7 @@ public class BloodPressureServiceSettingViewModelTest {
         AtomicReference<Boolean> isIntermediateCuffPressureMeasurementStatusSupportedReference = new AtomicReference<>();
         AtomicReference<String> intermediateCuffPressureMeasurementStatusReference = new AtomicReference<>();
 
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJsonReference::set);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataReference::set);
 
         mViewModel.observeIntermediateCuffPressureFlags(new TestLifeCycleOwner(), intermediateCuffPressureFlagsReference::set);
         mViewModel.observeIntermediateCuffPressureCurrentCuffPressure(new TestLifeCycleOwner(), intermediateCuffPressureCurrentCuffPressureReference::set);
@@ -3703,13 +3812,16 @@ public class BloodPressureServiceSettingViewModelTest {
         mViewModel.observeIntermediateCuffPressureMeasurementStatus(new TestLifeCycleOwner(), intermediateCuffPressureMeasurementStatusReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = BLOOD_PRESSURE_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData characteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int flags = 0;
         IEEE_11073_20601_SFLOAT currentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT currentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -3740,16 +3852,21 @@ public class BloodPressureServiceSettingViewModelTest {
                 , measurementStatus);
         characteristicData.data = intermediateCuffPressure.getBytes();
         serviceData.characteristicDataList.add(characteristicData);
-        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData();
-        intermediateCuffPressureCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        intermediateCuffPressureCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int intermediateCuffPressureFlags = BloodPressureMeasurementUtils.FLAG_BLOOD_PRESSURE_UNITS_KPA;
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -3779,10 +3896,10 @@ public class BloodPressureServiceSettingViewModelTest {
                 , intermediateCuffPressureUserId
                 , intermediateCuffPressureMeasurementStatus);
         intermediateCuffPressureCharacteristicData.data = intermediateCuffPressure.getBytes();
-        String originalJson = mGson.toJson(intermediateCuffPressureCharacteristicData);
-        mViewModel.setIntermediateCuffPressureDataJson(originalJson);
+        byte[] originalData = Utils.parcelableToByteArray(intermediateCuffPressureCharacteristicData);
+        mViewModel.setIntermediateCuffPressureData(originalData);
 
-        assertTrue(hasIntermediateCuffPressureDataJsonReference.get());
+        assertTrue(hasIntermediateCuffPressureDataReference.get());
 
         assertEquals(mFakeDeviceSettingRepository.getHexString(intermediateCuffPressureFlags, 2), intermediateCuffPressureFlagsReference.get());
         assertEquals(intermediateCuffPressureCompoundValueCurrentCuffPressureKpa.getSfloat(), Double.parseDouble(intermediateCuffPressureCurrentCuffPressureReference.get()));
@@ -3797,11 +3914,11 @@ public class BloodPressureServiceSettingViewModelTest {
     }
 
     @Test
-    public void test_setIntermediateCuffPressureDataJson_00003() {
+    public void test_setIntermediateCuffPressureData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasIntermediateCuffPressureDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasIntermediateCuffPressureDataReference = new AtomicReference<>();
 
         AtomicReference<String> intermediateCuffPressureFlagsReference = new AtomicReference<>();
         AtomicReference<String> intermediateCuffPressureCurrentCuffPressureReference = new AtomicReference<>();
@@ -3814,7 +3931,7 @@ public class BloodPressureServiceSettingViewModelTest {
         AtomicReference<Boolean> isIntermediateCuffPressureMeasurementStatusSupportedReference = new AtomicReference<>();
         AtomicReference<String> intermediateCuffPressureMeasurementStatusReference = new AtomicReference<>();
 
-        mViewModel.observeHasIntermediateCuffPressureDataJson(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataJsonReference::set);
+        mViewModel.observeHasIntermediateCuffPressureData(new TestLifeCycleOwner(), hasIntermediateCuffPressureDataReference::set);
 
         mViewModel.observeIntermediateCuffPressureFlags(new TestLifeCycleOwner(), intermediateCuffPressureFlagsReference::set);
         mViewModel.observeIntermediateCuffPressureCurrentCuffPressure(new TestLifeCycleOwner(), intermediateCuffPressureCurrentCuffPressureReference::set);
@@ -3828,13 +3945,16 @@ public class BloodPressureServiceSettingViewModelTest {
         mViewModel.observeIntermediateCuffPressureMeasurementStatus(new TestLifeCycleOwner(), intermediateCuffPressureMeasurementStatusReference::set);
 
         Intent intent = new Intent();
-        ServiceData serviceData = new ServiceData();
-        serviceData.uuid = BLOOD_PRESSURE_SERVICE;
-        serviceData.type = BluetoothGattService.SERVICE_TYPE_PRIMARY;
+        ServiceData serviceData = new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, new LinkedList<>());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+        CharacteristicData characteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         int flags = 0;
         IEEE_11073_20601_SFLOAT currentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT currentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(2);
@@ -3865,16 +3985,16 @@ public class BloodPressureServiceSettingViewModelTest {
                 , measurementStatus);
         characteristicData.data = intermediateCuffPressure.getBytes();
         serviceData.characteristicDataList.add(characteristicData);
-        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), mGson.toJson(serviceData));
+        intent.putExtra(BLOOD_PRESSURE_SERVICE.toString(), Utils.parcelableToByteArray(serviceData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        mViewModel.setIntermediateCuffPressureDataJson(null);
+        mViewModel.setIntermediateCuffPressureData(null);
 
-        assertFalse(hasIntermediateCuffPressureDataJsonReference.get());
+        assertFalse(hasIntermediateCuffPressureDataReference.get());
 
         assertEquals("", intermediateCuffPressureFlagsReference.get());
         assertEquals("", intermediateCuffPressureCurrentCuffPressureReference.get());

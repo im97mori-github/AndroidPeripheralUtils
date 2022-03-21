@@ -15,6 +15,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
 import static org.im97mori.ble.constants.CharacteristicUUID.SYSTEM_ID_CHARACTERISTIC;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.mockStatic;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.content.Intent;
@@ -36,13 +38,13 @@ import androidx.test.espresso.matcher.ViewMatchers;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.gson.Gson;
 
 import junit.framework.TestCase;
 
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.u2a23.SystemId;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -55,6 +57,7 @@ import org.mockito.MockedStatic;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -92,9 +95,6 @@ public class SystemIdSettingActivityTest {
     @Inject
     @ApplicationContext
     Context mContext;
-
-    @Inject
-    Gson mGson;
 
     @BeforeClass
     public static void setUpClass() {
@@ -378,21 +378,24 @@ public class SystemIdSettingActivityTest {
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).perform(click());
 
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
-        characteristicData.data = new SystemId(1, 2).getBytes();
-        String json = mGson.toJson(characteristicData);
+        CharacteristicData characteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new SystemId(1, 2).getBytes()
+                , -1);
+        byte[] data = Utils.parcelableToByteArray(characteristicData);
         Intent original = new Intent();
-        original.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), json);
+        original.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), data);
         mViewModel.mObserveSaveSubject.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(Activity.RESULT_OK, activityResult.getResultCode());
         Intent resultData = activityResult.getResultData();
         assertNotNull(resultData);
-        assertEquals(json, resultData.getStringExtra(SYSTEM_ID_CHARACTERISTIC.toString()));
+        assertArrayEquals(data, resultData.getByteArrayExtra(SYSTEM_ID_CHARACTERISTIC.toString()));
     }
 
     @Test

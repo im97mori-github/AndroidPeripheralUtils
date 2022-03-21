@@ -7,8 +7,6 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.repository.BluetoothSettingRepository;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
@@ -55,9 +53,8 @@ public class FakePeripheralViewModel extends PeripheralViewModel {
     @Inject
     FakePeripheralViewModel(@NonNull SavedStateHandle savedStateHandle
             , @NonNull FakeDeviceSettingRepository deviceSettingRepository
-            , @NonNull BluetoothSettingRepository bluetoothSettingRepository
-            , @NonNull Gson gson) {
-        super(savedStateHandle, deviceSettingRepository, bluetoothSettingRepository, gson);
+            , @NonNull BluetoothSettingRepository bluetoothSettingRepository) {
+        super(savedStateHandle, deviceSettingRepository, bluetoothSettingRepository);
         mFakeDeviceSettingRepository = deviceSettingRepository;
         mSavedStateHandle = savedStateHandle;
     }

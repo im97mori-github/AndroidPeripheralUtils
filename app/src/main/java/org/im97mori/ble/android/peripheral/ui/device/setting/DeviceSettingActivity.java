@@ -52,7 +52,7 @@ public class DeviceSettingActivity extends AppCompatActivity {
         mViewModel.observeDeviceSettingName(this, s -> setTextDistinct(mBinding.deviceSettingNameEdit, s));
 
         mBaseSettingFragmentViewModel.observeSavedData(this, s -> {
-            mViewModel.updateMockDataString(s);
+            mViewModel.updateMockData(s);
             mViewModel.save(throwable
                     -> Toast.makeText(DeviceSettingActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show());
         });

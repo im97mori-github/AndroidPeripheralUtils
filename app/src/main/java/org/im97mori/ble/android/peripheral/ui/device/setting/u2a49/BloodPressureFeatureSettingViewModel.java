@@ -1,6 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a49;
 
-import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
 
 import android.bluetooth.BluetoothGatt;
@@ -15,13 +14,13 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.u2a49.BloodPressureFeature;
+
+import java.util.LinkedList;
 
 import javax.inject.Inject;
 
@@ -62,8 +61,8 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
     private final MutableLiveData<Intent> mSavedData;
 
     @Inject
-    public BloodPressureFeatureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+    public BloodPressureFeatureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
 
         mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
 
@@ -86,18 +85,17 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
-                try {
-                    mCharacteristicData = mGson.fromJson(intent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString())
-                            , CharacteristicData.class);
-                } catch (JsonSyntaxException e) {
-                    stackLog(e);
-                }
+                mCharacteristicData = Utils.byteToParcelable(intent.getByteArrayExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.CREATOR);
 
                 if (mCharacteristicData == null) {
-                    mCharacteristicData = new CharacteristicData();
-                    mCharacteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-                    mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-                    mCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+                    mCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                            , BluetoothGattCharacteristic.PROPERTY_READ
+                            , BluetoothGattCharacteristic.PERMISSION_READ
+                            , new LinkedList<>()
+                            , BluetoothGatt.GATT_SUCCESS
+                            , 0
+                            , null
+                            , -1);
                 }
             }
 
@@ -306,7 +304,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                             mCharacteristicData.responseCode = Integer.parseInt(responseCode);
 
                             Intent intent = new Intent();
-                            intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
+                            intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(mCharacteristicData));
 
                             mSavedData.postValue(intent);
                             mCharacteristicData = null;
@@ -327,7 +325,7 @@ public class BloodPressureFeatureSettingViewModel extends BaseCharacteristicView
                         mCharacteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
 
                         Intent intent = new Intent();
-                        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
+                        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(mCharacteristicData));
 
                         mSavedData.postValue(intent);
                         mCharacteristicData = null;

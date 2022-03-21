@@ -115,7 +115,7 @@ public class DeviceSettingRepositoryTest {
     @Test
     public void test_loadDeviceSettingById_00001() {
         AtomicBoolean result = new AtomicBoolean(false);
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mFakeDeviceSettingDataSource.mLoadDeviceSettingByIdProcessor = PublishProcessor.create();
         mDisposable.add(mDeviceSettingRepository.loadDeviceSettingById(1).subscribe(deviceSetting -> {
             assertEquals(original, deviceSetting);
@@ -140,7 +140,7 @@ public class DeviceSettingRepositoryTest {
     @Test
     public void test_insertDeviceSetting_00001() {
         AtomicBoolean result = new AtomicBoolean(false);
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mInsertDeviceSettingSubscribe = atomicReference::set;
@@ -154,7 +154,7 @@ public class DeviceSettingRepositoryTest {
     @Test
     public void test_insertDeviceSetting_00002() {
         AtomicBoolean result = new AtomicBoolean(false);
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mInsertDeviceSettingSubscribe = atomicReference::set;
@@ -168,7 +168,7 @@ public class DeviceSettingRepositoryTest {
     @Test
     public void test_deleteDeviceSetting_00001() {
         AtomicBoolean result = new AtomicBoolean(false);
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mDeleteDeviceSettingSubscribe = atomicReference::set;
@@ -182,7 +182,7 @@ public class DeviceSettingRepositoryTest {
     @Test
     public void test_deleteDeviceSetting_00002() {
         AtomicBoolean result = new AtomicBoolean(false);
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
 
         AtomicReference<CompletableEmitter> atomicReference = new AtomicReference<>();
         mFakeDeviceSettingDataSource.mDeleteDeviceSettingSubscribe = atomicReference::set;

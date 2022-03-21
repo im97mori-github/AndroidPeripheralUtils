@@ -5,7 +5,7 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.constants.CharacteristicUUID.MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.app.Activity;
@@ -54,7 +54,7 @@ public class ManufacturerNameStringLauncherContractTest {
 
     @Test
     public void test_createIntent_00001() {
-        String original = "a";
+        byte[] original = new byte[]{1};
         Intent intent = mManufacturerNameStringLauncherContract.createIntent(mContext, original);
         assertTrue(hasComponent(new ComponentName(mContext, ManufacturerNameStringSettingActivity.class)).matches(intent));
         assertTrue(hasExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), original).matches(intent));
@@ -62,12 +62,12 @@ public class ManufacturerNameStringLauncherContractTest {
 
     @Test
     public void test_parseResult_00001() {
-        String original = "a";
+        byte[] original = new byte[]{1};
         Intent intent = new Intent();
         intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), original);
-        String parsed = mManufacturerNameStringLauncherContract.parseResult(Activity.RESULT_OK, intent);
+        byte[] parsed = mManufacturerNameStringLauncherContract.parseResult(Activity.RESULT_OK, intent);
         assertNotNull(parsed);
-        assertEquals(original, parsed);
+        assertArrayEquals(original, parsed);
     }
 
     @Test

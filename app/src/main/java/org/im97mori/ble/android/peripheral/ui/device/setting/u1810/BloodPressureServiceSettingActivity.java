@@ -28,14 +28,14 @@ public class BloodPressureServiceSettingActivity extends AppCompatActivity {
 
     private BloodPressureServiceSettingViewModel mViewModel;
 
-    private final ActivityResultLauncher<String> mStartBloodPressureMeasurementSettingActivity = registerForActivityResult(new BloodPressureMeasurementLauncherContract()
-            , result -> mViewModel.setBloodPressureMeasurementDataJson(result));
+    private final ActivityResultLauncher<byte[]> mStartBloodPressureMeasurementSettingActivity = registerForActivityResult(new BloodPressureMeasurementLauncherContract()
+            , result -> mViewModel.setBloodPressureMeasurementData(result));
 
-    private final ActivityResultLauncher<String> mStartIntermediateCuffPressureSettingActivity = registerForActivityResult(new IntermediateCuffPressureLauncherContract()
-            , result -> mViewModel.setIntermediateCuffPressureDataJson(result));
+    private final ActivityResultLauncher<byte[]> mStartIntermediateCuffPressureSettingActivity = registerForActivityResult(new IntermediateCuffPressureLauncherContract()
+            , result -> mViewModel.setIntermediateCuffPressureData(result));
 
-    private final ActivityResultLauncher<String> mBloodPressureFeatureSettingActivity = registerForActivityResult(new BloodPressureFeatureLauncherContract()
-            , result -> mViewModel.setBloodPressureFeatureDataJson(result));
+    private final ActivityResultLauncher<byte[]> mBloodPressureFeatureSettingActivity = registerForActivityResult(new BloodPressureFeatureLauncherContract()
+            , result -> mViewModel.setBloodPressureFeatureData(result));
 
     private BloodPressureServiceSettingActivityBinding mBinding;
 
@@ -47,9 +47,9 @@ public class BloodPressureServiceSettingActivity extends AppCompatActivity {
         mBinding = BloodPressureServiceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
-        mViewModel.observeHasBloodPressureMeasurementDataJson(this, check -> mBinding.bloodPressureMeasurementCardView.setChecked(check));
-        mViewModel.observeHasIntermediateCuffPressureDataJson(this, check -> mBinding.intermediateCuffPressureCardView.setChecked(check));
-        mViewModel.observeHasBloodPressureFeatureDataJson(this, check -> mBinding.bloodPressureFeatureCardView.setChecked(check));
+        mViewModel.observeHasBloodPressureMeasurementData(this, check -> mBinding.bloodPressureMeasurementCardView.setChecked(check));
+        mViewModel.observeHasIntermediateCuffPressureData(this, check -> mBinding.intermediateCuffPressureCardView.setChecked(check));
+        mViewModel.observeHasBloodPressureFeatureData(this, check -> mBinding.bloodPressureFeatureCardView.setChecked(check));
 
         mViewModel.observeBloodPressureMeasurementFlags(this, s -> mBinding.bloodPressureMeasurementFlags.setText(s));
         mViewModel.observeBloodPressureMeasurementSystolic(this, s -> mBinding.bloodPressureMeasurementSystolic.setText(s));
@@ -113,10 +113,10 @@ public class BloodPressureServiceSettingActivity extends AppCompatActivity {
 
         mViewModel.observeBloodPressureFeature(this, s -> mBinding.bloodPressureFeature.setText(s));
 
-        mBinding.bloodPressureMeasurementSettingButton.setOnClickListener(v -> mStartBloodPressureMeasurementSettingActivity.launch(mViewModel.getBloodPressureMeasurementDataJson()));
+        mBinding.bloodPressureMeasurementSettingButton.setOnClickListener(v -> mStartBloodPressureMeasurementSettingActivity.launch(mViewModel.getBloodPressureMeasurementData()));
         mBinding.isIntermediateCuffPressureSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsIntermediateCuffPressureSupported(isChecked));
-        mBinding.intermediateCuffPressureSettingButton.setOnClickListener(v -> mStartIntermediateCuffPressureSettingActivity.launch(mViewModel.getIntermediateCuffPressureDataJson()));
-        mBinding.bloodPressureFeatureSettingButton.setOnClickListener(v -> mBloodPressureFeatureSettingActivity.launch(mViewModel.getBloodPressureFeatureDataJson()));
+        mBinding.intermediateCuffPressureSettingButton.setOnClickListener(v -> mStartIntermediateCuffPressureSettingActivity.launch(mViewModel.getIntermediateCuffPressureData()));
+        mBinding.bloodPressureFeatureSettingButton.setOnClickListener(v -> mBloodPressureFeatureSettingActivity.launch(mViewModel.getBloodPressureFeatureData()));
 
         mViewModel.observeSavedData(this, intent -> {
             setResult(RESULT_OK, intent);

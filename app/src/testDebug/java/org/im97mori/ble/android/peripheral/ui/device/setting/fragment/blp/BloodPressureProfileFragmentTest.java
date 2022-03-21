@@ -35,8 +35,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.test.HiltTestActivity;
@@ -45,6 +43,7 @@ import org.im97mori.ble.android.peripheral.ui.device.setting.FakeDeviceSettingVi
 import org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceSettingActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingActivity;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -56,6 +55,7 @@ import org.mockito.MockedStatic;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
@@ -86,9 +86,6 @@ public class BloodPressureProfileFragmentTest {
     @Inject
     @ApplicationContext
     Context mContext;
-
-    @Inject
-    Gson mGson;
 
     private ActivityScenario<HiltTestActivity> mScenario;
 
@@ -143,7 +140,7 @@ public class BloodPressureProfileFragmentTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeBloodPressureProfileViewModel.setBlsDataJson("a");
+        mFakeBloodPressureProfileViewModel.setBlsData(new byte[0]);
 
         onView(withId(R.id.bloodPressureServiceCardView)).check(matches(isChecked()));
     }
@@ -178,8 +175,8 @@ public class BloodPressureProfileFragmentTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        String original = "a";
-        mFakeBloodPressureProfileViewModel.setBlsDataJson(original);
+        byte[] original = new byte[]{1};
+        mFakeBloodPressureProfileViewModel.setBlsData(original);
 
         onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
 
@@ -199,7 +196,7 @@ public class BloodPressureProfileFragmentTest {
             mFakeBloodPressureProfileViewModel.observeIsDisSupported(activity, result::set);
         });
 
-        mFakeBloodPressureProfileViewModel.observeSetup(mGson.toJson(new MockData()), () -> {
+        mFakeBloodPressureProfileViewModel.observeSetup(Utils.parcelableToByteArray(new MockData(new LinkedList<>())), () -> {
         }, throwable -> {
         });
 
@@ -248,7 +245,7 @@ public class BloodPressureProfileFragmentTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        mFakeBloodPressureProfileViewModel.setDisDataJson("");
+        mFakeBloodPressureProfileViewModel.setDisData(new byte[0]);
 
         onView(withId(R.id.deviceInformationServiceCardView)).check(matches(isChecked()));
     }
@@ -284,8 +281,8 @@ public class BloodPressureProfileFragmentTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        String original = "a";
-        mFakeBloodPressureProfileViewModel.setDisDataJson(original);
+        byte[] original = new byte[]{1};
+        mFakeBloodPressureProfileViewModel.setDisData(original);
 
         onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
         onView(withId(R.id.deviceInformationServiceSettingButton)).perform(click());
@@ -297,7 +294,7 @@ public class BloodPressureProfileFragmentTest {
     @Test
     public void test_activity_result_00001() {
         Intent resultData = new Intent();
-        String after = "b";
+        byte[] after = new byte[]{2};
         resultData.putExtra(BLOOD_PRESSURE_SERVICE.toString(), after);
         Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), BloodPressureServiceSettingActivity.class))).respondWith(result);
@@ -309,18 +306,18 @@ public class BloodPressureProfileFragmentTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        String before = "a";
-        mFakeBloodPressureProfileViewModel.setBlsDataJson(before);
+        byte[] before = new byte[]{1};
+        mFakeBloodPressureProfileViewModel.setBlsData(before);
 
         onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
 
-        assertEquals(after, mFakeBloodPressureProfileViewModel.getBlsDataJson());
+        assertEquals(after, mFakeBloodPressureProfileViewModel.getBlsData());
     }
 
     @Test
     public void test_activity_result_00002() {
         Intent resultData = new Intent();
-        String after = "b";
+        byte[] after = new byte[]{2};
         resultData.putExtra(DEVICE_INFORMATION_SERVICE.toString(), after);
         Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceInformationServiceSettingActivity.class))).respondWith(result);
@@ -332,15 +329,15 @@ public class BloodPressureProfileFragmentTest {
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
         });
 
-        String before = "a";
-        mFakeBloodPressureProfileViewModel.setDisDataJson(before);
+        byte[] before = new byte[]{1};
+        mFakeBloodPressureProfileViewModel.setDisData(before);
 
         onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
         onView(withId(R.id.deviceInformationServiceSettingButton)).perform(click());
 
         onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
 
-        assertEquals(after, mFakeBloodPressureProfileViewModel.getDisDataJson());
+        assertEquals(after, mFakeBloodPressureProfileViewModel.getDisData());
     }
 
 }

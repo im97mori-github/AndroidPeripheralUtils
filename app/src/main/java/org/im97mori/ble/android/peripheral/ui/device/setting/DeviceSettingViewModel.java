@@ -18,8 +18,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseSettingFragmentViewModel;
@@ -43,14 +41,14 @@ public class DeviceSettingViewModel extends BaseSettingViewModel<Intent, Boolean
     private static final String KEY_DEVICE_TYPE_NAME = "KEY_DEVICE_TYPE_NAME";
     private static final String KEY_DEVICE_SETTING_NAME = "KEY_DEVICE_SETTING_NAME";
     private static final String KEY_FRAGMENT_READY = "KEY_FRAGMENT_READY";
-    private static final String KEY_MOCK_DATA_STRING = "KEY_MOCK_DATA_STRING";
+    private static final String KEY_MOCK_DATA = "KEY_MOCK_DATA";
 
     private final SavedStateHandle mSavedStateHandle;
 
     private final MutableLiveData<String> mDeviceNameSetting;
     private final MutableLiveData<Boolean> mFragmentReady;
 
-    private final MutableLiveData<String> mMockDataString;
+    private final MutableLiveData<byte[]> mMockData;
 
     private final MutableLiveData<Boolean> mSavedData;
 
@@ -58,16 +56,15 @@ public class DeviceSettingViewModel extends BaseSettingViewModel<Intent, Boolean
 
     @Inject
     public DeviceSettingViewModel(@NonNull SavedStateHandle savedStateHandle
-            , @NonNull DeviceSettingRepository deviceSettingRepository
-            , @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+            , @NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
 
         mSavedStateHandle = savedStateHandle;
 
         mDeviceNameSetting = savedStateHandle.getLiveData(KEY_DEVICE_SETTING_NAME);
         mFragmentReady = savedStateHandle.getLiveData(KEY_FRAGMENT_READY);
 
-        mMockDataString = savedStateHandle.getLiveData(KEY_MOCK_DATA_STRING);
+        mMockData = savedStateHandle.getLiveData(KEY_MOCK_DATA);
 
         mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
     }
@@ -95,7 +92,7 @@ public class DeviceSettingViewModel extends BaseSettingViewModel<Intent, Boolean
                         mDeviceNameSetting.postValue(mDeviceSetting.getDeviceSettingName());
                     }
 
-                    mMockDataString.postValue(mDeviceSetting.getDeviceSettingData());
+                    mMockData.postValue(mDeviceSetting.getDeviceSettingData());
 
                     return Completable.complete();
 
@@ -130,8 +127,8 @@ public class DeviceSettingViewModel extends BaseSettingViewModel<Intent, Boolean
         Transformations.distinctUntilChanged(mFragmentReady).observe(owner, observer);
     }
 
-    public void observeMockDataString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
-        mMockDataString.observe(owner, observer);
+    public void observeMockData(@NonNull LifecycleOwner owner, @NonNull Observer<byte[]> observer) {
+        mMockData.observe(owner, observer);
     }
 
     @Override
@@ -145,8 +142,8 @@ public class DeviceSettingViewModel extends BaseSettingViewModel<Intent, Boolean
     }
 
     @MainThread
-    public void updateMockDataString(@Nullable String text) {
-        mMockDataString.setValue(text);
+    public void updateMockData(@Nullable byte[] data) {
+        mMockData.setValue(data);
     }
 
     public void fragmentReady() {
@@ -183,12 +180,12 @@ public class DeviceSettingViewModel extends BaseSettingViewModel<Intent, Boolean
                 emitter.onError(new RuntimeException("Already saved"));
             } else {
                 String deviceNameSetting = mDeviceNameSetting.getValue();
-                String mockDataString = mMockDataString.getValue();
+                byte[] mockData = mMockData.getValue();
 
                 if (deviceNameSetting != null && mDeviceSettingRepository.getDeviceSettingNameErrorString(deviceNameSetting) == null
-                        && mockDataString != null) {
+                        && mockData != null) {
                     deviceSetting.setDeviceSettingName(deviceNameSetting);
-                    deviceSetting.setDeviceSettingData(mockDataString);
+                    deviceSetting.setDeviceSettingData(mockData);
                     mDeviceSetting = null;
                     emitter.onSuccess(deviceSetting);
                 } else {

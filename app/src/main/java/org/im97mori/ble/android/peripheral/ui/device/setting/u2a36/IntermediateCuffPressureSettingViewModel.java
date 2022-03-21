@@ -1,9 +1,9 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a36;
 
-import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
 
@@ -17,9 +17,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
 import org.im97mori.ble.BLEUtils;
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.DescriptorData;
@@ -27,6 +24,7 @@ import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingReposito
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
 import org.im97mori.ble.android.peripheral.utils.ExistObserver;
 import org.im97mori.ble.android.peripheral.utils.MapObserver;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.DateTimeUtils;
 import org.im97mori.ble.characteristic.core.IEEE_11073_20601_SFLOAT;
@@ -34,6 +32,7 @@ import org.im97mori.ble.characteristic.core.UserIndexUtils;
 import org.im97mori.ble.characteristic.u2a36.IntermediateCuffPressure;
 import org.im97mori.ble.descriptor.u2902.ClientCharacteristicConfiguration;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -56,7 +55,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     private static final String KEY_IS_USER_ID_SUPPORTED = "KEY_IS_USER_ID_SUPPORTED";
     private static final String KEY_IS_MEASUREMENT_STATUS_SUPPORTED = "KEY_IS_MEASUREMENT_STATUS_SUPPORTED";
 
-    private static final String KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON = "KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON";
+    private static final String KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA = "KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA";
 
     private static final String KEY_CURRENT_CUFF_PRESSURE = "KEY_CURRENT_CUFF_PRESSURE";
     private static final String KEY_TIME_STAMP_YEAR = "KEY_TIME_STAMP_YEAR";
@@ -99,14 +98,14 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
 
     private final MutableLiveData<String> mNotificationCount;
 
-    private final MutableLiveData<String> mClientCharacteristicConfigurationJson;
+    private final MutableLiveData<byte[]> mClientCharacteristicConfigurationData;
     private final MutableLiveData<String> mClientCharacteristicConfiguration;
 
     private final MutableLiveData<Intent> mSavedData;
 
     @Inject
-    public IntermediateCuffPressureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+    public IntermediateCuffPressureSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
 
         mIsMmhg = savedStateHandle.getLiveData(KEY_IS_MMHG);
         mIsTimeStampSupported = savedStateHandle.getLiveData(KEY_IS_TIME_STAMP_SUPPORTED);
@@ -131,7 +130,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
 
         mNotificationCount = savedStateHandle.getLiveData(KEY_NOTIFICATION_COUNT);
 
-        mClientCharacteristicConfigurationJson = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON);
+        mClientCharacteristicConfigurationData = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA);
         mClientCharacteristicConfiguration = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION);
 
         mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
@@ -143,17 +142,17 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
-                try {
-                    mCharacteristicData = mGson.fromJson(intent.getStringExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString())
-                            , CharacteristicData.class);
-                } catch (JsonSyntaxException e) {
-                    stackLog(e);
-                }
+                mCharacteristicData = Utils.byteToParcelable(intent.getByteArrayExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString()), CharacteristicData.CREATOR);
 
                 if (mCharacteristicData == null) {
-                    mCharacteristicData = new CharacteristicData();
-                    mCharacteristicData.uuid = INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-                    mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+                    mCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
+                            , BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                            , 0
+                            , new LinkedList<>()
+                            , BluetoothGatt.GATT_SUCCESS
+                            , 0
+                            , null
+                            , -1);
                 }
             }
 
@@ -380,7 +379,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     .findAny();
             if (clientCharacteristicConfigurationOptional.isPresent()) {
                 DescriptorData descriptorData = clientCharacteristicConfigurationOptional.get();
-                mClientCharacteristicConfigurationJson.postValue(mGson.toJson(descriptorData));
+                mClientCharacteristicConfigurationData.postValue(Utils.parcelableToByteArray(descriptorData));
                 if (descriptorData.data == null) {
                     clientCharacteristicConfiguration = null;
                 } else {
@@ -536,8 +535,8 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeHasClientCharacteristicConfigurationDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mClientCharacteristicConfigurationJson).observe(owner, new ExistObserver(observer));
+    public void observeHasClientCharacteristicConfigurationData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mClientCharacteristicConfigurationData).observe(owner, new ExistObserver(observer));
     }
 
     @MainThread
@@ -553,7 +552,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     @MainThread
     public void observeNotificationCountErrorString(@NonNull LifecycleOwner owner, @NonNull Observer<String> observer) {
         Transformations.distinctUntilChanged(mNotificationCount).observe(owner
-                , s -> observer.onChanged(mDeviceSettingRepository.getIndicationCountErrorString(s)));
+                , s -> observer.onChanged(mDeviceSettingRepository.getNotificationCountErrorString(s)));
     }
 
     @MainThread
@@ -662,25 +661,23 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
     }
 
     @Nullable
-    public String getClientCharacteristicConfigurationDescriptorJson() {
-        return mClientCharacteristicConfigurationJson.getValue();
+    public byte[] getClientCharacteristicConfigurationDescriptorData() {
+        return mClientCharacteristicConfigurationData.getValue();
     }
 
     @MainThread
-    public void setClientCharacteristicConfigurationDescriptorJson(@Nullable String clientCharacteristicConfigurationJson) {
-        mClientCharacteristicConfigurationJson.setValue(clientCharacteristicConfigurationJson);
-        if (clientCharacteristicConfigurationJson == null) {
+    public void setClientCharacteristicConfigurationDescriptorData(@Nullable byte[] clientCharacteristicConfigurationData) {
+        mClientCharacteristicConfigurationData.setValue(clientCharacteristicConfigurationData);
+        if (clientCharacteristicConfigurationData == null) {
             mClientCharacteristicConfiguration.setValue("");
         } else {
-            try {
-                DescriptorData descriptorData = mGson.fromJson(clientCharacteristicConfigurationJson, DescriptorData.class);
+            DescriptorData descriptorData = Utils.byteToParcelable(clientCharacteristicConfigurationData, DescriptorData.CREATOR);
+            if (descriptorData != null) {
                 if (descriptorData.data == null) {
                     mClientCharacteristicConfiguration.setValue("");
                 } else {
                     mClientCharacteristicConfiguration.postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesNotificationsEnabled()));
                 }
-            } catch (JsonSyntaxException e) {
-                stackLog(e);
             }
         }
     }
@@ -760,16 +757,16 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                 Integer irregularPulseDetection = mIrregularPulseDetection.getValue();
                 Integer pulseRateRangeDetection = mPulseRateRangeDetection.getValue();
                 Integer measurementPositionDetection = mMeasurementPositionDetection.getValue();
-                String indicationCount = mNotificationCount.getValue();
-                String clientCharacteristicConfigurationJson = mClientCharacteristicConfigurationJson.getValue();
+                String notificationCount = mNotificationCount.getValue();
+                byte[] clientCharacteristicConfigurationData = mClientCharacteristicConfigurationData.getValue();
 
                 if (currentCuffPressure != null && mDeviceSettingRepository.getCurrentCuffPressureErrorString(currentCuffPressure) == null
                         && (!isTimeStampSupported || (year != null && mDeviceSettingRepository.getDateTimeYearErrorString(year) == null && month != null && day != null && hours != null && minutes != null && seconds != null))
                         && (!isPulseRateSupported || (pulseRate != null && mDeviceSettingRepository.getPulseRateErrorString(pulseRate) == null))
                         && (!isUserIdSupported || (userId != null && mDeviceSettingRepository.getUserIdErrorString(userId) == null))
                         && (!isMeasurementStatusSupported || (bodyMovementDetection != null && cuffFitDetection != null && irregularPulseDetection != null && pulseRateRangeDetection != null && measurementPositionDetection != null))
-                        && indicationCount != null && mDeviceSettingRepository.getIndicationCountErrorString(indicationCount) == null
-                        && clientCharacteristicConfigurationJson != null) {
+                        && notificationCount != null && mDeviceSettingRepository.getNotificationCountErrorString(notificationCount) == null
+                        && clientCharacteristicConfigurationData != null) {
                     int flags = 0;
                     if (!isMmhg) {
                         flags |= BloodPressureMeasurementUtils.FLAG_BLOOD_PRESSURE_UNITS_KPA;
@@ -854,11 +851,11 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                             , measurementStatus).getBytes();
 
                     mCharacteristicData.descriptorDataList.clear();
-                    mCharacteristicData.descriptorDataList.add(mGson.fromJson(mClientCharacteristicConfigurationJson.getValue(), DescriptorData.class));
-                    mCharacteristicData.notificationCount = Integer.parseInt(indicationCount);
+                    mCharacteristicData.descriptorDataList.add(Utils.byteToParcelable(clientCharacteristicConfigurationData, DescriptorData.CREATOR));
+                    mCharacteristicData.notificationCount = Integer.parseInt(notificationCount);
 
                     Intent intent = new Intent();
-                    intent.putExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
+                    intent.putExtra(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(mCharacteristicData));
 
                     mSavedData.postValue(intent);
                     mCharacteristicData = null;

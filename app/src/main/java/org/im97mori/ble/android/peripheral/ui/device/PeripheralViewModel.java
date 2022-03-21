@@ -12,9 +12,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import com.google.gson.Gson;
-
-import org.im97mori.ble.MockData;
 import org.im97mori.ble.android.peripheral.hilt.repository.BluetoothSettingRepository;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
@@ -46,7 +43,6 @@ public class PeripheralViewModel extends BaseViewModel {
     private final SavedStateHandle mSavedStateHandle;
     private final DeviceSettingRepository mDeviceSettingRepository;
     private final BluetoothSettingRepository mBluetoothSettingRepository;
-    private final Gson mGson;
     private final java.util.function.Consumer<Boolean> mConsumer = new java.util.function.Consumer<Boolean>() {
         @Override
         public void accept(Boolean isOn) {
@@ -59,12 +55,10 @@ public class PeripheralViewModel extends BaseViewModel {
     @Inject
     public PeripheralViewModel(@NonNull SavedStateHandle savedStateHandle
             , @NonNull DeviceSettingRepository deviceSettingRepository
-            , @NonNull BluetoothSettingRepository bluetoothSettingRepository
-            , @NonNull Gson gson) {
+            , @NonNull BluetoothSettingRepository bluetoothSettingRepository) {
         mSavedStateHandle = savedStateHandle;
         mDeviceSettingRepository = deviceSettingRepository;
         mBluetoothSettingRepository = bluetoothSettingRepository;
-        mGson = gson;
 
         savedStateHandle.set(KEY_IS_READY, false);
         savedStateHandle.set(KEY_IS_STARTED, false);
@@ -83,8 +77,7 @@ public class PeripheralViewModel extends BaseViewModel {
                         mSavedStateHandle.<String>getLiveData(KEY_TITLE).postValue(deviceSetting.getDeviceSettingName());
                         mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE_IMAGE_RES_ID).postValue(mDeviceSettingRepository.getDeviceTypeImageResId(deviceSetting.getDeviceType()));
                         mSavedStateHandle.<Integer>getLiveData(KEY_DEVICE_TYPE).postValue(deviceSetting.getDeviceType());
-                        return Single.just(mBluetoothSettingRepository.createProfileMockCallback(deviceSetting.getDeviceType()
-                                , mGson.fromJson(deviceSetting.getDeviceSettingData(), MockData.class)
+                        return Single.just(mBluetoothSettingRepository.createProfileMockCallback(deviceSetting
                                 , new StateChangeServerCallback(isStart ->
                                         mSavedStateHandle.<Boolean>getLiveData(KEY_IS_STARTED).postValue(isStart))));
                     })

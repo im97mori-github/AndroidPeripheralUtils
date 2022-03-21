@@ -1,9 +1,9 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a35;
 
-import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
 
@@ -17,9 +17,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
 import org.im97mori.ble.BLEUtils;
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.DescriptorData;
@@ -27,6 +24,7 @@ import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingReposito
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
 import org.im97mori.ble.android.peripheral.utils.ExistObserver;
 import org.im97mori.ble.android.peripheral.utils.MapObserver;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.DateTimeUtils;
 import org.im97mori.ble.characteristic.core.IEEE_11073_20601_SFLOAT;
@@ -34,6 +32,7 @@ import org.im97mori.ble.characteristic.core.UserIndexUtils;
 import org.im97mori.ble.characteristic.u2a35.BloodPressureMeasurement;
 import org.im97mori.ble.descriptor.u2902.ClientCharacteristicConfiguration;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -56,7 +55,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     private static final String KEY_IS_USER_ID_SUPPORTED = "KEY_IS_USER_ID_SUPPORTED";
     private static final String KEY_IS_MEASUREMENT_STATUS_SUPPORTED = "KEY_IS_MEASUREMENT_STATUS_SUPPORTED";
 
-    private static final String KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON = "KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON";
+    private static final String KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA = "KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA";
 
     private static final String KEY_SYSTOLIC = "KEY_SYSTOLIC";
     private static final String KEY_DIASTOLIC = "KEY_DIASTOLIC";
@@ -104,14 +103,14 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
 
     private final MutableLiveData<String> mIndicationCount;
 
-    private final MutableLiveData<String> mClientCharacteristicConfigurationJson;
+    private final MutableLiveData<byte[]> mClientCharacteristicConfigurationData;
     private final MutableLiveData<String> mClientCharacteristicConfiguration;
 
     private final MutableLiveData<Intent> mSavedData;
 
     @Inject
-    public BloodPressureMeasurementSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+    public BloodPressureMeasurementSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
 
         mIsTimeStampSupported = savedStateHandle.getLiveData(KEY_IS_TIME_STAMP_SUPPORTED);
         mIsPulseRateSupported = savedStateHandle.getLiveData(KEY_IS_PULSE_RATE_SUPPORTED);
@@ -137,7 +136,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
         mMeasurementPositionDetection = savedStateHandle.getLiveData(KEY_MEASUREMENT_POSITION_DETECTION);
         mIndicationCount = savedStateHandle.getLiveData(KEY_INDICATION_COUNT);
 
-        mClientCharacteristicConfigurationJson = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON);
+        mClientCharacteristicConfigurationData = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA);
         mClientCharacteristicConfiguration = savedStateHandle.getLiveData(KEY_CLIENT_CHARACTERISTIC_CONFIGURATION);
 
         mSavedData = savedStateHandle.getLiveData(KEY_SAVED_DATA);
@@ -149,17 +148,17 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
-                try {
-                    mCharacteristicData = mGson.fromJson(intent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString())
-                            , CharacteristicData.class);
-                } catch (JsonSyntaxException e) {
-                    stackLog(e);
-                }
+                mCharacteristicData = Utils.byteToParcelable(intent.getByteArrayExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.CREATOR);
 
                 if (mCharacteristicData == null) {
-                    mCharacteristicData = new CharacteristicData();
-                    mCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-                    mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
+                     mCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                            , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                            , 0
+                            , new LinkedList<>()
+                            , BluetoothGatt.GATT_SUCCESS
+                            , 0
+                            , null
+                            , -1);
                 }
             }
 
@@ -410,7 +409,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                     .findAny();
             if (clientCharacteristicConfigurationOptional.isPresent()) {
                 DescriptorData descriptorData = clientCharacteristicConfigurationOptional.get();
-                mClientCharacteristicConfigurationJson.postValue(mGson.toJson(descriptorData));
+                mClientCharacteristicConfigurationData.postValue(Utils.parcelableToByteArray(descriptorData));
                 if (descriptorData.data == null) {
                     clientCharacteristicConfiguration = null;
                 } else {
@@ -593,8 +592,8 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @MainThread
-    public void observeHasClientCharacteristicConfigurationDataJson(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
-        Transformations.distinctUntilChanged(mClientCharacteristicConfigurationJson).observe(owner, new ExistObserver(observer));
+    public void observeHasClientCharacteristicConfigurationData(@NonNull LifecycleOwner owner, @NonNull Observer<Boolean> observer) {
+        Transformations.distinctUntilChanged(mClientCharacteristicConfigurationData).observe(owner, new ExistObserver(observer));
     }
 
     @MainThread
@@ -729,25 +728,23 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
     }
 
     @Nullable
-    public String getClientCharacteristicConfigurationDescriptorJson() {
-        return mClientCharacteristicConfigurationJson.getValue();
+    public byte[] getClientCharacteristicConfigurationDescriptorData() {
+        return mClientCharacteristicConfigurationData.getValue();
     }
 
     @MainThread
-    public void setClientCharacteristicConfigurationDescriptorJson(@Nullable String clientCharacteristicConfigurationJson) {
-        mClientCharacteristicConfigurationJson.setValue(clientCharacteristicConfigurationJson);
-        if (clientCharacteristicConfigurationJson == null) {
+    public void setClientCharacteristicConfigurationDescriptorData(@Nullable byte[] clientCharacteristicConfigurationData) {
+        mClientCharacteristicConfigurationData.setValue(clientCharacteristicConfigurationData);
+        if (clientCharacteristicConfigurationData == null) {
             mClientCharacteristicConfiguration.setValue("");
         } else {
-            try {
-                DescriptorData descriptorData = mGson.fromJson(clientCharacteristicConfigurationJson, DescriptorData.class);
+            DescriptorData descriptorData = Utils.byteToParcelable(clientCharacteristicConfigurationData, DescriptorData.CREATOR);
+            if (descriptorData != null) {
                 if (descriptorData.data == null) {
                     mClientCharacteristicConfiguration.setValue("");
                 } else {
                     mClientCharacteristicConfiguration.postValue(mDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesIndicationsEnabled()));
                 }
-            } catch (JsonSyntaxException e) {
-                stackLog(e);
             }
         }
     }
@@ -830,7 +827,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                 Integer pulseRateRangeDetection = mPulseRateRangeDetection.getValue();
                 Integer measurementPositionDetection = mMeasurementPositionDetection.getValue();
                 String indicationCount = mIndicationCount.getValue();
-                String clientCharacteristicConfigurationJson = mClientCharacteristicConfigurationJson.getValue();
+                byte[] clientCharacteristicConfigurationData = mClientCharacteristicConfigurationData.getValue();
 
                 if (systolic != null && mDeviceSettingRepository.getSystolicErrorString(systolic) == null
                         && diastolic != null && mDeviceSettingRepository.getDiastolicErrorString(diastolic) == null
@@ -840,7 +837,7 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                         && (!isUserIdSupported || (userId != null && mDeviceSettingRepository.getUserIdErrorString(userId) == null))
                         && (!isMeasurementStatusSupported || (bodyMovementDetection != null && cuffFitDetection != null && irregularPulseDetection != null && pulseRateRangeDetection != null && measurementPositionDetection != null))
                         && indicationCount != null && mDeviceSettingRepository.getIndicationCountErrorString(indicationCount) == null
-                        && clientCharacteristicConfigurationJson != null) {
+                        && clientCharacteristicConfigurationData != null) {
                     int flags = 0;
                     if (!isMmhg) {
                         flags |= BloodPressureMeasurementUtils.FLAG_BLOOD_PRESSURE_UNITS_KPA;
@@ -939,11 +936,11 @@ public class BloodPressureMeasurementSettingViewModel extends BaseCharacteristic
                             , measurementStatus).getBytes();
 
                     mCharacteristicData.descriptorDataList.clear();
-                    mCharacteristicData.descriptorDataList.add(mGson.fromJson(mClientCharacteristicConfigurationJson.getValue(), DescriptorData.class));
+                    mCharacteristicData.descriptorDataList.add(Utils.byteToParcelable(clientCharacteristicConfigurationData, DescriptorData.CREATOR));
                     mCharacteristicData.notificationCount = Integer.parseInt(indicationCount);
 
                     Intent intent = new Intent();
-                    intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
+                    intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(mCharacteristicData));
 
                     mSavedData.postValue(intent);
                     mCharacteristicData = null;

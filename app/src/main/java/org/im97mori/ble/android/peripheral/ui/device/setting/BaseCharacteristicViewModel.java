@@ -4,8 +4,6 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 
@@ -13,8 +11,8 @@ public abstract class BaseCharacteristicViewModel extends BaseSettingViewModel<I
 
     protected CharacteristicData mCharacteristicData;
 
-    public BaseCharacteristicViewModel(@NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+    public BaseCharacteristicViewModel(@NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
     }
 
 }

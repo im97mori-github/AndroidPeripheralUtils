@@ -5,8 +5,6 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 
 import javax.inject.Inject;
@@ -33,9 +31,8 @@ public class FakeDeviceInformationServiceSettingViewModel extends DeviceInformat
 
     @Inject
     FakeDeviceInformationServiceSettingViewModel(@NonNull SavedStateHandle savedStateHandle
-            , @NonNull FakeDeviceSettingRepository deviceSettingRepository
-            , @NonNull Gson gson) {
-        super(savedStateHandle, deviceSettingRepository, gson);
+            , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
+        super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;
         mFakeDeviceSettingRepository = deviceSettingRepository;
     }
@@ -103,11 +100,11 @@ public class FakeDeviceInformationServiceSettingViewModel extends DeviceInformat
     }
 
     private void test_systemIdCardView_00001() {
-        mSavedStateHandle.<String>set("KEY_SYSTEM_ID_DATA_JSON", null);
+        mSavedStateHandle.<String>set("KEY_SYSTEM_ID_DATA", null);
     }
 
     private void test_systemIdCardView_00002() {
-        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA_JSON", "");
+        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA", new byte[]{1});
     }
 
     private void test_systemIdSettingButton_00001() {
@@ -116,31 +113,31 @@ public class FakeDeviceInformationServiceSettingViewModel extends DeviceInformat
 
     private void test_systemIdSettingButton_00002() {
         mSavedStateHandle.set("KEY_IS_SYSTEM_ID_SUPPORTED", true);
-        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA", new byte[]{1});
     }
 
     private void test_modelNumberStringCardView_00001() {
-        mSavedStateHandle.<String>set("KEY_MODEL_NUMBER_STRING_DATA_JSON", null);
+        mSavedStateHandle.<String>set("KEY_MODEL_NUMBER_STRING_DATA", null);
     }
 
     private void test_modelNumberStringCardView_00002() {
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA_JSON", "");
+        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA", new byte[]{1});
     }
 
     private void test_modelNumberStringSettingButton_00002() {
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA", new byte[]{1});
     }
 
     private void test_manufacturerNameStringCardView_00001() {
-        mSavedStateHandle.<String>set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", null);
+        mSavedStateHandle.<String>set("KEY_MANUFACTURER_NAME_STRING_DATA", null);
     }
 
     private void test_manufacturerNameStringCardView_00002() {
-        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", "");
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA", new byte[]{1});
     }
 
     private void test_manufacturerNameStringSettingButton_00002() {
-        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", "a");
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA", new byte[]{1});
     }
 
     private void test_recreate_systemIdCardView_visibility_00001() {
@@ -152,15 +149,15 @@ public class FakeDeviceInformationServiceSettingViewModel extends DeviceInformat
     }
 
     private void test_recreate_systemIdCardView_00002() {
-        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA_JSON", "");
+        mSavedStateHandle.set("KEY_SYSTEM_ID_DATA", "");
     }
 
     private void test_recreate_modelNumberStringCardView_00002() {
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA_JSON", "");
+        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING_DATA", new byte[]{1});
     }
 
     private void test_recreate_manufacturerNameStringCardView_00002() {
-        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA_JSON", "");
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING_DATA", new byte[]{1});
     }
 
 }

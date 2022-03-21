@@ -12,11 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
-public class ClientCharacteristicConfigurationLauncherContract extends ActivityResultContract<Pair<String, Integer>, String> {
+public class ClientCharacteristicConfigurationLauncherContract extends ActivityResultContract<Pair<byte[], Integer>, byte[]> {
 
     @NonNull
     @Override
-    public Intent createIntent(@NonNull Context context, @NonNull Pair<String, Integer> input) {
+    public Intent createIntent(@NonNull Context context, @NonNull Pair<byte[], Integer> input) {
         Intent intent = new Intent(context.getApplicationContext(), ClientCharacteristicConfigurationSettingActivity.class);
         intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), input.first);
         intent.putExtra(KEY_PROPERTIES_TYPE, input.second);
@@ -24,13 +24,13 @@ public class ClientCharacteristicConfigurationLauncherContract extends ActivityR
     }
 
     @Override
-    public String parseResult(int resultCode, @Nullable Intent intent) {
-        String dataString;
+    public byte[] parseResult(int resultCode, @Nullable Intent intent) {
+        byte[] data;
         if (Activity.RESULT_OK == resultCode && intent != null) {
-            dataString = intent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString());
+            data = intent.getByteArrayExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString());
         } else {
-            dataString = null;
+            data = null;
         }
-        return dataString;
+        return data;
     }
 }

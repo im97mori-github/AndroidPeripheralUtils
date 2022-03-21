@@ -6,6 +6,7 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 
 import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
+import static org.junit.Assert.assertArrayEquals;
 
 import android.content.Context;
 
@@ -99,7 +100,7 @@ public class DeviceSettingDataSourceTest {
 
     @Test
     public void test_loadAllDeviceSetting_00003() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
@@ -108,7 +109,7 @@ public class DeviceSettingDataSourceTest {
         assertEquals(original.getId(), deviceSetting.getId());
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
-        assertNull(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertNull(deviceSetting.getDeviceSettingData());
     }
 
     @Test
@@ -121,19 +122,19 @@ public class DeviceSettingDataSourceTest {
 
     @Test
     public void test_loadDeviceSettingById_00002() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         DeviceSetting deviceSetting = mDeviceSettingDataSource.loadDeviceSettingById(original.getId()).blockingGet();
         assertEquals(original.getId(), deviceSetting.getId());
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
-        assertEquals(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertArrayEquals(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
     }
 
     @Test
     public void test_loadDeviceSettingById_00003() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         final AtomicBoolean result = new AtomicBoolean(false);
@@ -144,33 +145,33 @@ public class DeviceSettingDataSourceTest {
 
     @Test
     public void test_insertDeviceSetting_00001() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         DeviceSetting deviceSetting = mDeviceSettingDataSource.loadDeviceSettingById(original.getId()).blockingGet();
         assertEquals(original.getId(), deviceSetting.getId());
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
-        assertEquals(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertArrayEquals(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
     }
 
     @Test
     public void test_insertDeviceSetting_00002() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
-        DeviceSetting replaced = new DeviceSetting(1, "aa", 22, "bb");
+        DeviceSetting replaced = new DeviceSetting(1, "aa", 22, new byte[]{2});
         mDeviceSettingDataSource.insertDeviceSetting(replaced).blockingSubscribe();
 
         DeviceSetting deviceSetting = mDeviceSettingDataSource.loadDeviceSettingById(original.getId()).blockingGet();
         assertEquals(replaced.getId(), deviceSetting.getId());
         assertEquals(replaced.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(replaced.getDeviceType(), deviceSetting.getDeviceType());
-        assertEquals(replaced.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertArrayEquals(replaced.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
     }
 
     @Test
     public void test_deleteDeviceSetting_00001() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDataSource.deleteDeviceSetting(original).blockingSubscribe();
@@ -180,8 +181,8 @@ public class DeviceSettingDataSourceTest {
 
     @Test
     public void test_deleteDeviceSetting_00002() {
-        DeviceSetting original1 = new DeviceSetting(1, "a", 2, "b");
-        DeviceSetting original2 = new DeviceSetting(2, "aa", 22, "bb");
+        DeviceSetting original1 = new DeviceSetting(1, "a", 2, new byte[]{1});
+        DeviceSetting original2 = new DeviceSetting(2, "aa", 22, new byte[]{2});
         mDeviceSettingDataSource.insertDeviceSetting(original1).blockingSubscribe();
         mDeviceSettingDataSource.insertDeviceSetting(original2).blockingSubscribe();
 
@@ -191,12 +192,12 @@ public class DeviceSettingDataSourceTest {
         assertEquals(original2.getId(), deviceSetting.getId());
         assertEquals(original2.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original2.getDeviceType(), deviceSetting.getDeviceType());
-        assertEquals(original2.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertArrayEquals(original2.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
     }
 
     @Test
     public void test_deleteAllDeviceSetting_00001() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDataSource.deleteAllDeviceSetting().blockingSubscribe();
@@ -206,8 +207,8 @@ public class DeviceSettingDataSourceTest {
 
     @Test
     public void test_deleteAllDeviceSetting_00002() {
-        DeviceSetting original1 = new DeviceSetting(1, "a", 2, "b");
-        DeviceSetting original2 = new DeviceSetting(2, "aa", 22, "bb");
+        DeviceSetting original1 = new DeviceSetting(1, "a", 2, new byte[]{1});
+        DeviceSetting original2 = new DeviceSetting(2, "aa", 22, new byte[]{2});
         mDeviceSettingDataSource.insertDeviceSetting(original1).blockingSubscribe();
         mDeviceSettingDataSource.insertDeviceSetting(original2).blockingSubscribe();
 

@@ -67,18 +67,18 @@ dependencies {
     // androidx library
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.4.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.4.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.4.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.4.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     testImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'android.arch.core:core-testing:1.1.1'
     testImplementation 'android.arch.core:core-testing:1.1.1'
 
     // room
-    implementation "androidx.room:room-runtime:2.4.1"
-    annotationProcessor "androidx.room:room-compiler:2.4.1"
-    implementation "androidx.room:room-rxjava3:2.4.1"
-    testImplementation "androidx.room:room-testing:2.4.1"
+    implementation "androidx.room:room-runtime:2.4.2"
+    annotationProcessor "androidx.room:room-compiler:2.4.2"
+    implementation "androidx.room:room-rxjava3:2.4.2"
+    testImplementation "androidx.room:room-testing:2.4.2"
 
     // hilt
     implementation 'com.google.dagger:hilt-android:2.40.5'
@@ -94,7 +94,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0'
 
     // blp peripheral
-    implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.5'
+    implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.6'
 
     // license activity
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'

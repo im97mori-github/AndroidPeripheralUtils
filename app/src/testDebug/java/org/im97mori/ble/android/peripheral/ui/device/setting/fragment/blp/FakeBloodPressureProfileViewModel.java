@@ -1,12 +1,7 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp;
 
-import android.content.Intent;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.SavedStateHandle;
-
-import com.google.gson.Gson;
 
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 
@@ -21,13 +16,12 @@ public class FakeBloodPressureProfileViewModel extends BloodPressureProfileViewM
 
     private final SavedStateHandle mSavedStateHandle;
 
-    public final PublishSubject<String> mObserveSaveSubject = PublishSubject.create();
+    public final PublishSubject<byte[]> mObserveSaveSubject = PublishSubject.create();
 
     @Inject
     public FakeBloodPressureProfileViewModel(@NonNull SavedStateHandle savedStateHandle
-            , @NonNull DeviceSettingRepository deviceSettingRepository
-            , @NonNull Gson gson) {
-        super(savedStateHandle, deviceSettingRepository, gson);
+            , @NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;
     }
 

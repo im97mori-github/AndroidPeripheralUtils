@@ -18,13 +18,12 @@ import android.os.Build;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.DescriptorData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.descriptor.u2902.ClientCharacteristicConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -77,15 +76,12 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
     @ApplicationContext
     Context mContext;
 
-    @Inject
-    Gson mGson;
-
     @Before
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
         mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
-        mViewModel = new ClientCharacteristicConfigurationSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository, mGson);
+        mViewModel = new ClientCharacteristicConfigurationSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository);
     }
 
     @After
@@ -210,12 +206,12 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        DescriptorData descriptorData = new DescriptorData();
-        descriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        descriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        descriptorData.responseCode = 2;
-        descriptorData.delay = 1;
-        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+        DescriptorData descriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , 2
+                , 1
+                , null);
+        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), Utils.parcelableToByteArray(descriptorData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -259,13 +255,12 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        DescriptorData descriptorData = new DescriptorData();
-        descriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        descriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        descriptorData.responseCode = 2;
-        descriptorData.delay = 1;
-        descriptorData.data = new ClientCharacteristicConfiguration(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE).getProperties();
-        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+        DescriptorData descriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , 2
+                , 1
+                , new ClientCharacteristicConfiguration(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE).getProperties());
+        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), Utils.parcelableToByteArray(descriptorData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -309,13 +304,12 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        DescriptorData descriptorData = new DescriptorData();
-        descriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        descriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        descriptorData.responseCode = 2;
-        descriptorData.delay = 1;
-        descriptorData.data = new ClientCharacteristicConfiguration(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE).getProperties();
-        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+        DescriptorData descriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , 2
+                , 1
+                , new ClientCharacteristicConfiguration(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE).getProperties());
+        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), Utils.parcelableToByteArray(descriptorData));
         intent.putExtra(KEY_PROPERTIES_TYPE, BluetoothGattCharacteristic.PROPERTY_INDICATE);
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
@@ -737,7 +731,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+                descriptorDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -767,7 +761,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+                descriptorDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -798,7 +792,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+                descriptorDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -829,7 +823,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+                descriptorDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -860,7 +854,7 @@ public class ClientCharacteristicConfigurationSettingViewModelTest {
 
         AtomicReference<DescriptorData> descriptorDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                descriptorDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.class)));
+                descriptorDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString()), DescriptorData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 

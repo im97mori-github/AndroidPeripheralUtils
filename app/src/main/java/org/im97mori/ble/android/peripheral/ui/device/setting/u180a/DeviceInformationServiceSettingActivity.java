@@ -28,14 +28,14 @@ public class DeviceInformationServiceSettingActivity extends AppCompatActivity {
 
     private DeviceInformationServiceSettingViewModel mViewModel;
 
-    private final ActivityResultLauncher<String> mStartSystemIdSettingActivity
-            = registerForActivityResult(new SystemIdLauncherContract(), result -> mViewModel.setSystemIdDataJson(result));
+    private final ActivityResultLauncher<byte[]> mStartSystemIdSettingActivity
+            = registerForActivityResult(new SystemIdLauncherContract(), result -> mViewModel.setSystemIdData(result));
 
-    private final ActivityResultLauncher<String> mStartModelNumberStringSettingActivity
-            = registerForActivityResult(new ModelNumberStringLauncherContract(), result -> mViewModel.setModelNumberStringDataJson(result));
+    private final ActivityResultLauncher<byte[]> mStartModelNumberStringSettingActivity
+            = registerForActivityResult(new ModelNumberStringLauncherContract(), result -> mViewModel.setModelNumberStringData(result));
 
-    private final ActivityResultLauncher<String> mStartManufacturerNameStringSettingActivity
-            = registerForActivityResult(new ManufacturerNameStringLauncherContract(), result -> mViewModel.setManufacturerNameStringDataJson(result));
+    private final ActivityResultLauncher<byte[]> mStartManufacturerNameStringSettingActivity
+            = registerForActivityResult(new ManufacturerNameStringLauncherContract(), result -> mViewModel.setManufacturerNameStringData(result));
 
     private DeviceInformationServiceSettingActivityBinding mBinding;
 
@@ -51,9 +51,9 @@ public class DeviceInformationServiceSettingActivity extends AppCompatActivity {
             mBinding.isSystemIdSupported.setChecked(check);
             mBinding.systemIdCardView.setVisibility(check ? View.VISIBLE : View.GONE);
         });
-        mViewModel.observeHasSystemIdDataJson(this, mBinding.systemIdCardView::setChecked);
-        mViewModel.observeHasModelNumberStringDataJson(this, mBinding.modelNumberStringCardView::setChecked);
-        mViewModel.observeHasManufacturerNameStringDataJson(this, mBinding.manufacturerNameStringCardView::setChecked);
+        mViewModel.observeHasSystemIdData(this, mBinding.systemIdCardView::setChecked);
+        mViewModel.observeHasModelNumberStringData(this, mBinding.modelNumberStringCardView::setChecked);
+        mViewModel.observeHasManufacturerNameStringData(this, mBinding.manufacturerNameStringCardView::setChecked);
 
         mViewModel.observeManufacturerIdentifier(this, mBinding.manufacturerIdentifier::setText);
         mViewModel.observeOrganizationallyUniqueIdentifier(this, mBinding.organizationallyUniqueIdentifier::setText);
@@ -62,9 +62,9 @@ public class DeviceInformationServiceSettingActivity extends AppCompatActivity {
 
         mBinding.isSystemIdSupported.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.updateIsSystemIdSupported(isChecked));
 
-        mBinding.systemIdSettingButton.setOnClickListener(v -> mStartSystemIdSettingActivity.launch(mViewModel.getSystemIdDataJson()));
-        mBinding.modelNumberStringSettingButton.setOnClickListener(v -> mStartModelNumberStringSettingActivity.launch(mViewModel.getModelNumberStringDataJson()));
-        mBinding.manufacturerNameStringSettingButton.setOnClickListener(v -> mStartManufacturerNameStringSettingActivity.launch(mViewModel.getManufacturerNameStringDataJson()));
+        mBinding.systemIdSettingButton.setOnClickListener(v -> mStartSystemIdSettingActivity.launch(mViewModel.getSystemIdData()));
+        mBinding.modelNumberStringSettingButton.setOnClickListener(v -> mStartModelNumberStringSettingActivity.launch(mViewModel.getModelNumberStringData()));
+        mBinding.manufacturerNameStringSettingButton.setOnClickListener(v -> mStartManufacturerNameStringSettingActivity.launch(mViewModel.getManufacturerNameStringData()));
 
         mViewModel.observeSavedData(this, intent -> {
             setResult(RESULT_OK, intent);

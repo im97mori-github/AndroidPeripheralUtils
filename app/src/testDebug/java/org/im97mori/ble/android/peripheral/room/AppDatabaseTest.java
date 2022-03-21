@@ -75,6 +75,6 @@ public class AppDatabaseTest {
         column = tableInfo.columns.get("device_setting_data");
         assertNotNull(column);
         assertFalse(column.notNull);
-        assertEquals("TEXT", column.type);
+        assertEquals("BLOB", column.type);
     }
 }

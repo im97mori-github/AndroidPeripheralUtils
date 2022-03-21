@@ -5,7 +5,7 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.constants.CharacteristicUUID.SYSTEM_ID_CHARACTERISTIC;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.app.Activity;
@@ -53,7 +53,7 @@ public class SystemIdLauncherContractTest {
 
     @Test
     public void test_createIntent_00001() {
-        String original = "a";
+        byte[] original = new byte[]{1};
         Intent intent = mSystemIdLauncherContract.createIntent(mContext, original);
         assertTrue(hasComponent(new ComponentName(mContext, SystemIdSettingActivity.class)).matches(intent));
         assertTrue(hasExtra(SYSTEM_ID_CHARACTERISTIC.toString(), original).matches(intent));
@@ -61,12 +61,12 @@ public class SystemIdLauncherContractTest {
 
     @Test
     public void test_parseResult_00001() {
-        String original = "a";
+        byte[] original = new byte[]{1};
         Intent intent = new Intent();
         intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), original);
-        String parsed = mSystemIdLauncherContract.parseResult(Activity.RESULT_OK, intent);
+        byte[] parsed = mSystemIdLauncherContract.parseResult(Activity.RESULT_OK, intent);
         assertNotNull(parsed);
-        assertEquals(original, parsed);
+        assertArrayEquals(original, parsed);
     }
 
     @Test

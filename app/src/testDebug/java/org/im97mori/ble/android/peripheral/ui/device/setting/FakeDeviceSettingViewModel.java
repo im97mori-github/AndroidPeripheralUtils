@@ -6,8 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 
 import javax.inject.Inject;
@@ -24,15 +22,14 @@ public class FakeDeviceSettingViewModel extends DeviceSettingViewModel {
     public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
     public final PublishSubject<String> mFragmentReadySubject = PublishSubject.create();
     public java.util.function.Consumer<String> mUpdateDeviceSettingNameConsumer;
-    public java.util.function.Consumer<String> mUpdateMockDataStringConsumer;
+    public java.util.function.Consumer<byte[]> mUpdateMockDataStringConsumer;
 
     public final FakeDeviceSettingRepository mFakeDeviceSettingRepository;
 
     @Inject
     FakeDeviceSettingViewModel(@NonNull SavedStateHandle savedStateHandle
-            , @NonNull FakeDeviceSettingRepository deviceSettingRepository
-            , @NonNull Gson gson) {
-        super(savedStateHandle, deviceSettingRepository, gson);
+            , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
+        super(savedStateHandle, deviceSettingRepository);
         mFakeDeviceSettingRepository = deviceSettingRepository;
     }
 
@@ -53,11 +50,11 @@ public class FakeDeviceSettingViewModel extends DeviceSettingViewModel {
     }
 
     @Override
-    public void updateMockDataString(@Nullable String text) {
+    public void updateMockData(@Nullable byte[] data) {
         if (mUpdateMockDataStringConsumer != null) {
-            mUpdateMockDataStringConsumer.accept(text);
+            mUpdateMockDataStringConsumer.accept(data);
         }
-        super.updateMockDataString(text);
+        super.updateMockData(data);
     }
 
     @Override

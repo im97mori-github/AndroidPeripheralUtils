@@ -4,6 +4,8 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import android.content.Context;
 import android.os.Build;
 
@@ -90,7 +92,7 @@ public class DeviceSettingDaoTest {
 
     @Test
     public void test_loadAllDeviceSetting_00003() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
@@ -99,7 +101,7 @@ public class DeviceSettingDaoTest {
         assertEquals(original.getId(), deviceSetting.getId());
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
-        assertNull(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertNull(deviceSetting.getDeviceSettingData());
     }
 
     @Test
@@ -112,19 +114,19 @@ public class DeviceSettingDaoTest {
 
     @Test
     public void test_loadDeviceSettingById_00002() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         DeviceSetting deviceSetting = mDeviceSettingDao.loadDeviceSettingById(original.getId()).blockingGet();
         assertEquals(original.getId(), deviceSetting.getId());
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
-        assertEquals(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertArrayEquals(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
     }
 
     @Test
     public void test_loadDeviceSettingById_00003() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         final AtomicBoolean result = new AtomicBoolean(false);
@@ -135,33 +137,33 @@ public class DeviceSettingDaoTest {
 
     @Test
     public void test_insertDeviceSetting_00001() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         DeviceSetting deviceSetting = mDeviceSettingDao.loadDeviceSettingById(original.getId()).blockingGet();
         assertEquals(original.getId(), deviceSetting.getId());
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
-        assertEquals(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertArrayEquals(original.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
     }
 
     @Test
     public void test_insertDeviceSetting_00002() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
-        DeviceSetting replaced = new DeviceSetting(1, "aa", 22, "bb");
+        DeviceSetting replaced = new DeviceSetting(1, "aa", 22, new byte[]{2});
         mDeviceSettingDao.insertDeviceSetting(replaced).blockingSubscribe();
 
         DeviceSetting deviceSetting = mDeviceSettingDao.loadDeviceSettingById(original.getId()).blockingGet();
         assertEquals(replaced.getId(), deviceSetting.getId());
         assertEquals(replaced.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(replaced.getDeviceType(), deviceSetting.getDeviceType());
-        assertEquals(replaced.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertArrayEquals(replaced.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
     }
 
     @Test
     public void test_deleteDeviceSetting_00001() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDao.deleteDeviceSetting(original).blockingSubscribe();
@@ -171,8 +173,8 @@ public class DeviceSettingDaoTest {
 
     @Test
     public void test_deleteDeviceSetting_00002() {
-        DeviceSetting original1 = new DeviceSetting(1, "a", 2, "b");
-        DeviceSetting original2 = new DeviceSetting(2, "aa", 22, "bb");
+        DeviceSetting original1 = new DeviceSetting(1, "a", 2, new byte[]{1});
+        DeviceSetting original2 = new DeviceSetting(2, "aa", 22, new byte[]{2});
         mDeviceSettingDao.insertDeviceSetting(original1).blockingSubscribe();
         mDeviceSettingDao.insertDeviceSetting(original2).blockingSubscribe();
 
@@ -182,12 +184,12 @@ public class DeviceSettingDaoTest {
         assertEquals(original2.getId(), deviceSetting.getId());
         assertEquals(original2.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original2.getDeviceType(), deviceSetting.getDeviceType());
-        assertEquals(original2.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
+        assertArrayEquals(original2.getDeviceSettingData(), deviceSetting.getDeviceSettingData());
     }
 
     @Test
     public void test_deleteAllDeviceSetting_00001() {
-        DeviceSetting original = new DeviceSetting(1, "a", 2, "b");
+        DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDao.deleteAllDeviceSetting().blockingSubscribe();
@@ -197,8 +199,8 @@ public class DeviceSettingDaoTest {
 
     @Test
     public void test_deleteAllDeviceSetting_00002() {
-        DeviceSetting original1 = new DeviceSetting(1, "a", 2, "b");
-        DeviceSetting original2 = new DeviceSetting(2, "aa", 22, "bb");
+        DeviceSetting original1 = new DeviceSetting(1, "a", 2, new byte[]{1});
+        DeviceSetting original2 = new DeviceSetting(2, "aa", 22, new byte[]{2});
         mDeviceSettingDao.insertDeviceSetting(original1).blockingSubscribe();
         mDeviceSettingDao.insertDeviceSetting(original2).blockingSubscribe();
 

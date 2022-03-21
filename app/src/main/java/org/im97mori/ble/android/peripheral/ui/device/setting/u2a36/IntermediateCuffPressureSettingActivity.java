@@ -34,8 +34,8 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
 
     private IntermediateCuffPressureSettingActivityBinding mBinding;
 
-    private final ActivityResultLauncher<Pair<String, Integer>> mStartClientCharacteristicConfigurationSettingActivity = registerForActivityResult(new ClientCharacteristicConfigurationLauncherContract()
-            , result -> mViewModel.setClientCharacteristicConfigurationDescriptorJson(result));
+    private final ActivityResultLauncher<Pair<byte[], Integer>> mStartClientCharacteristicConfigurationSettingActivity = registerForActivityResult(new ClientCharacteristicConfigurationLauncherContract()
+            , result -> mViewModel.setClientCharacteristicConfigurationDescriptorData(result));
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -145,11 +145,11 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
         mViewModel.observeMeasurementPositionDetection(this, charSequence -> setTextDistinct(mBinding.measurementPositionDetectionEdit, charSequence));
         mBinding.measurementPositionDetectionEdit.setOnItemClickListener((parent, view, position, id) -> mViewModel.updateMeasurementPositionDetection(position));
 
-        mViewModel.observeHasClientCharacteristicConfigurationDataJson(this, check -> mBinding.clientCharacteristicConfigurationCardView.setChecked(check));
+        mViewModel.observeHasClientCharacteristicConfigurationData(this, check -> mBinding.clientCharacteristicConfigurationCardView.setChecked(check));
 
         mViewModel.observeClientCharacteristicConfiguration(this, s -> mBinding.clientCharacteristicConfiguration.setText(s));
         mBinding.clientCharacteristicConfigurationSettingButton.setOnClickListener(v ->
-                mStartClientCharacteristicConfigurationSettingActivity.launch(Pair.create(mViewModel.getClientCharacteristicConfigurationDescriptorJson()
+                mStartClientCharacteristicConfigurationSettingActivity.launch(Pair.create(mViewModel.getClientCharacteristicConfigurationDescriptorData()
                         , BluetoothGattCharacteristic.PROPERTY_NOTIFY)));
 
         mViewModel.observeNotificationCount(this, charSequence -> setTextDistinct(mBinding.notificationCountEdit, charSequence));

@@ -19,6 +19,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.content.Context;
@@ -29,8 +30,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.core.util.Pair;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import junit.framework.TestCase;
 
 import org.im97mori.ble.BLEUtils;
@@ -39,6 +38,7 @@ import org.im97mori.ble.DescriptorData;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.IEEE_11073_20601_SFLOAT;
 import org.im97mori.ble.characteristic.u2a35.BloodPressureMeasurement;
@@ -51,6 +51,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -96,15 +97,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
     @ApplicationContext
     Context mContext;
 
-    @Inject
-    Gson mGson;
-
     @Before
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
         mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
-        mViewModel = new BloodPressureMeasurementSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository, mGson);
+        mViewModel = new BloodPressureMeasurementSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository);
     }
 
     @After
@@ -150,7 +148,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         AtomicReference<String> irregularPulseDetectionReference = new AtomicReference<>();
         AtomicReference<String> pulseRateRangeDetectionReference = new AtomicReference<>();
         AtomicReference<String> measurementPositionDetectionReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataReference = new AtomicReference<>();
         AtomicReference<String> clientCharacteristicConfigurationReference = new AtomicReference<>();
         AtomicReference<String> indicationCountReference = new AtomicReference<>();
         AtomicReference<String> indicationCountErrorStringReference = new AtomicReference<>();
@@ -183,7 +181,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), irregularPulseDetectionReference::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), pulseRateRangeDetectionReference::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), measurementPositionDetectionReference::set);
-        mViewModel.observeHasClientCharacteristicConfigurationDataJson(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataJsonReference::set);
+        mViewModel.observeHasClientCharacteristicConfigurationData(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataReference::set);
         mViewModel.observeClientCharacteristicConfiguration(new TestLifeCycleOwner(), clientCharacteristicConfigurationReference::set);
         mViewModel.observeIndicationCount(new TestLifeCycleOwner(), indicationCountReference::set);
         mViewModel.observeIndicationCountErrorString(new TestLifeCycleOwner(), indicationCountErrorStringReference::set);
@@ -224,7 +222,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         assertNull(irregularPulseDetectionReference.get());
         assertNull(pulseRateRangeDetectionReference.get());
         assertNull(measurementPositionDetectionReference.get());
-        assertNull(hasClientCharacteristicConfigurationDataJsonReference.get());
+        assertNull(hasClientCharacteristicConfigurationDataReference.get());
         assertEquals("", clientCharacteristicConfigurationReference.get());
         assertEquals(-1, Integer.parseInt(indicationCountReference.get()));
         assertNull(indicationCountErrorStringReference.get());
@@ -265,7 +263,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         AtomicReference<String> irregularPulseDetectionReference = new AtomicReference<>();
         AtomicReference<String> pulseRateRangeDetectionReference = new AtomicReference<>();
         AtomicReference<String> measurementPositionDetectionReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataReference = new AtomicReference<>();
         AtomicReference<String> clientCharacteristicConfigurationReference = new AtomicReference<>();
         AtomicReference<String> indicationCountReference = new AtomicReference<>();
         AtomicReference<String> indicationCountErrorStringReference = new AtomicReference<>();
@@ -298,16 +296,21 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), irregularPulseDetectionReference::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), pulseRateRangeDetectionReference::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), measurementPositionDetectionReference::set);
-        mViewModel.observeHasClientCharacteristicConfigurationDataJson(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataJsonReference::set);
+        mViewModel.observeHasClientCharacteristicConfigurationData(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataReference::set);
         mViewModel.observeClientCharacteristicConfiguration(new TestLifeCycleOwner(), clientCharacteristicConfigurationReference::set);
         mViewModel.observeIndicationCount(new TestLifeCycleOwner(), indicationCountReference::set);
         mViewModel.observeIndicationCountErrorString(new TestLifeCycleOwner(), indicationCountErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
-        intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
+        intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
@@ -344,7 +347,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         assertNull(irregularPulseDetectionReference.get());
         assertNull(pulseRateRangeDetectionReference.get());
         assertNull(measurementPositionDetectionReference.get());
-        assertNull(hasClientCharacteristicConfigurationDataJsonReference.get());
+        assertNull(hasClientCharacteristicConfigurationDataReference.get());
         assertEquals("", clientCharacteristicConfigurationReference.get());
         assertEquals(-1, Integer.parseInt(indicationCountReference.get()));
         assertNull(indicationCountErrorStringReference.get());
@@ -385,7 +388,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         AtomicReference<String> irregularPulseDetectionReference = new AtomicReference<>();
         AtomicReference<String> pulseRateRangeDetectionReference = new AtomicReference<>();
         AtomicReference<String> measurementPositionDetectionReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataReference = new AtomicReference<>();
         AtomicReference<String> clientCharacteristicConfigurationReference = new AtomicReference<>();
         AtomicReference<String> indicationCountReference = new AtomicReference<>();
         AtomicReference<String> indicationCountErrorStringReference = new AtomicReference<>();
@@ -418,15 +421,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), irregularPulseDetectionReference::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), pulseRateRangeDetectionReference::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), measurementPositionDetectionReference::set);
-        mViewModel.observeHasClientCharacteristicConfigurationDataJson(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataJsonReference::set);
+        mViewModel.observeHasClientCharacteristicConfigurationData(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataReference::set);
         mViewModel.observeClientCharacteristicConfiguration(new TestLifeCycleOwner(), clientCharacteristicConfigurationReference::set);
         mViewModel.observeIndicationCount(new TestLifeCycleOwner(), indicationCountReference::set);
         mViewModel.observeIndicationCountErrorString(new TestLifeCycleOwner(), indicationCountErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -465,9 +465,16 @@ public class BloodPressureMeasurementSettingViewModelTest {
                 , bloodPressureMeasurementPulseRate
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
-        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , bloodPressureMeasurement.getBytes()
+                , -1);
 
-        intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
@@ -504,7 +511,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         assertNull(irregularPulseDetectionReference.get());
         assertNull(pulseRateRangeDetectionReference.get());
         assertNull(measurementPositionDetectionReference.get());
-        assertNull(hasClientCharacteristicConfigurationDataJsonReference.get());
+        assertNull(hasClientCharacteristicConfigurationDataReference.get());
         assertEquals("", clientCharacteristicConfigurationReference.get());
         assertEquals(-1, Integer.parseInt(indicationCountReference.get()));
         assertNull(indicationCountErrorStringReference.get());
@@ -545,7 +552,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
         AtomicReference<String> irregularPulseDetectionReference = new AtomicReference<>();
         AtomicReference<String> pulseRateRangeDetectionReference = new AtomicReference<>();
         AtomicReference<String> measurementPositionDetectionReference = new AtomicReference<>();
-        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataReference = new AtomicReference<>();
         AtomicReference<String> clientCharacteristicConfigurationReference = new AtomicReference<>();
         AtomicReference<String> indicationCountReference = new AtomicReference<>();
         AtomicReference<String> indicationCountErrorStringReference = new AtomicReference<>();
@@ -578,15 +585,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.observeIrregularPulseDetection(new TestLifeCycleOwner(), irregularPulseDetectionReference::set);
         mViewModel.observePulseRateRangeDetection(new TestLifeCycleOwner(), pulseRateRangeDetectionReference::set);
         mViewModel.observeMeasurementPositionDetection(new TestLifeCycleOwner(), measurementPositionDetectionReference::set);
-        mViewModel.observeHasClientCharacteristicConfigurationDataJson(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataJsonReference::set);
+        mViewModel.observeHasClientCharacteristicConfigurationData(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataReference::set);
         mViewModel.observeClientCharacteristicConfiguration(new TestLifeCycleOwner(), clientCharacteristicConfigurationReference::set);
         mViewModel.observeIndicationCount(new TestLifeCycleOwner(), indicationCountReference::set);
         mViewModel.observeIndicationCountErrorString(new TestLifeCycleOwner(), indicationCountErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
         int bloodPressureMeasurementFlags = BloodPressureMeasurementUtils.FLAG_BLOOD_PRESSURE_UNITS_KPA
                 | BloodPressureMeasurementUtils.FLAG_TIME_STAMP_PRESENT
                 | BloodPressureMeasurementUtils.FLAG_PULSE_RATE_PRESENT
@@ -629,14 +633,22 @@ public class BloodPressureMeasurementSettingViewModelTest {
                 , bloodPressureMeasurementPulseRate
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
-        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , bloodPressureMeasurement.getBytes()
+                , -1);
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
         bloodPressureMeasurementCharacteristicData.descriptorDataList.add(clientCharacteristicConfigurationDescriptorData);
 
-        intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), mGson.toJson(bloodPressureMeasurementCharacteristicData));
+        intent.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData));
 
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
@@ -714,7 +726,7 @@ public class BloodPressureMeasurementSettingViewModelTest {
             assertEquals(optional.get().second, measurementPositionDetectionReference.get());
         }
 
-        assertTrue(hasClientCharacteristicConfigurationDataJsonReference.get());
+        assertTrue(hasClientCharacteristicConfigurationDataReference.get());
         assertEquals(mFakeDeviceSettingRepository.getIndicationsDisabledString(), clientCharacteristicConfigurationReference.get());
         assertEquals(-1, Integer.parseInt(indicationCountReference.get()));
         assertNull(indicationCountErrorStringReference.get());
@@ -770,11 +782,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -798,11 +811,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateSystolic("1");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -826,11 +840,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateSystolic("1");
         mViewModel.updateDiastolic("2");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<Throwable> throwableReference = new AtomicReference<>();
         mViewModel.save(throwableReference::set);
@@ -855,11 +870,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsTimeStampSupported(true);
         mViewModel.updateTimeStampMonth(0);
@@ -891,11 +907,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsTimeStampSupported(true);
         mViewModel.updateTimeStampYear("5555");
@@ -927,11 +944,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsTimeStampSupported(true);
         mViewModel.updateTimeStampYear("5555");
@@ -963,11 +981,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsTimeStampSupported(true);
         mViewModel.updateTimeStampYear("5555");
@@ -999,11 +1018,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsTimeStampSupported(true);
         mViewModel.updateTimeStampYear("5555");
@@ -1035,11 +1055,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsTimeStampSupported(true);
         mViewModel.updateTimeStampYear("5555");
@@ -1071,11 +1092,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsPulseRateSupported(true);
 
@@ -1102,11 +1124,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsUserIdSupported(true);
 
@@ -1133,11 +1156,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsMeasurementStatusSupported(true);
         mViewModel.updateCuffFitDetection(0);
@@ -1168,11 +1192,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsMeasurementStatusSupported(true);
         mViewModel.updateBodyMovementDetection(0);
@@ -1203,11 +1228,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsMeasurementStatusSupported(true);
         mViewModel.updateBodyMovementDetection(0);
@@ -1238,11 +1264,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsMeasurementStatusSupported(true);
         mViewModel.updateBodyMovementDetection(0);
@@ -1273,11 +1300,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIsMeasurementStatusSupported(true);
         mViewModel.updateBodyMovementDetection(0);
@@ -1308,11 +1336,12 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic("2");
         mViewModel.updateMeanArterialPressure("3");
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         mViewModel.updateIndicationCount("");
 
@@ -1366,15 +1395,16 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateDiastolic(String.valueOf(diastolic));
         mViewModel.updateMeanArterialPressure(String.valueOf(meanArterialPressure));
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1410,15 +1440,16 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateMeanArterialPressure(String.valueOf(meanArterialPressure));
         mViewModel.updateIsMmhg(false);
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1467,15 +1498,16 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateTimeStampMinutes(minutes);
         mViewModel.updateTimeStampSeconds(seconds);
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1520,15 +1552,16 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateIsPulseRateSupported(true);
         mViewModel.updatePulseRate(String.valueOf(pulseRate));
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1568,15 +1601,16 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updateIsUserIdSupported(true);
         mViewModel.updateUserId(String.valueOf(userId));
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1630,15 +1664,16 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.updatePulseRateRangeDetection(pulseRateRangeDetectionIndex);
         mViewModel.updateMeasurementPositionDetection(measurementPositionDetectionIndex);
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1685,15 +1720,16 @@ public class BloodPressureMeasurementSettingViewModelTest {
 
         mViewModel.updateIndicationCount(String.valueOf(indicationCount));
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(mGson.toJson(clientCharacteristicConfigurationDescriptorData));
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData));
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -3488,62 +3524,62 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_observeHasClientCharacteristicConfigurationDataJson_00001() {
+    public void test_observeHasClientCharacteristicConfigurationData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataReference = new AtomicReference<>();
 
-        mViewModel.observeHasClientCharacteristicConfigurationDataJson(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataJsonReference::set);
+        mViewModel.observeHasClientCharacteristicConfigurationData(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataReference::set);
 
-        TestCase.assertNull(hasClientCharacteristicConfigurationDataJsonReference.get());
+        TestCase.assertNull(hasClientCharacteristicConfigurationDataReference.get());
     }
 
     @Test
-    public void test_observeHasClientCharacteristicConfigurationDataJson_00002() {
-        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
-        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
-
-        String original = "a";
-        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataJsonReference = new AtomicReference<>();
-
-        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON", original);
-        mViewModel.observeHasClientCharacteristicConfigurationDataJson(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataJsonReference::set);
-
-        assertTrue(hasClientCharacteristicConfigurationDataJsonReference.get());
-    }
-
-    @Test
-    public void test_observeHasClientCharacteristicConfigurationDataJson_00003() {
+    public void test_observeHasClientCharacteristicConfigurationData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         String original = "a";
-        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataReference = new AtomicReference<>();
 
-        mViewModel.observeHasClientCharacteristicConfigurationDataJson(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataJsonReference::set);
-        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON", original);
+        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA", original);
+        mViewModel.observeHasClientCharacteristicConfigurationData(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataReference::set);
 
-        assertTrue(hasClientCharacteristicConfigurationDataJsonReference.get());
+        assertTrue(hasClientCharacteristicConfigurationDataReference.get());
     }
 
     @Test
-    public void test_observeHasClientCharacteristicConfigurationDataJson_00004() {
+    public void test_observeHasClientCharacteristicConfigurationData_00003() {
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+
+        String original = "a";
+        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataReference = new AtomicReference<>();
+
+        mViewModel.observeHasClientCharacteristicConfigurationData(new TestLifeCycleOwner(), hasClientCharacteristicConfigurationDataReference::set);
+        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA", original);
+
+        assertTrue(hasClientCharacteristicConfigurationDataReference.get());
+    }
+
+    @Test
+    public void test_observeHasClientCharacteristicConfigurationData_00004() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
         String original = "a";
         AtomicInteger count = new AtomicInteger(0);
-        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataJsonReference = new AtomicReference<>();
+        AtomicReference<Boolean> hasClientCharacteristicConfigurationDataReference = new AtomicReference<>();
 
-        mViewModel.observeHasClientCharacteristicConfigurationDataJson(new TestLifeCycleOwner(), aBoolean -> {
+        mViewModel.observeHasClientCharacteristicConfigurationData(new TestLifeCycleOwner(), aBoolean -> {
             count.incrementAndGet();
-            hasClientCharacteristicConfigurationDataJsonReference.set(aBoolean);
+            hasClientCharacteristicConfigurationDataReference.set(aBoolean);
         });
-        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON", original);
-        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON", original);
+        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA", original);
+        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA", original);
 
-        assertTrue(hasClientCharacteristicConfigurationDataJsonReference.get());
+        assertTrue(hasClientCharacteristicConfigurationDataReference.get());
         TestCase.assertEquals(1, count.get());
     }
 
@@ -4355,26 +4391,26 @@ public class BloodPressureMeasurementSettingViewModelTest {
     }
 
     @Test
-    public void test_getClientCharacteristicConfigurationDescriptorJson_00001() {
+    public void test_getClientCharacteristicConfigurationDescriptorData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        TestCase.assertNull(mViewModel.getClientCharacteristicConfigurationDescriptorJson());
+        TestCase.assertNull(mViewModel.getClientCharacteristicConfigurationDescriptorData());
     }
 
     @Test
-    public void test_getClientCharacteristicConfigurationDescriptorJson_00002() {
+    public void test_getClientCharacteristicConfigurationDescriptorData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        String original = "a";
+        byte[] original = new byte[]{1};
 
-        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA_JSON", original);
-        TestCase.assertEquals(original, mViewModel.getClientCharacteristicConfigurationDescriptorJson());
+        mSavedStateHandle.set("KEY_CLIENT_CHARACTERISTIC_CONFIGURATION_DATA", original);
+        TestCase.assertEquals(original, mViewModel.getClientCharacteristicConfigurationDescriptorData());
     }
 
     @Test
-    public void test_setClientCharacteristicConfigurationDescriptorJson_00001() {
+    public void test_setClientCharacteristicConfigurationDescriptorData_00001() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -4389,20 +4425,21 @@ public class BloodPressureMeasurementSettingViewModelTest {
                 , throwable -> {
                 });
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        String originalJson = mGson.toJson(clientCharacteristicConfigurationDescriptorData);
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(originalJson);
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        byte[] originalData = Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(originalData);
 
-        TestCase.assertEquals(originalJson, mViewModel.getClientCharacteristicConfigurationDescriptorJson());
+        assertArrayEquals(originalData, mViewModel.getClientCharacteristicConfigurationDescriptorData());
         TestCase.assertEquals(mFakeDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(clientCharacteristicConfigurationDescriptorData.data).isPropertiesIndicationsEnabled())
                 , clientCharacteristicConfigurationReference.get());
     }
 
     @Test
-    public void test_setClientCharacteristicConfigurationDescriptorJson_00002() {
+    public void test_setClientCharacteristicConfigurationDescriptorData_00002() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -4411,31 +4448,33 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.observeClientCharacteristicConfiguration(new TestLifeCycleOwner(), clientCharacteristicConfigurationReference::set);
 
         Intent intent = new Intent();
-        DescriptorData descriptorData = new DescriptorData();
-        descriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        descriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        descriptorData.data = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
-        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+        DescriptorData descriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), Utils.parcelableToByteArray(descriptorData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        String originalJson = mGson.toJson(clientCharacteristicConfigurationDescriptorData);
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(originalJson);
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        byte[] originalData = Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(originalData);
 
-        TestCase.assertEquals(originalJson, mViewModel.getClientCharacteristicConfigurationDescriptorJson());
+        assertArrayEquals(originalData, mViewModel.getClientCharacteristicConfigurationDescriptorData());
         TestCase.assertEquals(mFakeDeviceSettingRepository.getIndicationsString(new ClientCharacteristicConfiguration(clientCharacteristicConfigurationDescriptorData.data).isPropertiesIndicationsEnabled())
                 , clientCharacteristicConfigurationReference.get());
     }
 
     @Test
-    public void test_setClientCharacteristicConfigurationDescriptorJson_00003() {
+    public void test_setClientCharacteristicConfigurationDescriptorData_00003() {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
@@ -4444,20 +4483,21 @@ public class BloodPressureMeasurementSettingViewModelTest {
         mViewModel.observeClientCharacteristicConfiguration(new TestLifeCycleOwner(), clientCharacteristicConfigurationReference::set);
 
         Intent intent = new Intent();
-        DescriptorData descriptorData = new DescriptorData();
-        descriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        descriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        descriptorData.data = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
-        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), mGson.toJson(descriptorData));
+        DescriptorData descriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+        intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), Utils.parcelableToByteArray(descriptorData));
         mViewModel.observeSetup(intent
                 , () -> {
                 }
                 , throwable -> {
                 });
 
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(null);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(null);
 
-        TestCase.assertNull(mViewModel.getClientCharacteristicConfigurationDescriptorJson());
+        TestCase.assertNull(mViewModel.getClientCharacteristicConfigurationDescriptorData());
         assertEquals("", clientCharacteristicConfigurationReference.get());
     }
 

@@ -1,6 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a23;
 
-import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
 import static org.im97mori.ble.constants.CharacteristicUUID.SYSTEM_ID_CHARACTERISTIC;
 
 import android.bluetooth.BluetoothGatt;
@@ -15,13 +14,13 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.android.peripheral.hilt.repository.DeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.BaseCharacteristicViewModel;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.u2a23.SystemId;
+
+import java.util.LinkedList;
 
 import javax.inject.Inject;
 
@@ -52,8 +51,8 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
     private final MutableLiveData<Intent> mSavedData;
 
     @Inject
-    public SystemIdSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository, @NonNull Gson gson) {
-        super(deviceSettingRepository, gson);
+    public SystemIdSettingViewModel(@NonNull SavedStateHandle savedStateHandle, @NonNull DeviceSettingRepository deviceSettingRepository) {
+        super(deviceSettingRepository);
 
         mIsErrorResponse = savedStateHandle.getLiveData(KEY_IS_ERROR_RESPONSE);
         mManufacturerIdentifier = savedStateHandle.getLiveData(KEY_MANUFACTURER_IDENTIFIER);
@@ -70,18 +69,17 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
             , @NonNull Consumer<? super Throwable> onError) {
         mDisposable.add(Completable.create(emitter -> {
             if (mCharacteristicData == null) {
-                try {
-                    mCharacteristicData = mGson.fromJson(intent.getStringExtra(SYSTEM_ID_CHARACTERISTIC.toString())
-                            , CharacteristicData.class);
-                } catch (JsonSyntaxException e) {
-                    stackLog(e);
-                }
+                mCharacteristicData = Utils.byteToParcelable(intent.getByteArrayExtra(SYSTEM_ID_CHARACTERISTIC.toString()), CharacteristicData.CREATOR);
 
                 if (mCharacteristicData == null) {
-                    mCharacteristicData = new CharacteristicData();
-                    mCharacteristicData.uuid = SYSTEM_ID_CHARACTERISTIC;
-                    mCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-                    mCharacteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+                    mCharacteristicData = new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
+                            , BluetoothGattCharacteristic.PROPERTY_READ
+                            , BluetoothGattCharacteristic.PERMISSION_READ
+                            , new LinkedList<>()
+                            , BluetoothGatt.GATT_SUCCESS
+                            , 0
+                            , null
+                            , -1);
                 }
             }
 
@@ -226,7 +224,7 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
                             mCharacteristicData.responseCode = Integer.parseInt(responseCode);
 
                             Intent intent = new Intent();
-                            intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
+                            intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(mCharacteristicData));
 
                             mSavedData.postValue(intent);
                             mCharacteristicData = null;
@@ -241,7 +239,7 @@ public class SystemIdSettingViewModel extends BaseCharacteristicViewModel {
                             mCharacteristicData.responseCode = BluetoothGatt.GATT_SUCCESS;
 
                             Intent intent = new Intent();
-                            intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), mGson.toJson(mCharacteristicData));
+                            intent.putExtra(SYSTEM_ID_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(mCharacteristicData));
 
                             mSavedData.postValue(intent);
                             mCharacteristicData = null;

@@ -16,8 +16,6 @@ import android.os.Build;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import junit.framework.TestCase;
 
 import org.im97mori.ble.MockData;
@@ -28,6 +26,7 @@ import org.im97mori.ble.android.peripheral.hilt.repository.FakeBluetoothSettingR
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,6 +35,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -76,9 +76,6 @@ public class PeripheralViewModelTest {
     Context mContext;
 
     @Inject
-    Gson mGson;
-
-    @Inject
     DeviceSettingDataSource mDeviceSettingDataSource;
 
     private PeripheralViewModel mViewModel;
@@ -93,8 +90,7 @@ public class PeripheralViewModelTest {
         mFakeBluetoothSettingRepository = new FakeBluetoothSettingRepository(mContext);
         mViewModel = new PeripheralViewModel(mSavedStateHandle
                 , mFakeDeviceSettingRepository
-                , mFakeBluetoothSettingRepository
-                , mGson);
+                , mFakeBluetoothSettingRepository);
     }
 
     @After
@@ -134,9 +130,9 @@ public class PeripheralViewModelTest {
                 , throwable -> {
                 });
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new ArrayList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mGson.toJson(mockData));
+        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, Utils.parcelableToByteArray(mockData));
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
@@ -172,9 +168,9 @@ public class PeripheralViewModelTest {
                 , throwable -> {
                 });
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new ArrayList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mGson.toJson(mockData));
+        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, Utils.parcelableToByteArray(mockData));
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
@@ -220,9 +216,9 @@ public class PeripheralViewModelTest {
 
         mFakeBluetoothSettingRepository.mAddBluetoothStatusConsumerAction = () -> result.set(true);
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new ArrayList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mGson.toJson(mockData));
+        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, Utils.parcelableToByteArray(mockData));
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
@@ -244,9 +240,9 @@ public class PeripheralViewModelTest {
                 , throwable -> {
                 });
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new ArrayList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mGson.toJson(mockData));
+        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, Utils.parcelableToByteArray(mockData));
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
@@ -517,9 +513,9 @@ public class PeripheralViewModelTest {
                 , throwable -> {
                 });
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new ArrayList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mGson.toJson(mockData));
+        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, Utils.parcelableToByteArray(mockData));
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
@@ -543,9 +539,9 @@ public class PeripheralViewModelTest {
                 , throwable -> {
                 });
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new ArrayList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mGson.toJson(mockData));
+        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, Utils.parcelableToByteArray(mockData));
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
         mViewModel.clear();
@@ -571,9 +567,9 @@ public class PeripheralViewModelTest {
                 , throwable -> {
                 });
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new ArrayList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mGson.toJson(mockData));
+        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, Utils.parcelableToByteArray(mockData));
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 
@@ -593,9 +589,9 @@ public class PeripheralViewModelTest {
                 , throwable -> {
                 });
 
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new ArrayList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mGson.toJson(mockData));
+        DeviceSetting original = new DeviceSetting(1, "a", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, Utils.parcelableToByteArray(mockData));
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onNext(original);
         mFakeDeviceSettingRepository.mLoadDeviceSettingByIdProcessor.onComplete();
 

@@ -6,7 +6,7 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_PROPERTIES_TYPE;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.app.Activity;
@@ -58,7 +58,7 @@ public class ClientCharacteristicConfigurationLauncherContractTest {
 
     @Test
     public void test_createIntent_00001() {
-        Pair<String, Integer> pair = Pair.create("a", BluetoothGattCharacteristic.PROPERTY_NOTIFY);
+        Pair<byte[], Integer> pair = Pair.create(new byte[]{1}, BluetoothGattCharacteristic.PROPERTY_NOTIFY);
         Intent intent = mClientCharacteristicConfigurationLauncherContract.createIntent(mContext, pair);
         assertTrue(hasComponent(new ComponentName(mContext, ClientCharacteristicConfigurationSettingActivity.class)).matches(intent));
         assertTrue(hasExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), pair.first).matches(intent));
@@ -67,7 +67,7 @@ public class ClientCharacteristicConfigurationLauncherContractTest {
 
     @Test
     public void test_createIntent_00002() {
-        Pair<String, Integer> pair = Pair.create("a", BluetoothGattCharacteristic.PROPERTY_INDICATE);
+        Pair<byte[], Integer> pair = Pair.create(new byte[]{1}, BluetoothGattCharacteristic.PROPERTY_INDICATE);
         Intent intent = mClientCharacteristicConfigurationLauncherContract.createIntent(mContext, pair);
         assertTrue(hasComponent(new ComponentName(mContext, ClientCharacteristicConfigurationSettingActivity.class)).matches(intent));
         assertTrue(hasExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), pair.first).matches(intent));
@@ -76,12 +76,12 @@ public class ClientCharacteristicConfigurationLauncherContractTest {
 
     @Test
     public void test_parseResult_00001() {
-        String original = "a";
+        byte[] original = new byte[]{1};
         Intent intent = new Intent();
         intent.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), original);
-        String parsed = mClientCharacteristicConfigurationLauncherContract.parseResult(Activity.RESULT_OK, intent);
+        byte[] parsed = mClientCharacteristicConfigurationLauncherContract.parseResult(Activity.RESULT_OK, intent);
         assertNotNull(parsed);
-        assertEquals(original, parsed);
+        assertArrayEquals(original, parsed);
     }
 
     @Test

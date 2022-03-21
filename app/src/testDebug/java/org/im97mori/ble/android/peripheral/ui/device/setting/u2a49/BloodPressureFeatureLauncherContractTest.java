@@ -5,7 +5,7 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.app.Activity;
@@ -54,7 +54,7 @@ public class BloodPressureFeatureLauncherContractTest {
 
     @Test
     public void test_createIntent_00001() {
-        String original = "a";
+        byte[] original = new byte[]{1};
         Intent intent = mBloodPressureFeatureLauncherContract.createIntent(mContext, original);
         assertTrue(hasComponent(new ComponentName(mContext, BloodPressureFeatureSettingActivity.class)).matches(intent));
         assertTrue(hasExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), original).matches(intent));
@@ -62,12 +62,12 @@ public class BloodPressureFeatureLauncherContractTest {
 
     @Test
     public void test_parseResult_00001() {
-        String original = "a";
+        byte[] original = new byte[]{1};
         Intent intent = new Intent();
         intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), original);
-        String parsed = mBloodPressureFeatureLauncherContract.parseResult(Activity.RESULT_OK, intent);
+        byte[] parsed = mBloodPressureFeatureLauncherContract.parseResult(Activity.RESULT_OK, intent);
         assertNotNull(parsed);
-        assertEquals(original, parsed);
+        assertArrayEquals(original, parsed);
     }
 
     @Test

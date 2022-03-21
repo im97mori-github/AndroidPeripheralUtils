@@ -16,13 +16,12 @@ import android.os.Build;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.u2a24.ModelNumberString;
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -75,15 +75,12 @@ public class ManufacturerNameStringSettingViewModelTest {
     @ApplicationContext
     Context mContext;
 
-    @Inject
-    Gson mGson;
-
     @Before
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
         mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
-        mViewModel = new ManufacturerNameStringSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository, mGson);
+        mViewModel = new ManufacturerNameStringSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository);
     }
 
     @After
@@ -158,13 +155,15 @@ public class ManufacturerNameStringSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
-        characteristicData.responseCode = 2;
-        characteristicData.delay = 1;
-        intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , 2
+                , 1
+                , null
+                , -1);
+        intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -205,14 +204,16 @@ public class ManufacturerNameStringSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
         String original = "a";
-        characteristicData.data = new ModelNumberString(original).getBytes();
-        characteristicData.delay = 1;
-        intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 1
+                , new ModelNumberString(original).getBytes()
+                , -1);
+        intent.putExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -714,7 +715,7 @@ public class ManufacturerNameStringSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -743,7 +744,7 @@ public class ManufacturerNameStringSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(MANUFACTURER_NAME_STRING_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 

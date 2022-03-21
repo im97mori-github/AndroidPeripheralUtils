@@ -25,6 +25,7 @@ import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils
 import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT;
 import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.mockStatic;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.content.ComponentName;
@@ -57,7 +59,6 @@ import androidx.test.espresso.matcher.ViewMatchers;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.gson.Gson;
 
 import junit.framework.TestCase;
 
@@ -67,6 +68,7 @@ import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationSettingActivity;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.core.IEEE_11073_20601_SFLOAT;
 import org.im97mori.ble.characteristic.u2a35.BloodPressureMeasurement;
 import org.junit.After;
@@ -80,6 +82,7 @@ import org.mockito.MockedStatic;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -119,9 +122,6 @@ public class BloodPressureMeasurementSettingActivityTest {
     @Inject
     @ApplicationContext
     Context mContext;
-
-    @Inject
-    Gson mGson;
 
     @Inject
     FakeDeviceSettingRepository mFakeDeviceSettingRepository;
@@ -203,9 +203,6 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).perform(click());
 
-        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData();
-        bloodPressureMeasurementCharacteristicData.uuid = BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-        bloodPressureMeasurementCharacteristicData.property = BluetoothGattCharacteristic.PROPERTY_INDICATE;
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueDiastolicMmhg = new IEEE_11073_20601_SFLOAT(2);
@@ -244,24 +241,32 @@ public class BloodPressureMeasurementSettingActivityTest {
                 , bloodPressureMeasurementPulseRate
                 , bloodPressureMeasurementUserId
                 , bloodPressureMeasurementMeasurementStatus);
-        bloodPressureMeasurementCharacteristicData.data = bloodPressureMeasurement.getBytes();
+        CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_INDICATE
+                , 0
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , bloodPressureMeasurement.getBytes()
+                , -1);
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
         bloodPressureMeasurementCharacteristicData.descriptorDataList.add(clientCharacteristicConfigurationDescriptorData);
 
-        String json = mGson.toJson(bloodPressureMeasurementCharacteristicData);
+        byte[] data = Utils.parcelableToByteArray(bloodPressureMeasurementCharacteristicData);
         Intent original = new Intent();
-        original.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), json);
+        original.putExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString(), data);
         mViewModel.mObserveSaveSubject.onNext(original);
 
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
         assertEquals(Activity.RESULT_OK, activityResult.getResultCode());
         Intent resultData = activityResult.getResultData();
         assertNotNull(resultData);
-        assertEquals(json, resultData.getStringExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()));
+        assertArrayEquals(data, resultData.getByteArrayExtra(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC.toString()));
     }
 
     @Test
@@ -278,7 +283,11 @@ public class BloodPressureMeasurementSettingActivityTest {
     @Test
     public void test_activity_result_00001() {
         Intent resultData = new Intent();
-        String after = "b";
+        byte[] after = Utils.parcelableToByteArray(new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE));
         resultData.putExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), after);
         Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ClientCharacteristicConfigurationSettingActivity.class))).respondWith(result);
@@ -287,12 +296,12 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(null);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(null);
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.clientCharacteristicConfigurationSettingButton).performClick());
         Espresso.onIdle();
 
-        assertEquals(after, mViewModel.getClientCharacteristicConfigurationDescriptorJson());
+        assertArrayEquals(after, mViewModel.getClientCharacteristicConfigurationDescriptorData());
     }
 
     @Test
@@ -305,13 +314,17 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
-        String before = "a";
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(before);
+        byte[] before = Utils.parcelableToByteArray(new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null));
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(before);
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.clientCharacteristicConfigurationSettingButton).performClick());
         Espresso.onIdle();
 
-        assertNull(mViewModel.getClientCharacteristicConfigurationDescriptorJson());
+        assertNull(mViewModel.getClientCharacteristicConfigurationDescriptorData());
     }
 
     @Test
@@ -1525,12 +1538,13 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
-        String originalClientCharacteristicConfigurationDescriptorData = mGson.toJson(clientCharacteristicConfigurationDescriptorData);
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(originalClientCharacteristicConfigurationDescriptorData);
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+        byte[] originalClientCharacteristicConfigurationDescriptorData = Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(originalClientCharacteristicConfigurationDescriptorData);
 
         onView(withId(R.id.clientCharacteristicConfiguration))
                 .check(matches(withText(mFakeDeviceSettingRepository.getIndicationsDisabledString())));
@@ -1542,12 +1556,13 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        String originalClientCharacteristicConfigurationDescriptorData = mGson.toJson(clientCharacteristicConfigurationDescriptorData);
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(originalClientCharacteristicConfigurationDescriptorData);
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        byte[] originalClientCharacteristicConfigurationDescriptorData = Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(originalClientCharacteristicConfigurationDescriptorData);
 
         onView(withId(R.id.clientCharacteristicConfiguration))
                 .check(matches(withText(mFakeDeviceSettingRepository.getIndicationsEnabledString())));
@@ -1589,7 +1604,7 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario.onActivity(activity -> activity.findViewById(R.id.clientCharacteristicConfigurationSettingButton).performClick());
 
         intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), ClientCharacteristicConfigurationSettingActivity.class)));
-        intended(hasExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), "a"));
+        intended(hasExtra(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR.toString(), new byte[]{1}));
     }
 
     @Test
@@ -2666,12 +2681,13 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
-        String originalClientCharacteristicConfigurationDescriptorData = mGson.toJson(clientCharacteristicConfigurationDescriptorData);
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(originalClientCharacteristicConfigurationDescriptorData);
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+        byte[] originalClientCharacteristicConfigurationDescriptorData = Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(originalClientCharacteristicConfigurationDescriptorData);
 
         onView(withId(R.id.clientCharacteristicConfiguration))
                 .check(matches(withText(mFakeDeviceSettingRepository.getIndicationsDisabledString())));
@@ -2688,12 +2704,13 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
-        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData();
-        clientCharacteristicConfigurationDescriptorData.uuid = CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-        clientCharacteristicConfigurationDescriptorData.permission = BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE;
-        clientCharacteristicConfigurationDescriptorData.data = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
-        String originalClientCharacteristicConfigurationDescriptorData = mGson.toJson(clientCharacteristicConfigurationDescriptorData);
-        mViewModel.setClientCharacteristicConfigurationDescriptorJson(originalClientCharacteristicConfigurationDescriptorData);
+        DescriptorData clientCharacteristicConfigurationDescriptorData = new DescriptorData(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR
+                , BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        byte[] originalClientCharacteristicConfigurationDescriptorData = Utils.parcelableToByteArray(clientCharacteristicConfigurationDescriptorData);
+        mViewModel.setClientCharacteristicConfigurationDescriptorData(originalClientCharacteristicConfigurationDescriptorData);
 
         onView(withId(R.id.clientCharacteristicConfiguration))
                 .check(matches(withText(mFakeDeviceSettingRepository.getIndicationsEnabledString())));

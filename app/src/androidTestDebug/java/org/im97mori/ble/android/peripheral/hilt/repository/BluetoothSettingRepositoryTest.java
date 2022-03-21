@@ -22,6 +22,8 @@ import android.content.IntentFilter;
 import org.im97mori.ble.BLEUtilsAndroid;
 import org.im97mori.ble.MockData;
 import org.im97mori.ble.ServiceData;
+import org.im97mori.ble.android.peripheral.room.DeviceSetting;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.profile.blp.peripheral.BloodPressureProfileMockCallback;
 import org.im97mori.ble.profile.peripheral.AbstractProfileMockCallback;
 import org.junit.Before;
@@ -29,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -363,10 +366,10 @@ public class BluetoothSettingRepositoryTest {
 
     @Test
     public void test_createProfileMockCallback_00001() {
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new LinkedList<>());
         Exception exception = null;
         try {
-            mBluetoothSettingRepository.createProfileMockCallback(DEVICE_TYPE_UNDEFINED, mockData);
+            mBluetoothSettingRepository.createProfileMockCallback(new DeviceSetting(1, "", DEVICE_TYPE_UNDEFINED, Utils.parcelableToByteArray(mockData)));
         } catch (Exception e) {
             exception = e;
         }
@@ -376,9 +379,9 @@ public class BluetoothSettingRepositoryTest {
 
     @Test
     public void test_createProfileMockCallback_00002() {
-        MockData mockData = new MockData();
+        MockData mockData = new MockData(new LinkedList<>());
         mockData.serviceDataList.add(new ServiceData(BLOOD_PRESSURE_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY, Collections.emptyList()));
-        AbstractProfileMockCallback callback = mBluetoothSettingRepository.createProfileMockCallback(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mockData);
+        AbstractProfileMockCallback callback = mBluetoothSettingRepository.createProfileMockCallback(new DeviceSetting(1, "", DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, Utils.parcelableToByteArray(mockData)));
         assertTrue(callback instanceof BloodPressureProfileMockCallback);
     }
 

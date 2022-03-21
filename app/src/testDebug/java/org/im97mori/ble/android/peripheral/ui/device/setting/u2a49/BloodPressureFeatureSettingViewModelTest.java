@@ -16,13 +16,12 @@ import android.os.Build;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.google.gson.Gson;
-
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.hilt.datasource.DeviceSettingDataSource;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
 import org.im97mori.ble.android.peripheral.test.TestLifeCycleOwner;
+import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.u2a49.BloodPressureFeature;
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -75,15 +75,12 @@ public class BloodPressureFeatureSettingViewModelTest {
     @ApplicationContext
     Context mContext;
 
-    @Inject
-    Gson mGson;
-
     @Before
     public void setUp() {
         mHiltRule.inject();
         mSavedStateHandle = new SavedStateHandle();
         mFakeDeviceSettingRepository = new FakeDeviceSettingRepository(mDeviceSettingDataSource, mContext);
-        mViewModel = new BloodPressureFeatureSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository, mGson);
+        mViewModel = new BloodPressureFeatureSettingViewModel(mSavedStateHandle, mFakeDeviceSettingRepository);
     }
 
     @After
@@ -178,13 +175,15 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
-        characteristicData.responseCode = 2;
-        characteristicData.delay = 1;
-        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        CharacteristicData characteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , 2
+                , 1
+                , null
+                , -1);
+        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -237,10 +236,14 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData characteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = false;
         boolean isCuffFitDetectionSupportSupported = false;
         boolean hasIrregularPulseDetection = false;
@@ -257,7 +260,7 @@ public class BloodPressureFeatureSettingViewModelTest {
                 , false
                 , false).getBytes();
         characteristicData.delay = 1;
-        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -310,10 +313,14 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData characteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = true;
         boolean isCuffFitDetectionSupportSupported = false;
         boolean hasIrregularPulseDetection = false;
@@ -330,7 +337,7 @@ public class BloodPressureFeatureSettingViewModelTest {
                 , false
                 , false).getBytes();
         characteristicData.delay = 1;
-        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -383,10 +390,14 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData characteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = false;
         boolean isCuffFitDetectionSupportSupported = true;
         boolean hasIrregularPulseDetection = false;
@@ -403,7 +414,7 @@ public class BloodPressureFeatureSettingViewModelTest {
                 , false
                 , false).getBytes();
         characteristicData.delay = 1;
-        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -456,10 +467,14 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData characteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = false;
         boolean isCuffFitDetectionSupportSupported = false;
         boolean hasIrregularPulseDetection = false;
@@ -476,7 +491,7 @@ public class BloodPressureFeatureSettingViewModelTest {
                 , false
                 , false).getBytes();
         characteristicData.delay = 1;
-        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -529,10 +544,14 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData characteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = false;
         boolean isCuffFitDetectionSupportSupported = false;
         boolean hasIrregularPulseDetection = false;
@@ -549,7 +568,7 @@ public class BloodPressureFeatureSettingViewModelTest {
                 , false
                 , false).getBytes();
         characteristicData.delay = 1;
-        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -602,10 +621,14 @@ public class BloodPressureFeatureSettingViewModelTest {
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
 
         Intent intent = new Intent();
-        CharacteristicData characteristicData = new CharacteristicData();
-        characteristicData.uuid = BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-        characteristicData.property = BluetoothGattCharacteristic.PROPERTY_READ;
-        characteristicData.permission = BluetoothGattCharacteristic.PERMISSION_READ;
+        CharacteristicData characteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
+                , BluetoothGattCharacteristic.PROPERTY_READ
+                , BluetoothGattCharacteristic.PERMISSION_READ
+                , new LinkedList<>()
+                , BluetoothGatt.GATT_SUCCESS
+                , 0
+                , null
+                , -1);
         boolean isBodyMovementDetectionSupported = false;
         boolean isCuffFitDetectionSupportSupported = false;
         boolean hasIrregularPulseDetection = false;
@@ -622,7 +645,7 @@ public class BloodPressureFeatureSettingViewModelTest {
                 , false
                 , false).getBytes();
         characteristicData.delay = 1;
-        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), mGson.toJson(characteristicData));
+        intent.putExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString(), Utils.parcelableToByteArray(characteristicData));
         mViewModel.observeSetup(intent
                 , () -> result.set(true)
                 , throwable -> {
@@ -1106,7 +1129,7 @@ public class BloodPressureFeatureSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1135,7 +1158,7 @@ public class BloodPressureFeatureSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1165,7 +1188,7 @@ public class BloodPressureFeatureSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1195,7 +1218,7 @@ public class BloodPressureFeatureSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1225,7 +1248,7 @@ public class BloodPressureFeatureSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1255,7 +1278,7 @@ public class BloodPressureFeatureSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
@@ -1285,7 +1308,7 @@ public class BloodPressureFeatureSettingViewModelTest {
 
         AtomicReference<CharacteristicData> characteristicDataAtomicReference = new AtomicReference<>();
         mViewModel.observeSavedData(new TestLifeCycleOwner(), resultIntent ->
-                characteristicDataAtomicReference.set(mGson.fromJson(resultIntent.getStringExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.class)));
+                characteristicDataAtomicReference.set(Utils.byteToParcelable(resultIntent.getByteArrayExtra(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC.toString()), CharacteristicData.CREATOR)));
         mViewModel.save(throwable -> {
         });
 
