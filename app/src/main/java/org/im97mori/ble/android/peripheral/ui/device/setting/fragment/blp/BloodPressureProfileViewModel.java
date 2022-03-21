@@ -127,7 +127,11 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
 
     @MainThread
     public void setBlsData(@Nullable byte[] blsData) {
-        mBlsData.setValue(blsData);
+        mDisposable.add(Completable.create(emitter -> {
+            mBlsData.postValue(blsData);
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io())
+                .subscribe());
     }
 
     @Nullable
@@ -138,7 +142,11 @@ public class BloodPressureProfileViewModel extends BaseSettingFragmentViewModel 
 
     @MainThread
     public void setDisData(@Nullable byte[] disData) {
-        mDisData.setValue(disData);
+        mDisposable.add(Completable.create(emitter -> {
+            mDisData.postValue(disData);
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io())
+                .subscribe());
     }
 
     @Override

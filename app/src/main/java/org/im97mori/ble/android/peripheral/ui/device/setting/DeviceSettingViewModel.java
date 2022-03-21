@@ -143,7 +143,11 @@ public class DeviceSettingViewModel extends BaseSettingViewModel<Intent, Boolean
 
     @MainThread
     public void updateMockData(@Nullable byte[] data) {
-        mMockData.setValue(data);
+        mDisposable.add(Completable.create(emitter -> {
+            mMockData.postValue(data);
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io())
+                .subscribe());
     }
 
     public void fragmentReady() {

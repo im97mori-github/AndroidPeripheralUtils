@@ -255,25 +255,29 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
 
     @MainThread
     public void setSystemIdData(@Nullable byte[] systemIdData) {
-        mSystemIdData.setValue(systemIdData);
-        MutableLiveData<String> manufacturerIdentifierLiveData = mSavedStateHandle.getLiveData(KEY_MANUFACTURER_IDENTIFIER);
-        MutableLiveData<String> organizationallyUniqueIdentifierLiveData = mSavedStateHandle.getLiveData(KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER);
-        if (systemIdData == null) {
-            manufacturerIdentifierLiveData.setValue(null);
-            organizationallyUniqueIdentifierLiveData.setValue(null);
-        } else {
-            CharacteristicData characteristicData = Utils.byteToParcelable(systemIdData, CharacteristicData.CREATOR);
-            if (characteristicData != null) {
-                if (characteristicData.data == null) {
-                    manufacturerIdentifierLiveData.setValue(null);
-                    organizationallyUniqueIdentifierLiveData.setValue(null);
-                } else {
-                    SystemId systemId = new SystemId(characteristicData.data);
-                    manufacturerIdentifierLiveData.setValue(String.valueOf(systemId.getManufacturerIdentifier()));
-                    organizationallyUniqueIdentifierLiveData.setValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
+        mDisposable.add(Completable.create(emitter -> {
+            mSystemIdData.postValue(systemIdData);
+            MutableLiveData<String> manufacturerIdentifierLiveData = mSavedStateHandle.getLiveData(KEY_MANUFACTURER_IDENTIFIER);
+            MutableLiveData<String> organizationallyUniqueIdentifierLiveData = mSavedStateHandle.getLiveData(KEY_ORGANIZATIONALLY_UNIQUE_IDENTIFIER);
+            if (systemIdData == null) {
+                manufacturerIdentifierLiveData.postValue(null);
+                organizationallyUniqueIdentifierLiveData.postValue(null);
+            } else {
+                CharacteristicData characteristicData = Utils.byteToParcelable(systemIdData, CharacteristicData.CREATOR);
+                if (characteristicData != null) {
+                    if (characteristicData.data == null) {
+                        manufacturerIdentifierLiveData.postValue(null);
+                        organizationallyUniqueIdentifierLiveData.postValue(null);
+                    } else {
+                        SystemId systemId = new SystemId(characteristicData.data);
+                        manufacturerIdentifierLiveData.postValue(String.valueOf(systemId.getManufacturerIdentifier()));
+                        organizationallyUniqueIdentifierLiveData.postValue(String.valueOf(systemId.getOrganizationallyUniqueIdentifier()));
+                    }
                 }
             }
-        }
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io())
+                .subscribe());
     }
 
     @Nullable
@@ -284,20 +288,24 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
 
     @MainThread
     public void setModelNumberStringData(@Nullable byte[] modelNumberStringData) {
-        mModelNumberStringData.setValue(modelNumberStringData);
-        MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_MODEL_NUMBER_STRING);
-        if (modelNumberStringData == null) {
-            liveData.setValue(null);
-        } else {
-            CharacteristicData characteristicData = Utils.byteToParcelable(modelNumberStringData, CharacteristicData.CREATOR);
-            if (characteristicData != null) {
-                if (characteristicData.data == null) {
-                    liveData.setValue(null);
-                } else {
-                    liveData.setValue(new ModelNumberString(characteristicData.data).getModelNumber());
+        mDisposable.add(Completable.create(emitter -> {
+            mModelNumberStringData.postValue(modelNumberStringData);
+            MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_MODEL_NUMBER_STRING);
+            if (modelNumberStringData == null) {
+                liveData.postValue(null);
+            } else {
+                CharacteristicData characteristicData = Utils.byteToParcelable(modelNumberStringData, CharacteristicData.CREATOR);
+                if (characteristicData != null) {
+                    if (characteristicData.data == null) {
+                        liveData.postValue(null);
+                    } else {
+                        liveData.postValue(new ModelNumberString(characteristicData.data).getModelNumber());
+                    }
                 }
             }
-        }
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io())
+                .subscribe());
     }
 
     @Nullable
@@ -308,20 +316,24 @@ public class DeviceInformationServiceSettingViewModel extends BaseServiceSetting
 
     @MainThread
     public void setManufacturerNameStringData(@Nullable byte[] manufacturerNameStringData) {
-        mManufacturerNameStringData.setValue(manufacturerNameStringData);
-        MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_MANUFACTURER_NAME_STRING);
-        if (manufacturerNameStringData == null) {
-            liveData.setValue(null);
-        } else {
-            CharacteristicData characteristicData = Utils.byteToParcelable(manufacturerNameStringData, CharacteristicData.CREATOR);
-            if (characteristicData != null) {
-                if (characteristicData.data == null) {
-                    liveData.setValue(null);
-                } else {
-                    liveData.setValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
+        mDisposable.add(Completable.create(emitter -> {
+            mManufacturerNameStringData.postValue(manufacturerNameStringData);
+            MutableLiveData<String> liveData = mSavedStateHandle.getLiveData(KEY_MANUFACTURER_NAME_STRING);
+            if (manufacturerNameStringData == null) {
+                liveData.postValue(null);
+            } else {
+                CharacteristicData characteristicData = Utils.byteToParcelable(manufacturerNameStringData, CharacteristicData.CREATOR);
+                if (characteristicData != null) {
+                    if (characteristicData.data == null) {
+                        liveData.postValue(null);
+                    } else {
+                        liveData.postValue(new ManufacturerNameString(characteristicData.data).getManufacturerName());
+                    }
                 }
             }
-        }
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io())
+                .subscribe());
     }
 
     @Override

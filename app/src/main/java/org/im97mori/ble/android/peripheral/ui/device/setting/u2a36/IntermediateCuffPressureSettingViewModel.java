@@ -667,19 +667,23 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
 
     @MainThread
     public void setClientCharacteristicConfigurationDescriptorData(@Nullable byte[] clientCharacteristicConfigurationData) {
-        mClientCharacteristicConfigurationData.setValue(clientCharacteristicConfigurationData);
-        if (clientCharacteristicConfigurationData == null) {
-            mClientCharacteristicConfiguration.setValue("");
-        } else {
-            DescriptorData descriptorData = Utils.byteToParcelable(clientCharacteristicConfigurationData, DescriptorData.CREATOR);
-            if (descriptorData != null) {
-                if (descriptorData.data == null) {
-                    mClientCharacteristicConfiguration.setValue("");
-                } else {
-                    mClientCharacteristicConfiguration.postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesNotificationsEnabled()));
+        mDisposable.add(Completable.create(emitter -> {
+            mClientCharacteristicConfigurationData.postValue(clientCharacteristicConfigurationData);
+            if (clientCharacteristicConfigurationData == null) {
+                mClientCharacteristicConfiguration.postValue("");
+            } else {
+                DescriptorData descriptorData = Utils.byteToParcelable(clientCharacteristicConfigurationData, DescriptorData.CREATOR);
+                if (descriptorData != null) {
+                    if (descriptorData.data == null) {
+                        mClientCharacteristicConfiguration.postValue("");
+                    } else {
+                        mClientCharacteristicConfiguration.postValue(mDeviceSettingRepository.getNotificationsString(new ClientCharacteristicConfiguration(descriptorData.data).isPropertiesNotificationsEnabled()));
+                    }
                 }
             }
-        }
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io())
+                .subscribe());
     }
 
     @NonNull
@@ -796,7 +800,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                         currentCuffPressureKpa = new IEEE_11073_20601_SFLOAT(Double.parseDouble(currentCuffPressure));
                     }
 
-                    if (Boolean.TRUE.equals(isTimeStampSupported)) {
+                    if (isTimeStampSupported) {
                         month = provideDateTimeMonthList().get(Objects.requireNonNull(month)).first;
                         day = provideDateTimeDayList().get(Objects.requireNonNull(day)).first;
                         hours = Integer.parseInt(provideDateTimeHoursList().get(Objects.requireNonNull(hours)));
@@ -812,7 +816,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     }
 
                     IEEE_11073_20601_SFLOAT pulseRateSfloat;
-                    if (Boolean.TRUE.equals(isPulseRateSupported)) {
+                    if (isPulseRateSupported) {
                         pulseRateSfloat = new IEEE_11073_20601_SFLOAT(Double.parseDouble(Objects.requireNonNull(pulseRate)));
                     } else {
                         pulseRateSfloat = new IEEE_11073_20601_SFLOAT(BLEUtils.SFLOAT_NAN);
@@ -823,7 +827,7 @@ public class IntermediateCuffPressureSettingViewModel extends BaseCharacteristic
                     }
 
                     byte[] measurementStatus;
-                    if (Boolean.TRUE.equals(isMeasurementStatusSupported)) {
+                    if (isMeasurementStatusSupported) {
                         int measurementStatusFlags = provideBodyMovementDetectionList().get(Objects.requireNonNull(bodyMovementDetection)).first;
                         measurementStatusFlags |= provideCuffFitDetectionList().get(Objects.requireNonNull(cuffFitDetection)).first;
                         measurementStatusFlags |= provideIrregularPulseDetectionList().get(Objects.requireNonNull(irregularPulseDetection)).first;
