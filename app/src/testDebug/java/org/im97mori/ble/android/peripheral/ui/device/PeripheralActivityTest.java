@@ -3,9 +3,11 @@ package org.im97mori.ble.android.peripheral.ui.device;
 import static android.view.MenuItem.SHOW_AS_ACTION_ALWAYS;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.mockStatic;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -49,6 +52,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.filters.SdkSuppress;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
@@ -574,6 +578,41 @@ public class PeripheralActivityTest {
     }
 
     @Test
+    @Config(instrumentedPackages = {
+            // required to access final members on androidx.loader.content.ModernAsyncTask
+            "androidx.loader.content"}
+            , application = HiltTestApplication.class
+            , sdk = Build.VERSION_CODES.TIRAMISU)
+    public void test_menu_00005() {
+        long id = 1;
+        Intent intent = new Intent(mContext, PeripheralActivity.class);
+        intent.putExtra(KEY_DEVICE_ID, id);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
+            materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+            materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+            materialToolbar.getMenu().findItem(R.id.setting).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+            materialToolbar.getMenu().findItem(R.id.delete).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+            materialToolbar.getMenu().findItem(R.id.bluetooth_enable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+        });
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.peripheralStart)).check(matches(isNotEnabled()));
+        onView(withId(R.id.peripheralStop)).check(matches(isNotEnabled()));
+        onView(withId(R.id.setting)).check(matches(isEnabled()));
+        onView(withId(R.id.delete)).check(matches(isEnabled()));
+        onView(withId(R.id.bluetooth_enable)).check(matches(isEnabled()));
+        onView(withId(R.id.bluetooth_disable)).check(doesNotExist());
+
+        mViewModel.mIsPeripheralReady = null;
+        mViewModel.mIsPeripheralStarted = null;
+        mViewModel.mIsBluetoothEnabled = null;
+    }
+
+    @Test
     public void test_menu_peripheralStart_00001() {
         long id = 1;
         Intent intent = new Intent(mContext, PeripheralActivity.class);
@@ -665,7 +704,7 @@ public class PeripheralActivityTest {
         long id = 2;
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
-        mScenario = ActivityScenario.launch(intent);
+        mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> {
             mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
@@ -713,10 +752,7 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mIsQuitCallSuper = false;
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
-        mViewModel.mFakeDeviceSettingRepository.mDeleteDeviceSettingConsumer = deviceSetting -> {
-        };
 
         onView(withId(R.id.bluetooth_enable)).perform(click());
 
@@ -728,7 +764,40 @@ public class PeripheralActivityTest {
     }
 
     @Test
-    public void test_bluetooth_disable_00001() {
+    @Config(instrumentedPackages = {
+            // required to access final members on androidx.loader.content.ModernAsyncTask
+            "androidx.loader.content"}
+            , application = HiltTestApplication.class
+            , sdk = Build.VERSION_CODES.TIRAMISU)
+    public void test_menu_bluetooth_enable_00002() {
+        long id = 2;
+        Intent intent = new Intent(mContext, PeripheralActivity.class);
+        intent.putExtra(KEY_DEVICE_ID, id);
+        mScenario = ActivityScenario.launch(intent);
+        mScenario.onActivity(activity -> {
+            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
+            materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+            materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+            materialToolbar.getMenu().findItem(R.id.setting).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+            materialToolbar.getMenu().findItem(R.id.delete).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+            materialToolbar.getMenu().findItem(R.id.bluetooth_enable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+        });
+
+        mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
+
+        onView(withId(R.id.bluetooth_enable)).perform(click());
+
+        intended(hasAction(BluetoothAdapter.ACTION_REQUEST_ENABLE));
+
+        mViewModel.mIsPeripheralReady = null;
+        mViewModel.mIsPeripheralStarted = null;
+        mViewModel.mIsBluetoothEnabled = null;
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.S_V2)
+    public void test_menu_bluetooth_disable_00001() {
         long id = 2;
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
@@ -744,10 +813,7 @@ public class PeripheralActivityTest {
             materialToolbar.getMenu().findItem(R.id.bluetooth_disable).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
         });
 
-        mViewModel.mIsQuitCallSuper = false;
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
-        mViewModel.mFakeDeviceSettingRepository.mDeleteDeviceSettingConsumer = deviceSetting -> {
-        };
 
         onView(withId(R.id.bluetooth_disable)).perform(click());
 

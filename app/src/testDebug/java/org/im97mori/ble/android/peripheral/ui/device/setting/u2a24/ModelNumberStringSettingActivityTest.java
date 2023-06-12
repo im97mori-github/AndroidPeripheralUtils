@@ -371,7 +371,7 @@ public class ModelNumberStringSettingActivityTest {
     @Test
     public void test_menu_save_00003() {
         Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
-        mScenario = ActivityScenario.launch(intent);
+        mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -401,7 +401,7 @@ public class ModelNumberStringSettingActivityTest {
     @Test
     public void test_backPressed_00001() {
         Intent intent = new Intent(mContext, ModelNumberStringSettingActivity.class);
-        mScenario = ActivityScenario.launch(intent);
+        mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeModelNumberStringViewModel.class));
 
         pressBack();

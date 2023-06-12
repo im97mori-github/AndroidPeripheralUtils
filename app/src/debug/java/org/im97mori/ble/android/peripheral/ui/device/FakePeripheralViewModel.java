@@ -78,11 +78,13 @@ public class FakePeripheralViewModel extends PeripheralViewModel {
                                 case "test_menu_00002": test_menu_00002(); break;
                                 case "test_menu_00003": test_menu_00003(); break;
                                 case "test_menu_00004": test_menu_00004(); break;
+                                case "test_menu_00005": test_menu_00005(); break;
                                 case "test_menu_peripheralStart_00001": test_menu_peripheralStart_00001(); break;
                                 case "test_menu_peripheralStop_00001": test_menu_peripheralStop_00001(); break;
                                 case "test_menu_setting_00001": test_menu_setting_00001(); break;
                                 case "test_menu_bluetooth_enable_00001": test_menu_bluetooth_enable_00001(); break;
-                                case "test_bluetooth_disable_00001": test_bluetooth_disable_00001(); break;
+                                case "test_menu_bluetooth_enable_00002": test_menu_bluetooth_enable_00002(); break;
+                                case "test_menu_bluetooth_disable_00001": test_menu_bluetooth_disable_00001(); break;
                                 case "test_activity_result_00001": test_activity_result_00001(); break;
                                 case "test_activity_result_00001_1": test_activity_result_00001_1(); break;
                                 case "test_activity_result_00002": test_activity_result_00002(); break;
@@ -226,6 +228,15 @@ public class FakePeripheralViewModel extends PeripheralViewModel {
         mSavedStateHandle.set("KEY_IS_STARTED", mIsBluetoothEnabled);
     }
 
+    private void test_menu_00005() {
+        mIsPeripheralStarted = true;
+        mIsPeripheralReady = true;
+        mIsBluetoothEnabled = false;
+        mSavedStateHandle.set("KEY_IS_BLUETOOTH_ENABLED", mIsPeripheralReady);
+        mSavedStateHandle.set("KEY_IS_READY", mIsPeripheralStarted);
+        mSavedStateHandle.set("KEY_IS_STARTED", mIsBluetoothEnabled);
+    }
+
     private void test_menu_peripheralStart_00001() {
         mIsPeripheralStarted = false;
         mIsPeripheralReady = true;
@@ -263,7 +274,16 @@ public class FakePeripheralViewModel extends PeripheralViewModel {
         mSavedStateHandle.set("KEY_IS_STARTED", mIsBluetoothEnabled);
     }
 
-    private void test_bluetooth_disable_00001() {
+    private void test_menu_bluetooth_enable_00002() {
+        mIsPeripheralStarted = true;
+        mIsPeripheralReady = true;
+        mIsBluetoothEnabled = false;
+        mSavedStateHandle.set("KEY_IS_BLUETOOTH_ENABLED", mIsPeripheralReady);
+        mSavedStateHandle.set("KEY_IS_READY", mIsPeripheralStarted);
+        mSavedStateHandle.set("KEY_IS_STARTED", mIsBluetoothEnabled);
+    }
+
+    private void test_menu_bluetooth_disable_00001() {
         mIsPeripheralStarted = true;
         mIsPeripheralReady = true;
         mIsBluetoothEnabled = true;

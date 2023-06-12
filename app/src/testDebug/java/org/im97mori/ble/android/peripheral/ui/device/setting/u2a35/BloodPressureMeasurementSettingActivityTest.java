@@ -196,7 +196,7 @@ public class BloodPressureMeasurementSettingActivityTest {
     @Test
     public void test_menu_save_00003() {
         Intent intent = new Intent(mContext, BloodPressureMeasurementSettingActivity.class);
-        mScenario = ActivityScenario.launch(intent);
+        mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -272,7 +272,7 @@ public class BloodPressureMeasurementSettingActivityTest {
     @Test
     public void test_backPressed_00001() {
         Intent intent = new Intent(mContext, BloodPressureMeasurementSettingActivity.class);
-        mScenario = ActivityScenario.launch(intent);
+        mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureMeasurementSettingViewModel.class));
 
         pressBack();

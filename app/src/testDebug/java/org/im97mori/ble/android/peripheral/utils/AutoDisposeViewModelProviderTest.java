@@ -9,8 +9,8 @@ import android.os.Build;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 
+import org.im97mori.ble.android.peripheral.test.HiltTestActivity;
 import org.im97mori.ble.android.peripheral.ui.BaseViewModel;
-import org.im97mori.ble.android.peripheral.ui.main.MainActivity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,11 +55,11 @@ public class AutoDisposeViewModelProviderTest {
     @Rule
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
-    private ActivityScenario<MainActivity> mScenario;
+    private ActivityScenario<HiltTestActivity> mScenario;
 
     @Before
     public void setUp() {
-        mScenario = ActivityScenario.launch(MainActivity.class);
+        mScenario = ActivityScenario.launch(HiltTestActivity.class);
     }
 
     @After

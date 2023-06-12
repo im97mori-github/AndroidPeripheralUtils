@@ -156,7 +156,6 @@ public class PeripheralViewModel extends BaseViewModel {
     @MainThread
     public void quit() {
         if (isPeripheralStarted()) {
-            mAbstractProfileMockCallback.isStarted();
             mAbstractProfileMockCallback.quit();
         }
     }

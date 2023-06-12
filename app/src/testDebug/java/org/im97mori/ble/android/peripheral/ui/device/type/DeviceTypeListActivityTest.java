@@ -71,7 +71,7 @@ public class DeviceTypeListActivityTest {
         try (MockedStatic<AutoDisposeViewModelProvider> mockedStatic = mockStatic(AutoDisposeViewModelProvider.class)) {
             mockedStatic.when(() -> AutoDisposeViewModelProvider.getViewModelClass(DeviceTypeListViewModel.class)).thenReturn(FakeDeviceTypeListViewModel.class);
 
-            mScenario = ActivityScenario.launch(DeviceTypeListActivity.class);
+            mScenario = ActivityScenario.launchActivityForResult(DeviceTypeListActivity.class);
             mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceTypeListViewModel.class));
         }
     }

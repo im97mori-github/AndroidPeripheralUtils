@@ -415,7 +415,7 @@ public class DeviceSettingActivityTest {
     public void test_backPressed_00001() {
         Intent intent = new Intent(mContext, DeviceSettingActivity.class);
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
-        mScenario = ActivityScenario.launch(intent);
+        mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> {
             mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
@@ -430,7 +430,7 @@ public class DeviceSettingActivityTest {
     public void test_activity_result_00001() {
         Intent intent = new Intent(mContext, DeviceSettingActivity.class);
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
-        mScenario = ActivityScenario.launch(intent);
+        mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> {
             mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
             mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
