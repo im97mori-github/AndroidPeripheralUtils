@@ -52,29 +52,30 @@ public class AppDatabaseTest {
     public void test_00001() {
         AppDatabase appDatabase = Room.inMemoryDatabaseBuilder(mContext, AppDatabase.class)
                 .build();
-        SupportSQLiteOpenHelper sqLiteOpenHelper = appDatabase.getOpenHelper();
-        SupportSQLiteDatabase sqLiteDatabase = sqLiteOpenHelper.getReadableDatabase();
-        assertEquals(1, sqLiteDatabase.getVersion());
+        try (SupportSQLiteOpenHelper sqLiteOpenHelper = appDatabase.getOpenHelper()) {
+            SupportSQLiteDatabase sqLiteDatabase = sqLiteOpenHelper.getReadableDatabase();
+            assertEquals(1, sqLiteDatabase.getVersion());
 
-        TableInfo tableInfo = TableInfo.read(sqLiteDatabase, "device_setting");
-        TableInfo.Column column = tableInfo.columns.get("device_setting_id");
-        assertNotNull(column);
-        assertTrue(column.notNull);
-        assertEquals("INTEGER", column.type);
+            TableInfo tableInfo = TableInfo.read(sqLiteDatabase, "device_setting");
+            TableInfo.Column column = tableInfo.columns.get("device_setting_id");
+            assertNotNull(column);
+            assertTrue(column.notNull);
+            assertEquals("INTEGER", column.type);
 
-        column = tableInfo.columns.get("device_setting_name");
-        assertNotNull(column);
-        assertTrue(column.notNull);
-        assertEquals("TEXT", column.type);
+            column = tableInfo.columns.get("device_setting_name");
+            assertNotNull(column);
+            assertTrue(column.notNull);
+            assertEquals("TEXT", column.type);
 
-        column = tableInfo.columns.get("device_type");
-        assertNotNull(column);
-        assertTrue(column.notNull);
-        assertEquals("INTEGER", column.type);
+            column = tableInfo.columns.get("device_type");
+            assertNotNull(column);
+            assertTrue(column.notNull);
+            assertEquals("INTEGER", column.type);
 
-        column = tableInfo.columns.get("device_setting_data");
-        assertNotNull(column);
-        assertFalse(column.notNull);
-        assertEquals("BLOB", column.type);
+            column = tableInfo.columns.get("device_setting_data");
+            assertNotNull(column);
+            assertFalse(column.notNull);
+            assertEquals("BLOB", column.type);
+        }
     }
 }

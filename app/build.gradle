@@ -76,10 +76,10 @@ dependencies {
     testImplementation 'android.arch.core:core-testing:1.1.1'
 
     // room
-    implementation "androidx.room:room-runtime:2.5.1"
-    annotationProcessor "androidx.room:room-compiler:2.5.1"
-    implementation "androidx.room:room-rxjava3:2.5.1"
-    testImplementation "androidx.room:room-testing:2.5.1"
+    implementation "androidx.room:room-runtime:2.5.2"
+    annotationProcessor "androidx.room:room-compiler:2.5.2"
+    implementation "androidx.room:room-rxjava3:2.5.2"
+    testImplementation "androidx.room:room-testing:2.5.2"
 
     // hilt
     implementation 'com.google.dagger:hilt-android:2.46.1'
@@ -95,7 +95,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
 
     // blp peripheral
-    implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.7'
+    implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.10'
 
     // license activity
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.1'
