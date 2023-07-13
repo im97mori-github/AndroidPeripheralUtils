@@ -72,8 +72,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.6.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     testImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'android.arch.core:core-testing:1.1.1'
-    testImplementation 'android.arch.core:core-testing:1.1.1'
+    androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
 
     // room
     implementation "androidx.room:room-runtime:2.5.2"
@@ -95,7 +95,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
 
     // blp peripheral
-    implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.10'
+    implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.11'
 
     // license activity
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.1'
