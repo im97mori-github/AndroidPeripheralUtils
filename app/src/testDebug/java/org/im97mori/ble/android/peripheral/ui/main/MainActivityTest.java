@@ -13,6 +13,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_UNDEFINED;
@@ -26,6 +27,7 @@ import android.app.Instrumentation.ActivityResult;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
 import android.widget.TextView;
@@ -63,7 +65,6 @@ import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import dagger.hilt.android.testing.HiltAndroidRule;
@@ -234,7 +235,11 @@ public class MainActivityTest {
             protected boolean matchesSafely(View item) {
                 TextView textView = item.findViewById(R.id.grid_text);
                 Bitmap targetBitmap = TestUtils.getBitmap(textView.getCompoundDrawablesRelative()[1]);
-                Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(Objects.requireNonNull(mViewModel.provideDeviceTypeImageResMap().get(deviceSetting.getDeviceType()))));
+                Integer resId = mViewModel.provideDeviceTypeImageResMap().get(deviceSetting.getDeviceType());
+                assertNotNull(resId);
+                Drawable drawable = item.getContext().getDrawable(resId);
+                assertNotNull(drawable);
+                Bitmap bitmap = TestUtils.getBitmap(drawable);
                 return targetBitmap.sameAs(bitmap);
             }
 
@@ -265,7 +270,11 @@ public class MainActivityTest {
             protected boolean matchesSafely(View item) {
                 TextView textView = item.findViewById(R.id.grid_text);
                 Bitmap targetBitmap = TestUtils.getBitmap(textView.getCompoundDrawablesRelative()[1]);
-                Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(Objects.requireNonNull(mViewModel.provideDeviceTypeImageResMap().get(deviceSetting2.getDeviceType()))));
+                Integer resId = mViewModel.provideDeviceTypeImageResMap().get(deviceSetting2.getDeviceType());
+                assertNotNull(resId);
+                Drawable drawable = item.getContext().getDrawable(resId);
+                assertNotNull(drawable);
+                Bitmap bitmap = TestUtils.getBitmap(drawable);
                 return targetBitmap.sameAs(bitmap);
             }
 

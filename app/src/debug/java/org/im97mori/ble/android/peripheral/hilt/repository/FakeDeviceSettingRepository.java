@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.CompletableOnSubscribe;
-import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.processors.PublishProcessor;
 
@@ -57,8 +57,8 @@ public class FakeDeviceSettingRepository extends DeviceSettingRepository {
 
     @NonNull
     @Override
-    public Flowable<List<DeviceSetting>> loadAllDeviceSetting() {
-        return Flowable.fromPublisher(mLoadAllDeviceSettingProcessor);
+    public Observable<List<DeviceSetting>> loadAllDeviceSetting() {
+        return Observable.fromPublisher(mLoadAllDeviceSettingProcessor);
     }
 
     @Override

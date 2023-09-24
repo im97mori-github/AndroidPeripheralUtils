@@ -31,26 +31,19 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import javax.inject.Inject;
-
-import dagger.hilt.android.qualifiers.ApplicationContext;
-
 public class BluetoothSettingRepository {
 
     private final Context mApplicationContext;
 
     private final Set<Consumer<Boolean>> mBluetoothStatusConsumerList = Collections.synchronizedSet(new LinkedHashSet<>());
 
-    @Inject
-    public BluetoothSettingRepository(@NonNull @ApplicationContext Context context) {
+    public BluetoothSettingRepository(@NonNull Context context) {
         mApplicationContext = context.getApplicationContext();
         mApplicationContext.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 boolean isOn = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, STATE_OFF) == STATE_ON;
                 mBluetoothStatusConsumerList
-                        .stream()
-                        .sequential()
                         .forEach(booleanConsumer -> booleanConsumer.accept(isOn));
             }
         }, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));

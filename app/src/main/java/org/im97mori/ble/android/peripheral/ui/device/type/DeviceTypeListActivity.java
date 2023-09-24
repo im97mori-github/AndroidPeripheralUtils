@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.im97mori.ble.android.peripheral.databinding.DeviceTypeListActivityBinding;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 
+import java.util.Objects;
+
 import javax.annotation.Nullable;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -31,7 +33,7 @@ public class DeviceTypeListActivity extends AppCompatActivity {
         binding.list.setAdapter(adapter);
         binding.list.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent();
-            intent.putExtra(KEY_DEVICE_TYPE, adapter.getItem(position).first);
+            intent.putExtra(KEY_DEVICE_TYPE, Objects.requireNonNull(adapter.getItem(position)).first);
             setResult(RESULT_OK, intent);
             finish();
         });

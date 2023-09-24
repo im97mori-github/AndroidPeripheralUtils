@@ -1259,7 +1259,7 @@
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.FakeBloodPressureFeatureViewModel" method="updateResponseDelay" />
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.FakeClientCharacteristicConfigurationSettingViewModel" method="updateResponseDelay" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

@@ -50,7 +50,7 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceSetting> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        DeviceSetting deviceSetting = getItem(position);
+        DeviceSetting deviceSetting = Objects.requireNonNull(getItem(position));
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.main_grid, parent, false);
         }

@@ -10,11 +10,8 @@ import org.im97mori.ble.android.peripheral.room.DeviceSetting;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
 public class DeviceSettingDataSource {
@@ -23,8 +20,7 @@ public class DeviceSettingDataSource {
 
     private static final String DB_NAME = "app_database.db";
 
-    @Inject
-    public DeviceSettingDataSource(@NonNull @ApplicationContext Context context) {
+    public DeviceSettingDataSource(@NonNull Context context) {
         mAppDatabase = Room.databaseBuilder(context.getApplicationContext()
                 , AppDatabase.class
                 , DB_NAME)
@@ -33,7 +29,7 @@ public class DeviceSettingDataSource {
     }
 
     @NonNull
-    public Flowable<List<DeviceSetting>> loadAllDeviceSetting() {
+    public Observable<List<DeviceSetting>> loadAllDeviceSetting() {
         return mAppDatabase.getDeviceSettingDao().loadAllDeviceSetting();
     }
 

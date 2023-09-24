@@ -20,7 +20,6 @@ import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 
-@SuppressWarnings("ConstantConditions")
 @HiltViewModel
 public class FakePeripheralViewModel extends PeripheralViewModel {
 

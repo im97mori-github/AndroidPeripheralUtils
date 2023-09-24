@@ -46,7 +46,6 @@ import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-@SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {
@@ -392,7 +391,7 @@ public class SystemIdSettingViewModelTest {
         AtomicReference<String> responseCodeErrorStringReference = new AtomicReference<>();
 
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
-        mViewModel.updateResponseCode(null);
+        mViewModel.updateResponseCode("");
 
         assertEquals(original, responseCodeErrorStringReference.get());
     }
@@ -411,8 +410,8 @@ public class SystemIdSettingViewModelTest {
             count.incrementAndGet();
             responseCodeErrorStringReference.set(s);
         });
-        mViewModel.updateResponseCode(null);
-        mViewModel.updateResponseCode(null);
+        mViewModel.updateResponseCode("");
+        mViewModel.updateResponseCode("");
 
         assertEquals(original, responseCodeErrorStringReference.get());
         assertEquals(1, count.get());
@@ -501,7 +500,7 @@ public class SystemIdSettingViewModelTest {
         AtomicReference<String> responseDelayErrorStringReference = new AtomicReference<>();
 
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
-        mViewModel.updateResponseDelay(null);
+        mViewModel.updateResponseDelay("");
 
         assertEquals(original, responseDelayErrorStringReference.get());
     }
@@ -520,8 +519,8 @@ public class SystemIdSettingViewModelTest {
             count.incrementAndGet();
             responseDelayErrorStringReference.set(s);
         });
-        mViewModel.updateResponseDelay(null);
-        mViewModel.updateResponseDelay(null);
+        mViewModel.updateResponseDelay("");
+        mViewModel.updateResponseDelay("");
 
         assertEquals(original, responseDelayErrorStringReference.get());
         assertEquals(1, count.get());
@@ -532,12 +531,12 @@ public class SystemIdSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean after = true;
+        Boolean after = Boolean.TRUE;
 
         assertNull(mSavedStateHandle.get("KEY_IS_ERROR_RESPONSE"));
         mViewModel.updateIsErrorResponse(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE"));
     }
 
     @Test
@@ -545,15 +544,15 @@ public class SystemIdSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean before = false;
-        boolean after = true;
+        Boolean before = Boolean.FALSE;
+        Boolean after = Boolean.TRUE;
 
         mViewModel.updateIsErrorResponse(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE").booleanValue());
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE"));
 
         mViewModel.updateIsErrorResponse(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE"));
     }
 
     @Test
@@ -885,7 +884,7 @@ public class SystemIdSettingViewModelTest {
         AtomicReference<String> manufacturerIdentifierErrorStringReference = new AtomicReference<>();
 
         mViewModel.observeManufacturerIdentifierErrorString(new TestLifeCycleOwner(), manufacturerIdentifierErrorStringReference::set);
-        mViewModel.updateManufacturerIdentifier(null);
+        mViewModel.updateManufacturerIdentifier("");
 
         assertEquals(original, manufacturerIdentifierErrorStringReference.get());
     }
@@ -904,8 +903,8 @@ public class SystemIdSettingViewModelTest {
             count.incrementAndGet();
             manufacturerIdentifierErrorStringReference.set(s);
         });
-        mViewModel.updateManufacturerIdentifier(null);
-        mViewModel.updateManufacturerIdentifier(null);
+        mViewModel.updateManufacturerIdentifier("");
+        mViewModel.updateManufacturerIdentifier("");
 
         assertEquals(original, manufacturerIdentifierErrorStringReference.get());
         assertEquals(1, count.get());
@@ -994,7 +993,7 @@ public class SystemIdSettingViewModelTest {
         AtomicReference<String> organizationallyUniqueIdentifierErrorStringReference = new AtomicReference<>();
 
         mViewModel.observeOrganizationallyUniqueIdentifierErrorString(new TestLifeCycleOwner(), organizationallyUniqueIdentifierErrorStringReference::set);
-        mViewModel.updateOrganizationallyUniqueIdentifier(null);
+        mViewModel.updateOrganizationallyUniqueIdentifier("");
 
         assertEquals(original, organizationallyUniqueIdentifierErrorStringReference.get());
     }
@@ -1013,8 +1012,8 @@ public class SystemIdSettingViewModelTest {
             count.incrementAndGet();
             organizationallyUniqueIdentifierErrorStringReference.set(s);
         });
-        mViewModel.updateOrganizationallyUniqueIdentifier(null);
-        mViewModel.updateOrganizationallyUniqueIdentifier(null);
+        mViewModel.updateOrganizationallyUniqueIdentifier("");
+        mViewModel.updateOrganizationallyUniqueIdentifier("");
 
         assertEquals(original, organizationallyUniqueIdentifierErrorStringReference.get());
         assertEquals(1, count.get());

@@ -27,11 +27,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
 public class DeviceSettingRepository {
@@ -54,152 +51,140 @@ public class DeviceSettingRepository {
     private List<Pair<Integer, String>> mPulseRateRangeDetectionList;
     private List<Pair<Integer, String>> mMeasurementPositionDetectionList;
 
-    @Inject
     public DeviceSettingRepository(@NonNull DeviceSettingDataSource deviceSettingDataSource
-            , @NonNull @ApplicationContext Context context) {
+            , @NonNull Context context) {
         mDeviceSettingDataSource = deviceSettingDataSource;
         mApplicationContext = context.getApplicationContext();
+        initDataType();
+        initDateTimeMonthList();
+        initDateTimeDayList();
+        initDateTimeHoursList();
+        initDateTimeMinutesList();
+        initDateTimeSecondsList();
+        initBodyMovementDetectionList();
+        initCuffFitDetectionList();
+        initIrregularPulseDetectionList();
+        initPulseRateRangeDetectionList();
+        initMeasurementPositionDetectionList();
     }
 
-    private synchronized void initDataType() {
-        if (mDeviceTypeImageResIdMap == null) {
-            Map<Integer, Integer> imageMap = Collections.synchronizedMap(new HashMap<>());
-            imageMap.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, R.drawable.medical_ketsuatsukei_aneroid);
-            mDeviceTypeImageResIdMap = Collections.unmodifiableMap(imageMap);
+    private void initDataType() {
+        Map<Integer, Integer> imageMap = Collections.synchronizedMap(new HashMap<>());
+        imageMap.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, R.drawable.medical_ketsuatsukei_aneroid);
+        mDeviceTypeImageResIdMap = Collections.unmodifiableMap(imageMap);
 
-            Map<Integer, String> nameMap = Collections.synchronizedMap(new HashMap<>());
-            nameMap.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mApplicationContext.getString(R.string.blood_pressure_profile));
-            mDeviceTypeNameMap = Collections.unmodifiableMap(nameMap);
+        Map<Integer, String> nameMap = Collections.synchronizedMap(new HashMap<>());
+        nameMap.put(DEVICE_TYPE_BLOOD_PRESSURE_PROFILE, mApplicationContext.getString(R.string.blood_pressure_profile));
+        mDeviceTypeNameMap = Collections.unmodifiableMap(nameMap);
 
-            List<Pair<Integer, String>> list = nameMap.entrySet()
-                    .stream()
-                    .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
-                    .map(entry -> Pair.create(entry.getKey(), entry.getValue()))
-                    .collect(Collectors.toList());
-            mDeviceTypeNameList = Collections.unmodifiableList(Collections.synchronizedList(list));
-        }
+        List<Pair<Integer, String>> list = nameMap.entrySet()
+                .stream()
+                .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
+                .map(entry -> Pair.create(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+        mDeviceTypeNameList = Collections.unmodifiableList(Collections.synchronizedList(list));
     }
 
-    private synchronized void initDateTimeMonthList() {
-        if (mDateTimeMonthList == null) {
-            List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_IS_NOT_KNOWN, mApplicationContext.getString(R.string.month_is_not_known)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_JANUARY, mApplicationContext.getString(R.string.month_january)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_FEBRUARY, mApplicationContext.getString(R.string.month_february)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_MARCH, mApplicationContext.getString(R.string.month_march)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_APRIL, mApplicationContext.getString(R.string.month_april)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_MAY, mApplicationContext.getString(R.string.month_may)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_JUNE, mApplicationContext.getString(R.string.month_june)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_JULY, mApplicationContext.getString(R.string.month_july)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_AUGUST, mApplicationContext.getString(R.string.month_august)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_SEPTEMBER, mApplicationContext.getString(R.string.month_september)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_OCTOBER, mApplicationContext.getString(R.string.month_october)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_NOVEMBER, mApplicationContext.getString(R.string.month_november)));
-            list.add(new IntegerStringPair(DateTimeUtils.MONTH_DECEMBER, mApplicationContext.getString(R.string.month_december)));
-            mDateTimeMonthList = Collections.unmodifiableList(list);
-        }
+    private void initDateTimeMonthList() {
+        List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_IS_NOT_KNOWN, mApplicationContext.getString(R.string.month_is_not_known)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_JANUARY, mApplicationContext.getString(R.string.month_january)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_FEBRUARY, mApplicationContext.getString(R.string.month_february)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_MARCH, mApplicationContext.getString(R.string.month_march)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_APRIL, mApplicationContext.getString(R.string.month_april)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_MAY, mApplicationContext.getString(R.string.month_may)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_JUNE, mApplicationContext.getString(R.string.month_june)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_JULY, mApplicationContext.getString(R.string.month_july)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_AUGUST, mApplicationContext.getString(R.string.month_august)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_SEPTEMBER, mApplicationContext.getString(R.string.month_september)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_OCTOBER, mApplicationContext.getString(R.string.month_october)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_NOVEMBER, mApplicationContext.getString(R.string.month_november)));
+        list.add(new IntegerStringPair(DateTimeUtils.MONTH_DECEMBER, mApplicationContext.getString(R.string.month_december)));
+        mDateTimeMonthList = Collections.unmodifiableList(list);
     }
 
-    private synchronized void initDateTimeDayList() {
-        if (mDateTimeDayList == null) {
-            List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
-            list.add(new IntegerStringPair(DateTimeUtils.DAY_OF_MONTH_IS_NOT_KNOWN, mApplicationContext.getString(R.string.day_of_month_is_not_known)));
-            for (int i = 1; i < 32; i++) {
-                list.add(new IntegerStringPair(i, Integer.toString(i)));
-            }
-            mDateTimeDayList = Collections.unmodifiableList(list);
+    private void initDateTimeDayList() {
+        List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
+        list.add(new IntegerStringPair(DateTimeUtils.DAY_OF_MONTH_IS_NOT_KNOWN, mApplicationContext.getString(R.string.day_of_month_is_not_known)));
+        for (int i = 1; i < 32; i++) {
+            list.add(new IntegerStringPair(i, Integer.toString(i)));
         }
+        mDateTimeDayList = Collections.unmodifiableList(list);
     }
 
-    private synchronized void initDateTimeHoursList() {
-        if (mDateTimeHoursList == null) {
-            List<String> list = Collections.synchronizedList(new ArrayList<>());
-            for (int i = 0; i < 24; i++) {
-                list.add(Integer.toString(i));
-            }
-            mDateTimeHoursList = Collections.unmodifiableList(list);
+    private void initDateTimeHoursList() {
+        List<String> list = Collections.synchronizedList(new ArrayList<>());
+        for (int i = 0; i < 24; i++) {
+            list.add(Integer.toString(i));
         }
+        mDateTimeHoursList = Collections.unmodifiableList(list);
     }
 
-    private synchronized void initDateTimeMinutesList() {
-        if (mDateTimeMinutesList == null) {
-            List<String> list = Collections.synchronizedList(new ArrayList<>());
-            for (int i = 0; i < 61; i++) {
-                list.add(Integer.toString(i));
-            }
-            mDateTimeMinutesList = Collections.unmodifiableList(list);
+    private void initDateTimeMinutesList() {
+        List<String> list = Collections.synchronizedList(new ArrayList<>());
+        for (int i = 0; i < 61; i++) {
+            list.add(Integer.toString(i));
         }
+        mDateTimeMinutesList = Collections.unmodifiableList(list);
     }
 
-    private synchronized void initDateTimeSecondsList() {
-        if (mDateTimeSecondsList == null) {
-            List<String> list = Collections.synchronizedList(new ArrayList<>());
-            for (int i = 0; i < 61; i++) {
-                list.add(Integer.toString(i));
-            }
-            mDateTimeSecondsList = Collections.unmodifiableList(list);
+    private void initDateTimeSecondsList() {
+        List<String> list = Collections.synchronizedList(new ArrayList<>());
+        for (int i = 0; i < 61; i++) {
+            list.add(Integer.toString(i));
         }
+        mDateTimeSecondsList = Collections.unmodifiableList(list);
     }
 
-    private synchronized void initBodyMovementDetectionList() {
-        if (mBodyMovementDetectionList == null) {
-            List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_NO_BODY_MOVEMENT
-                    , mApplicationContext.getString(R.string.no_body_movement)));
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
-                    , mApplicationContext.getString(R.string.body_movement_during_measurement)));
-            mBodyMovementDetectionList = Collections.unmodifiableList(list);
-        }
+    private void initBodyMovementDetectionList() {
+        List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_NO_BODY_MOVEMENT
+                , mApplicationContext.getString(R.string.no_body_movement)));
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT
+                , mApplicationContext.getString(R.string.body_movement_during_measurement)));
+        mBodyMovementDetectionList = Collections.unmodifiableList(list);
     }
 
-    private synchronized void initCuffFitDetectionList() {
-        if (mCuffFitDetectionList == null) {
-            List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_FITS_PROPERLY
-                    , mApplicationContext.getString(R.string.cuff_fits_properly)));
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
-                    , mApplicationContext.getString(R.string.cuff_too_loose)));
-            mCuffFitDetectionList = Collections.unmodifiableList(list);
-        }
+    private void initCuffFitDetectionList() {
+        List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_FITS_PROPERLY
+                , mApplicationContext.getString(R.string.cuff_fits_properly)));
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE
+                , mApplicationContext.getString(R.string.cuff_too_loose)));
+        mCuffFitDetectionList = Collections.unmodifiableList(list);
     }
 
-    private synchronized void initIrregularPulseDetectionList() {
-        if (mIrregularPulseDetectionList == null) {
-            List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_NO_IRREGULAR_PULSE_DETECTED
-                    , mApplicationContext.getString(R.string.no_irregular_pulse_detected)));
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
-                    , mApplicationContext.getString(R.string.irregular_pulse_detected)));
-            mIrregularPulseDetectionList = Collections.unmodifiableList(list);
-        }
+    private void initIrregularPulseDetectionList() {
+        List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_NO_IRREGULAR_PULSE_DETECTED
+                , mApplicationContext.getString(R.string.no_irregular_pulse_detected)));
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED
+                , mApplicationContext.getString(R.string.irregular_pulse_detected)));
+        mIrregularPulseDetectionList = Collections.unmodifiableList(list);
     }
 
-    private synchronized void initPulseRateRangeDetectionList() {
-        if (mPulseRateRangeDetectionList == null) {
-            List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_WITHIN_THE_RANGE
-                    , mApplicationContext.getString(R.string.pulse_rate_is_within_the_range)));
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_EXCEEDS_UPPER_LIMIT
-                    , mApplicationContext.getString(R.string.pulse_rate_exceeds_upper_limit)));
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
-                    , mApplicationContext.getString(R.string.pulse_rate_is_less_than_lower_limit)));
-            mPulseRateRangeDetectionList = Collections.unmodifiableList(list);
-        }
+    private void initPulseRateRangeDetectionList() {
+        List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_WITHIN_THE_RANGE
+                , mApplicationContext.getString(R.string.pulse_rate_is_within_the_range)));
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_EXCEEDS_UPPER_LIMIT
+                , mApplicationContext.getString(R.string.pulse_rate_exceeds_upper_limit)));
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT
+                , mApplicationContext.getString(R.string.pulse_rate_is_less_than_lower_limit)));
+        mPulseRateRangeDetectionList = Collections.unmodifiableList(list);
     }
 
-    private synchronized void initMeasurementPositionDetectionList() {
-        if (mMeasurementPositionDetectionList == null) {
-            List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_PROPER_MEASUREMENT_POSITION
-                    , mApplicationContext.getString(R.string.proper_measurement_position)));
-            list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION
-                    , mApplicationContext.getString(R.string.improper_measurement_position)));
-            mMeasurementPositionDetectionList = Collections.unmodifiableList(list);
-        }
+    private void initMeasurementPositionDetectionList() {
+        List<IntegerStringPair> list = Collections.synchronizedList(new ArrayList<>());
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_PROPER_MEASUREMENT_POSITION
+                , mApplicationContext.getString(R.string.proper_measurement_position)));
+        list.add(new IntegerStringPair(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION
+                , mApplicationContext.getString(R.string.improper_measurement_position)));
+        mMeasurementPositionDetectionList = Collections.unmodifiableList(list);
     }
 
     @NonNull
-    public Flowable<List<DeviceSetting>> loadAllDeviceSetting() {
+    public Observable<List<DeviceSetting>> loadAllDeviceSetting() {
         return mDeviceSettingDataSource.loadAllDeviceSetting();
     }
 
@@ -224,85 +209,71 @@ public class DeviceSettingRepository {
 
     @Nullable
     public Integer getDeviceTypeImageResId(int deviceType) {
-        initDataType();
         return mDeviceTypeImageResIdMap.get(deviceType);
     }
 
     @Nullable
     public String getDeviceTypeName(int deviceType) {
-        initDataType();
         return mDeviceTypeNameMap.get(deviceType);
     }
 
     @NonNull
     public Map<Integer, Integer> provideDeviceTypeImageResMap() {
-        initDataType();
         return mDeviceTypeImageResIdMap;
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideDeviceTypeList() {
-        initDataType();
         return mDeviceTypeNameList;
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideDateTimeMonthList() {
-        initDateTimeMonthList();
         return mDateTimeMonthList;
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideDateTimeDayList() {
-        initDateTimeDayList();
         return mDateTimeDayList;
     }
 
     @NonNull
     public List<String> provideDateTimeHoursList() {
-        initDateTimeHoursList();
         return mDateTimeHoursList;
     }
 
     @NonNull
     public List<String> provideDateTimeMinutesList() {
-        initDateTimeMinutesList();
         return mDateTimeMinutesList;
     }
 
     @NonNull
     public List<String> provideDateTimeSecondsList() {
-        initDateTimeSecondsList();
         return mDateTimeSecondsList;
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideBodyMovementDetectionList() {
-        initBodyMovementDetectionList();
         return mBodyMovementDetectionList;
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideCuffFitDetectionList() {
-        initCuffFitDetectionList();
         return mCuffFitDetectionList;
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideIrregularPulseDetectionList() {
-        initIrregularPulseDetectionList();
         return mIrregularPulseDetectionList;
     }
 
     @NonNull
     public List<Pair<Integer, String>> providePulseRateRangeDetectionList() {
-        initPulseRateRangeDetectionList();
         return mPulseRateRangeDetectionList;
     }
 
     @NonNull
     public List<Pair<Integer, String>> provideMeasurementPositionDetectionList() {
-        initMeasurementPositionDetectionList();
         return mMeasurementPositionDetectionList;
     }
 

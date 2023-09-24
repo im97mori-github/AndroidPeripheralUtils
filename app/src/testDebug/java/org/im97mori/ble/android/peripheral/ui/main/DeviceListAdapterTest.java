@@ -2,11 +2,13 @@ package org.im97mori.ble.android.peripheral.ui.main;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -28,7 +30,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -106,7 +107,11 @@ public class DeviceListAdapterTest {
         View view = adapter.getView(0, null, frameLayout);
         TextView textView = view.findViewById(R.id.grid_text);
         assertEquals(deviceSetting.getDeviceSettingName(), textView.getText().toString());
-        Bitmap bitmap = TestUtils.getBitmap(mContext.getDrawable(Objects.requireNonNull(map.get(deviceSetting.getDeviceType()))));
+        Integer resId = map.get(deviceSetting.getDeviceType());
+        assertNotNull(resId);
+        Drawable drawable = mContext.getDrawable(resId);
+        assertNotNull(drawable);
+        Bitmap bitmap = TestUtils.getBitmap(drawable);
 
         assertTrue(bitmap.sameAs(TestUtils.getBitmap(textView.getCompoundDrawablesRelative()[1])));
     }
@@ -121,7 +126,11 @@ public class DeviceListAdapterTest {
         View view = adapter.getView(1, null, frameLayout);
         TextView textView = view.findViewById(R.id.grid_text);
         assertEquals(deviceSetting2.getDeviceSettingName(), textView.getText().toString());
-        Bitmap bitmap = TestUtils.getBitmap(mContext.getDrawable(Objects.requireNonNull(map.get(deviceSetting2.getDeviceType()))));
+        Integer resId = map.get(deviceSetting2.getDeviceType());
+        assertNotNull(resId);
+        Drawable drawable = mContext.getDrawable(resId);
+        assertNotNull(drawable);
+        Bitmap bitmap = TestUtils.getBitmap(drawable);
 
         assertTrue(bitmap.sameAs(TestUtils.getBitmap(textView.getCompoundDrawablesRelative()[1])));
     }

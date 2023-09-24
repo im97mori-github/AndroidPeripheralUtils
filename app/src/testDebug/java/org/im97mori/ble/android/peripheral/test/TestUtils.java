@@ -15,7 +15,7 @@ import org.im97mori.ble.android.peripheral.R;
 public final class TestUtils {
 
     @NonNull
-    public static Bitmap getBitmap(Drawable drawable) {
+    public static Bitmap getBitmap(@NonNull Drawable drawable) {
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
                 drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
@@ -24,12 +24,14 @@ public final class TestUtils {
         return bitmap;
     }
 
+    @NonNull
     public static ActivityScenario<HiltTestActivity> createHiltActivity() {
         Intent intent = Intent.makeMainActivity(new ComponentName(ApplicationProvider.getApplicationContext(), HiltTestActivity.class))
                 .putExtra("androidx.fragment.app.testing.FragmentScenario.EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY", R.style.FragmentScenarioEmptyFragmentActivityTheme);
         return ActivityScenario.launch(intent);
     }
 
+    @NonNull
     public static String getCurrentMethodName() {
         // default stacktrace index is next of this method
         int index = 1;

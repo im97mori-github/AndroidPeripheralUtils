@@ -45,7 +45,6 @@ import io.reactivex.rxjava3.core.CompletableEmitter;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.processors.PublishProcessor;
 
-@SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {

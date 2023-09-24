@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 @HiltAndroidTest
@@ -80,8 +81,10 @@ public class DeviceSettingDataSourceTest {
 
     @Test
     public void test_loadAllDeviceSetting_00001() {
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDataSource.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -89,13 +92,15 @@ public class DeviceSettingDataSourceTest {
         DeviceSetting original = new DeviceSetting("a", 1);
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDataSource.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertEquals(1, deviceSettingList.size());
         DeviceSetting deviceSetting = deviceSettingList.get(0);
         assertTrue(deviceSetting.getId() > 0);
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
         assertNull(deviceSetting.getDeviceSettingData());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -103,13 +108,15 @@ public class DeviceSettingDataSourceTest {
         DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDataSource.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertEquals(1, deviceSettingList.size());
         DeviceSetting deviceSetting = deviceSettingList.get(0);
         assertEquals(original.getId(), deviceSetting.getId());
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
         assertNull(deviceSetting.getDeviceSettingData());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -175,8 +182,11 @@ public class DeviceSettingDataSourceTest {
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDataSource.deleteDeviceSetting(original).blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
+
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDataSource.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -201,8 +211,11 @@ public class DeviceSettingDataSourceTest {
         mDeviceSettingDataSource.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDataSource.deleteAllDeviceSetting().blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
+
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDataSource.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -213,8 +226,11 @@ public class DeviceSettingDataSourceTest {
         mDeviceSettingDataSource.insertDeviceSetting(original2).blockingSubscribe();
 
         mDeviceSettingDataSource.deleteAllDeviceSetting().blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDataSource.loadAllDeviceSetting().blockingFirst();
+
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDataSource.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
+        observable.subscribe().dispose();
     }
 
 }

@@ -54,7 +54,6 @@ import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-@SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {
@@ -1696,12 +1695,12 @@ public class DeviceInformationServiceSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean after = true;
+        Boolean after = Boolean.TRUE;
 
         assertNull(mSavedStateHandle.get("KEY_IS_SYSTEM_ID_SUPPORTED"));
         mViewModel.updateIsSystemIdSupported(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_SYSTEM_ID_SUPPORTED").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_SYSTEM_ID_SUPPORTED"));
     }
 
     @Test
@@ -1709,15 +1708,15 @@ public class DeviceInformationServiceSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean before = false;
-        boolean after = true;
+        Boolean before = Boolean.FALSE;
+        Boolean after = Boolean.TRUE;
 
         mViewModel.updateIsSystemIdSupported(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_IS_SYSTEM_ID_SUPPORTED").booleanValue());
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_IS_SYSTEM_ID_SUPPORTED"));
 
         mViewModel.updateIsSystemIdSupported(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_SYSTEM_ID_SUPPORTED").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_SYSTEM_ID_SUPPORTED"));
     }
 
 }

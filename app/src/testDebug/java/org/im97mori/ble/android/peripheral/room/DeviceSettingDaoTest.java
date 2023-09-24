@@ -3,7 +3,6 @@ package org.im97mori.ble.android.peripheral.room;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
-
 import static org.junit.Assert.assertArrayEquals;
 
 import android.content.Context;
@@ -30,6 +29,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
+import io.reactivex.rxjava3.core.Observable;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -72,8 +72,10 @@ public class DeviceSettingDaoTest {
 
     @Test
     public void test_loadAllDeviceSetting_00001() {
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDao.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -81,13 +83,15 @@ public class DeviceSettingDaoTest {
         DeviceSetting original = new DeviceSetting("a", 1);
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDao.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertEquals(1, deviceSettingList.size());
         DeviceSetting deviceSetting = deviceSettingList.get(0);
         assertTrue(deviceSetting.getId() > 0);
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
         assertNull(deviceSetting.getDeviceSettingData());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -95,13 +99,15 @@ public class DeviceSettingDaoTest {
         DeviceSetting original = new DeviceSetting(1, "a", 2, new byte[]{1});
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDao.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertEquals(1, deviceSettingList.size());
         DeviceSetting deviceSetting = deviceSettingList.get(0);
         assertEquals(original.getId(), deviceSetting.getId());
         assertEquals(original.getDeviceSettingName(), deviceSetting.getDeviceSettingName());
         assertEquals(original.getDeviceType(), deviceSetting.getDeviceType());
         assertNull(deviceSetting.getDeviceSettingData());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -167,8 +173,11 @@ public class DeviceSettingDaoTest {
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDao.deleteDeviceSetting(original).blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
+
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDao.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -193,8 +202,11 @@ public class DeviceSettingDaoTest {
         mDeviceSettingDao.insertDeviceSetting(original).blockingSubscribe();
 
         mDeviceSettingDao.deleteAllDeviceSetting().blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
+
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDao.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
+        observable.subscribe().dispose();
     }
 
     @Test
@@ -205,8 +217,11 @@ public class DeviceSettingDaoTest {
         mDeviceSettingDao.insertDeviceSetting(original2).blockingSubscribe();
 
         mDeviceSettingDao.deleteAllDeviceSetting().blockingSubscribe();
-        List<DeviceSetting> deviceSettingList = mDeviceSettingDao.loadAllDeviceSetting().blockingFirst();
+
+        Observable<List<DeviceSetting>> observable = mDeviceSettingDao.loadAllDeviceSetting();
+        List<DeviceSetting> deviceSettingList = observable.blockingFirst();
         assertTrue(deviceSettingList.isEmpty());
+        observable.subscribe().dispose();
     }
 
 }

@@ -46,7 +46,6 @@ import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-@SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {
@@ -452,7 +451,9 @@ public class BloodPressureProfileViewModelTest {
 
         mViewModel.updateIsDisSupported(true);
 
-        assertTrue(mSavedStateHandle.get("KEY_IS_DIS_SUPPORTED"));
+        Boolean isDisSupported = mSavedStateHandle.get("KEY_IS_DIS_SUPPORTED");
+        assertNotNull(isDisSupported);
+        assertTrue(isDisSupported);
     }
 
     @Test
@@ -462,7 +463,9 @@ public class BloodPressureProfileViewModelTest {
 
         mViewModel.updateIsDisSupported(false);
 
-        assertFalse(mSavedStateHandle.get("KEY_IS_DIS_SUPPORTED"));
+        Boolean isDisSupported = mSavedStateHandle.get("KEY_IS_DIS_SUPPORTED");
+        assertNotNull(isDisSupported);
+        assertFalse(isDisSupported);
     }
 
     @Test

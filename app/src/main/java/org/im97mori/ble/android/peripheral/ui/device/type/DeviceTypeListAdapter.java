@@ -34,7 +34,7 @@ public class DeviceTypeListAdapter extends ArrayAdapter<Pair<Integer, String>> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Pair<Integer, String> pair = getItem(position);
+        Pair<Integer, String> pair = Objects.requireNonNull(getItem(position));
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.list_item, parent, false);
         }

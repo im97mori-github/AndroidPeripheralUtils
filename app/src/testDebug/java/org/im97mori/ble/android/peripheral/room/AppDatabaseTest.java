@@ -77,5 +77,6 @@ public class AppDatabaseTest {
             assertFalse(column.notNull);
             assertEquals("BLOB", column.type);
         }
+        appDatabase.close();
     }
 }

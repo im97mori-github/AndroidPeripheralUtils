@@ -68,8 +68,8 @@ dependencies {
     // androidx library
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.6.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.6.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     testImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
@@ -95,7 +95,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
 
     // blp peripheral
-    implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.11'
+    implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.14'
 
     // license activity
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.1'

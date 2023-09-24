@@ -1,11 +1,13 @@
 package org.im97mori.ble.android.peripheral.ui.device.type;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -25,7 +27,6 @@ import org.robolectric.annotation.Config;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -68,7 +69,11 @@ public class DeviceTypeListAdapterTest {
         View view = adapter.getView(0, null, frameLayout);
         TextView textView = (TextView) view;
         assertEquals(pair.second, textView.getText().toString());
-        Bitmap bitmap = TestUtils.getBitmap(mContext.getDrawable(Objects.requireNonNull(map.get(pair.first))));
+        Integer resId = map.get(pair.first);
+        assertNotNull(resId);
+        Drawable drawable = mContext.getDrawable(resId);
+        assertNotNull(drawable);
+        Bitmap bitmap = TestUtils.getBitmap(drawable);
 
         assertTrue(bitmap.sameAs(TestUtils.getBitmap(textView.getCompoundDrawablesRelative()[0])));
     }
@@ -83,7 +88,11 @@ public class DeviceTypeListAdapterTest {
         View view = adapter.getView(1, null, frameLayout);
         TextView textView = (TextView) view;
         assertEquals(pair2.second, textView.getText().toString());
-        Bitmap bitmap = TestUtils.getBitmap(mContext.getDrawable(Objects.requireNonNull(map.get(pair2.first))));
+        Integer resId = map.get(pair2.first);
+        assertNotNull(resId);
+        Drawable drawable = mContext.getDrawable(resId);
+        assertNotNull(drawable);
+        Bitmap bitmap = TestUtils.getBitmap(drawable);
 
         assertTrue(bitmap.sameAs(TestUtils.getBitmap(textView.getCompoundDrawablesRelative()[0])));
     }

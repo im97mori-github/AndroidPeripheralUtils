@@ -55,7 +55,6 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.processors.PublishProcessor;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-@SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {
@@ -208,6 +207,7 @@ public class DeviceSettingViewModelTest {
         byte[] data = mockDataStringReference.get();
         assertNotNull(data);
         MockData mockData = Utils.byteToParcelable(data, MockData.CREATOR);
+        assertNotNull(mockData);
         assertEquals(1, mockData.serviceDataList.size());
         assertEquals(originalServiceData, mockData.serviceDataList.get(0));
     }
@@ -258,6 +258,7 @@ public class DeviceSettingViewModelTest {
         byte[] data = mockDataStringReference.get();
         assertNotNull(data);
         MockData mockData = Utils.byteToParcelable(data, MockData.CREATOR);
+        assertNotNull(mockData);
         assertEquals(1, mockData.serviceDataList.size());
         assertEquals(originalServiceData, mockData.serviceDataList.get(0));
     }
@@ -589,6 +590,7 @@ public class DeviceSettingViewModelTest {
         byte[] data = mockDataReference.get();
         assertNotNull(data);
         MockData mockData = Utils.byteToParcelable(data, MockData.CREATOR);
+        assertNotNull(mockData);
         assertEquals(1, mockData.serviceDataList.size());
         assertEquals(originalServiceData, mockData.serviceDataList.get(0));
     }
@@ -659,7 +661,9 @@ public class DeviceSettingViewModelTest {
         assertNull(mSavedStateHandle.get("KEY_FRAGMENT_READY"));
         mViewModel.fragmentReady();
 
-        assertTrue(mSavedStateHandle.get("KEY_FRAGMENT_READY"));
+        Boolean fragmentReady = mSavedStateHandle.get("KEY_FRAGMENT_READY");
+        assertNotNull(fragmentReady);
+        assertTrue(fragmentReady);
     }
 
     @Test

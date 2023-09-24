@@ -18,6 +18,7 @@ import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_T
 import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
 import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
@@ -26,6 +27,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
@@ -245,7 +247,9 @@ public class DeviceSettingActivityTest {
             @Override
             protected boolean matchesSafely(View item) {
                 Bitmap targetBitmap = TestUtils.getBitmap(((AppCompatImageView) item).getDrawable());
-                Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid));
+                Drawable drawable = item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid);
+                assertNotNull(drawable);
+                Bitmap bitmap = TestUtils.getBitmap(drawable);
                 return targetBitmap.sameAs(bitmap);
             }
 
@@ -571,7 +575,9 @@ public class DeviceSettingActivityTest {
             @Override
             protected boolean matchesSafely(View item) {
                 Bitmap targetBitmap = TestUtils.getBitmap(((AppCompatImageView) item).getDrawable());
-                Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid));
+                Drawable drawable = item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid);
+                assertNotNull(drawable);
+                Bitmap bitmap = TestUtils.getBitmap(drawable);
                 return targetBitmap.sameAs(bitmap);
             }
 
@@ -587,7 +593,9 @@ public class DeviceSettingActivityTest {
             @Override
             protected boolean matchesSafely(View item) {
                 Bitmap targetBitmap = TestUtils.getBitmap(((AppCompatImageView) item).getDrawable());
-                Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid));
+                Drawable drawable = item.getContext().getDrawable(R.drawable.medical_ketsuatsukei_aneroid);
+                assertNotNull(drawable);
+                Bitmap bitmap = TestUtils.getBitmap(drawable);
                 return targetBitmap.sameAs(bitmap);
             }
 

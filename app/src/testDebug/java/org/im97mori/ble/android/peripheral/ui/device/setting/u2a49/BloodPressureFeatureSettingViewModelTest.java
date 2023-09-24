@@ -46,7 +46,6 @@ import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-@SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {
@@ -809,7 +808,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         AtomicReference<String> responseCodeErrorStringReference = new AtomicReference<>();
 
         mViewModel.observeResponseCodeErrorString(new TestLifeCycleOwner(), responseCodeErrorStringReference::set);
-        mViewModel.updateResponseCode(null);
+        mViewModel.updateResponseCode("");
 
         assertEquals(original, responseCodeErrorStringReference.get());
     }
@@ -828,8 +827,8 @@ public class BloodPressureFeatureSettingViewModelTest {
             count.incrementAndGet();
             responseCodeErrorStringReference.set(s);
         });
-        mViewModel.updateResponseCode(null);
-        mViewModel.updateResponseCode(null);
+        mViewModel.updateResponseCode("");
+        mViewModel.updateResponseCode("");
 
         assertEquals(original, responseCodeErrorStringReference.get());
         assertEquals(1, count.get());
@@ -918,7 +917,7 @@ public class BloodPressureFeatureSettingViewModelTest {
         AtomicReference<String> responseDelayErrorStringReference = new AtomicReference<>();
 
         mViewModel.observeResponseDelayErrorString(new TestLifeCycleOwner(), responseDelayErrorStringReference::set);
-        mViewModel.updateResponseDelay(null);
+        mViewModel.updateResponseDelay("");
 
         assertEquals(original, responseDelayErrorStringReference.get());
     }
@@ -937,8 +936,8 @@ public class BloodPressureFeatureSettingViewModelTest {
             count.incrementAndGet();
             responseDelayErrorStringReference.set(s);
         });
-        mViewModel.updateResponseDelay(null);
-        mViewModel.updateResponseDelay(null);
+        mViewModel.updateResponseDelay("");
+        mViewModel.updateResponseDelay("");
 
         assertEquals(original, responseDelayErrorStringReference.get());
         assertEquals(1, count.get());
@@ -949,12 +948,12 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean after = true;
+        Boolean after = Boolean.TRUE;
 
         assertNull(mSavedStateHandle.get("KEY_IS_ERROR_RESPONSE"));
         mViewModel.updateIsErrorResponse(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE"));
     }
 
     @Test
@@ -962,15 +961,15 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean before = false;
-        boolean after = true;
+        Boolean before = Boolean.FALSE;
+        Boolean after = Boolean.TRUE;
 
         mViewModel.updateIsErrorResponse(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE").booleanValue());
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE"));
 
         mViewModel.updateIsErrorResponse(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IS_ERROR_RESPONSE"));
     }
 
     @Test
@@ -1684,12 +1683,12 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean after = true;
+        Boolean after = Boolean.TRUE;
 
         assertNull(mSavedStateHandle.get("KEY_BODY_MOVEMENT_DETECTION"));
         mViewModel.updateBodyMovementDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_BODY_MOVEMENT_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_BODY_MOVEMENT_DETECTION"));
     }
 
     @Test
@@ -1697,15 +1696,15 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean before = false;
-        boolean after = true;
+        Boolean before = Boolean.FALSE;
+        Boolean after = Boolean.TRUE;
 
         mViewModel.updateBodyMovementDetection(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_BODY_MOVEMENT_DETECTION").booleanValue());
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_BODY_MOVEMENT_DETECTION"));
 
         mViewModel.updateBodyMovementDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_BODY_MOVEMENT_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_BODY_MOVEMENT_DETECTION"));
     }
 
     @Test
@@ -1713,12 +1712,12 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean after = true;
+        Boolean after = Boolean.TRUE;
 
         assertNull(mSavedStateHandle.get("KEY_CUFF_FIT_DETECTION"));
         mViewModel.updateCuffFitDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_CUFF_FIT_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_CUFF_FIT_DETECTION"));
     }
 
     @Test
@@ -1726,15 +1725,15 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean before = false;
-        boolean after = true;
+        Boolean before = Boolean.FALSE;
+        Boolean after = Boolean.TRUE;
 
         mViewModel.updateCuffFitDetection(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_CUFF_FIT_DETECTION").booleanValue());
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_CUFF_FIT_DETECTION"));
 
         mViewModel.updateCuffFitDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_CUFF_FIT_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_CUFF_FIT_DETECTION"));
     }
 
     @Test
@@ -1742,12 +1741,12 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean after = true;
+        Boolean after = Boolean.TRUE;
 
         assertNull(mSavedStateHandle.get("KEY_IRREGULAR_PULSE_DETECTION"));
         mViewModel.updateIrregularPulseDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IRREGULAR_PULSE_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IRREGULAR_PULSE_DETECTION"));
     }
 
     @Test
@@ -1755,15 +1754,15 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean before = false;
-        boolean after = true;
+        Boolean before = Boolean.FALSE;
+        Boolean after = Boolean.TRUE;
 
         mViewModel.updateIrregularPulseDetection(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_IRREGULAR_PULSE_DETECTION").booleanValue());
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_IRREGULAR_PULSE_DETECTION"));
 
         mViewModel.updateIrregularPulseDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IRREGULAR_PULSE_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_IRREGULAR_PULSE_DETECTION"));
     }
 
     @Test
@@ -1771,12 +1770,12 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean after = true;
+        Boolean after = Boolean.TRUE;
 
         assertNull(mSavedStateHandle.get("KEY_PULSE_RATE_RANGE_DETECTION"));
         mViewModel.updatePulseRateRangeDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_PULSE_RATE_RANGE_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_PULSE_RATE_RANGE_DETECTION"));
     }
 
     @Test
@@ -1784,15 +1783,15 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean before = false;
-        boolean after = true;
+        Boolean before = Boolean.FALSE;
+        Boolean after = Boolean.TRUE;
 
         mViewModel.updatePulseRateRangeDetection(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_PULSE_RATE_RANGE_DETECTION").booleanValue());
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_PULSE_RATE_RANGE_DETECTION"));
 
         mViewModel.updatePulseRateRangeDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_PULSE_RATE_RANGE_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_PULSE_RATE_RANGE_DETECTION"));
     }
 
     @Test
@@ -1800,12 +1799,12 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean after = true;
+        Boolean after = Boolean.TRUE;
 
         assertNull(mSavedStateHandle.get("KEY_MEASUREMENT_POSITION_DETECTION"));
         mViewModel.updateMeasurementPositionDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MEASUREMENT_POSITION_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MEASUREMENT_POSITION_DETECTION"));
     }
 
     @Test
@@ -1813,15 +1812,15 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean before = false;
-        boolean after = true;
+        Boolean before = Boolean.FALSE;
+        Boolean after = Boolean.TRUE;
 
         mViewModel.updateMeasurementPositionDetection(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_MEASUREMENT_POSITION_DETECTION").booleanValue());
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_MEASUREMENT_POSITION_DETECTION"));
 
         mViewModel.updateMeasurementPositionDetection(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MEASUREMENT_POSITION_DETECTION").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MEASUREMENT_POSITION_DETECTION"));
     }
 
     @Test
@@ -1829,12 +1828,12 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean after = true;
+        Boolean after = Boolean.TRUE;
 
         assertNull(mSavedStateHandle.get("KEY_MULTIPLE_BOND"));
         mViewModel.updateMultipleBond(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND"));
     }
 
     @Test
@@ -1842,15 +1841,15 @@ public class BloodPressureFeatureSettingViewModelTest {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
         RxAndroidPlugins.setMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
 
-        boolean before = false;
-        boolean after = true;
+        Boolean before = Boolean.FALSE;
+        Boolean after = Boolean.TRUE;
 
         mViewModel.updateMultipleBond(before);
-        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND").booleanValue());
+        assertEquals(before, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND"));
 
         mViewModel.updateMultipleBond(after);
 
-        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND").booleanValue());
+        assertEquals(after, mSavedStateHandle.<Boolean>get("KEY_MULTIPLE_BOND"));
     }
 
 }

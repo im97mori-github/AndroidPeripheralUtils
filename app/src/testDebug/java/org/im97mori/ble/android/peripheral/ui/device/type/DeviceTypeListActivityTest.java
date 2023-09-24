@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
 import android.widget.TextView;
@@ -43,7 +44,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.List;
-import java.util.Objects;
 
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
@@ -150,7 +150,11 @@ public class DeviceTypeListActivityTest {
                     protected boolean matchesSafely(View item) {
                         TextView textView = (TextView) item;
                         Bitmap targetBitmap = TestUtils.getBitmap(textView.getCompoundDrawablesRelative()[0]);
-                        Bitmap bitmap = TestUtils.getBitmap(item.getContext().getDrawable(Objects.requireNonNull(mViewModel.provideDeviceTypeImageResMap().get(pair.first))));
+                        Integer resId = mViewModel.provideDeviceTypeImageResMap().get(pair.first);
+                        assertNotNull(resId);
+                        Drawable drawable = item.getContext().getDrawable(resId);
+                        assertNotNull(drawable);
+                        Bitmap bitmap = TestUtils.getBitmap(drawable);
                         return targetBitmap.sameAs(bitmap);
                     }
 
