@@ -9,12 +9,12 @@ android {
         release {
         }
     }
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "org.im97mori.ble.android.peripheral"
         minSdk 21
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "0.1.0"
 
@@ -74,12 +74,13 @@ dependencies {
     testImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
+    debugImplementation 'org.im97mori:test-android-fragment:0.1.0'
 
     // room
-    implementation "androidx.room:room-runtime:2.5.2"
-    annotationProcessor "androidx.room:room-compiler:2.5.2"
-    implementation "androidx.room:room-rxjava3:2.5.2"
-    testImplementation "androidx.room:room-testing:2.5.2"
+    implementation "androidx.room:room-runtime:2.6.0"
+    annotationProcessor "androidx.room:room-compiler:2.6.0"
+    implementation "androidx.room:room-rxjava3:2.6.0"
+    testImplementation "androidx.room:room-testing:2.6.0"
 
     // hilt
     implementation 'com.google.dagger:hilt-android:2.46.1'
@@ -92,7 +93,7 @@ dependencies {
     testAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.46.1'
 
     // material3
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.android.material:material:1.10.0'
 
     // blp peripheral
     implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.14'

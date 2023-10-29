@@ -13,10 +13,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-import static org.im97mori.ble.android.peripheral.test.TestUtils.createHiltActivity;
 import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 import static org.mockito.Mockito.mockStatic;
@@ -30,7 +26,6 @@ import android.os.Build;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -44,8 +39,10 @@ import org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInforma
 import org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressureServiceSettingActivity;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.ble.android.peripheral.utils.Utils;
+import org.im97mori.test.android.FragmentScenario2;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -87,8 +84,6 @@ public class BloodPressureProfileFragmentTest {
     @ApplicationContext
     Context mContext;
 
-    private ActivityScenario<HiltTestActivity> mScenario;
-
     private static MockedStatic<AutoDisposeViewModelProvider> mockedStatic;
 
     private FakeBloodPressureProfileViewModel mFakeBloodPressureProfileViewModel;
@@ -119,176 +114,172 @@ public class BloodPressureProfileFragmentTest {
     @After
     public void tearDown() {
         Intents.release();
-        mScenario.close();
     }
 
     @Test
     public void test_bloodPressureServiceCardView_checked_00001() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow());
-
-        onView(withId(R.id.bloodPressureServiceCardView)).check(matches(isNotChecked()));
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> onView(withId(R.id.bloodPressureServiceCardView)).check(matches(isNotChecked())));
+        }
     }
 
     @Test
     public void test_bloodPressureServiceCardView_checked_00002() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> {
-            activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow();
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
-        });
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                mFakeBloodPressureProfileViewModel = new ViewModelProvider(bloodPressureProfileFragment.requireActivity()).get(FakeBloodPressureProfileViewModel.class);
+                mFakeBloodPressureProfileViewModel.setBlsData(new byte[0]);
 
-        mFakeBloodPressureProfileViewModel.setBlsData(new byte[0]);
-
-        onView(withId(R.id.bloodPressureServiceCardView)).check(matches(isChecked()));
+                onView(withId(R.id.bloodPressureServiceCardView)).check(matches(isChecked()));
+            });
+        }
     }
 
     @Test
     public void test_bloodPressureServiceCardView_title_00001() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow());
-
-        onView(withId(R.id.bloodPressureServiceCardView)).check(matches(hasDescendant(withText(R.string.blood_pressure_service))));
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> onView(withId(R.id.bloodPressureServiceCardView)).check(matches(hasDescendant(withText(R.string.blood_pressure_service)))));
+        }
     }
 
     @Test
     public void test_bloodPressureServiceSettingButton_00001() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow());
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
 
-        onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
-
-        intended(hasComponent(new ComponentName(mContext, BloodPressureServiceSettingActivity.class)));
-        intended(hasExtra(BLOOD_PRESSURE_SERVICE.toString(), null));
+                intended(hasComponent(new ComponentName(mContext, BloodPressureServiceSettingActivity.class)));
+                intended(hasExtra(BLOOD_PRESSURE_SERVICE.toString(), null));
+            });
+        }
     }
 
     @Test
     public void test_bloodPressureServiceSettingButton_00002() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> {
-            activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow();
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
-        });
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                mFakeBloodPressureProfileViewModel = new ViewModelProvider(bloodPressureProfileFragment.requireActivity()).get(FakeBloodPressureProfileViewModel.class);
+                byte[] original = new byte[]{1};
+                mFakeBloodPressureProfileViewModel.setBlsData(original);
 
-        byte[] original = new byte[]{1};
-        mFakeBloodPressureProfileViewModel.setBlsData(original);
+                onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
 
-        onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
-
-        intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), BloodPressureServiceSettingActivity.class)));
-        intended(hasExtra(BLOOD_PRESSURE_SERVICE.toString(), original));
+                intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext()
+                        , BloodPressureServiceSettingActivity.class)));
+                intended(hasExtra(BLOOD_PRESSURE_SERVICE.toString(), original));
+            });
+        }
     }
 
     @Test
     public void test_isDeviceInformationServiceSupported_00001() {
         AtomicReference<Boolean> result = new AtomicReference<>();
 
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> {
-            activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow();
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
-            mFakeBloodPressureProfileViewModel.observeIsDisSupported(activity, result::set);
-        });
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                mFakeBloodPressureProfileViewModel = new ViewModelProvider(bloodPressureProfileFragment.requireActivity()).get(FakeBloodPressureProfileViewModel.class);
+                mFakeBloodPressureProfileViewModel.observeIsDisSupported(bloodPressureProfileFragment, result::set);
 
-        mFakeBloodPressureProfileViewModel.observeSetup(Utils.parcelableToByteArray(new MockData(new LinkedList<>())), () -> {
-        }, throwable -> {
-        });
+                mFakeBloodPressureProfileViewModel.observeSetup(Utils.parcelableToByteArray(new MockData(new LinkedList<>())), () -> {
+                }, throwable -> {
+                });
 
-        assertFalse(result.get());
-        onView(withId(R.id.isDeviceInformationServiceSupported)).check(matches(isNotChecked()));
-        onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
-        onView(withId(R.id.isDeviceInformationServiceSupported)).check(matches(isChecked()));
-        assertTrue(result.get());
+                Assert.assertFalse(result.get());
+                onView(withId(R.id.isDeviceInformationServiceSupported)).check(matches(isNotChecked()));
+                onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
+                onView(withId(R.id.isDeviceInformationServiceSupported)).check(matches(isChecked()));
+                Assert.assertTrue(result.get());
+            });
+        }
     }
 
     @Test
     public void test_deviceInformationServiceCardView_visibility_00001() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow());
-
-        onView(withId(R.id.deviceInformationServiceCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> onView(withId(R.id.deviceInformationServiceCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE))));
+        }
     }
 
     @Test
     public void test_deviceInformationServiceCardView_visibility_00002() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow());
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
 
-        onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
-
-        onView(withId(R.id.deviceInformationServiceCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+                onView(withId(R.id.deviceInformationServiceCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+            });
+        }
     }
 
     @Test
     public void test_deviceInformationServiceCardView_checked_00001() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow());
-
-        onView(withId(R.id.deviceInformationServiceCardView)).check(matches(isNotChecked()));
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> onView(withId(R.id.deviceInformationServiceCardView)).check(matches(isNotChecked())));
+        }
     }
 
     @Test
     public void test_deviceInformationServiceCardView_checked_00002() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> {
-            activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow();
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
-        });
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                mFakeBloodPressureProfileViewModel = new ViewModelProvider(bloodPressureProfileFragment.requireActivity()).get(FakeBloodPressureProfileViewModel.class);
 
-        mFakeBloodPressureProfileViewModel.setDisData(new byte[0]);
+                mFakeBloodPressureProfileViewModel.setDisData(new byte[0]);
 
-        onView(withId(R.id.deviceInformationServiceCardView)).check(matches(isChecked()));
+                onView(withId(R.id.deviceInformationServiceCardView)).check(matches(isChecked()));
+            });
+        }
     }
 
     @Test
     public void test_deviceInformationServiceCardView_title_00001() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow());
-
-        onView(withId(R.id.deviceInformationServiceCardView)).check(matches(hasDescendant(withText(R.string.device_information_service))));
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> onView(withId(R.id.deviceInformationServiceCardView)).check(matches(hasDescendant(withText(R.string.device_information_service)))));
+        }
     }
 
     @Test
     public void test_deviceInformationServiceSettingButton_00001() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow());
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
+                onView(withId(R.id.deviceInformationServiceSettingButton)).perform(click());
 
-        onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
-        onView(withId(R.id.deviceInformationServiceSettingButton)).perform(click());
-
-        intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceInformationServiceSettingActivity.class)));
-        intended(hasExtra(DEVICE_INFORMATION_SERVICE.toString(), null));
+                intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceInformationServiceSettingActivity.class)));
+                intended(hasExtra(DEVICE_INFORMATION_SERVICE.toString(), null));
+            });
+        }
     }
 
     @Test
     public void test_deviceInformationServiceSettingButton_00002() {
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> {
-            activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow();
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
-        });
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                mFakeBloodPressureProfileViewModel = new ViewModelProvider(bloodPressureProfileFragment.requireActivity()).get(FakeBloodPressureProfileViewModel.class);
 
-        byte[] original = new byte[]{1};
-        mFakeBloodPressureProfileViewModel.setDisData(original);
+                byte[] original = new byte[]{1};
+                mFakeBloodPressureProfileViewModel.setDisData(original);
 
-        onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
-        onView(withId(R.id.deviceInformationServiceSettingButton)).perform(click());
+                onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
+                onView(withId(R.id.deviceInformationServiceSettingButton)).perform(click());
 
-        intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceInformationServiceSettingActivity.class)));
-        intended(hasExtra(DEVICE_INFORMATION_SERVICE.toString(), original));
+                intended(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceInformationServiceSettingActivity.class)));
+                intended(hasExtra(DEVICE_INFORMATION_SERVICE.toString(), original));
+            });
+        }
     }
 
     @Test
@@ -299,19 +290,19 @@ public class BloodPressureProfileFragmentTest {
         Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), BloodPressureServiceSettingActivity.class))).respondWith(result);
 
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> {
-            activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow();
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
-        });
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                mFakeBloodPressureProfileViewModel = new ViewModelProvider(bloodPressureProfileFragment.requireActivity()).get(FakeBloodPressureProfileViewModel.class);
 
-        byte[] before = new byte[]{1};
-        mFakeBloodPressureProfileViewModel.setBlsData(before);
+                byte[] before = new byte[]{1};
+                mFakeBloodPressureProfileViewModel.setBlsData(before);
 
-        onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
+                onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
 
-        assertEquals(after, mFakeBloodPressureProfileViewModel.getBlsData());
+                Assert.assertEquals(after, mFakeBloodPressureProfileViewModel.getBlsData());
+            });
+        }
     }
 
     @Test
@@ -322,22 +313,21 @@ public class BloodPressureProfileFragmentTest {
         Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
         intending(hasComponent(new ComponentName(ApplicationProvider.getApplicationContext(), DeviceInformationServiceSettingActivity.class))).respondWith(result);
 
-        mScenario = createHiltActivity();
-        BloodPressureProfileFragment bloodPressureProfileFragment = new BloodPressureProfileFragment();
-        mScenario.onActivity(activity -> {
-            activity.getSupportFragmentManager().beginTransaction().add(R.id.fragmentContainer, bloodPressureProfileFragment).commitNow();
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
-        });
+        try (FragmentScenario2<BloodPressureProfileFragment, HiltTestActivity> scenario
+                     = FragmentScenario2.launchInContainer(BloodPressureProfileFragment.class, HiltTestActivity.class)) {
+            scenario.onFragment(bloodPressureProfileFragment -> {
+                mFakeBloodPressureProfileViewModel = new ViewModelProvider(bloodPressureProfileFragment.requireActivity()).get(FakeBloodPressureProfileViewModel.class);
 
-        byte[] before = new byte[]{1};
-        mFakeBloodPressureProfileViewModel.setDisData(before);
+                byte[] before = new byte[]{1};
+                mFakeBloodPressureProfileViewModel.setDisData(before);
 
-        onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
-        onView(withId(R.id.deviceInformationServiceSettingButton)).perform(click());
+                onView(withId(R.id.isDeviceInformationServiceSupported)).perform(click());
+                onView(withId(R.id.deviceInformationServiceSettingButton)).perform(click());
 
-        onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
+                onView(withId(R.id.bloodPressureServiceSettingButton)).perform(click());
 
-        assertEquals(after, mFakeBloodPressureProfileViewModel.getDisData());
+                Assert.assertEquals(after, mFakeBloodPressureProfileViewModel.getDisData());
+            });
+        }
     }
-
 }
