@@ -74,7 +74,7 @@ dependencies {
     testImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
-    debugImplementation 'org.im97mori:test-android-fragment:0.1.0'
+    debugImplementation 'org.im97mori:test-android-fragment:0.2.0'
 
     // room
     implementation "androidx.room:room-runtime:2.6.0"
