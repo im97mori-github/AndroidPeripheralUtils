@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 public class ChildDialogFragment extends DialogFragment {
 
     public ChildDialogFragment() {
@@ -27,8 +29,10 @@ public class ChildDialogFragment extends DialogFragment {
 //                .setMessage("getString(R.string.order_confirmation)")
 //                .setPositiveButton(getString(android.R.string.ok), (dialog, which) -> {} )
 //                .create();
-//        return new MaterialAlertDialogBuilder(requireActivity(), getTheme())
-//                .create();
-        return new ComponentDialog(requireActivity());
+        return new MaterialAlertDialogBuilder(requireActivity(), getTheme())
+                .setTitle("aiueo")
+                .setMessage("kakikukeko")
+                .create();
+//        return new ComponentDialog(requireActivity());
     }
 }
