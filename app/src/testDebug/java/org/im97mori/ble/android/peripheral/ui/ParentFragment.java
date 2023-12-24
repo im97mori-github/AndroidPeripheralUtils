@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import org.im97mori.ble.android.peripheral.databinding.HiltTestActivityBinding;
 import org.im97mori.ble.android.peripheral.databinding.HiltTestFragmentBinding;
 
 import javax.inject.Inject;

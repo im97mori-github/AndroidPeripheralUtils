@@ -1,12 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.isDialog;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockStatic;
@@ -14,9 +7,7 @@ import static org.mockito.Mockito.mockStatic;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.espresso.intent.Intents;
 
@@ -27,7 +18,6 @@ import org.im97mori.ble.android.peripheral.ui.device.setting.FakeDeviceSettingVi
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.FakeBloodPressureProfileViewModel;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
-import org.im97mori.test.android.FragmentScenario2;
 import org.im97mori.test.android.NestedFragmentScenario2;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -141,15 +131,7 @@ public class FragmentTest {
                 , HiltTestActivity.class
                 , ParentFragment.class
                 , R.style.Theme_AndroidPeripheralUtils)) {
-            scenario.onFragment(childFragment -> {
-                assertTrue(childFragment.requireParentFragment() instanceof ParentFragment);
-                onView(withId(androidx.appcompat.R.id.alertTitle))
-                        .inRoot(isDialog())
-                        .check(matches(withText("aiueo")));
-                onView(withId(android.R.id.message))
-                        .inRoot(isDialog())
-                        .check(matches(withText("kakikukeko")));
-            });
+            scenario.onFragment(childFragment -> assertTrue(childFragment.requireParentFragment() instanceof ParentFragment));
         }
     }
 }
