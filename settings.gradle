@@ -1,11 +1,20 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         maven { url "https://github.com/im97mori-github/maven/raw/master" }
-//        maven { url System.getenv('MAVEN_REPOSITORY_URL') }
         google()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
+
 rootProject.name = "AndroidPeripheralUtils"
 include ':app'

@@ -1,7 +1,9 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
     id 'dagger.hilt.android.plugin'
     id 'com.google.android.gms.oss-licenses-plugin'
+    id 'org.jetbrains.kotlinx.kover'
 }
 
 android {
@@ -118,4 +120,38 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.8.0'
 
     implementation(platform('org.jetbrains.kotlin:kotlin-bom:1.9.22'))
+}
+
+def excludedClasses = Arrays.asList(
+        "*.databinding.*",
+        "*.*_*",
+)
+
+koverReport {
+
+    defaults {
+        /**
+         * Tests, sources, classes, and compilation tasks of the 'debug' build variant will be included in the default reports.
+         * Thus, information from the 'debug' variant will be included in the default report for this project and any project that specifies this project as a dependency.
+         */
+        mergeWith("debug")
+    }
+
+    androidReports("debug") {
+        // filters for all report types only of 'release' build type
+        filters {
+            excludes {
+                classes(excludedClasses)
+            }
+        }
+    }
+
+    androidReports("release") {
+        // filters for all report types only of 'release' build type
+        filters {
+            excludes {
+                classes(excludedClasses)
+            }
+        }
+    }
 }
