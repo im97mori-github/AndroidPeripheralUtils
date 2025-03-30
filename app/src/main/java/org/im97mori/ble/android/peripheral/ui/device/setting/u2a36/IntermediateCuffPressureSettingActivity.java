@@ -18,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.ViewModelProvider;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.IntermediateCuffPressureSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationLauncherContract;
@@ -27,8 +29,14 @@ import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import javax.inject.Inject;
+import java.util.function.Function;
+
 @AndroidEntryPoint
 public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
+
+    @Inject
+    Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
 
     private IntermediateCuffPressureSettingViewModel mViewModel;
 
@@ -40,7 +48,7 @@ public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new AutoDisposeViewModelProvider(this).get(IntermediateCuffPressureSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this, viewModelProviderFactoryFunction.apply(this)).get(IntermediateCuffPressureSettingViewModel.class);
 
         mBinding = IntermediateCuffPressureSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

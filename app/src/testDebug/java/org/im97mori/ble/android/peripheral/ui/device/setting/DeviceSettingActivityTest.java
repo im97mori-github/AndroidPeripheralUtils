@@ -1,27 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting;
 
-import static android.app.Activity.RESULT_OK;
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static junit.framework.TestCase.assertEquals;
-import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
-import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
-import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mockStatic;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -32,48 +10,60 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
-
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.matcher.ViewMatchers;
-
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
-
-import junit.framework.TestCase;
-
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
-import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.test.TestUtils;
-import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel;
-import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.FakeBloodPressureProfileViewModel;
-import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.inject.Inject;
-
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
+import dagger.hilt.android.testing.UninstallModules;
+import dagger.hilt.components.SingletonComponent;
 import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import junit.framework.TestCase;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
+import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.hilt.module.ViewModelFactoryFunctionModule;
+import org.im97mori.ble.android.peripheral.test.FakeViewModelProviderFactoryFunction;
+import org.im97mori.ble.android.peripheral.test.TestUtils;
+import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.BloodPressureProfileViewModel;
+import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.FakeBloodPressureProfileViewModel;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+
+import static android.app.Activity.RESULT_OK;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static junit.framework.TestCase.assertEquals;
+import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
+import static org.junit.Assert.*;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -82,7 +72,21 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
         "androidx.loader.content"}
         , application = HiltTestApplication.class
         , sdk = Build.VERSION_CODES.LOLLIPOP)
+@UninstallModules(ViewModelFactoryFunctionModule.class)
 public class DeviceSettingActivityTest {
+
+    @Module
+    @InstallIn(SingletonComponent.class)
+    interface FakeViewModelFactoryFunctionModule {
+        @Singleton
+        @Provides
+        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+            FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
+            fakeViewModelProviderFactoryFunction.setFakeViewModelClass(DeviceSettingViewModel.class, FakeDeviceSettingViewModel.class);
+            fakeViewModelProviderFactoryFunction.setFakeViewModelClass(BloodPressureProfileViewModel.class, FakeBloodPressureProfileViewModel.class);
+            return fakeViewModelProviderFactoryFunction;
+        }
+    }
 
     @Rule(order = 1)
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
@@ -99,22 +103,6 @@ public class DeviceSettingActivityTest {
     @Inject
     @ApplicationContext
     Context mContext;
-
-    private static MockedStatic<AutoDisposeViewModelProvider> mockedStatic;
-
-    @BeforeClass
-    public static void setUpClass() {
-        mockedStatic = mockStatic(AutoDisposeViewModelProvider.class);
-        mockedStatic.when(() -> AutoDisposeViewModelProvider.getViewModelClass(DeviceSettingViewModel.class))
-                .thenReturn(FakeDeviceSettingViewModel.class);
-        mockedStatic.when(() -> AutoDisposeViewModelProvider.getViewModelClass(BloodPressureProfileViewModel.class))
-                .thenReturn(FakeBloodPressureProfileViewModel.class);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        mockedStatic.close();
-    }
 
     @Before
     public void setUp() {
@@ -135,8 +123,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -150,8 +138,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -166,8 +154,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mFakeDeviceSettingViewModel.mFragmentReadySubject.onNext(getCurrentMethodName());
@@ -180,8 +168,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -197,8 +185,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -214,8 +202,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
@@ -237,8 +225,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -266,8 +254,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         onView(withId(R.id.deviceTypeTitle)).check(matches(withText(R.string.device_type)));
@@ -279,8 +267,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -295,8 +283,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -312,8 +300,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mScenario.onActivity(activity
@@ -326,8 +314,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -343,8 +331,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -367,8 +355,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
@@ -381,8 +369,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -398,8 +386,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         byte[] original = new byte[]{1};
@@ -421,8 +409,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         pressBack();
@@ -436,8 +424,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -463,8 +451,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -486,8 +474,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -507,8 +495,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -528,8 +516,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
@@ -565,8 +553,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -612,8 +600,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -632,8 +620,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.updateDeviceSettingName("1");
@@ -650,8 +638,8 @@ public class DeviceSettingActivityTest {
         intent.putExtra(KEY_DEVICE_TYPE, DEVICE_TYPE_BLOOD_PRESSURE_PROFILE);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mFakeDeviceSettingViewModel = new ViewModelProvider(activity).get(FakeDeviceSettingViewModel.class);
-            mFakeBloodPressureProfileViewModel = new ViewModelProvider(activity).get(FakeBloodPressureProfileViewModel.class);
+            mFakeDeviceSettingViewModel = (FakeDeviceSettingViewModel) new ViewModelProvider(activity).get(DeviceSettingViewModel.class);
+            mFakeBloodPressureProfileViewModel = (FakeBloodPressureProfileViewModel) new ViewModelProvider(activity).get(BloodPressureProfileViewModel.class);
         });
 
         mFakeDeviceSettingViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());

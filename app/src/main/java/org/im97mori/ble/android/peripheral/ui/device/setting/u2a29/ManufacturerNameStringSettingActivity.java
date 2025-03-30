@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.ViewModelProvider;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.ManufacturerNameStringSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
@@ -22,8 +24,14 @@ import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import javax.inject.Inject;
+import java.util.function.Function;
+
 @AndroidEntryPoint
 public class ManufacturerNameStringSettingActivity extends AppCompatActivity {
+
+    @Inject
+    Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
 
     private ManufacturerNameStringSettingViewModel mViewModel;
 
@@ -32,7 +40,7 @@ public class ManufacturerNameStringSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new AutoDisposeViewModelProvider(this).get(ManufacturerNameStringSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this, viewModelProviderFactoryFunction.apply(this)).get(ManufacturerNameStringSettingViewModel.class);
 
         mBinding = ManufacturerNameStringSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

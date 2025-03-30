@@ -17,7 +17,7 @@ import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
-public class FakeBloodPressureFeatureViewModel extends BloodPressureFeatureSettingViewModel {
+public class FakeBloodPressureFeatureSettingViewModel extends BloodPressureFeatureSettingViewModel {
 
     public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
 
@@ -38,7 +38,7 @@ public class FakeBloodPressureFeatureViewModel extends BloodPressureFeatureSetti
     public java.util.function.Consumer<String> mUpdateResponseDelayConsumer;
 
     @Inject
-    FakeBloodPressureFeatureViewModel(@NonNull SavedStateHandle savedStateHandle
+    FakeBloodPressureFeatureSettingViewModel(@NonNull SavedStateHandle savedStateHandle
             , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
         super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;

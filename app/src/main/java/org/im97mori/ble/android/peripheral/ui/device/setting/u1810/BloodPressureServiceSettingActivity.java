@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.ViewModelProvider;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.BloodPressureServiceSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementLauncherContract;
@@ -23,8 +25,14 @@ import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import javax.inject.Inject;
+import java.util.function.Function;
+
 @AndroidEntryPoint
 public class BloodPressureServiceSettingActivity extends AppCompatActivity {
+
+    @Inject
+    Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
 
     private BloodPressureServiceSettingViewModel mViewModel;
 
@@ -42,7 +50,7 @@ public class BloodPressureServiceSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new AutoDisposeViewModelProvider(this).get(BloodPressureServiceSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this, viewModelProviderFactoryFunction.apply(this)).get(BloodPressureServiceSettingViewModel.class);
 
         mBinding = BloodPressureServiceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

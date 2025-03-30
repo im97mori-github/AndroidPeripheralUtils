@@ -1,20 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.type;
 
-import static androidx.test.espresso.Espresso.onData;
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withParent;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.hamcrest.Matchers.is;
-import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_UNDEFINED;
-import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
-import static org.mockito.Mockito.mockStatic;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
@@ -23,31 +8,46 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
 import android.widget.TextView;
-
 import androidx.core.util.Pair;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.matcher.BoundedMatcher;
-
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
+import dagger.hilt.android.testing.HiltTestApplication;
+import dagger.hilt.android.testing.UninstallModules;
+import dagger.hilt.components.SingletonComponent;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.hilt.module.ViewModelFactoryFunctionModule;
+import org.im97mori.ble.android.peripheral.test.FakeViewModelProviderFactoryFunction;
 import org.im97mori.ble.android.peripheral.test.TestUtils;
-import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import javax.inject.Singleton;
 import java.util.List;
+import java.util.function.Function;
 
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
+import static androidx.test.espresso.Espresso.*;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.hamcrest.Matchers.is;
+import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_UNDEFINED;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -56,7 +56,20 @@ import dagger.hilt.android.testing.HiltTestApplication;
         "androidx.loader.content"}
         , application = HiltTestApplication.class
         , sdk = Build.VERSION_CODES.LOLLIPOP)
+@UninstallModules(ViewModelFactoryFunctionModule.class)
 public class DeviceTypeListActivityTest {
+
+    @Module
+    @InstallIn(SingletonComponent.class)
+    interface FakeViewModelFactoryFunctionModule {
+        @Singleton
+        @Provides
+        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+            FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
+            fakeViewModelProviderFactoryFunction.setFakeViewModelClass(DeviceTypeListViewModel.class, FakeDeviceTypeListViewModel.class);
+            return fakeViewModelProviderFactoryFunction;
+        }
+    }
 
     @Rule
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
@@ -68,12 +81,8 @@ public class DeviceTypeListActivityTest {
     @Before
     public void setUp() {
         mHiltRule.inject();
-        try (MockedStatic<AutoDisposeViewModelProvider> mockedStatic = mockStatic(AutoDisposeViewModelProvider.class)) {
-            mockedStatic.when(() -> AutoDisposeViewModelProvider.getViewModelClass(DeviceTypeListViewModel.class)).thenReturn(FakeDeviceTypeListViewModel.class);
-
-            mScenario = ActivityScenario.launchActivityForResult(DeviceTypeListActivity.class);
-            mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceTypeListViewModel.class));
-        }
+        mScenario = ActivityScenario.launchActivityForResult(DeviceTypeListActivity.class);
+        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceTypeListViewModel.class));
     }
 
     @After

@@ -1,39 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u1810;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.intent.Intents.intended;
-import static androidx.test.espresso.intent.Intents.intending;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
-import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT;
-import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE;
-import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED;
-import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION;
-import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT;
-import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC;
-import static org.im97mori.ble.constants.CharacteristicUUID.INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC;
-import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mockStatic;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.bluetooth.BluetoothGatt;
@@ -44,28 +10,38 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.widget.CheckBox;
-
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
-
 import com.google.android.material.appbar.MaterialToolbar;
-
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
+import dagger.hilt.android.testing.HiltTestApplication;
+import dagger.hilt.android.testing.UninstallModules;
+import dagger.hilt.components.SingletonComponent;
+import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import junit.framework.TestCase;
-
 import org.im97mori.ble.BLEUtils;
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.hilt.module.ViewModelFactoryFunctionModule;
 import org.im97mori.ble.android.peripheral.hilt.repository.FakeDeviceSettingRepository;
+import org.im97mori.ble.android.peripheral.test.FakeViewModelProviderFactoryFunction;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a35.BloodPressureMeasurementSettingActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a36.IntermediateCuffPressureSettingActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.BloodPressureFeatureSettingActivity;
-import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils;
 import org.im97mori.ble.characteristic.core.IEEE_11073_20601_SFLOAT;
@@ -73,29 +49,35 @@ import org.im97mori.ble.characteristic.u2a35.BloodPressureMeasurement;
 import org.im97mori.ble.characteristic.u2a36.IntermediateCuffPressure;
 import org.im97mori.ble.characteristic.u2a49.BloodPressureFeature;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
-import javax.inject.Inject;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
+import static org.im97mori.ble.characteristic.core.BloodPressureMeasurementUtils.*;
+import static org.im97mori.ble.constants.CharacteristicUUID.*;
+import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
+import static org.junit.Assert.*;
 
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
-import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
-import io.reactivex.rxjava3.plugins.RxJavaPlugins;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
+/** @noinspection UnnecessaryLocalVariable*/
 @SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -104,7 +86,20 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
         "androidx.loader.content"}
         , application = HiltTestApplication.class
         , sdk = Build.VERSION_CODES.LOLLIPOP)
+@UninstallModules(ViewModelFactoryFunctionModule.class)
 public class BloodPressureServiceSettingActivityTest {
+
+    @Module
+    @InstallIn(SingletonComponent.class)
+    interface FakeViewModelFactoryFunctionModule {
+        @Singleton
+        @Provides
+        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+            FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
+            fakeViewModelProviderFactoryFunction.setFakeViewModelClass(BloodPressureServiceSettingViewModel.class, FakeBloodPressureServiceSettingViewModel.class);
+            return fakeViewModelProviderFactoryFunction;
+        }
+    }
 
     @Rule(order = 1)
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
@@ -116,26 +111,12 @@ public class BloodPressureServiceSettingActivityTest {
 
     private FakeBloodPressureServiceSettingViewModel mViewModel;
 
-    private static MockedStatic<AutoDisposeViewModelProvider> mockedStatic;
-
     @Inject
     @ApplicationContext
     Context mContext;
 
     @Inject
     FakeDeviceSettingRepository mFakeDeviceSettingRepository;
-
-    @BeforeClass
-    public static void setUpClass() {
-        mockedStatic = mockStatic(AutoDisposeViewModelProvider.class);
-        mockedStatic.when(() -> AutoDisposeViewModelProvider.getViewModelClass(BloodPressureServiceSettingViewModel.class))
-                .thenReturn(FakeBloodPressureServiceSettingViewModel.class);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        mockedStatic.close();
-    }
 
     @Before
     public void setUp() {
@@ -156,7 +137,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_title_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.topAppBar)).check(matches(hasDescendant(withText(R.string.blood_pressure_service))));
     }
@@ -165,7 +146,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_root_container_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -176,7 +157,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_menu_save_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).check(matches(isNotEnabled()));
@@ -186,7 +167,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_menu_save_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
@@ -197,7 +178,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_menu_save_00003() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launchActivityForResult(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
@@ -327,7 +308,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_backPressed_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launchActivityForResult(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         pressBack();
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
@@ -390,7 +371,7 @@ public class BloodPressureServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.setBloodPressureMeasurementData(null);
 
@@ -408,7 +389,7 @@ public class BloodPressureServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
@@ -521,7 +502,7 @@ public class BloodPressureServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.setIntermediateCuffPressureData(null);
 
@@ -539,7 +520,7 @@ public class BloodPressureServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
@@ -652,7 +633,7 @@ public class BloodPressureServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.setBloodPressureFeatureData(null);
 
@@ -670,7 +651,7 @@ public class BloodPressureServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         int bloodPressureMeasurementFlags = 0;
         IEEE_11073_20601_SFLOAT bloodPressureMeasurementCompoundValueSystolicMmhg = new IEEE_11073_20601_SFLOAT(1);
@@ -731,7 +712,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_root_container_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -748,7 +729,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementCardView_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -759,7 +740,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementCardView_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -770,7 +751,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementCardViewTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementCardViewTitle)).check(matches(withText(R.string.blood_pressure_measurement)));
     }
@@ -779,7 +760,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementFlagsTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementFlagsTitle)).check(matches(withText(R.string.flags)));
     }
@@ -788,7 +769,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementFlags_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementFlags)).check(matches(withText("")));
     }
@@ -797,7 +778,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementFlags_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -855,7 +836,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementSystolicTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementSystolicTitle)).check(matches(withText(R.string.systolic)));
     }
@@ -864,7 +845,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementSystolic_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementSystolic)).check(matches(withText("")));
     }
@@ -873,7 +854,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementSystolic_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -931,7 +912,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementDiastolicTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementDiastolicTitle)).check(matches(withText(R.string.diastolic)));
     }
@@ -940,7 +921,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementDiastolic_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementDiastolic)).check(matches(withText("")));
     }
@@ -949,7 +930,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementDiastolic_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -1007,7 +988,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementMeanArterialPressureTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementMeanArterialPressureTitle)).check(matches(withText(R.string.mean_arterial_pressure)));
     }
@@ -1016,7 +997,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementMeanArterialPressure_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementMeanArterialPressure)).check(matches(withText("")));
     }
@@ -1025,7 +1006,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementMeanArterialPressure_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -1083,7 +1064,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementTimeStampTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementTimeStampTitle)).check(matches(withText(R.string.time_stamp)));
     }
@@ -1092,7 +1073,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementTimeStamp_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementTimeStamp)).check(matches(withText("")));
     }
@@ -1101,7 +1082,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementTimeStamp_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -1164,7 +1145,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementPulseRateTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementPulseRateTitle)).check(matches(withText(R.string.pulse_rate)));
     }
@@ -1173,7 +1154,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementPulseRate_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementPulseRate)).check(matches(withText("")));
     }
@@ -1182,7 +1163,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementPulseRate_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -1240,7 +1221,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementUserIdTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementUserIdTitle)).check(matches(withText(R.string.user_id)));
     }
@@ -1249,7 +1230,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementUserId_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementUserId)).check(matches(withText("")));
     }
@@ -1258,7 +1239,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementUserId_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -1316,7 +1297,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementMeasurementStatusTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementMeasurementStatusTitle)).check(matches(withText(R.string.measurement_status)));
     }
@@ -1325,7 +1306,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementMeasurementStatus_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementMeasurementStatus)).check(matches(withText("")));
     }
@@ -1334,7 +1315,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementMeasurementStatus_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -1392,7 +1373,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementSettingButton_text_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementSettingButton)).check(matches(withText(R.string.setting)));
     }
@@ -1401,7 +1382,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementSettingButton_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1415,7 +1396,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureMeasurementSettingButton_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1429,7 +1410,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_isIntermediateCuffPressureSupported_title_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.isIntermediateCuffPressureSupported)).check(matches(withText(R.string.intermediate_cuff_pressure)));
     }
@@ -1438,7 +1419,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_isIntermediateCuffPressureSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsIntermediateCuffPressureSupportedConsumer = result::set;
@@ -1452,7 +1433,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_isIntermediateCuffPressureSupported_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsIntermediateCuffPressureSupportedConsumer = result::set;
@@ -1466,7 +1447,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureCardView_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
@@ -1475,7 +1456,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureCardView_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1486,7 +1467,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureCardView_visibility_00003() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1497,7 +1478,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureCardView_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1508,7 +1489,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureCardView_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1519,7 +1500,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureCardViewTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureCardViewTitle)).check(matches(withText(R.string.intermediate_cuff_pressure)));
     }
@@ -1528,7 +1509,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureFlagsTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureFlagsTitle)).check(matches(withText(R.string.flags)));
     }
@@ -1537,7 +1518,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureFlags_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureFlags)).check(matches(withText("")));
     }
@@ -1546,7 +1527,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureFlags_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -1600,7 +1581,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureCurrentCuffPressureTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureCurrentCuffPressureTitle)).check(matches(withText(R.string.current_cuff_pressure)));
     }
@@ -1609,7 +1590,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureCurrentCuffPressure_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureCurrentCuffPressure)).check(matches(withText("")));
     }
@@ -1618,7 +1599,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureCurrentCuffPressure_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -1672,7 +1653,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureTimeStampTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureTimeStampTitle)).check(matches(withText(R.string.time_stamp)));
     }
@@ -1681,7 +1662,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureTimeStamp_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureTimeStamp)).check(matches(withText("")));
     }
@@ -1690,7 +1671,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureTimeStamp_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -1749,7 +1730,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressurePulseRateTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressurePulseRateTitle)).check(matches(withText(R.string.pulse_rate)));
     }
@@ -1758,7 +1739,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressurePulseRate_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressurePulseRate)).check(matches(withText("")));
     }
@@ -1767,7 +1748,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressurePulseRate_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -1821,7 +1802,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureUserIdTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureUserIdTitle)).check(matches(withText(R.string.user_id)));
     }
@@ -1830,7 +1811,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureUserId_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureUserId)).check(matches(withText("")));
     }
@@ -1839,7 +1820,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureUserId_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -1893,7 +1874,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureMeasurementStatusTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureMeasurementStatusTitle)).check(matches(withText(R.string.measurement_status)));
     }
@@ -1902,7 +1883,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureMeasurementStatus_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureMeasurementStatus)).check(matches(withText("")));
     }
@@ -1911,7 +1892,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureMeasurementStatus_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -1965,7 +1946,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureSettingButton_text_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureSettingButton)).check(matches(withText(R.string.setting)));
     }
@@ -1974,7 +1955,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureSettingButton_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1988,7 +1969,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_intermediateCuffPressureSettingButton_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -2002,7 +1983,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureFeatureCardView_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -2013,7 +1994,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureFeatureCardView_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -2024,7 +2005,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureFeatureCardViewTitle_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureFeatureCardViewTitle)).check(matches(withText(R.string.blood_pressure_feature)));
     }
@@ -2033,7 +2014,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureFeature_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureFeature)).check(matches(withText("")));
     }
@@ -2042,7 +2023,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureFeature_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_READ
@@ -2077,7 +2058,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureFeatureSettingButton_text_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureFeatureSettingButton)).check(matches(withText(R.string.setting)));
     }
@@ -2086,7 +2067,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureFeatureSettingButton_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -2100,7 +2081,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_bloodPressureFeatureSettingButton_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -2114,7 +2095,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementCardView_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -2129,7 +2110,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementCardView_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -2144,7 +2125,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementFlags_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementFlags)).check(matches(withText("")));
 
@@ -2157,7 +2138,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementFlags_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -2219,7 +2200,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementSystolic_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementSystolic)).check(matches(withText("")));
 
@@ -2232,7 +2213,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementSystolic_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -2294,7 +2275,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementDiastolic_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementDiastolic)).check(matches(withText("")));
 
@@ -2307,7 +2288,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementDiastolic_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -2369,7 +2350,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementMeanArterialPressure_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementMeanArterialPressure)).check(matches(withText("")));
 
@@ -2382,7 +2363,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementMeanArterialPressure_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -2444,7 +2425,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementTimeStamp_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementTimeStamp)).check(matches(withText("")));
 
@@ -2457,7 +2438,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementTimeStamp_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -2529,7 +2510,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementPulseRate_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementPulseRate)).check(matches(withText("")));
 
@@ -2542,7 +2523,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementPulseRate_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -2604,7 +2585,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementUserId_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementUserId)).check(matches(withText("")));
 
@@ -2617,7 +2598,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementUserId_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -2679,7 +2660,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementMeasurementStatus_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureMeasurementMeasurementStatus)).check(matches(withText("")));
 
@@ -2692,7 +2673,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureMeasurementMeasurementStatus_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureMeasurementCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_INDICATE
@@ -2754,7 +2735,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureCardView_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -2771,7 +2752,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureCardView_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -2788,7 +2769,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureCardView_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(isNotChecked()));
@@ -2802,7 +2783,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureCardView_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.intermediateCuffPressureCardView)).check(matches(isChecked()));
@@ -2816,7 +2797,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureFlags_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureFlags)).check(matches(withText("")));
 
@@ -2829,7 +2810,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureFlags_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -2887,7 +2868,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureCurrentCuffPressure_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureCurrentCuffPressure)).check(matches(withText("")));
 
@@ -2900,7 +2881,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureCurrentCuffPressure_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -2958,7 +2939,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureTimeStamp_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureTimeStamp)).check(matches(withText("")));
 
@@ -2971,7 +2952,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureTimeStamp_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -3039,7 +3020,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressurePulseRate_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressurePulseRate)).check(matches(withText("")));
 
@@ -3052,7 +3033,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressurePulseRate_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -3110,7 +3091,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureUserId_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureUserId)).check(matches(withText("")));
 
@@ -3123,7 +3104,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureUserId_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData intermediateCuffPressureCharacteristicData = new CharacteristicData(INTERMEDIATE_CUFF_PRESSURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_NOTIFY
@@ -3181,7 +3162,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureMeasurementStatus_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.intermediateCuffPressureMeasurementStatus)).check(matches(withText("")));
 
@@ -3194,7 +3175,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_intermediateCuffPressureMeasurementStatus_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         int intermediateCuffPressureFlags = BloodPressureMeasurementUtils.FLAG_MEASUREMENT_STATUS_PRESENT;
         IEEE_11073_20601_SFLOAT intermediateCuffPressureCompoundValueCurrentCuffPressureMmhg = new IEEE_11073_20601_SFLOAT(1);
@@ -3251,7 +3232,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureFeatureCardView_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -3266,7 +3247,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureFeatureCardView_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -3281,7 +3262,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureFeature_00001() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         onView(withId(R.id.bloodPressureFeature)).check(matches(withText("")));
 
@@ -3294,7 +3275,7 @@ public class BloodPressureServiceSettingActivityTest {
     public void test_recreate_bloodPressureFeature_00002() {
         Intent intent = new Intent(mContext, BloodPressureServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureServiceSettingViewModel) new ViewModelProvider(activity).get(BloodPressureServiceSettingViewModel.class));
 
         CharacteristicData bloodPressureFeatureCharacteristicData = new CharacteristicData(BLOOD_PRESSURE_FEATURE_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_READ

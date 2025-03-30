@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentTransaction;
 
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.ViewModelProvider;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.DeviceSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseSettingFragmentViewModel;
@@ -25,8 +27,14 @@ import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import javax.inject.Inject;
+import java.util.function.Function;
+
 @AndroidEntryPoint
 public class DeviceSettingActivity extends AppCompatActivity {
+
+    @Inject
+    Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
 
     private DeviceSettingViewModel mViewModel;
     private BaseSettingFragmentViewModel mBaseSettingFragmentViewModel;
@@ -36,8 +44,8 @@ public class DeviceSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new AutoDisposeViewModelProvider(this).get(DeviceSettingViewModel.class);
-        mBaseSettingFragmentViewModel = new AutoDisposeViewModelProvider(DeviceSettingActivity.this).get(mViewModel.getFragmentViewModelClass(getIntent()));
+        mViewModel = new AutoDisposeViewModelProvider(this, viewModelProviderFactoryFunction.apply(this)).get(DeviceSettingViewModel.class);
+        mBaseSettingFragmentViewModel = new AutoDisposeViewModelProvider(DeviceSettingActivity.this, viewModelProviderFactoryFunction.apply(this)).get(mViewModel.getFragmentViewModelClass(getIntent()));
 
         mBinding = DeviceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

@@ -25,6 +25,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.room.rxjava3.EmptyResultSetException;
 
 import org.im97mori.ble.android.peripheral.R;
@@ -34,11 +36,17 @@ import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import javax.inject.Inject;
+
 @AndroidEntryPoint
 public class PeripheralActivity extends AppCompatActivity {
+
+    @Inject
+    Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
 
     private PeripheralViewModel mViewModel;
 
@@ -65,7 +73,7 @@ public class PeripheralActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new AutoDisposeViewModelProvider(this).get(PeripheralViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this, viewModelProviderFactoryFunction.apply(this)).get(PeripheralViewModel.class);
 
         mBinding = PeripheralActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

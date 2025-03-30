@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.ViewModelProvider;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.DeviceInformationServiceSettingActivityBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdLauncherContract;
@@ -23,8 +25,14 @@ import org.im97mori.stacklog.LogUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import javax.inject.Inject;
+import java.util.function.Function;
+
 @AndroidEntryPoint
 public class DeviceInformationServiceSettingActivity extends AppCompatActivity {
+
+    @Inject
+    Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
 
     private DeviceInformationServiceSettingViewModel mViewModel;
 
@@ -42,7 +50,7 @@ public class DeviceInformationServiceSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new AutoDisposeViewModelProvider(this).get(DeviceInformationServiceSettingViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this, viewModelProviderFactoryFunction.apply(this)).get(DeviceInformationServiceSettingViewModel.class);
 
         mBinding = DeviceInformationServiceSettingActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());

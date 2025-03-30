@@ -5,12 +5,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import org.im97mori.ble.android.peripheral.databinding.BloodPressureProfileSettingFragmentBinding;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingViewModel;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u180a.DeviceInformationServiceLauncherContract;
@@ -18,10 +19,14 @@ import org.im97mori.ble.android.peripheral.ui.device.setting.u1810.BloodPressure
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
-import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
+import java.util.function.Function;
 
 @AndroidEntryPoint
 public class BloodPressureProfileFragment extends Fragment {
+
+    @Inject
+    Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
 
     private BloodPressureProfileViewModel mViewModel;
     private DeviceSettingViewModel mDeviceSettingViewModel;
@@ -35,7 +40,7 @@ public class BloodPressureProfileFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        AutoDisposeViewModelProvider viewModelProvider = new AutoDisposeViewModelProvider(requireActivity());
+        AutoDisposeViewModelProvider viewModelProvider = new AutoDisposeViewModelProvider(requireActivity(), viewModelProviderFactoryFunction.apply(this));
         mViewModel = viewModelProvider.get(BloodPressureProfileViewModel.class);
         mDeviceSettingViewModel = viewModelProvider.get(DeviceSettingViewModel.class);
     }

@@ -1,32 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device;
 
-import static android.view.MenuItem.SHOW_AS_ACTION_ALWAYS;
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.intent.Intents.intended;
-import static androidx.test.espresso.intent.Intents.intending;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
-import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
-import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
-import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
-import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mockStatic;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.bluetooth.BluetoothAdapter;
@@ -42,11 +15,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.core.view.MenuProvider;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
@@ -56,39 +29,56 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.filters.SdkSuppress;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
-
 import com.google.android.material.appbar.MaterialToolbar;
-
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
-import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.test.TestUtils;
-import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivity;
-import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.inject.Inject;
-
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
+import dagger.hilt.android.testing.UninstallModules;
+import dagger.hilt.components.SingletonComponent;
 import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
+import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.hilt.module.ViewModelFactoryFunctionModule;
+import org.im97mori.ble.android.peripheral.test.FakeViewModelProviderFactoryFunction;
+import org.im97mori.ble.android.peripheral.test.TestUtils;
+import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingActivity;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+
+import static android.view.MenuItem.SHOW_AS_ACTION_ALWAYS;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.*;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static org.im97mori.ble.android.peripheral.Constants.DeviceTypes.DEVICE_TYPE_BLOOD_PRESSURE_PROFILE;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
+import static org.im97mori.ble.android.peripheral.utils.Utils.stackLog;
+import static org.junit.Assert.*;
 
 // TODO recreate test
 @HiltAndroidTest
@@ -98,7 +88,20 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
         "androidx.loader.content"}
         , application = HiltTestApplication.class
         , sdk = Build.VERSION_CODES.LOLLIPOP)
+@UninstallModules(ViewModelFactoryFunctionModule.class)
 public class PeripheralActivityTest {
+
+    @Module
+    @InstallIn(SingletonComponent.class)
+    interface FakeViewModelFactoryFunctionModule {
+        @Singleton
+        @Provides
+        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+            FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
+            fakeViewModelProviderFactoryFunction.setFakeViewModelClass(PeripheralViewModel.class, FakePeripheralViewModel.class);
+            return fakeViewModelProviderFactoryFunction;
+        }
+    }
 
     @Rule(order = 1)
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
@@ -114,19 +117,8 @@ public class PeripheralActivityTest {
     @ApplicationContext
     Context mContext;
 
-    private static MockedStatic<AutoDisposeViewModelProvider> mockedStatic;
-
-    @BeforeClass
-    public static void setUpClass() {
-        mockedStatic = mockStatic(AutoDisposeViewModelProvider.class);
-        mockedStatic.when(() -> AutoDisposeViewModelProvider.getViewModelClass(PeripheralViewModel.class))
-                .thenReturn(FakePeripheralViewModel.class);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        mockedStatic.close();
-    }
+    @Inject
+    Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
 
     @Before
     public void setUp() {
@@ -151,7 +143,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
 
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         mViewModel.test_title_00001_String = deviceSettingName;
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -165,7 +157,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
 
@@ -180,7 +172,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
             @Override
@@ -201,7 +193,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -228,7 +220,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -246,7 +238,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         onView(withId(R.id.deviceTypeNameTitle)).check(matches(withText(R.string.device_type)));
     }
@@ -257,7 +249,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -272,7 +264,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.addMenuProvider(new MenuProvider() {
                 @Override
@@ -299,7 +291,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             Drawable drawable = activity.findViewById(R.id.deviceTypeImage).getBackground();
             if (drawable instanceof AnimatedVectorDrawable) {
@@ -351,7 +343,7 @@ public class PeripheralActivityTest {
         mScenario = ActivityScenario.launch(intent);
 
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
 
             mViewModel.mObserveSetupSubject.onNext("test_observeIsStarted_00001");
 
@@ -406,7 +398,7 @@ public class PeripheralActivityTest {
         mScenario = ActivityScenario.launch(intent);
 
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.addMenuProvider(new MenuProvider() {
                 @Override
@@ -435,7 +427,7 @@ public class PeripheralActivityTest {
         mScenario = ActivityScenario.launch(intent);
 
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.addMenuProvider(new MenuProvider() {
                 @Override
@@ -463,7 +455,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -494,7 +486,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -525,7 +517,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -556,7 +548,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -592,7 +584,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -622,7 +614,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -650,7 +642,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -679,7 +671,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -709,7 +701,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launchActivityForResult(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -745,7 +737,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -778,7 +770,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -806,7 +798,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -837,7 +829,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -871,7 +863,7 @@ public class PeripheralActivityTest {
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> {
-            mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class);
+            mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class);
             MaterialToolbar materialToolbar = activity.findViewById(R.id.topAppBar);
             materialToolbar.getMenu().findItem(R.id.peripheralStart).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
             materialToolbar.getMenu().findItem(R.id.peripheralStop).setShowAsAction(SHOW_AS_ACTION_ALWAYS);
@@ -898,7 +890,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         mScenario.moveToState(Lifecycle.State.DESTROYED);
 
@@ -915,7 +907,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
 
@@ -938,7 +930,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         onView(withId(R.id.deviceTypeImage)).check(matches(new TypeSafeMatcher<View>() {
             @Override
@@ -973,7 +965,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1018,7 +1010,7 @@ public class PeripheralActivityTest {
         Intent intent = new Intent(mContext, PeripheralActivity.class);
         intent.putExtra(KEY_DEVICE_ID, id);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakePeripheralViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakePeripheralViewModel) new ViewModelProvider(activity).get(PeripheralViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 

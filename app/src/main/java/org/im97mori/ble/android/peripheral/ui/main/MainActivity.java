@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 
 import org.im97mori.ble.android.peripheral.R;
@@ -29,11 +31,17 @@ import org.im97mori.stacklog.LogUtils;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.function.Function;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import javax.inject.Inject;
+
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
+
+    @Inject
+    Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
 
     private MainViewModel mViewModel;
 
@@ -54,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mViewModel = new AutoDisposeViewModelProvider(this).get(MainViewModel.class);
+        mViewModel = new AutoDisposeViewModelProvider(this, viewModelProviderFactoryFunction.apply(this)).get(MainViewModel.class);
         mBinding = MainActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 

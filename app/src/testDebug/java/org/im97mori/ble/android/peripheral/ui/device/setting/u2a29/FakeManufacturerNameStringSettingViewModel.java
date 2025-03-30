@@ -1,4 +1,4 @@
-package org.im97mori.ble.android.peripheral.ui.device.setting.u2a24;
+package org.im97mori.ble.android.peripheral.ui.device.setting.u2a29;
 
 import android.content.Intent;
 
@@ -17,7 +17,7 @@ import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
-public class FakeModelNumberStringViewModel extends ModelNumberStringSettingViewModel {
+public class FakeManufacturerNameStringSettingViewModel extends ManufacturerNameStringSettingViewModel {
 
     public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
 
@@ -28,12 +28,12 @@ public class FakeModelNumberStringViewModel extends ModelNumberStringSettingView
     public final PublishSubject<Intent> mObserveSaveSubject = PublishSubject.create();
 
     public java.util.function.Consumer<Boolean> mUpdateIsErrorResponseConsumer;
-    public java.util.function.Consumer<String> mUpdateModelNumberStringConsumer;
+    public java.util.function.Consumer<String> mUpdateManufacturerNameStringConsumer;
     public java.util.function.Consumer<String> mUpdateResponseCodeConsumer;
     public java.util.function.Consumer<String> mUpdateResponseDelayConsumer;
 
     @Inject
-    FakeModelNumberStringViewModel(@NonNull SavedStateHandle savedStateHandle
+    FakeManufacturerNameStringSettingViewModel(@NonNull SavedStateHandle savedStateHandle
             , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
         super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;
@@ -94,26 +94,26 @@ public class FakeModelNumberStringViewModel extends ModelNumberStringSettingView
                                 case "test_recreate_responseDelay_error_00001":
                                     test_recreate_responseDelay_error_00001();
                                     break;
-                                case "test_modelNumberString_visibility_00001":
-                                    test_modelNumberString_visibility_00001();
+                                case "test_manufacturerNameString_visibility_00001":
+                                    test_manufacturerNameString_visibility_00001();
                                     break;
-                                case "test_modelNumberString_visibility_00002":
-                                    test_modelNumberString_visibility_00002();
+                                case "test_manufacturerNameString_visibility_00002":
+                                    test_manufacturerNameString_visibility_00002();
                                     break;
-                                case "test_modelNumberString_00001":
-                                    test_modelNumberString_00001();
+                                case "test_manufacturerNameString_00001":
+                                    test_manufacturerNameString_00001();
                                     break;
-                                case "test_modelNumberString_error_00002":
-                                    test_modelNumberString_error_00002();
+                                case "test_manufacturerNameString_error_00002":
+                                    test_manufacturerNameString_error_00002();
                                     break;
-                                case "test_recreate_modelNumberString_visibility_00001":
-                                    test_recreate_modelNumberString_visibility_00001();
+                                case "test_recreate_manufacturerNameString_visibility_00001":
+                                    test_recreate_manufacturerNameString_visibility_00001();
                                     break;
-                                case "test_recreate_modelNumberString_00001":
-                                    test_recreate_modelNumberString_00001();
+                                case "test_recreate_manufacturerNameString_00001":
+                                    test_recreate_manufacturerNameString_00001();
                                     break;
-                                case "test_recreate_modelNumberString_error_00001":
-                                    test_recreate_modelNumberString_error_00001();
+                                case "test_recreate_manufacturerNameString_error_00001":
+                                    test_recreate_manufacturerNameString_error_00001();
                                     break;
                                 default:
                             }
@@ -130,11 +130,11 @@ public class FakeModelNumberStringViewModel extends ModelNumberStringSettingView
     }
 
     @Override
-    public void updateModelNumberString(@NonNull String text) {
-        if (mUpdateModelNumberStringConsumer != null) {
-            mUpdateModelNumberStringConsumer.accept(text);
+    public void updateManufacturerNameString(@NonNull String text) {
+        if (mUpdateManufacturerNameStringConsumer != null) {
+            mUpdateManufacturerNameStringConsumer.accept(text);
         }
-        super.updateModelNumberString(text);
+        super.updateManufacturerNameString(text);
     }
 
     @Override
@@ -198,17 +198,16 @@ public class FakeModelNumberStringViewModel extends ModelNumberStringSettingView
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 
-
     private void test_recreate_isErrorResponse_00001() {
+        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
+    }
+
+    private void test_recreate_responseCode_visibility_00001() {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 
     private void test_recreate_responseCode_00001() {
         mSavedStateHandle.set("KEY_RESPONSE_CODE", "1");
-    }
-
-    private void test_recreate_responseCode_visibility_00001() {
-        mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 
     private void test_recreate_responseCode_error_00001() {
@@ -223,32 +222,32 @@ public class FakeModelNumberStringViewModel extends ModelNumberStringSettingView
         mSavedStateHandle.set("KEY_RESPONSE_DELAY", "");
     }
 
-    private void test_modelNumberString_visibility_00001() {
+    private void test_manufacturerNameString_visibility_00001() {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", false);
     }
 
-    private void test_modelNumberString_visibility_00002() {
+    private void test_manufacturerNameString_visibility_00002() {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 
-    private void test_modelNumberString_00001() {
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING", "1");
+    private void test_manufacturerNameString_00001() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING", "1");
     }
 
-    private void test_modelNumberString_error_00002() {
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING", "");
+    private void test_manufacturerNameString_error_00002() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING", "");
     }
 
-    private void test_recreate_modelNumberString_visibility_00001() {
+    private void test_recreate_manufacturerNameString_visibility_00001() {
         mSavedStateHandle.set("KEY_IS_ERROR_RESPONSE", true);
     }
 
-    private void test_recreate_modelNumberString_00001() {
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING", "1");
+    private void test_recreate_manufacturerNameString_00001() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING", "1");
     }
 
-    private void test_recreate_modelNumberString_error_00001() {
-        mSavedStateHandle.set("KEY_MODEL_NUMBER_STRING", "");
+    private void test_recreate_manufacturerNameString_error_00001() {
+        mSavedStateHandle.set("KEY_MANUFACTURER_NAME_STRING", "");
     }
 
 }

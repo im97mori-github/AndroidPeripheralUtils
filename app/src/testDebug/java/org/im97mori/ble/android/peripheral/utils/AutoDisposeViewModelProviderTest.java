@@ -1,14 +1,11 @@
 package org.im97mori.ble.android.peripheral.utils;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mockStatic;
-
 import android.os.Build;
-
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
-
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
+import dagger.hilt.android.testing.HiltTestApplication;
 import org.im97mori.ble.android.peripheral.test.HiltTestActivity;
 import org.im97mori.ble.android.peripheral.ui.BaseViewModel;
 import org.junit.After;
@@ -16,16 +13,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
+import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -49,9 +44,6 @@ public class AutoDisposeViewModelProviderTest {
         }
     }
 
-    public static class FakeViewModel2 extends FakeViewModel1 {
-    }
-
     @Rule
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
 
@@ -70,49 +62,17 @@ public class AutoDisposeViewModelProviderTest {
     @Test
     public void test_get_00001() {
         mScenario.onActivity(activity -> {
-            AutoDisposeViewModelProvider autoDisposeViewModelProvider = new AutoDisposeViewModelProvider(activity);
+            AutoDisposeViewModelProvider autoDisposeViewModelProvider = new AutoDisposeViewModelProvider(activity, activity.getDefaultViewModelProviderFactory());
             FakeViewModel1 fakeViewModel1 = autoDisposeViewModelProvider.get(FakeViewModel1.class);
             assertEquals(FakeViewModel1.class, fakeViewModel1.getClass());
         });
     }
 
     @Test
-    public void test_get_00002() {
-        try (MockedStatic<AutoDisposeViewModelProvider> mockedStatic = mockStatic(AutoDisposeViewModelProvider.class)) {
-            mockedStatic.when(()
-                    -> AutoDisposeViewModelProvider.getViewModelClass(FakeViewModel1.class)).thenReturn(FakeViewModel2.class);
-
-            mScenario.onActivity(activity -> {
-                AutoDisposeViewModelProvider autoDisposeViewModelProvider = new AutoDisposeViewModelProvider(activity);
-                FakeViewModel1 fakeViewModel1 = autoDisposeViewModelProvider.get(FakeViewModel1.class);
-                assertEquals(FakeViewModel2.class, fakeViewModel1.getClass());
-            });
-        }
-    }
-
-    @Test
-    public void test_getViewModelClass_00001() {
-        Class<? extends FakeViewModel1> clazz = AutoDisposeViewModelProvider.getViewModelClass(FakeViewModel1.class);
-        assertEquals(FakeViewModel1.class, clazz);
-    }
-
-    @Test
-    public void test_getViewModelClass_00002() {
-        try (MockedStatic<AutoDisposeViewModelProvider> mockedStatic = mockStatic(AutoDisposeViewModelProvider.class)) {
-            mockedStatic.when(()
-                    -> AutoDisposeViewModelProvider.getViewModelClass(FakeViewModel1.class)).thenReturn(FakeViewModel2.class);
-
-
-            Class<? extends FakeViewModel1> clazz = AutoDisposeViewModelProvider.getViewModelClass(FakeViewModel1.class);
-            assertEquals(FakeViewModel2.class, clazz);
-        }
-    }
-
-    @Test
     public void test_autoDispose_00001() {
         AtomicBoolean result = new AtomicBoolean(false);
         mScenario.onActivity(activity -> {
-            AutoDisposeViewModelProvider autoDisposeViewModelProvider = new AutoDisposeViewModelProvider(activity);
+            AutoDisposeViewModelProvider autoDisposeViewModelProvider = new AutoDisposeViewModelProvider(activity, activity.getDefaultViewModelProviderFactory());
             FakeViewModel1 fakeViewModel1 = autoDisposeViewModelProvider.get(FakeViewModel1.class);
             fakeViewModel1.mDisposeConsumer = result::set;
         });

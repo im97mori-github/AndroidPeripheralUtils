@@ -1,27 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2902;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
-import static androidx.test.espresso.matcher.ViewMatchers.withHint;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
-import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mockStatic;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.bluetooth.BluetoothGatt;
@@ -32,45 +10,54 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.matcher.ViewMatchers;
-
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
-
-import junit.framework.TestCase;
-
-import org.im97mori.ble.DescriptorData;
-import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
-import org.im97mori.ble.android.peripheral.utils.Utils;
-import org.im97mori.ble.descriptor.u2902.ClientCharacteristicConfiguration;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.inject.Inject;
-
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
+import dagger.hilt.android.testing.UninstallModules;
+import dagger.hilt.components.SingletonComponent;
 import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import junit.framework.TestCase;
+import org.im97mori.ble.DescriptorData;
+import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.hilt.module.ViewModelFactoryFunctionModule;
+import org.im97mori.ble.android.peripheral.test.FakeViewModelProviderFactoryFunction;
+import org.im97mori.ble.android.peripheral.utils.Utils;
+import org.im97mori.ble.descriptor.u2902.ClientCharacteristicConfiguration;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
+import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
+import static org.junit.Assert.*;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -79,7 +66,20 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
         "androidx.loader.content"}
         , application = HiltTestApplication.class
         , sdk = Build.VERSION_CODES.LOLLIPOP)
+@UninstallModules(ViewModelFactoryFunctionModule.class)
 public class ClientCharacteristicConfigurationSettingActivityTest {
+
+    @Module
+    @InstallIn(SingletonComponent.class)
+    interface FakeViewModelFactoryFunctionModule {
+        @Singleton
+        @Provides
+        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+            FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
+            fakeViewModelProviderFactoryFunction.setFakeViewModelClass(ClientCharacteristicConfigurationSettingViewModel.class, FakeClientCharacteristicConfigurationSettingViewModel.class);
+            return fakeViewModelProviderFactoryFunction;
+        }
+    }
 
     @Rule(order = 1)
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
@@ -91,23 +91,9 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
 
     private FakeClientCharacteristicConfigurationSettingViewModel mViewModel;
 
-    private static MockedStatic<AutoDisposeViewModelProvider> mockedStatic;
-
     @Inject
     @ApplicationContext
     Context mContext;
-
-    @BeforeClass
-    public static void setUpClass() {
-        mockedStatic = mockStatic(AutoDisposeViewModelProvider.class);
-        mockedStatic.when(() -> AutoDisposeViewModelProvider.getViewModelClass(ClientCharacteristicConfigurationSettingViewModel.class))
-                .thenReturn(FakeClientCharacteristicConfigurationSettingViewModel.class);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        mockedStatic.close();
-    }
 
     @Before
     public void setUp() {
@@ -126,7 +112,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_title_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
         onView(withId(R.id.topAppBar)).check(matches(hasDescendant(withText(R.string.client_characteristic_configuration))));
     }
 
@@ -134,7 +120,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_root_container_visibility_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -145,7 +131,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_isErrorResponse_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         onView(withId(R.id.isErrorResponse)).check(matches(isNotChecked()));
     }
@@ -154,7 +140,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_isErrorResponse_00002() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isErrorResponse)).check(matches(isNotChecked()));
@@ -164,7 +150,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_isErrorResponse_00003() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isErrorResponse)).check(matches(isChecked()));
@@ -174,7 +160,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_updateIsErrorResponse_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsErrorResponseConsumer = result::set;
@@ -188,7 +174,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_responseCode_visibility_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -198,7 +184,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_responseCode_visibility_00002() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -236,7 +222,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_responseCode_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCodeEdit)).check(matches(withText("1")));
@@ -246,7 +232,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_responseCode_error_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mScenario.onActivity(activity
                 -> assertTrue(TextUtils.isEmpty(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError())));
@@ -256,18 +242,19 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_responseCode_error_00002() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
-                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError()).toString()));
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError())
+                .toString()));
     }
 
     @Test
     public void test_updateResponseCode_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         String original = "1";
         AtomicReference<String> result = new AtomicReference<>();
@@ -303,7 +290,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_responseDelay_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseDelayEdit)).check(matches(withText("1")));
@@ -313,7 +300,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_responseDelay_error_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mScenario.onActivity(activity
                 -> assertTrue(TextUtils.isEmpty(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError())));
@@ -323,18 +310,19 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_responseDelay_error_00002() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
-                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError()).toString()));
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError())
+                .toString()));
     }
 
     @Test
     public void test_updateResponseDelay_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         String original = "1";
         AtomicReference<String> result = new AtomicReference<>();
@@ -352,7 +340,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_menu_save_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).check(matches(isNotEnabled()));
@@ -362,7 +350,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_menu_save_00002() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
@@ -373,7 +361,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_menu_save_00003() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launchActivityForResult(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
@@ -400,7 +388,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_backPressed_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launchActivityForResult(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         pressBack();
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
@@ -411,7 +399,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_recreate_root_container_visibility_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -428,7 +416,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_recreate_isErrorResponse_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isErrorResponse)).check(matches(isChecked()));
@@ -442,7 +430,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_recreate_responseCode_visibility_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -457,7 +445,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_recreate_responseCode_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCodeEdit)).check(matches(withText("1")));
@@ -471,23 +459,25 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_recreate_responseCode_error_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
-                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError()).toString()));
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError())
+                .toString()));
 
         mScenario.recreate();
 
         mScenario.onActivity(activity
-                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError()).toString()));
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError())
+                .toString()));
     }
 
     @Test
     public void test_recreate_responseDelay_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseDelayEdit)).check(matches(withText("1")));
@@ -501,23 +491,25 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_recreate_responseDelay_error_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
-                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError()).toString()));
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError())
+                .toString()));
 
         mScenario.recreate();
 
         mScenario.onActivity(activity
-                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError()).toString()));
+                -> TestCase.assertEquals(mContext.getString(R.string.no_value), Objects.requireNonNull(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError())
+                .toString()));
     }
 
     @Test
     public void test_propertiesRadioGroup_visibility_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.propertiesRadioGroup)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -527,7 +519,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_propertiesRadioGroup_visibility_00002() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.propertiesRadioGroup)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -537,7 +529,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_propertiesRadioGroup_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdatePropertiesConsumer = result::set;
@@ -554,7 +546,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_propertiesRadioGroup_00002() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdatePropertiesConsumer = result::set;
@@ -572,7 +564,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_recreate_propertiesRadioGroup_visibility_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.propertiesRadioGroup)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -586,7 +578,7 @@ public class ClientCharacteristicConfigurationSettingActivityTest {
     public void test_recreate_propertiesRadioGroup_00001() {
         Intent intent = new Intent(mContext, ClientCharacteristicConfigurationSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeClientCharacteristicConfigurationSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeClientCharacteristicConfigurationSettingViewModel) new ViewModelProvider(activity).get(ClientCharacteristicConfigurationSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.propertiesEnabledRadioButton)).check(matches(isChecked()));

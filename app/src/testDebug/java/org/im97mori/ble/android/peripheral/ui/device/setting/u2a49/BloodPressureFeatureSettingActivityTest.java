@@ -1,27 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a49;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
-import static androidx.test.espresso.matcher.ViewMatchers.withHint;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
-import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mockStatic;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.bluetooth.BluetoothGatt;
@@ -31,46 +9,55 @@ import android.content.Intent;
 import android.os.Build;
 import android.text.TextUtils;
 import android.widget.TextView;
-
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.matcher.ViewMatchers;
-
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
-
-import junit.framework.TestCase;
-
-import org.im97mori.ble.CharacteristicData;
-import org.im97mori.ble.android.peripheral.R;
-import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
-import org.im97mori.ble.android.peripheral.utils.Utils;
-import org.im97mori.ble.characteristic.u2a49.BloodPressureFeature;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.LinkedList;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.inject.Inject;
-
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
+import dagger.hilt.android.testing.UninstallModules;
+import dagger.hilt.components.SingletonComponent;
 import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import junit.framework.TestCase;
+import org.im97mori.ble.CharacteristicData;
+import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.hilt.module.ViewModelFactoryFunctionModule;
+import org.im97mori.ble.android.peripheral.test.FakeViewModelProviderFactoryFunction;
+import org.im97mori.ble.android.peripheral.utils.Utils;
+import org.im97mori.ble.characteristic.u2a49.BloodPressureFeature;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
+import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_FEATURE_CHARACTERISTIC;
+import static org.junit.Assert.*;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -79,7 +66,20 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
         "androidx.loader.content"}
         , application = HiltTestApplication.class
         , sdk = Build.VERSION_CODES.LOLLIPOP)
+@UninstallModules(ViewModelFactoryFunctionModule.class)
 public class BloodPressureFeatureSettingActivityTest {
+
+    @Module
+    @InstallIn(SingletonComponent.class)
+    interface FakeViewModelFactoryFunctionModule {
+        @Singleton
+        @Provides
+        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+            FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
+            fakeViewModelProviderFactoryFunction.setFakeViewModelClass(BloodPressureFeatureSettingViewModel.class, FakeBloodPressureFeatureSettingViewModel.class);
+            return fakeViewModelProviderFactoryFunction;
+        }
+    }
 
     @Rule(order = 1)
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
@@ -89,25 +89,11 @@ public class BloodPressureFeatureSettingActivityTest {
 
     private ActivityScenario<BloodPressureFeatureSettingActivity> mScenario;
 
-    private FakeBloodPressureFeatureViewModel mViewModel;
-
-    private static MockedStatic<AutoDisposeViewModelProvider> mockedStatic;
+    private FakeBloodPressureFeatureSettingViewModel mViewModel;
 
     @Inject
     @ApplicationContext
     Context mContext;
-
-    @BeforeClass
-    public static void setUpClass() {
-        mockedStatic = mockStatic(AutoDisposeViewModelProvider.class);
-        mockedStatic.when(() -> AutoDisposeViewModelProvider.getViewModelClass(BloodPressureFeatureSettingViewModel.class))
-                .thenReturn(FakeBloodPressureFeatureViewModel.class);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        mockedStatic.close();
-    }
 
     @Before
     public void setUp() {
@@ -126,7 +112,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_title_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
         onView(withId(R.id.topAppBar)).check(matches(hasDescendant(withText(R.string.blood_pressure_feature))));
     }
 
@@ -134,7 +120,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_root_container_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -145,7 +131,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isErrorResponse_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         onView(withId(R.id.isErrorResponse)).check(matches(isNotChecked()));
     }
@@ -154,7 +140,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isErrorResponse_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isErrorResponse)).check(matches(isNotChecked()));
@@ -164,7 +150,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isErrorResponse_00003() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isErrorResponse)).check(matches(isChecked()));
@@ -174,7 +160,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_updateIsErrorResponse_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsErrorResponseConsumer = result::set;
@@ -188,7 +174,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_responseCode_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -198,7 +184,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_responseCode_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -236,7 +222,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_responseCode_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCodeEdit)).check(matches(withText("1")));
@@ -246,7 +232,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_responseCode_error_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mScenario.onActivity(activity
                 -> assertTrue(TextUtils.isEmpty(((TextInputLayout) activity.findViewById(R.id.responseCode)).getError())));
@@ -256,7 +242,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_responseCode_error_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
@@ -267,7 +253,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_updateResponseCode_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         String original = "1";
         AtomicReference<String> result = new AtomicReference<>();
@@ -303,7 +289,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_responseDelay_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseDelayEdit)).check(matches(withText("1")));
@@ -313,7 +299,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_responseDelay_error_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mScenario.onActivity(activity
                 -> assertTrue(TextUtils.isEmpty(((TextInputLayout) activity.findViewById(R.id.responseDelay)).getError())));
@@ -323,7 +309,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_responseDelay_error_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
@@ -334,7 +320,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_updateResponseDelay_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         String original = "1";
         AtomicReference<String> result = new AtomicReference<>();
@@ -352,7 +338,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_menu_save_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).check(matches(isNotEnabled()));
@@ -362,7 +348,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_menu_save_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
@@ -373,7 +359,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_menu_save_00003() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launchActivityForResult(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
@@ -411,7 +397,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_backPressed_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launchActivityForResult(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         pressBack();
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
@@ -422,7 +408,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_root_container_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -439,7 +425,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isErrorResponse_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isErrorResponse)).check(matches(isChecked()));
@@ -453,7 +439,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_responseCode_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCode)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -468,7 +454,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_responseCode_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseCodeEdit)).check(matches(withText("1")));
@@ -482,7 +468,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_responseCode_error_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
@@ -498,7 +484,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_responseDelay_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.responseDelayEdit)).check(matches(withText("1")));
@@ -512,7 +498,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_responseDelay_error_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity
@@ -528,7 +514,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isBodyMovementDetectionSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isBodyMovementDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -538,7 +524,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isBodyMovementDetectionSupported_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isBodyMovementDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -548,7 +534,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isBodyMovementDetectionSupported_title_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         onView(withId(R.id.isBodyMovementDetectionSupported)).check(matches(withText(R.string.body_movement_detection_support)));
     }
@@ -557,7 +543,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isBodyMovementDetectionSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateBodyMovementDetectionConsumer = result::set;
@@ -571,7 +557,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isBodyMovementDetectionSupported_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateBodyMovementDetectionConsumer = result::set;
@@ -585,7 +571,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isCuffFitDetectionSupportSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isCuffFitDetectionSupportSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -595,7 +581,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isCuffFitDetectionSupportSupported_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isCuffFitDetectionSupportSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -605,7 +591,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isCuffFitDetectionSupportSupported_title_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         onView(withId(R.id.isCuffFitDetectionSupportSupported)).check(matches(withText(R.string.cuff_fit_detection_support)));
     }
@@ -614,7 +600,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isCuffFitDetectionSupportSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateCuffFitDetectionConsumer = result::set;
@@ -628,7 +614,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isCuffFitDetectionSupportSupported_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateCuffFitDetectionConsumer = result::set;
@@ -642,7 +628,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isIrregularPulseDetectionSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isIrregularPulseDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -652,7 +638,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isIrregularPulseDetectionSupported_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isIrregularPulseDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -662,7 +648,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isIrregularPulseDetectionSupported_title_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         onView(withId(R.id.isIrregularPulseDetectionSupported)).check(matches(withText(R.string.irregular_pulse_detection_support)));
     }
@@ -671,7 +657,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isIrregularPulseDetectionSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIrregularPulseDetectionConsumer = result::set;
@@ -685,7 +671,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isIrregularPulseDetectionSupported_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIrregularPulseDetectionConsumer = result::set;
@@ -699,7 +685,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isPulseRateRangeDetectionSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isPulseRateRangeDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -709,7 +695,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isPulseRateRangeDetectionSupported_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isPulseRateRangeDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -719,7 +705,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isPulseRateRangeDetectionSupported_title_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         onView(withId(R.id.isPulseRateRangeDetectionSupported)).check(matches(withText(R.string.pulse_rate_range_detection_support)));
     }
@@ -728,7 +714,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isPulseRateRangeDetectionSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdatePulseRateRangeDetectionConsumer = result::set;
@@ -742,7 +728,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isPulseRateRangeDetectionSupported_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdatePulseRateRangeDetectionConsumer = result::set;
@@ -756,7 +742,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMeasurementPositionDetectionSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMeasurementPositionDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -766,7 +752,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMeasurementPositionDetectionSupported_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMeasurementPositionDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -776,7 +762,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMeasurementPositionDetectionSupported_title_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         onView(withId(R.id.isMeasurementPositionDetectionSupported)).check(matches(withText(R.string.measurement_position_detection_support)));
     }
@@ -785,7 +771,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMeasurementPositionDetectionSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateMeasurementPositionDetectionConsumer = result::set;
@@ -799,7 +785,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMeasurementPositionDetectionSupported_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateMeasurementPositionDetectionConsumer = result::set;
@@ -813,7 +799,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMultipleBondSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMultipleBondSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
@@ -823,7 +809,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMultipleBondSupported_visibility_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMultipleBondSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -833,7 +819,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMultipleBondSupported_title_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         onView(withId(R.id.isMultipleBondSupported)).check(matches(withText(R.string.multiple_bonds_support)));
     }
@@ -842,7 +828,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMultipleBondSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateMultipleBondDetectionConsumer = result::set;
@@ -856,7 +842,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_isMultipleBondSupported_00002() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateMultipleBondDetectionConsumer = result::set;
@@ -870,7 +856,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isBodyMovementDetectionSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isBodyMovementDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -884,7 +870,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isBodyMovementDetectionSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isBodyMovementDetectionSupported)).check(matches(isChecked()));
@@ -898,7 +884,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isCuffFitDetectionSupportSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isCuffFitDetectionSupportSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -912,7 +898,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isCuffFitDetectionSupportSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isCuffFitDetectionSupportSupported)).check(matches(isChecked()));
@@ -926,7 +912,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isIrregularPulseDetectionSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isIrregularPulseDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -940,7 +926,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isIrregularPulseDetectionSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isIrregularPulseDetectionSupported)).check(matches(isChecked()));
@@ -954,7 +940,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isPulseRateRangeDetectionSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isPulseRateRangeDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -968,7 +954,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isPulseRateRangeDetectionSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isPulseRateRangeDetectionSupported)).check(matches(isChecked()));
@@ -982,7 +968,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isMeasurementPositionDetectionSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMeasurementPositionDetectionSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -996,7 +982,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isMeasurementPositionDetectionSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMeasurementPositionDetectionSupported)).check(matches(isChecked()));
@@ -1010,7 +996,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isMultipleBondSupported_visibility_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMultipleBondSupported)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
@@ -1024,7 +1010,7 @@ public class BloodPressureFeatureSettingActivityTest {
     public void test_recreate_isMultipleBondSupported_00001() {
         Intent intent = new Intent(mContext, BloodPressureFeatureSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeBloodPressureFeatureViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureFeatureSettingViewModel) new ViewModelProvider(activity).get(BloodPressureFeatureSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         onView(withId(R.id.isMultipleBondSupported)).check(matches(isChecked()));

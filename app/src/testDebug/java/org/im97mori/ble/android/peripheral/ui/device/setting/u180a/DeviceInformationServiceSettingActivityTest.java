@@ -1,34 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u180a;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.intent.Intents.intended;
-import static androidx.test.espresso.intent.Intents.intending;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
-import static org.im97mori.ble.constants.CharacteristicUUID.MANUFACTURER_NAME_STRING_CHARACTERISTIC;
-import static org.im97mori.ble.constants.CharacteristicUUID.MODEL_NUMBER_STRING_CHARACTERISTIC;
-import static org.im97mori.ble.constants.CharacteristicUUID.SYSTEM_ID_CHARACTERISTIC;
-import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mockStatic;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.bluetooth.BluetoothGatt;
@@ -38,53 +9,67 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
-
 import com.google.android.material.appbar.MaterialToolbar;
-
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
+import dagger.hilt.android.testing.HiltTestApplication;
+import dagger.hilt.android.testing.UninstallModules;
+import dagger.hilt.components.SingletonComponent;
+import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import junit.framework.TestCase;
-
 import org.im97mori.ble.CharacteristicData;
 import org.im97mori.ble.ServiceData;
 import org.im97mori.ble.android.peripheral.R;
+import org.im97mori.ble.android.peripheral.hilt.module.ViewModelFactoryFunctionModule;
+import org.im97mori.ble.android.peripheral.test.FakeViewModelProviderFactoryFunction;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a23.SystemIdSettingActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a24.ModelNumberStringSettingActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2a29.ManufacturerNameStringSettingActivity;
-import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.ble.android.peripheral.utils.Utils;
 import org.im97mori.ble.characteristic.u2a23.SystemId;
 import org.im97mori.ble.characteristic.u2a24.ModelNumberString;
 import org.im97mori.ble.characteristic.u2a29.ManufacturerNameString;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockedStatic;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
-import javax.inject.Inject;
-
-import dagger.hilt.android.qualifiers.ApplicationContext;
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-import dagger.hilt.android.testing.HiltTestApplication;
-import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
-import io.reactivex.rxjava3.plugins.RxJavaPlugins;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static org.im97mori.ble.android.peripheral.test.TestUtils.getCurrentMethodName;
+import static org.im97mori.ble.constants.CharacteristicUUID.*;
+import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
+import static org.junit.Assert.*;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -93,7 +78,20 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
         "androidx.loader.content"}
         , application = HiltTestApplication.class
         , sdk = Build.VERSION_CODES.LOLLIPOP)
+@UninstallModules(ViewModelFactoryFunctionModule.class)
 public class DeviceInformationServiceSettingActivityTest {
+
+    @Module
+    @InstallIn(SingletonComponent.class)
+    interface FakeViewModelFactoryFunctionModule {
+        @Singleton
+        @Provides
+        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+            FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
+            fakeViewModelProviderFactoryFunction.setFakeViewModelClass(DeviceInformationServiceSettingViewModel.class, FakeDeviceInformationServiceSettingViewModel.class);
+            return fakeViewModelProviderFactoryFunction;
+        }
+    }
 
     @Rule(order = 1)
     public final HiltAndroidRule mHiltRule = new HiltAndroidRule(this);
@@ -105,23 +103,9 @@ public class DeviceInformationServiceSettingActivityTest {
 
     private FakeDeviceInformationServiceSettingViewModel mViewModel;
 
-    private static MockedStatic<AutoDisposeViewModelProvider> mockedStatic;
-
     @Inject
     @ApplicationContext
     Context mContext;
-
-    @BeforeClass
-    public static void setUpClass() {
-        mockedStatic = mockStatic(AutoDisposeViewModelProvider.class);
-        mockedStatic.when(() -> AutoDisposeViewModelProvider.getViewModelClass(DeviceInformationServiceSettingViewModel.class))
-                .thenReturn(FakeDeviceInformationServiceSettingViewModel.class);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        mockedStatic.close();
-    }
 
     @Before
     public void setUp() {
@@ -142,7 +126,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_title_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.topAppBar)).check(matches(hasDescendant(withText(R.string.device_information_service))));
     }
@@ -151,7 +135,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_root_container_visibility_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -162,7 +146,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_menu_save_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
         onView(withId(R.id.save)).check(matches(isNotEnabled()));
@@ -172,7 +156,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_menu_save_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
@@ -183,7 +167,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_menu_save_00003() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launchActivityForResult(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
         mScenario.onActivity(activity -> ((MaterialToolbar) activity.findViewById(R.id.topAppBar)).showOverflowMenu());
@@ -247,7 +231,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_backPressed_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launchActivityForResult(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         pressBack();
         Instrumentation.ActivityResult activityResult = mScenario.getResult();
@@ -271,7 +255,7 @@ public class DeviceInformationServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.setSystemIdData(null);
 
@@ -289,7 +273,7 @@ public class DeviceInformationServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         byte[] before = Utils.parcelableToByteArray(new CharacteristicData(SYSTEM_ID_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_READ
@@ -324,7 +308,7 @@ public class DeviceInformationServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.setModelNumberStringData(null);
 
@@ -342,7 +326,7 @@ public class DeviceInformationServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.setModelNumberStringData(null);
 
@@ -369,7 +353,7 @@ public class DeviceInformationServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.setManufacturerNameStringData(null);
 
@@ -387,7 +371,7 @@ public class DeviceInformationServiceSettingActivityTest {
 
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         byte[] before = Utils.parcelableToByteArray(new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
                 , BluetoothGattCharacteristic.PROPERTY_READ
@@ -409,7 +393,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_root_container_visibility_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.rootContainer)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -426,7 +410,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_isSystemIdSupported_title_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.isSystemIdSupported)).check(matches(withText(R.string.system_id_support)));
     }
@@ -435,7 +419,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_isSystemIdSupported_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsSystemIdSupportedConsumer = result::set;
@@ -449,7 +433,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_isSystemIdSupported_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mUpdateIsSystemIdSupportedConsumer = result::set;
@@ -463,7 +447,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_systemIdCardView_visibility_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.systemIdCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
@@ -472,7 +456,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_systemIdCardView_visibility_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -483,7 +467,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_systemIdCardView_visibility_00003() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -494,7 +478,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_systemIdCardView_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -505,7 +489,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_systemIdCardView_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -516,7 +500,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_systemIdCardView_title_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.systemIdCardViewTitle)).check(matches(withText(R.string.system_id)));
     }
@@ -525,7 +509,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerIdentifierTitle_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.manufacturerIdentifierTitle)).check(matches(withText(R.string.manufacturer_identifier)));
     }
@@ -534,7 +518,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerIdentifier_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.manufacturerIdentifier)).check(matches(withText("")));
     }
@@ -543,7 +527,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerIdentifier_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
@@ -564,7 +548,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_organizationallyUniqueIdentifierTitle_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.organizationallyUniqueIdentifierTitle)).check(matches(withText(R.string.organizationally_unique_identifier)));
     }
@@ -573,7 +557,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_organizationallyUniqueIdentifier_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.organizationallyUniqueIdentifier)).check(matches(withText("")));
     }
@@ -582,7 +566,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_organizationallyUniqueIdentifier_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
@@ -603,7 +587,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_systemIdSettingButton_text_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.systemIdSettingButton)).check(matches(withText(R.string.setting)));
     }
@@ -612,7 +596,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_systemIdSettingButton_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -626,7 +610,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_systemIdSettingButton_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -640,7 +624,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_modelNumberStringCardView_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -651,7 +635,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_modelNumberStringCardView_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -662,7 +646,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_modelNumberStringCardView_title_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.modelNumberStringCardViewTitle)).check(matches(withText(R.string.model_number_string)));
     }
@@ -671,7 +655,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_modelNumberString_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.modelNumberString)).check(matches(withText("")));
     }
@@ -680,7 +664,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_modelNumberString_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         String originalModelNumberString = "a";
         CharacteristicData modelNumberStringCharacteristicData = new CharacteristicData(MODEL_NUMBER_STRING_CHARACTERISTIC
@@ -700,7 +684,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_modelNumberStringSettingButton_text_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.modelNumberStringSettingButton)).check(matches(withText(R.string.setting)));
     }
@@ -709,7 +693,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_modelNumberStringSettingButton_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -723,7 +707,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_modelNumberStringSettingButton_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -737,7 +721,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerNameStringCardView_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -748,7 +732,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerNameStringCardView_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -759,7 +743,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerNameStringCardView_title_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.manufacturerNameStringCardViewTitle)).check(matches(withText(R.string.manufacturer_name_string)));
     }
@@ -768,7 +752,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerNameString_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.manufacturerNameString)).check(matches(withText("")));
     }
@@ -777,7 +761,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerNameString_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         String originalManufacturerNameString = "b";
         CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
@@ -797,7 +781,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerNameStringSettingButton_text_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.manufacturerNameStringSettingButton)).check(matches(withText(R.string.setting)));
     }
@@ -806,7 +790,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerNameStringSettingButton_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -820,7 +804,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_manufacturerNameStringSettingButton_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -834,7 +818,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_systemIdCardView_visibility_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.systemIdCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -851,7 +835,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_systemIdCardView_visibility_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.systemIdCardView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
@@ -868,7 +852,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_systemIdCardView_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -883,7 +867,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_systemIdCardView_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -898,7 +882,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_manufacturerIdentifier_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.manufacturerIdentifier)).check(matches(withText("")));
 
@@ -911,7 +895,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_manufacturerIdentifier_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
@@ -936,7 +920,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_organizationallyUniqueIdentifier_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.organizationallyUniqueIdentifier)).check(matches(withText("")));
 
@@ -949,7 +933,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_organizationallyUniqueIdentifier_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         long originalManufacturerIdentifier = 1;
         int originalOrganizationallyUniqueIdentifier = 2;
@@ -974,7 +958,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_modelNumberStringCardView_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -989,7 +973,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_modelNumberStringCardView_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1004,7 +988,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_manufacturerNameStringCardView_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1019,7 +1003,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_manufacturerNameStringCardView_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
@@ -1034,7 +1018,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_manufacturerNameString_00001() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         onView(withId(R.id.manufacturerNameString)).check(matches(withText("")));
 
@@ -1047,7 +1031,7 @@ public class DeviceInformationServiceSettingActivityTest {
     public void test_recreate_manufacturerNameString_00002() {
         Intent intent = new Intent(mContext, DeviceInformationServiceSettingActivity.class);
         mScenario = ActivityScenario.launch(intent);
-        mScenario.onActivity(activity -> mViewModel = new ViewModelProvider(activity).get(FakeDeviceInformationServiceSettingViewModel.class));
+        mScenario.onActivity(activity -> mViewModel = (FakeDeviceInformationServiceSettingViewModel) new ViewModelProvider(activity).get(DeviceInformationServiceSettingViewModel.class));
 
         String originalManufacturerNameString = "b";
         CharacteristicData manufacturerNameStringCharacteristicData = new CharacteristicData(MANUFACTURER_NAME_STRING_CHARACTERISTIC
