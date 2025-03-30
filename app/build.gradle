@@ -1,7 +1,9 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
     id 'com.google.dagger.hilt.android'
     id 'com.google.android.gms.oss-licenses-plugin'
+    id 'org.jetbrains.kotlinx.kover'
 }
 
 android {
@@ -68,8 +70,8 @@ dependencies {
     // androidx library
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.8.7'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     testImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
@@ -116,4 +118,38 @@ dependencies {
 
     // mockito
     testImplementation 'org.mockito:mockito-core:5.8.0'
+}
+
+def excludedClasses = Arrays.asList(
+        "*.databinding.*",
+        "*.*_*",
+)
+
+koverReport {
+
+    defaults {
+        /**
+         * Tests, sources, classes, and compilation tasks of the 'debug' build variant will be included in the default reports.
+         * Thus, information from the 'debug' variant will be included in the default report for this project and any project that specifies this project as a dependency.
+         */
+        mergeWith("debug")
+    }
+
+    androidReports("debug") {
+        // filters for all report types only of 'release' build type
+        filters {
+            excludes {
+                classes(excludedClasses)
+            }
+        }
+    }
+
+    androidReports("release") {
+        // filters for all report types only of 'release' build type
+        filters {
+            excludes {
+                classes(excludedClasses)
+            }
+        }
+    }
 }
