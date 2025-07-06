@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.room.Room;
+import androidx.room.driver.SupportSQLiteConnection;
 import androidx.room.util.TableInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
@@ -26,6 +27,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
+
+import java.io.IOException;
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -49,14 +52,15 @@ public class AppDatabaseTest {
     }
 
     @Test
-    public void test_00001() {
+    public void test_00001() throws IOException {
         AppDatabase appDatabase = Room.inMemoryDatabaseBuilder(mContext, AppDatabase.class)
                 .build();
-        try (SupportSQLiteOpenHelper sqLiteOpenHelper = appDatabase.getOpenHelper()) {
-            SupportSQLiteDatabase sqLiteDatabase = sqLiteOpenHelper.getReadableDatabase();
+        try (SupportSQLiteOpenHelper sqLiteOpenHelper = appDatabase.getOpenHelper();
+             SupportSQLiteDatabase sqLiteDatabase = sqLiteOpenHelper.getReadableDatabase();
+             SupportSQLiteConnection supportSQLiteConnection = new SupportSQLiteConnection(sqLiteDatabase)) {
             assertEquals(1, sqLiteDatabase.getVersion());
 
-            TableInfo tableInfo = TableInfo.read(sqLiteDatabase, "device_setting");
+            TableInfo tableInfo = TableInfo.read(supportSQLiteConnection, "device_setting");
             TableInfo.Column column = tableInfo.columns.get("device_setting_id");
             assertNotNull(column);
             assertTrue(column.notNull);

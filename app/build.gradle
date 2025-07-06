@@ -11,12 +11,12 @@ android {
         release {
         }
     }
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "org.im97mori.ble.android.peripheral"
         minSdk 21
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "0.1.0"
 
@@ -68,10 +68,10 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 
     // androidx library
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.7'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.9.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     testImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
@@ -79,10 +79,10 @@ dependencies {
     debugImplementation 'org.im97mori:test-android-fragment:0.2.0'
 
     // room
-    implementation "androidx.room:room-runtime:2.6.1"
-    annotationProcessor "androidx.room:room-compiler:2.6.1"
-    implementation "androidx.room:room-rxjava3:2.6.1"
-    testImplementation "androidx.room:room-testing:2.6.1"
+    implementation "androidx.room:room-runtime:2.7.2"
+    annotationProcessor "androidx.room:room-compiler:2.7.2"
+    implementation "androidx.room:room-rxjava3:2.7.2"
+    testImplementation "androidx.room:room-testing:2.7.2"
 
     // hilt
     implementation 'com.google.dagger:hilt-android:2.56.1'
@@ -152,4 +152,4 @@ koverReport {
             }
         }
     }
-}
+} 

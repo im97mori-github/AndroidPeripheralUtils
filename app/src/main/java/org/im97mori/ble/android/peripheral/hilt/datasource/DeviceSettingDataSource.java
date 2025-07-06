@@ -24,7 +24,7 @@ public class DeviceSettingDataSource {
         mAppDatabase = Room.databaseBuilder(context.getApplicationContext()
                 , AppDatabase.class
                 , DB_NAME)
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(false)
                 .build();
     }
 
