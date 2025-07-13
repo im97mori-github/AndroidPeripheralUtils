@@ -80,7 +80,7 @@ public class MainActivityTest {
     interface FakeViewModelFactoryFunctionModule {
         @Singleton
         @Provides
-        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+        static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
             FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
             fakeViewModelProviderFactoryFunction.setFakeViewModelClass(MainViewModel.class, FakeMainViewModel.class);
             return fakeViewModelProviderFactoryFunction;

@@ -69,7 +69,6 @@ public class UtilsTest {
     public void test_byteToParcelable_00001() {
         try (MockedStatic<UtilsInner> mockedStatic = mockStatic(UtilsInner.class)) {
             AtomicBoolean result = new AtomicBoolean(false);
-            EditText editText = new EditText(mContext);
             mockedStatic.when(() -> UtilsInner.byteToParcelable(null, DescriptorData.CREATOR))
                     .thenAnswer(invocation -> {
                         result.set(true);

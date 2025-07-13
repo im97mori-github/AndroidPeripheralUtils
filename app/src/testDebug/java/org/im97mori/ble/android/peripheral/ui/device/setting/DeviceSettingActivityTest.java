@@ -80,7 +80,7 @@ public class DeviceSettingActivityTest {
     interface FakeViewModelFactoryFunctionModule {
         @Singleton
         @Provides
-        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+        static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
             FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
             fakeViewModelProviderFactoryFunction.setFakeViewModelClass(DeviceSettingViewModel.class, FakeDeviceSettingViewModel.class);
             fakeViewModelProviderFactoryFunction.setFakeViewModelClass(BloodPressureProfileViewModel.class, FakeBloodPressureProfileViewModel.class);

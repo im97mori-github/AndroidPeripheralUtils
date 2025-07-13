@@ -71,6 +71,7 @@ import static org.im97mori.ble.constants.CharacteristicUUID.*;
 import static org.im97mori.ble.constants.ServiceUUID.DEVICE_INFORMATION_SERVICE;
 import static org.junit.Assert.*;
 
+/** @noinspection ExtractMethodRecommender */
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {
@@ -86,7 +87,7 @@ public class DeviceInformationServiceSettingActivityTest {
     interface FakeViewModelFactoryFunctionModule {
         @Singleton
         @Provides
-        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+        static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
             FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
             fakeViewModelProviderFactoryFunction.setFakeViewModelClass(DeviceInformationServiceSettingViewModel.class, FakeDeviceInformationServiceSettingViewModel.class);
             return fakeViewModelProviderFactoryFunction;

@@ -47,6 +47,7 @@ import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+/** @noinspection ConstantValue */
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {

@@ -45,7 +45,6 @@ final class UtilsInner {
     public static byte[] parcelableToByteArray(@NonNull Parcelable parcelable) {
         Parcel parcel = Parcel.obtain();
         parcelable.writeToParcel(parcel, 0);
-        int size = parcel.dataSize();
         parcel.setDataPosition(0);
         byte[] data = parcel.marshall();
         parcel.recycle();

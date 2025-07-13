@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BuildAttributionWarningsFilter">
     <option name="noGCSettingWarning" value="true" />
@@ -1258,6 +1259,7 @@
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.FakeClientCharacteristicConfigurationSettingViewModel" method="updateResponseCode" />
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2a49.FakeBloodPressureFeatureViewModel" method="updateResponseDelay" />
     <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.u2902.FakeClientCharacteristicConfigurationSettingViewModel" method="updateResponseDelay" />
+    <pattern value="org.im97mori.ble.android.peripheral.ui.device.setting.BaseSettingViewModel" method="observeSetup" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />

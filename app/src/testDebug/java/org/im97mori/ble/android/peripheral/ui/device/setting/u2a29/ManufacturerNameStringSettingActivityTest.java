@@ -74,7 +74,7 @@ public class ManufacturerNameStringSettingActivityTest {
     interface FakeViewModelFactoryFunctionModule {
         @Singleton
         @Provides
-        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+        static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
             FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
             fakeViewModelProviderFactoryFunction.setFakeViewModelClass(ManufacturerNameStringSettingViewModel.class, FakeManufacturerNameStringSettingViewModel.class);
             return fakeViewModelProviderFactoryFunction;

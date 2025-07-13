@@ -14,7 +14,6 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.test.HiltTestActivity;
-import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.blp.FakeBloodPressureProfileViewModel;
 import org.im97mori.test.android.NestedFragmentScenario2;
 import org.junit.After;
 import org.junit.Before;
@@ -44,8 +43,6 @@ public class FragmentTest {
     @Inject
     @ApplicationContext
     Context mContext;
-
-    private FakeBloodPressureProfileViewModel mFakeBloodPressureProfileViewModel;
 
     @Before
     public void setUp() {

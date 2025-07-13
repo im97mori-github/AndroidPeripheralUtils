@@ -79,6 +79,7 @@ import static org.im97mori.ble.constants.CharacteristicUUID.BLOOD_PRESSURE_MEASU
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 import static org.junit.Assert.*;
 
+/** @noinspection ExtractMethodRecommender*/
 @SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -95,7 +96,7 @@ public class BloodPressureMeasurementSettingActivityTest {
     interface FakeViewModelFactoryFunctionModule {
         @Singleton
         @Provides
-        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+        static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
             FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
             fakeViewModelProviderFactoryFunction.setFakeViewModelClass(BloodPressureMeasurementSettingViewModel.class, FakeBloodPressureMeasurementSettingViewModel.class);
             return fakeViewModelProviderFactoryFunction;
@@ -1477,7 +1478,6 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureMeasurementSettingViewModel) new ViewModelProvider(activity).get(BloodPressureMeasurementSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.clientCharacteristicConfigurationCardView)).check(matches(isNotChecked()));
@@ -1489,7 +1489,6 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureMeasurementSettingViewModel) new ViewModelProvider(activity).get(BloodPressureMeasurementSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         onView(withId(R.id.clientCharacteristicConfigurationCardView)).check(matches(isChecked()));
@@ -1564,7 +1563,6 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureMeasurementSettingViewModel) new ViewModelProvider(activity).get(BloodPressureMeasurementSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.clientCharacteristicConfigurationSettingButton).performClick());
@@ -1579,7 +1577,6 @@ public class BloodPressureMeasurementSettingActivityTest {
         mScenario = ActivityScenario.launch(intent);
         mScenario.onActivity(activity -> mViewModel = (FakeBloodPressureMeasurementSettingViewModel) new ViewModelProvider(activity).get(BloodPressureMeasurementSettingViewModel.class));
 
-        AtomicReference<Boolean> result = new AtomicReference<>();
         mViewModel.mObserveSetupSubject.onNext(getCurrentMethodName());
 
         mScenario.onActivity(activity -> activity.findViewById(R.id.clientCharacteristicConfigurationSettingButton).performClick());

@@ -21,8 +21,6 @@ public class FakeIntermediateCuffPressureSettingViewModel extends IntermediateCu
 
     public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
 
-    public final FakeDeviceSettingRepository mFakeDeviceSettingRepository;
-
     private final SavedStateHandle mSavedStateHandle;
 
     public final PublishSubject<Intent> mObserveSaveSubject = PublishSubject.create();
@@ -53,7 +51,6 @@ public class FakeIntermediateCuffPressureSettingViewModel extends IntermediateCu
             , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
         super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;
-        mFakeDeviceSettingRepository = deviceSettingRepository;
     }
 
     @Override
@@ -104,6 +101,8 @@ public class FakeIntermediateCuffPressureSettingViewModel extends IntermediateCu
                                 case "test_clientCharacteristicConfigurationSettingButton_00002": test_clientCharacteristicConfigurationSettingButton_00002(); break;
                                 case "test_notificationCount_error_00002": test_notificationCount_error_00002(); break;
                                 case "test_recreate_currentCuffPressure_error_00001": test_recreate_currentCuffPressure_error_00001(); break;
+                                case "test_recreate_diastolic_error_00001": test_recreate_diastolic_error_00001(); break;
+                                case "test_recreate_meanArterialPressure_error_00001": test_recreate_meanArterialPressure_error_00001(); break;
                                 case "test_recreate_isTimeStampSupported_00001": test_recreate_isTimeStampSupported_00001(); break;
                                 case "test_recreate_isTimeStampSupported_00002": test_recreate_isTimeStampSupported_00002(); break;
                                 case "test_recreate_timeStampYear_visibility_00001": test_recreate_timeStampYear_visibility_00001(); break;

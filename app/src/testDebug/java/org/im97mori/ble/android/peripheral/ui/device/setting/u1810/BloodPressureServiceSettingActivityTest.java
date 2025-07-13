@@ -77,7 +77,7 @@ import static org.im97mori.ble.constants.CharacteristicUUID.*;
 import static org.im97mori.ble.constants.ServiceUUID.BLOOD_PRESSURE_SERVICE;
 import static org.junit.Assert.*;
 
-/** @noinspection UnnecessaryLocalVariable*/
+/** @noinspection UnnecessaryLocalVariable, ExtractMethodRecommender */
 @SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -94,7 +94,7 @@ public class BloodPressureServiceSettingActivityTest {
     interface FakeViewModelFactoryFunctionModule {
         @Singleton
         @Provides
-        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+        static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
             FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
             fakeViewModelProviderFactoryFunction.setFakeViewModelClass(BloodPressureServiceSettingViewModel.class, FakeBloodPressureServiceSettingViewModel.class);
             return fakeViewModelProviderFactoryFunction;

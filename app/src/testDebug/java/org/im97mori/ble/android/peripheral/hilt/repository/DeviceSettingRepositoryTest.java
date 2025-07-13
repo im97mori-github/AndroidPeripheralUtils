@@ -45,6 +45,7 @@ import io.reactivex.rxjava3.core.CompletableEmitter;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.processors.PublishProcessor;
 
+/** @noinspection ConstantValue */
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = {
@@ -265,112 +266,112 @@ public class DeviceSettingRepositoryTest {
     public void test_provideDateTimeMonthList_00001() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(0);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_IS_NOT_KNOWN);
-        assertEquals(pair.second, mContext.getString(R.string.month_is_not_known));
+        assertEquals(DateTimeUtils.MONTH_IS_NOT_KNOWN, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_is_not_known), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00002() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(1);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_JANUARY);
-        assertEquals(pair.second, mContext.getString(R.string.month_january));
+        assertEquals(DateTimeUtils.MONTH_JANUARY, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_january), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00003() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(2);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_FEBRUARY);
-        assertEquals(pair.second, mContext.getString(R.string.month_february));
+        assertEquals(DateTimeUtils.MONTH_FEBRUARY, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_february), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00004() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(3);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_MARCH);
-        assertEquals(pair.second, mContext.getString(R.string.month_march));
+        assertEquals(DateTimeUtils.MONTH_MARCH, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_march), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00005() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(4);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_APRIL);
-        assertEquals(pair.second, mContext.getString(R.string.month_april));
+        assertEquals(DateTimeUtils.MONTH_APRIL, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_april), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00006() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(5);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_MAY);
-        assertEquals(pair.second, mContext.getString(R.string.month_may));
+        assertEquals(DateTimeUtils.MONTH_MAY, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_may), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00007() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(6);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_JUNE);
-        assertEquals(pair.second, mContext.getString(R.string.month_june));
+        assertEquals(DateTimeUtils.MONTH_JUNE, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_june), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00008() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(7);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_JULY);
-        assertEquals(pair.second, mContext.getString(R.string.month_july));
+        assertEquals(DateTimeUtils.MONTH_JULY, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_july), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00009() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(8);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_AUGUST);
-        assertEquals(pair.second, mContext.getString(R.string.month_august));
+        assertEquals(DateTimeUtils.MONTH_AUGUST, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_august), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00010() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(9);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_SEPTEMBER);
-        assertEquals(pair.second, mContext.getString(R.string.month_september));
+        assertEquals(DateTimeUtils.MONTH_SEPTEMBER, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_september), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00011() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(10);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_OCTOBER);
-        assertEquals(pair.second, mContext.getString(R.string.month_october));
+        assertEquals(DateTimeUtils.MONTH_OCTOBER, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_october), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00012() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(11);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_NOVEMBER);
-        assertEquals(pair.second, mContext.getString(R.string.month_november));
+        assertEquals(DateTimeUtils.MONTH_NOVEMBER, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_november), pair.second);
     }
 
     @Test
     public void test_provideDateTimeMonthList_00013() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeMonthList();
         Pair<Integer, String> pair = list.get(12);
-        assertEquals(pair.first.intValue(), DateTimeUtils.MONTH_DECEMBER);
-        assertEquals(pair.second, mContext.getString(R.string.month_december));
+        assertEquals(DateTimeUtils.MONTH_DECEMBER, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.month_december), pair.second);
     }
 
     @Test
     public void test_provideDateTimeDayList_00001() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         Pair<Integer, String> pair = list.get(0);
-        assertEquals(pair.first.intValue(), DateTimeUtils.DAY_OF_MONTH_IS_NOT_KNOWN);
-        assertEquals(pair.second, mContext.getString(R.string.day_of_month_is_not_known));
+        assertEquals(DateTimeUtils.DAY_OF_MONTH_IS_NOT_KNOWN, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.day_of_month_is_not_known), pair.second);
     }
 
     @Test
@@ -378,8 +379,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 1;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -387,8 +388,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 2;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -396,8 +397,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 3;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -405,8 +406,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 4;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -414,8 +415,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 5;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -423,8 +424,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 6;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -432,8 +433,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 7;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -441,8 +442,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 8;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -450,8 +451,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 9;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -459,8 +460,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 10;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -468,8 +469,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 11;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -477,8 +478,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 12;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -486,8 +487,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 13;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -495,8 +496,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 14;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -504,8 +505,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 15;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -513,8 +514,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 16;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -522,8 +523,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 17;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -531,8 +532,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 18;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -540,8 +541,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 19;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -549,8 +550,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 20;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -558,8 +559,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 21;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -567,8 +568,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 22;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -576,8 +577,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 23;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -585,8 +586,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 24;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -594,8 +595,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 25;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -603,8 +604,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 26;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -612,8 +613,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 27;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -621,8 +622,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 28;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -630,8 +631,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 29;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -639,8 +640,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 30;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -648,8 +649,8 @@ public class DeviceSettingRepositoryTest {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideDateTimeDayList();
         int index = 31;
         Pair<Integer, String> pair = list.get(index);
-        assertEquals(pair.first.intValue(), index);
-        assertEquals(pair.second, String.valueOf(index));
+        assertEquals(index, pair.first.intValue());
+        assertEquals(String.valueOf(index), pair.second);
     }
 
     @Test
@@ -1824,88 +1825,88 @@ public class DeviceSettingRepositoryTest {
     public void test_provideBodyMovementDetectionList_00001() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideBodyMovementDetectionList();
         Pair<Integer, String> pair = list.get(0);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_NO_BODY_MOVEMENT);
-        assertEquals(pair.second, mContext.getString(R.string.no_body_movement));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_NO_BODY_MOVEMENT, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.no_body_movement), pair.second);
     }
 
     @Test
     public void test_provideBodyMovementDetectionList_00002() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideBodyMovementDetectionList();
         Pair<Integer, String> pair = list.get(1);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT);
-        assertEquals(pair.second, mContext.getString(R.string.body_movement_during_measurement));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_BODY_MOVEMENT_DETECTION_BODY_MOVEMENT_DURING_MEASUREMENT, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.body_movement_during_measurement), pair.second);
     }
 
     @Test
     public void test_provideCuffFitDetectionList_00001() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideCuffFitDetectionList();
         Pair<Integer, String> pair = list.get(0);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_FITS_PROPERLY);
-        assertEquals(pair.second, mContext.getString(R.string.cuff_fits_properly));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_FITS_PROPERLY, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.cuff_fits_properly), pair.second);
     }
 
     @Test
     public void test_provideCuffFitDetectionList_00002() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideCuffFitDetectionList();
         Pair<Integer, String> pair = list.get(1);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE);
-        assertEquals(pair.second, mContext.getString(R.string.cuff_too_loose));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_CUFF_FIT_DETECTION_CUFF_TOO_LOOSE, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.cuff_too_loose), pair.second);
     }
 
     @Test
     public void test_provideIrregularPulseDetectionList_00001() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideIrregularPulseDetectionList();
         Pair<Integer, String> pair = list.get(0);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_NO_IRREGULAR_PULSE_DETECTED);
-        assertEquals(pair.second, mContext.getString(R.string.no_irregular_pulse_detected));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_NO_IRREGULAR_PULSE_DETECTED, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.no_irregular_pulse_detected), pair.second);
     }
 
     @Test
     public void test_provideIrregularPulseDetectionList_00002() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideIrregularPulseDetectionList();
         Pair<Integer, String> pair = list.get(1);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED);
-        assertEquals(pair.second, mContext.getString(R.string.irregular_pulse_detected));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_IRREGULAR_PULSE_DETECTION_IRREGULAR_PULSE_DETECTED, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.irregular_pulse_detected), pair.second);
     }
 
     @Test
     public void test_providePulseRateRangeDetectionList_00001() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.providePulseRateRangeDetectionList();
         Pair<Integer, String> pair = list.get(0);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_WITHIN_THE_RANGE);
-        assertEquals(pair.second, mContext.getString(R.string.pulse_rate_is_within_the_range));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_WITHIN_THE_RANGE, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.pulse_rate_is_within_the_range), pair.second);
     }
 
     @Test
     public void test_providePulseRateRangeDetectionList_00002() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.providePulseRateRangeDetectionList();
         Pair<Integer, String> pair = list.get(1);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_EXCEEDS_UPPER_LIMIT);
-        assertEquals(pair.second, mContext.getString(R.string.pulse_rate_exceeds_upper_limit));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_EXCEEDS_UPPER_LIMIT, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.pulse_rate_exceeds_upper_limit), pair.second);
     }
 
     @Test
     public void test_providePulseRateRangeDetectionList_00003() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.providePulseRateRangeDetectionList();
         Pair<Integer, String> pair = list.get(2);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT);
-        assertEquals(pair.second, mContext.getString(R.string.pulse_rate_is_less_than_lower_limit));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_PULSE_RATE_RANGE_DETECTION_PULSE_RATE_IS_LESS_THAN_LOWER_LIMIT, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.pulse_rate_is_less_than_lower_limit), pair.second);
     }
 
     @Test
     public void test_provideMeasurementPositionDetectionList_00001() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideMeasurementPositionDetectionList();
         Pair<Integer, String> pair = list.get(0);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_PROPER_MEASUREMENT_POSITION);
-        assertEquals(pair.second, mContext.getString(R.string.proper_measurement_position));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_PROPER_MEASUREMENT_POSITION, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.proper_measurement_position), pair.second);
     }
 
     @Test
     public void test_provideMeasurementPositionDetectionList_00002() {
         List<Pair<Integer, String>> list = mDeviceSettingRepository.provideMeasurementPositionDetectionList();
         Pair<Integer, String> pair = list.get(1);
-        assertEquals(pair.first.intValue(), BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION);
-        assertEquals(pair.second, mContext.getString(R.string.improper_measurement_position));
+        assertEquals(BloodPressureMeasurementUtils.MEASUREMENT_STATUS_MEASUREMENT_POSITION_DETECTION_IMPROPER_MEASUREMENT_POSITION, pair.first.intValue());
+        assertEquals(mContext.getString(R.string.improper_measurement_position), pair.second);
     }
 
     @Test

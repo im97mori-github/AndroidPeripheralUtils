@@ -21,8 +21,6 @@ public class FakeModelNumberStringSettingViewModel extends ModelNumberStringSett
 
     public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
 
-    public final FakeDeviceSettingRepository mFakeDeviceSettingRepository;
-
     private final SavedStateHandle mSavedStateHandle;
 
     public final PublishSubject<Intent> mObserveSaveSubject = PublishSubject.create();
@@ -37,7 +35,6 @@ public class FakeModelNumberStringSettingViewModel extends ModelNumberStringSett
             , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
         super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;
-        mFakeDeviceSettingRepository = deviceSettingRepository;
     }
 
     @Override

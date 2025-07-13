@@ -79,6 +79,7 @@ import static org.im97mori.ble.constants.CharacteristicUUID.INTERMEDIATE_CUFF_PR
 import static org.im97mori.ble.constants.DescriptorUUID.CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR;
 import static org.junit.Assert.*;
 
+/** @noinspection ExtractMethodRecommender*/
 @SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)
@@ -95,7 +96,7 @@ public class IntermediateCuffPressureSettingActivityTest {
     interface FakeViewModelFactoryFunctionModule {
         @Singleton
         @Provides
-        public static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
+        static Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> bindViewModelProviderFactoryFunction() {
             FakeViewModelProviderFactoryFunction fakeViewModelProviderFactoryFunction = new FakeViewModelProviderFactoryFunction();
             fakeViewModelProviderFactoryFunction.setFakeViewModelClass(IntermediateCuffPressureSettingViewModel.class, FakeIntermediateCuffPressureSettingViewModel.class);
             return fakeViewModelProviderFactoryFunction;

@@ -31,6 +31,7 @@ import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+/** @noinspection ALL*/
 @HiltViewModel
 public class ClientCharacteristicConfigurationSettingViewModel extends BaseDescriptorSettingViewModel {
 

@@ -68,6 +68,7 @@ import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+/** @noinspection ExtractMethodRecommender*/
 @SuppressWarnings("ConstantConditions")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner.class)

@@ -21,8 +21,6 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
 
     public final PublishSubject<String> mObserveSetupSubject = PublishSubject.create();
 
-    public final FakeDeviceSettingRepository mFakeDeviceSettingRepository;
-
     private final SavedStateHandle mSavedStateHandle;
 
     public final PublishSubject<Intent> mObserveSaveSubject = PublishSubject.create();
@@ -55,7 +53,6 @@ public class FakeBloodPressureMeasurementSettingViewModel extends BloodPressureM
             , @NonNull FakeDeviceSettingRepository deviceSettingRepository) {
         super(savedStateHandle, deviceSettingRepository);
         mSavedStateHandle = savedStateHandle;
-        mFakeDeviceSettingRepository = deviceSettingRepository;
     }
 
     @Override

@@ -62,10 +62,12 @@ public class BluetoothSettingRepository {
     }
 
     public void bluetoothEnable() {
+        //noinspection deprecation
         BLEUtilsAndroid.bluetoothEnable(mApplicationContext);
     }
 
     public void bluetoothDisable() {
+        //noinspection deprecation
         BLEUtilsAndroid.bluetoothDisable(mApplicationContext);
     }
 

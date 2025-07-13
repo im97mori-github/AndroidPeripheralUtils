@@ -101,10 +101,12 @@ dependencies {
     implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.14'
 
     // license activity
-    implementation 'com.google.android.gms:play-services-oss-licenses:17.1.0'
+    implementation 'com.google.android.gms:play-services-oss-licenses:17.2.0'
 
     // robolectric
     testImplementation 'org.robolectric:robolectric:4.11.1'
+    testImplementation 'org.bouncycastle:bcprov-jdk18on:1.79' // for robolectric 4.11.1 vulnerable dependencies
+    testImplementation 'com.google.guava:guava:33.3.1-jre' // for robolectric 4.11.1 vulnerable dependencies
 
     // espresso
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'

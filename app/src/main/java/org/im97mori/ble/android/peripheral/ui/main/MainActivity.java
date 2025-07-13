@@ -5,18 +5,19 @@ import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVI
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
@@ -38,7 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnApplyWindowInsetsListener {
 
     @Inject
     Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
@@ -65,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         mViewModel = new AutoDisposeViewModelProvider(this, viewModelProviderFactoryFunction.apply(this)).get(MainViewModel.class);
         mBinding = MainActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.getRoot(), this);
 
         mBinding.grid.setEmptyView(mBinding.empty);
         adapter = new DeviceListAdapter(this, mViewModel.provideDeviceTypeImageResMap(), Collections.synchronizedList(new LinkedList<>()));
@@ -111,4 +114,19 @@ public class MainActivity extends AppCompatActivity {
         }, throwable -> LogUtils.stackLog(throwable.getMessage()));
     }
 
+    @NonNull
+    @Override
+    public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat windowInsets) {
+        Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()
+                | WindowInsetsCompat.Type.displayCutout());
+
+        ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+        mlp.topMargin = insets.top;
+        mlp.leftMargin = insets.left;
+        mlp.bottomMargin = insets.bottom;
+        mlp.rightMargin = insets.right;
+        v.setLayoutParams(mlp);
+
+        return WindowInsetsCompat.CONSUMED;
+    }
 }
