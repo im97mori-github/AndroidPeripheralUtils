@@ -1,7 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting;
 
-import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
-
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -9,29 +7,28 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentTransaction;
-
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.DeviceSettingActivityBinding;
+import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.fragment.BaseSettingFragmentViewModel;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
-import dagger.hilt.android.AndroidEntryPoint;
-
 import javax.inject.Inject;
 import java.util.function.Function;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
+
 @AndroidEntryPoint
-public class DeviceSettingActivity extends AppCompatActivity {
+public class DeviceSettingActivity extends BaseActivity {
 
     @Inject
     Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;

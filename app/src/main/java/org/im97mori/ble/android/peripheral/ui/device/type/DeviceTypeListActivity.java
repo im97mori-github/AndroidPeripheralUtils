@@ -1,27 +1,23 @@
 package org.im97mori.ble.android.peripheral.ui.device.type;
 
-import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
-
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import org.im97mori.ble.android.peripheral.databinding.DeviceTypeListActivityBinding;
+import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
-
-import java.util.Objects;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.Objects;
+import java.util.function.Function;
 
-import dagger.hilt.android.AndroidEntryPoint;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_TYPE;
 
 @AndroidEntryPoint
-public class DeviceTypeListActivity extends AppCompatActivity {
+public class DeviceTypeListActivity extends BaseActivity {
 
     @Inject
     Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;

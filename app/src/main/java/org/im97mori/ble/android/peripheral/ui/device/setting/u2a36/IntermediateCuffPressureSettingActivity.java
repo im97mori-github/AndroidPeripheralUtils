@@ -1,7 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device.setting.u2a36;
 
-import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
-
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,30 +8,29 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
-
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.IntermediateCuffPressureSettingActivityBinding;
+import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.u2902.ClientCharacteristicConfigurationLauncherContract;
 import org.im97mori.ble.android.peripheral.utils.AfterTextChangedTextWatcher;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
-import dagger.hilt.android.AndroidEntryPoint;
-
 import javax.inject.Inject;
 import java.util.function.Function;
 
+import static org.im97mori.ble.android.peripheral.utils.Utils.setTextDistinct;
+
 @AndroidEntryPoint
-public class IntermediateCuffPressureSettingActivity extends AppCompatActivity {
+public class IntermediateCuffPressureSettingActivity extends BaseActivity {
 
     @Inject
     Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;

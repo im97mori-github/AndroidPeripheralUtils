@@ -1,8 +1,5 @@
 package org.im97mori.ble.android.peripheral.ui.device;
 
-import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
-import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVICE_ID_UNSAVED;
-
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -16,34 +13,33 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.room.rxjava3.EmptyResultSetException;
-
+import dagger.hilt.android.AndroidEntryPoint;
 import org.im97mori.ble.android.peripheral.R;
 import org.im97mori.ble.android.peripheral.databinding.PeripheralActivityBinding;
+import org.im97mori.ble.android.peripheral.ui.BaseActivity;
 import org.im97mori.ble.android.peripheral.ui.device.setting.DeviceSettingLauncherContract;
 import org.im97mori.ble.android.peripheral.utils.AutoDisposeViewModelProvider;
 import org.im97mori.stacklog.LogUtils;
 
+import javax.inject.Inject;
 import java.util.Optional;
 import java.util.function.Function;
 
-import dagger.hilt.android.AndroidEntryPoint;
-
-import javax.inject.Inject;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.KEY_DEVICE_ID;
+import static org.im97mori.ble.android.peripheral.Constants.IntentKey.VALUE_DEVICE_ID_UNSAVED;
 
 @AndroidEntryPoint
-public class PeripheralActivity extends AppCompatActivity {
+public class PeripheralActivity extends BaseActivity {
 
     @Inject
     Function<HasDefaultViewModelProviderFactory, ViewModelProvider.Factory> viewModelProviderFactoryFunction;
