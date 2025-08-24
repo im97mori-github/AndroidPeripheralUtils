@@ -70,10 +70,10 @@ dependencies {
     // androidx library
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.9.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    testImplementation 'androidx.test.ext:junit:1.2.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.9.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    testImplementation 'androidx.test.ext:junit:1.3.0'
     androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
     debugImplementation 'org.im97mori:test-android-fragment:0.2.0'
@@ -85,14 +85,14 @@ dependencies {
     testImplementation "androidx.room:room-testing:2.7.2"
 
     // hilt
-    implementation 'com.google.dagger:hilt-android:2.56.1'
-    annotationProcessor 'com.google.dagger:hilt-compiler:2.56.1'
+    implementation 'com.google.dagger:hilt-android:2.57.1'
+    annotationProcessor 'com.google.dagger:hilt-compiler:2.57.1'
     // For instrumentation tests
-    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.56.1'
-    androidTestAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.56.1'
+    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.57.1'
+    androidTestAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.57.1'
     // For local unit tests
-    testImplementation 'com.google.dagger:hilt-android-testing:2.56.1'
-    testAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.56.1'
+    testImplementation 'com.google.dagger:hilt-android-testing:2.57.1'
+    testAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.57.1'
 
     // material3
     implementation 'com.google.android.material:material:1.12.0'
@@ -101,25 +101,25 @@ dependencies {
     implementation 'org.im97mori:ble-profile-peripheral-blp-android:0.8.14'
 
     // license activity
-    implementation 'com.google.android.gms:play-services-oss-licenses:17.2.0'
+    implementation 'com.google.android.gms:play-services-oss-licenses:17.2.2'
 
     // robolectric
-    testImplementation 'org.robolectric:robolectric:4.11.1'
-    testImplementation 'org.bouncycastle:bcprov-jdk18on:1.79' // for robolectric 4.11.1 vulnerable dependencies
-    testImplementation 'com.google.guava:guava:33.3.1-jre' // for robolectric 4.11.1 vulnerable dependencies
+    testImplementation 'org.robolectric:robolectric:4.15.1'
+//    testImplementation 'org.bouncycastle:bcprov-jdk18on:1.81' // for robolectric 4.11.1 vulnerable dependencies
+//    testImplementation 'com.google.guava:guava:33.4.8-jre' // for robolectric 4.11.1 vulnerable dependencies
 
     // espresso
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    testImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
-    testImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-codwwwre:3.7.0'
+    testImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.7.0'
+    testImplementation 'androidx.test.espresso:espresso-intents:3.7.0'
 
     // UI Automator
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
     testImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
 
     // mockito
-    testImplementation 'org.mockito:mockito-core:5.8.0'
+    testImplementation 'org.mockito:mockito-core:5.19.0'
 }
 
 def excludedClasses = Arrays.asList(
@@ -127,17 +127,17 @@ def excludedClasses = Arrays.asList(
         "*.*_*",
 )
 
-koverReport {
+kover {
 
-    defaults {
-        /**
-         * Tests, sources, classes, and compilation tasks of the 'debug' build variant will be included in the default reports.
-         * Thus, information from the 'debug' variant will be included in the default report for this project and any project that specifies this project as a dependency.
-         */
-        mergeWith("debug")
-    }
-
-    androidReports("debug") {
+//    defaults {
+//        /**
+//         * Tests, sources, classes, and compilation tasks of the 'debug' build variant will be included in the default reports.
+//         * Thus, information from the 'debug' variant will be included in the default report for this project and any project that specifies this project as a dependency.
+//         */
+//        mergeWith("debug")
+//    }
+//
+    reports {
         // filters for all report types only of 'release' build type
         filters {
             excludes {
@@ -145,13 +145,13 @@ koverReport {
             }
         }
     }
-
-    androidReports("release") {
-        // filters for all report types only of 'release' build type
-        filters {
-            excludes {
-                classes(excludedClasses)
-            }
-        }
-    }
+//
+//    androidReports("release") {
+//        // filters for all report types only of 'release' build type
+//        filters {
+//            excludes {
+//                classes(excludedClasses)
+//            }
+//        }
+//    }
 } 
